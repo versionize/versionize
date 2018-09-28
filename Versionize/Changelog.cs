@@ -67,7 +67,7 @@ All notable changes to this project will be documented in this file. See [versio
                 markdown += contents;
             }
 
-            File.WriteAllText(_file.FullName, markdown);
+            File.WriteAllText(_file.FullName, Preamble + "\n" + markdown);
         }
 
         public string BuildBlock(string header, IEnumerable<ConventionalCommit> commits)
