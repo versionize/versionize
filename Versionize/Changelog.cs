@@ -61,11 +61,11 @@ All notable changes to this project will be documented in this file. See [versio
             {
                 var contents = File.ReadAllText(_file.FullName);
 
-                var preambleIdx = contents.IndexOf(Preamble);
+                var firstReleaseHeadlineIdx = contents.IndexOf("##");
 
-                if (preambleIdx >= 0)
+                if (firstReleaseHeadlineIdx >= 0)
                 {
-                    contents = contents.Substring(preambleIdx);
+                    contents = contents.Substring(firstReleaseHeadlineIdx);
                 }
 
                 markdown += contents;
