@@ -14,16 +14,18 @@ namespace Versionize
         public static int Main(string[] args)
         {
             var app = new CommandLineApplication();
-
+            app.Name = "versionize";
             app.HelpOption();
-            var optionSubject = app.Option("-s|--subject <SUBJECT>", "The subject", CommandOptionType.SingleValue);
-            var optionRepeat = app.Option<int>("-n|--count <N>", "Repeat", CommandOptionType.SingleValue);
+
+            var optionWorkingDirectory = app.Option("-w|--workingDir <WORKING_DIRECTORY>", "directory containing projects to version", CommandOptionType.SingleValue);
+            var optionDryRun = app.Option("-d|--dry-run", "skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
+            var optionSkipDirty = app.Option("--skip-dirty", "skip git dirty check", CommandOptionType.NoValue);
 
             app.OnExecute(() =>
             {
                 WorkingCopy
-                    .Discover(Directory.GetCurrentDirectory())
-                    .Versionize();
+                    .Discover(optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory())
+                    .Versionize(dryrun: optionDryRun.HasValue(), skipDirtyCheck: optionSkipDirty.HasValue());
 
                 return 0;
             });

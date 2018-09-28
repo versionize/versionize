@@ -15,7 +15,7 @@ namespace Versionize
             _directory = directory;
         }
 
-        public void Versionize()
+        public void Versionize(bool dryrun = false, bool skipDirtyCheck = false)
         {
             var workingDirectory = _directory.FullName;
 
@@ -23,12 +23,18 @@ namespace Versionize
             {
                 var isDirty = repo.RetrieveStatus(new StatusOptions()).IsDirty;
 
-                if (isDirty)
+                if (!skipDirtyCheck && isDirty)
                 {
-                    Exit($"Repository {workingDirectory} is dirty. Please commit your changes.", -1);
+                    Exit($"Repository {workingDirectory} is dirty. Please commit your changes.", 1);
                 }
 
                 var projects = Projects.Discover(workingDirectory);
+
+                ConsoleUI.Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
+                foreach (var project in projects.GetProjectFiles())
+                {
+                    ConsoleUI.Information($"  * {project}");
+                }
 
                 var versionTag = repo.SelectVersionTag(projects.Version);
                 var commitsInVersion = repo.GteCommitsSinceLastVersion(versionTag);
@@ -36,7 +42,7 @@ namespace Versionize
                 var commitParser = new ConventionalCommitParser();
                 var conventionalCommits = commitParser.Parse(commitsInVersion);
 
-                var versionIncrement = VersionIncrement.CreateFrom(conventionalCommits);
+                var versionIncrement = VersionIncrementStrategy.CreateFrom(conventionalCommits);
 
                 var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version);
 
@@ -53,19 +59,44 @@ namespace Versionize
                     }
                 }
 
-                //var changelog = ChangeLog.Locate(workingDirectory);
-                //changelog.WriteChangeLogIncrement(versionToRelease, versionTime, commitsSinceLastVersion);
-                //Commands.Stage(repo, changelog.Location);
+                ConsoleUI.Step($"bumping version from {projects.Version} to {nextVersion} in projects");
 
-                var author = repo.Config.BuildSignature(versionTime);
-                Signature committer = author;
+                var changelog = Changelog.Discover(workingDirectory);
 
-                // TODO: Check if tag exists before commit
-                var releaseCommitMessage = $"chore(release): {nextVersion}";
-                Commit versionCommit = repo.Commit(releaseCommitMessage, author, committer);
-                Tag newTag = repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
+                if (!dryrun)
+                {
+                    changelog.Write(nextVersion, versionTime, conventionalCommits);
+                }
 
-                Console.WriteLine($"{projects.Version} -> {nextVersion}");
+                ConsoleUI.Step($"updated CHANGELOG.md");
+
+                if (!dryrun)
+                {
+                    Commands.Stage(repo, changelog.FilePath);
+
+                    foreach (var projectFile in projects.GetProjectFiles())
+                    {
+                        Commands.Stage(repo, projectFile);
+                    }
+                }
+
+                if (!dryrun)
+                {
+
+                    var author = repo.Config.BuildSignature(versionTime);
+                    var committer = author;
+
+                    // TODO: Check if tag exists before commit
+                    var releaseCommitMessage = $"chore(release): {nextVersion}";
+                    Commit versionCommit = repo.Commit(releaseCommitMessage, author, committer);
+
+                    Tag newTag = repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
+                }
+
+                ConsoleUI.Step($"committed changes in projects and CHANGELOG.md");
+                ConsoleUI.Step($"tagged release as {nextVersion}");
+
+                ConsoleUI.Information($"i Run `git push --follow-tags origin master` to push all changes including tags");
             }
         }
 
@@ -75,7 +106,7 @@ namespace Versionize
 
             if (!workingCopyCandidate.Exists)
             {
-                throw new InvalidOperationException($"Directory {workingDirectory} does not exist");
+                ConsoleUI.Exit($"Directory {workingDirectory} does not exist", 2);
             }
 
             do
@@ -91,7 +122,9 @@ namespace Versionize
             }
             while (workingCopyCandidate.Parent != null);
 
-            throw new InvalidOperationException($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
+            ConsoleUI.Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
+
+            return null;
         }
     }
 }

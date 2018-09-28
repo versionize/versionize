@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Versionize
 {
-    public class VersionIncrement
+    public class VersionIncrementStrategy
     {
         private readonly VersionImpact _versionImpact;
 
-        private VersionIncrement(VersionImpact versionImpact)
+        private VersionIncrementStrategy(VersionImpact versionImpact)
         {
             _versionImpact = versionImpact;
         }
@@ -30,7 +30,7 @@ namespace Versionize
             }
         }
 
-        public static VersionIncrement CreateFrom(List<ConventionalCommit> conventionalCommits)
+        public static VersionIncrementStrategy CreateFrom(List<ConventionalCommit> conventionalCommits)
         {
             // TODO: Quick and dirty implementation - Conventions? Better comparison?
             var versionImpact = VersionImpact.none;
@@ -58,7 +58,7 @@ namespace Versionize
                 }
             }
 
-            return new VersionIncrement(versionImpact);
+            return new VersionIncrementStrategy(versionImpact);
         }
 
         private static VersionImpact MaxVersionImpact(VersionImpact impact1, VersionImpact impact2)
