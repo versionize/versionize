@@ -26,7 +26,8 @@ All notable changes to this project will be documented in this file. See [versio
             // TODO: Implement a gitish version reference builder - bitbucket / github
             var markdown = $"<a name=\"{version}\"></a>";
             markdown += "\n";
-            markdown += $"## [{version}] ({versionTime.Year}-{versionTime.Month}-{versionTime.Day})";
+            markdown += $"## {version} ({versionTime.Year}-{versionTime.Month}-{versionTime.Day})";
+            markdown += "\n";
             markdown += "\n";
 
             var bugFixes = BuildBlock("Bug Fixes", commits.Where(commit => "fix".Equals(commit.Type)));
@@ -34,6 +35,7 @@ All notable changes to this project will be documented in this file. See [versio
             if (!String.IsNullOrWhiteSpace(bugFixes))
             {
                 markdown += bugFixes;
+                markdown += "\n";
                 markdown += "\n";
             }
 
@@ -43,6 +45,7 @@ All notable changes to this project will be documented in this file. See [versio
             {
                 markdown += features;
                 markdown += "\n";
+                markdown += "\n";
             }
 
             var breaking = BuildBlock("Breaking Changes", commits.Where(commit => commit.Notes.Any(note => "BREAKING CHANGE".Equals(note.Title))));
@@ -50,6 +53,7 @@ All notable changes to this project will be documented in this file. See [versio
             if (!String.IsNullOrWhiteSpace(breaking))
             {
                 markdown += breaking;
+                markdown += "\n";
                 markdown += "\n";
             }
 
@@ -78,6 +82,7 @@ All notable changes to this project will be documented in this file. See [versio
             }
 
             var block = $"### {header}";
+            block += "\n";
             block += "\n";
 
             foreach (var commit in commits)
