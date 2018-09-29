@@ -62,7 +62,7 @@ namespace Versionize
                         conventionalCommit.Notes.Add(new ConventionalCommitNote
                         {
                             Title = noteKeyword,
-                            Text = line.Substring(line.IndexOf($"{noteKeyword}:")).TrimStart()
+                            Text = line.Substring($"{noteKeyword}:".Length).TrimStart()
                         });
                     }
                 }

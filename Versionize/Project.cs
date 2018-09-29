@@ -5,7 +5,7 @@ namespace Versionize
 {
     public class Project
     {
-        public string ProjectFile {get;}
+        public string ProjectFile { get; }
         public Version Version { get; }
 
         private Project(string projectFile, Version version)
@@ -23,28 +23,9 @@ namespace Versionize
 
         public static bool IsVersionable(string projectFile)
         {
-            XmlDocument doc = new XmlDocument();
-            doc.PreserveWhitespace = true;
-
             try
             {
-                doc.Load(projectFile);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            var versionString = doc.SelectSingleNode("/Project/PropertyGroup/Version")?.InnerText;
-
-            if (String.IsNullOrWhiteSpace(versionString))
-            {
-                return false;
-            }
-
-            try
-            {
-                new Version(versionString);
+                ReadVersion(projectFile);
                 return true;
             }
             catch (Exception)
@@ -64,7 +45,6 @@ namespace Versionize
             }
             catch (Exception)
             {
-                // TODO: log to ConsoleUI
                 throw;
             }
 
@@ -72,7 +52,6 @@ namespace Versionize
 
             if (String.IsNullOrWhiteSpace(versionString))
             {
-                // TODO: log to ConsoleUI
                 throw new InvalidOperationException($"Project {projectFile} contains no or an empty <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>");
             }
 
@@ -97,7 +76,6 @@ namespace Versionize
             }
             catch (Exception)
             {
-                // TODO: log to ConsoleUI
                 throw;
             }
 

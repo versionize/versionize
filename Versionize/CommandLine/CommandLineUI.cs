@@ -1,21 +1,21 @@
-using System;
 using System.Drawing;
 using Colorful;
-using Console = Colorful.Console;
 
-namespace Versionize
+namespace Versionize.CommandLine
 {
-    public static class ConsoleUI
+    public static class CommandLineUI
     {
+        public static IPlatformAbstractions Platform {get;set;} = new PlatformAbstractions(); 
+
         public static void Exit(string message, int code)
         {
-            Console.WriteLine(message, Color.Red);
-            Environment.Exit(code);
+            Platform.WriteLine(message, Color.Red);
+            Platform.Exit(code);
         }
 
         public static void Information(string message)
         {
-            Console.WriteLine(message, Color.LightGray);
+            Platform.WriteLine(message, Color.LightGray);
         }
 
         public static void Step(string message)
@@ -27,7 +27,7 @@ namespace Versionize
                 new Formatter(message, Color.LightGray),
             };
 
-            Console.WriteLineFormatted(stepMessage, Color.White, messageFormatters);
+            Platform.WriteLineFormatted(stepMessage, Color.White, messageFormatters);
         }
 
     }

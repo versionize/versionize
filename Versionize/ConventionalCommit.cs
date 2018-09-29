@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Versionize
@@ -11,6 +12,7 @@ namespace Versionize
         public string Subject { get; set; }
 
         public List<ConventionalCommitNote> Notes { get; set; } = new List<ConventionalCommitNote>();
+
     }
 
     public class ConventionalCommitNote

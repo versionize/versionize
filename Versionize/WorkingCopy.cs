@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
-using static Versionize.ConsoleUI;
+using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize
 {
@@ -15,7 +15,7 @@ namespace Versionize
             _directory = directory;
         }
 
-        public void Versionize(bool dryrun = false, bool skipDirtyCheck = false)
+        public void Versionize(bool dryrun = false, bool skipDirtyCheck = false, string releaseVersion = null)
         {
             var workingDirectory = _directory.FullName;
 
@@ -30,10 +30,20 @@ namespace Versionize
 
                 var projects = Projects.Discover(workingDirectory);
 
-                ConsoleUI.Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
+                if (projects.IsEmpty())
+                {
+                    Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
+                }
+
+                if (projects.HasInconsistentVersioning())
+                {
+                    Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
+                }
+
+                Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
                 foreach (var project in projects.GetProjectFiles())
                 {
-                    ConsoleUI.Information($"  * {project}");
+                    Information($"  * {project}");
                 }
 
                 var versionTag = repo.SelectVersionTag(projects.Version);
@@ -46,10 +56,22 @@ namespace Versionize
 
                 var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version);
 
+                if (!String.IsNullOrWhiteSpace(releaseVersion))
+                {
+                    try
+                    {
+                        nextVersion = new System.Version(releaseVersion);
+                    }
+                    catch (Exception)
+                    {
+                        Exit($"Could not parse the specified release version {releaseVersion} as valid version", 1);
+                    }
+                }
+
                 var versionTime = DateTimeOffset.Now;
 
                 // Commit changelog and version source
-                if (nextVersion != projects.Version)
+                if (!dryrun && (nextVersion != projects.Version))
                 {
                     projects.WriteVersion(nextVersion);
 
@@ -59,7 +81,7 @@ namespace Versionize
                     }
                 }
 
-                ConsoleUI.Step($"bumping version from {projects.Version} to {nextVersion} in projects");
+                Step($"bumping version from {projects.Version} to {nextVersion} in projects");
 
                 var changelog = Changelog.Discover(workingDirectory);
 
@@ -68,7 +90,7 @@ namespace Versionize
                     changelog.Write(nextVersion, versionTime, conventionalCommits);
                 }
 
-                ConsoleUI.Step($"updated CHANGELOG.md");
+                Step($"updated CHANGELOG.md");
 
                 if (!dryrun)
                 {
@@ -93,10 +115,11 @@ namespace Versionize
                     Tag newTag = repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
                 }
 
-                ConsoleUI.Step($"committed changes in projects and CHANGELOG.md");
-                ConsoleUI.Step($"tagged release as {nextVersion}");
+                Step($"committed changes in projects and CHANGELOG.md");
+                Step($"tagged release as {nextVersion}");
 
-                ConsoleUI.Information($"i Run `git push --follow-tags origin master` to push all changes including tags");
+                Information("");
+                Information($"i Run `git push --follow-tags origin master` to push all changes including tags");
             }
         }
 
@@ -106,7 +129,7 @@ namespace Versionize
 
             if (!workingCopyCandidate.Exists)
             {
-                ConsoleUI.Exit($"Directory {workingDirectory} does not exist", 2);
+                Exit($"Directory {workingDirectory} does not exist", 2);
             }
 
             do
@@ -122,7 +145,7 @@ namespace Versionize
             }
             while (workingCopyCandidate.Parent != null);
 
-            ConsoleUI.Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
+            Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
 
             return null;
         }

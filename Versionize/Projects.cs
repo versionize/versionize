@@ -14,6 +14,23 @@ namespace Versionize
             _projects = projects;
         }
 
+        public bool IsEmpty()
+        {
+            return _projects.Count() == 0;
+        }
+
+        public bool HasInconsistentVersioning()
+        {
+            var firstProjectVersion = _projects.FirstOrDefault()?.Version;
+
+            if (firstProjectVersion == null)
+            {
+                return true;
+            }
+
+            return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
+        }
+
         public Version Version { get => _projects.First().Version; }
 
         public static Projects Discover(string workingDirectory)
@@ -23,19 +40,6 @@ namespace Versionize
                 .Where(Project.IsVersionable)
                 .Select(Project.Create)
                 .ToList();
-
-            if (!projects.Any())
-            {
-                throw new InvalidOperationException($"No project found {workingDirectory} that contains a valid version element - for example use <Version>1.0.0</Version>");
-            }
-
-            var firstProjectVersion = projects.First().Version;
-            var projectsWithDifferingVersion = projects.Where(p => !p.Version.Equals(firstProjectVersion));
-
-            if (projectsWithDifferingVersion.Any())
-            {
-                throw new InvalidOperationException($"Expected all projects to have version {firstProjectVersion} but found a differing version in {String.Join(", ", projectsWithDifferingVersion)}");
-            }
 
             return new Projects(projects);
         }
