@@ -36,7 +36,6 @@ All notable changes to this project will be documented in this file. See [versio
             {
                 markdown += bugFixes;
                 markdown += "\n";
-                markdown += "\n";
             }
 
             var features = BuildBlock("Features", commits.Where(commit => "feat".Equals(commit.Type)));
@@ -45,7 +44,6 @@ All notable changes to this project will be documented in this file. See [versio
             {
                 markdown += features;
                 markdown += "\n";
-                markdown += "\n";
             }
 
             var breaking = BuildBlock("Breaking Changes", commits.Where(commit => commit.Notes.Any(note => "BREAKING CHANGE".Equals(note.Title))));
@@ -53,7 +51,6 @@ All notable changes to this project will be documented in this file. See [versio
             if (!String.IsNullOrWhiteSpace(breaking))
             {
                 markdown += breaking;
-                markdown += "\n";
                 markdown += "\n";
             }
 
