@@ -11,6 +11,7 @@
     <Description>Automatic versioning and CHANGELOG generation, using conventional commit messages.</Description>
     <PackageProjectUrl>https://github.com/saintedlama/versionize</PackageProjectUrl>
     <RepositoryUrl>https://github.com/saintedlama/versionize</RepositoryUrl>
+    <LicenseUrl>https://raw.githubusercontent.com/saintedlama/versionize/master/LICENSE</LicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
