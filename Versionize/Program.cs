@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Reflection;
 using McMaster.Extensions.CommandLineUtils;
+using Versionize.CommandLine;
 
 namespace Versionize
 {
@@ -22,9 +23,12 @@ namespace Versionize
             var optionDryRun = app.Option("-d|--dry-run", "skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
             var optionSkipDirty = app.Option("--skip-dirty", "skip git dirty check", CommandOptionType.NoValue);
             var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "specify the release version manually", CommandOptionType.SingleValue);
+            var optionSilent = app.Option("--silent", "do not log to console", CommandOptionType.NoValue);
 
             app.OnExecute(() =>
             {
+                CommandLineUI.Verbosity = optionSilent.HasValue()?LogLevel.Silent:LogLevel.All;
+
                 WorkingCopy
                     .Discover(optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory())
                     .Versionize(dryrun: optionDryRun.HasValue(), skipDirtyCheck: optionSkipDirty.HasValue(), releaseVersion: optionReleaseAs.Value());

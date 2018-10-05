@@ -5,7 +5,7 @@ namespace Versionize.CommandLine
 {
     public static class CommandLineUI
     {
-        public static IPlatformAbstractions Platform {get;set;} = new PlatformAbstractions(); 
+        public static IPlatformAbstractions Platform { get; set; } = new PlatformAbstractions() { Verbosity = LogLevel.All };
 
         public static void Exit(string message, int code)
         {
@@ -30,5 +30,6 @@ namespace Versionize.CommandLine
             Platform.WriteLineFormatted(stepMessage, Color.White, messageFormatters);
         }
 
+        public static LogLevel Verbosity {get => Platform.Verbosity; set => Platform.Verbosity = value; }
     }
 }

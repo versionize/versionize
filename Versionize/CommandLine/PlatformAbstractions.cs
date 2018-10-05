@@ -7,6 +7,8 @@ namespace Versionize.CommandLine
 {
     public class PlatformAbstractions : IPlatformAbstractions
     {
+        public LogLevel Verbosity { get; set; }
+
         public void Exit(int exitCode)
         {
             Environment.Exit(exitCode);
@@ -14,16 +16,31 @@ namespace Versionize.CommandLine
 
         public void WriteLine(string message)
         {
+            if (Verbosity == LogLevel.Silent)
+            {
+                return;
+            }
+
             Console.WriteLine(message);
         }
 
         public void WriteLine(string message, Color color)
         {
+            if (Verbosity == LogLevel.Silent)
+            {
+                return;
+            }
+
             Console.WriteLine(message, color);
         }
 
         public void WriteLineFormatted(string message, Color color, Formatter[] messageFormatters)
         {
+            if (Verbosity == LogLevel.Silent)
+            {
+                return;
+            }
+
             Console.WriteLineFormatted(message, color, messageFormatters);
         }
     }

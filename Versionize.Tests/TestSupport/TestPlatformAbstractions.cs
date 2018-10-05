@@ -6,6 +6,8 @@ namespace Versionize.Tests.TestSupport
 {
     public class TestPlatformAbstractions : IPlatformAbstractions
     {
+        public LogLevel Verbosity { get; set; }
+
         public void Exit(int exitCode)
         {
             throw new CommandLineExitException(exitCode);
