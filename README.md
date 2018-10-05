@@ -134,5 +134,5 @@ versionize detected a breaking change since the commit note `BREAKING CHANGE` wa
 ## Roadmap
 
 * Pre Releases to allow creating beta.1, beta.2 versions
-* --silent command line switch to supress commandline output
+* ~~--silent command line switch to supress commandline output~~
 * --should-version command line switch to test if a new version should be created based on commits and return a non zero exit code if no new version should be released
