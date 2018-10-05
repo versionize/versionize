@@ -10,8 +10,9 @@
     <PackageTags>release;versioning;conventional;commit;git</PackageTags>
     <Description>Automatic versioning and CHANGELOG generation, using conventional commit messages.</Description>
     <PackageProjectUrl>https://github.com/saintedlama/versionize</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/saintedlama/versionize/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/saintedlama/versionize</RepositoryUrl>
-    <LicenseUrl>https://raw.githubusercontent.com/saintedlama/versionize/master/LICENSE</LicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
