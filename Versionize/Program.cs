@@ -16,6 +16,7 @@ namespace Versionize
             var app = new CommandLineApplication();
             app.Name = "versionize";
             app.HelpOption();
+            app.VersionOption("-v|--version", GetVersion());
 
             var optionWorkingDirectory = app.Option("-w|--workingDir <WORKING_DIRECTORY>", "directory containing projects to version", CommandOptionType.SingleValue);
             var optionDryRun = app.Option("-d|--dry-run", "skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
@@ -33,5 +34,7 @@ namespace Versionize
 
             return app.Execute(args);
         }
+
+        static string GetVersion() => typeof(Program).Assembly.GetName().Version.ToString();
     }
 }
