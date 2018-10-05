@@ -128,3 +128,9 @@ versionize
 
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
+
+## Roadmap
+
+* Pre Releases to allow creating beta.1, beta.2 versions
+* --silent command line switch to supress commandline output
+* --should-version command line switch to test if a new version should be created based on commits and return a non zero exit code if no new version should be released
