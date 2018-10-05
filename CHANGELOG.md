@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
-<a name="1.0.0"></a>
+<a name="1.1.0"></a>
+## 1.1.0 (2018-10-5)
+
+### Features
+
+* add version option to cli
+
 ## 1.0.0 (2018-9-29)
 
 ### Bug Fixes
