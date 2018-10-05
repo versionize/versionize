@@ -6,7 +6,7 @@
     <PackAsTool>True</PackAsTool>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <Authors>Christoph Walcher</Authors>
+    <Authors>saintedlama</Authors>
     <PackageTags>release;versioning;conventional;commit;git</PackageTags>
     <Description>Automatic versioning and CHANGELOG generation, using conventional commit messages.</Description>
     <PackageProjectUrl>https://github.com/saintedlama/versionize</PackageProjectUrl>
