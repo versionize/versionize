@@ -40,10 +40,12 @@ Usage: versionize [options]
 
 Options:
   -?|-h|--help                         Show help information
-  -w|--workingDir <WORKING_DIRECTORY>  directory containing projects to version
-  -d|--dry-run                         skip changing versions in projects, changelog generation and git commit
-  --skip-dirty                         skip git dirty check
-  -r|--release-as <VERSION>            specify the release version manually
+  -v|--version                         Show version information
+  -w|--workingDir <WORKING_DIRECTORY>  Directory containing projects to version
+  -d|--dry-run                         Skip changing versions in projects, changelog generation and git commit
+  --skip-dirty                         Skip git dirty check
+  -r|--release-as <VERSION>            Specify the release version manually
+  --silent                             Supress output to console
 ```
 
 ## Supported commit types

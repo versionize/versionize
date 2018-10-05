@@ -19,11 +19,11 @@ namespace Versionize
             app.HelpOption();
             app.VersionOption("-v|--version", GetVersion());
 
-            var optionWorkingDirectory = app.Option("-w|--workingDir <WORKING_DIRECTORY>", "directory containing projects to version", CommandOptionType.SingleValue);
-            var optionDryRun = app.Option("-d|--dry-run", "skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
-            var optionSkipDirty = app.Option("--skip-dirty", "skip git dirty check", CommandOptionType.NoValue);
-            var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "specify the release version manually", CommandOptionType.SingleValue);
-            var optionSilent = app.Option("--silent", "do not log to console", CommandOptionType.NoValue);
+            var optionWorkingDirectory = app.Option("-w|--workingDir <WORKING_DIRECTORY>", "Directory containing projects to version", CommandOptionType.SingleValue);
+            var optionDryRun = app.Option("-d|--dry-run", "Skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
+            var optionSkipDirty = app.Option("--skip-dirty", "Skip git dirty check", CommandOptionType.NoValue);
+            var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "Specify the release version manually", CommandOptionType.SingleValue);
+            var optionSilent = app.Option("--silent", "Supress output to console", CommandOptionType.NoValue);
 
             app.OnExecute(() =>
             {
