@@ -15,7 +15,11 @@ namespace Versionize
             _directory = directory;
         }
 
-        public void Versionize(bool dryrun = false, bool skipDirtyCheck = false, string releaseVersion = null)
+        public void Versionize(
+            bool dryrun = false, 
+            bool skipDirtyCheck = false,
+            bool skipCommit = false,
+            string releaseVersion = null)
         {
             var workingDirectory = _directory.FullName;
 
@@ -92,7 +96,7 @@ namespace Versionize
 
                 Step($"updated CHANGELOG.md");
 
-                if (!dryrun)
+                if (!dryrun && !skipCommit)
                 {
                     Commands.Stage(repo, changelog.FilePath);
 
@@ -102,24 +106,27 @@ namespace Versionize
                     }
                 }
 
-                if (!dryrun)
+                if (!dryrun && !skipCommit)
                 {
-
                     var author = repo.Config.BuildSignature(versionTime);
                     var committer = author;
 
                     // TODO: Check if tag exists before commit
                     var releaseCommitMessage = $"chore(release): {nextVersion}";
                     Commit versionCommit = repo.Commit(releaseCommitMessage, author, committer);
+                    Step($"committed changes in projects and CHANGELOG.md");
 
                     Tag newTag = repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
+                    Step($"tagged release as {nextVersion}");
+
+                    Information("");
+                    Information($"i Run `git push --follow-tags origin master` to push all changes including tags");
                 }
-
-                Step($"committed changes in projects and CHANGELOG.md");
-                Step($"tagged release as {nextVersion}");
-
-                Information("");
-                Information($"i Run `git push --follow-tags origin master` to push all changes including tags");
+                else if (skipCommit)
+                {
+                    Information("");
+                    Information($"i Commit and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
+                }
             }
         }
 

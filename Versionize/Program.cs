@@ -25,13 +25,19 @@ namespace Versionize
             var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "Specify the release version manually", CommandOptionType.SingleValue);
             var optionSilent = app.Option("--silent", "Supress output to console", CommandOptionType.NoValue);
 
+            var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
+
             app.OnExecute(() =>
             {
                 CommandLineUI.Verbosity = optionSilent.HasValue()?LogLevel.Silent:LogLevel.All;
 
                 WorkingCopy
                     .Discover(optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory())
-                    .Versionize(dryrun: optionDryRun.HasValue(), skipDirtyCheck: optionSkipDirty.HasValue(), releaseVersion: optionReleaseAs.Value());
+                    .Versionize(
+                        dryrun: optionDryRun.HasValue(), 
+                        skipDirtyCheck: optionSkipDirty.HasValue(), 
+                        skipCommit: optionSkipCommit.HasValue(), 
+                        releaseVersion: optionReleaseAs.Value());
 
                 return 0;
             });
