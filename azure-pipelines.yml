@@ -16,6 +16,16 @@ steps:
     packageType: sdk
     version: 3.0.100
 
+- script: dotnet test --logger trx
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: xUnit
+    testResultsFiles: '**/*.trx'
+
+- script: dotnet run --project versionize
+
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
