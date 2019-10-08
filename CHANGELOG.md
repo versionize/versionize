@@ -2,7 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
-<a name="1.2.0"></a>
+<a name="1.2.1"></a>
+## 1.2.1 (2019-10-8)
+
 ## 1.2.0 (2018-12-18)
 
 ### Features
