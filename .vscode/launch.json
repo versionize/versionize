@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Versionize/bin/Debug/netcoreapp2.1/Versionize.dll",
+            "program": "${workspaceFolder}/Versionize/bin/Debug/netcoreapp3.1/Versionize.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Versionize",
             "console": "internalConsole",
