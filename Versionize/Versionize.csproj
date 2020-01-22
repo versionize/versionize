@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.2.1</Version>
+    <Version>1.2.0</Version>
     <ToolCommandName>versionize</ToolCommandName>
     <PackAsTool>True</PackAsTool>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
     <Authors>saintedlama</Authors>
     <PackageTags>release;versioning;conventional;commit;git</PackageTags>
     <Description>Automatic versioning and CHANGELOG generation, using conventional commit messages.</Description>
