@@ -23,21 +23,23 @@ namespace Versionize
             var optionDryRun = app.Option("-d|--dry-run", "Skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
             var optionSkipDirty = app.Option("--skip-dirty", "Skip git dirty check", CommandOptionType.NoValue);
             var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "Specify the release version manually", CommandOptionType.SingleValue);
-            var optionSilent = app.Option("--silent", "Supress output to console", CommandOptionType.NoValue);
+            var optionSilent = app.Option("--silent", "Suppress output to console", CommandOptionType.NoValue);
 
             var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
+            var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
 
             app.OnExecute(() =>
             {
-                CommandLineUI.Verbosity = optionSilent.HasValue()?LogLevel.Silent:LogLevel.All;
+                CommandLineUI.Verbosity = optionSilent.HasValue() ? LogLevel.Silent : LogLevel.All;
 
                 WorkingCopy
                     .Discover(optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory())
                     .Versionize(
-                        dryrun: optionDryRun.HasValue(), 
-                        skipDirtyCheck: optionSkipDirty.HasValue(), 
-                        skipCommit: optionSkipCommit.HasValue(), 
-                        releaseVersion: optionReleaseAs.Value());
+                        dryrun: optionDryRun.HasValue(),
+                        skipDirtyCheck: optionSkipDirty.HasValue(),
+                        skipCommit: optionSkipCommit.HasValue(),
+                        releaseVersion: optionReleaseAs.Value(),
+                        ignoreInsignificant: optionIgnoreInsignificant.HasValue());
 
                 return 0;
             });

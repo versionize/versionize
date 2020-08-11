@@ -16,10 +16,11 @@ namespace Versionize
         }
 
         public void Versionize(
-            bool dryrun = false, 
+            bool dryrun = false,
             bool skipDirtyCheck = false,
             bool skipCommit = false,
-            string releaseVersion = null)
+            string releaseVersion = null,
+            bool ignoreInsignificant = false)
         {
             var workingDirectory = _directory.FullName;
 
@@ -58,7 +59,12 @@ namespace Versionize
 
                 var versionIncrement = VersionIncrementStrategy.CreateFrom(conventionalCommits);
 
-                var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version);
+                var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version, ignoreInsignificant);
+
+                if (ignoreInsignificant && nextVersion == projects.Version)
+                {
+                    Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
+                }
 
                 if (!String.IsNullOrWhiteSpace(releaseVersion))
                 {

@@ -13,7 +13,7 @@ namespace Versionize
             _versionImpact = versionImpact;
         }
 
-        public Version NextVersion(Version version)
+        public Version NextVersion(Version version, bool ignoreInsignificant)
         {
             switch (_versionImpact)
             {
@@ -24,7 +24,8 @@ namespace Versionize
                 case VersionImpact.major:
                     return new Version(version.Major + 1, 0, 0);
                 case VersionImpact.none:
-                    return new Version(version.Major, version.Minor, version.Build + 1);
+                    var buildVersion = ignoreInsignificant ? version.Build : version.Build + 1;
+                    return new Version(version.Major, version.Minor, buildVersion);
                 default:
                     throw new InvalidOperationException($"Version impact of {_versionImpact} cannot be handled");
             }
