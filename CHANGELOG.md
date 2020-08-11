@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
-<a name="1.3.0"></a>
+<a name="1.4.0"></a>
+## 1.4.0 (2020-8-11)
+
+### Features
+
+* Added parameter to ignore insignificant commits (#8)
+
 ## 1.3.0 (2020-1-22)
 
 ## 1.2.0 (2018-12-18)
