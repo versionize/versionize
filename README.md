@@ -45,7 +45,8 @@ Options:
   -d|--dry-run                         Skip changing versions in projects, changelog generation and git commit
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
-  --silent                             Supress output to console
+  --silent                             Suppress output to console
+  -i|--ignore-insignificant-commits    Dont do anything when only insignificant commits (anything other then fix, feat, or BREAKING) are found
 ```
 
 ## Supported commit types
@@ -134,5 +135,5 @@ versionize detected a breaking change since the commit note `BREAKING CHANGE` wa
 ## Roadmap
 
 * Pre Releases to allow creating beta.1, beta.2 versions
-* ~~--silent command line switch to supress commandline output~~
+* ~~--silent command line switch to suppress commandline output~~
 * --should-version command line switch to test if a new version should be created based on commits and return a non zero exit code if no new version should be released
