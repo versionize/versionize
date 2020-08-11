@@ -4,7 +4,7 @@ branches:
   - master
 before_build:
   - cmd: dotnet --version
-  - cmd: dotnet tool install coveralls.net --global
+  - cmd: dotnet tool install coveralls.net --global --version 1.0.0
 build_script:
   - cmd: dotnet build
 test_script:
