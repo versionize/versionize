@@ -7,6 +7,7 @@ using Versionize.CommandLine;
 using LibGit2Sharp;
 using System.Xml;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Versionize.Tests
 {
@@ -71,70 +72,76 @@ namespace Versionize.Tests
             Directory.CreateDirectory(tempDir);
             Repository.Init(tempDir);
 
+            // Make sure we have a git author or versionize will fail to make a commit
+            var gitConfigCmd = new ProcessStartInfo("git", "config user.name VersionizeTest");
+            gitConfigCmd.WorkingDirectory = tempDir;
+            Process.Start(gitConfigCmd).WaitForExit();
+            gitConfigCmd.Arguments = "config user.email noreply@versionize.com";
+            Process.Start(gitConfigCmd).WaitForExit();
+
             // Initialize git repo
-            using (var repo = new Repository(tempDir))
+            var repo = new Repository(tempDir);
+
+            // Create .net project
+            Process.Start("dotnet", $"new console -o {tempDir}").WaitForExit();
+
+            // Add version string to csproj
+            XmlDocument doc = new XmlDocument();
+            doc.PreserveWhitespace = true;
+
+            try
             {
-
-                // Create .net project
-                System.Diagnostics.Process.Start("dotnet", $"new console -o {tempDir}").WaitForExit();
-
-                // Add version string to csproj
-                XmlDocument doc = new XmlDocument();
-                doc.PreserveWhitespace = true;
-
-                try
-                {
-                    doc.Load(csProjFile);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-
-                var projectNode = doc.SelectSingleNode("/Project/PropertyGroup");
-                var versionNode = doc.CreateNode("element", "Version", "");
-                versionNode.InnerText = "0.0.0";
-                projectNode.AppendChild(versionNode);
-                using (var tw = new XmlTextWriter(csProjFile, null))
-                {
-                    doc.Save(tw);
-                }
-
-                // Create author
-                var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-
-                // Create and commit testfile
-                File.WriteAllText(tempFile, "First line of text");
-                Commands.Stage(repo, "*");
-                repo.Commit("feat: Initial commit", author, author);
-
-                // Run versionize
-                var workingCopy = WorkingCopy.Discover(tempDir);
-                workingCopy.Versionize();
-
-                // Add insignificant change
-                using (var sw = File.AppendText(tempFile))
-                {
-                    sw.WriteLine("This is another line of text");
-                }
-                Commands.Stage(repo, "*");
-                author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-                repo.Commit("chore: Added line of text", author, author);
-
-                // Get last commit
-                var lastCommit = repo.Head.Tip;
-
-                // Run versionize, ignoring insignificant commits
-                try
-                {
-                    workingCopy.Versionize(ignoreInsignificant: true);
-                }
-                catch (CommandLineExitException ex)
-                {
-                    Assert.Equal(0, ex.ExitCode);
-                }
-                Assert.Equal(lastCommit, repo.Head.Tip);
+                doc.Load(csProjFile);
             }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            var projectNode = doc.SelectSingleNode("/Project/PropertyGroup");
+            var versionNode = doc.CreateNode("element", "Version", "");
+            versionNode.InnerText = "0.0.0";
+            projectNode.AppendChild(versionNode);
+            using (var tw = new XmlTextWriter(csProjFile, null))
+            {
+                doc.Save(tw);
+            }
+
+            // Create author
+            var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
+
+            // Create and commit testfile
+            File.WriteAllText(tempFile, "First line of text");
+            Commands.Stage(repo, "*");
+            repo.Commit("feat: Initial commit", author, author);
+
+            // Run versionize
+            var workingCopy = WorkingCopy.Discover(tempDir);
+            workingCopy.Versionize();
+
+            // Add insignificant change
+            using (var sw = File.AppendText(tempFile))
+            {
+                sw.WriteLine("This is another line of text");
+            }
+            Commands.Stage(repo, "*");
+            author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
+            repo.Commit("chore: Added line of text", author, author);
+
+            // Get last commit
+            var lastCommit = repo.Head.Tip;
+
+            // Run versionize, ignoring insignificant commits
+            try
+            {
+                workingCopy.Versionize(ignoreInsignificant: true);
+            }
+            catch (CommandLineExitException ex)
+            {
+                Assert.Equal(0, ex.ExitCode);
+            }
+            Assert.Equal(lastCommit, repo.Head.Tip);
+            repo.Dispose();
 
             // Cleanup
             // Need to cleanup readonly attributes first...
