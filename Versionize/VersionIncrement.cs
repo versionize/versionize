@@ -13,17 +13,17 @@ namespace Versionize
             _versionImpact = versionImpact;
         }
 
-        public Version NextVersion(Version version, bool ignoreInsignificant)
+        public Version NextVersion(Version version, bool ignoreInsignificant = false)
         {
             switch (_versionImpact)
             {
-                case VersionImpact.patch:
+                case VersionImpact.Patch:
                     return new Version(version.Major, version.Minor, version.Build + 1);
-                case VersionImpact.minor:
+                case VersionImpact.Minor:
                     return new Version(version.Major, version.Minor + 1, 0);
-                case VersionImpact.major:
+                case VersionImpact.Major:
                     return new Version(version.Major + 1, 0, 0);
-                case VersionImpact.none:
+                case VersionImpact.None:
                     var buildVersion = ignoreInsignificant ? version.Build : version.Build + 1;
                     return new Version(version.Major, version.Minor, buildVersion);
                 default:
@@ -31,22 +31,22 @@ namespace Versionize
             }
         }
 
-        public static VersionIncrementStrategy CreateFrom(List<ConventionalCommit> conventionalCommits)
+        public static VersionIncrementStrategy CreateFrom(IEnumerable<ConventionalCommit> conventionalCommits)
         {
             // TODO: Quick and dirty implementation - Conventions? Better comparison?
-            var versionImpact = VersionImpact.none;
+            var versionImpact = VersionImpact.None;
 
             foreach (var conventionalCommit in conventionalCommits)
             {
-                if (!String.IsNullOrWhiteSpace(conventionalCommit.Type))
+                if (!string.IsNullOrWhiteSpace(conventionalCommit.Type))
                 {
                     switch (conventionalCommit.Type)
                     {
                         case "fix":
-                            versionImpact = MaxVersionImpact(versionImpact, VersionImpact.patch);
+                            versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
                             break;
                         case "feat":
-                            versionImpact = MaxVersionImpact(versionImpact, VersionImpact.minor);
+                            versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
                             break;
                         default:
                             break;
@@ -55,7 +55,7 @@ namespace Versionize
 
                 if (conventionalCommit.Notes.Any(note => "BREAKING CHANGE".Equals(note.Title, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    versionImpact = MaxVersionImpact(versionImpact, VersionImpact.major);
+                    versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Major);
                 }
             }
 
@@ -70,10 +70,10 @@ namespace Versionize
 
     public enum VersionImpact
     {
-        none = 0,
+        None = 0,
 
-        patch = 1,
-        minor = 2,
-        major = 3,
+        Patch = 1,
+        Minor = 2,
+        Major = 3,
     }
 }
