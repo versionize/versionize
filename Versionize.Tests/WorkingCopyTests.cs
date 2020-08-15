@@ -1,20 +1,21 @@
-﻿using System.Threading;
-using System;
+﻿using System;
 using System.IO;
 using Xunit;
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using LibGit2Sharp;
-using System.Xml;
-using System.Diagnostics;
+using Shouldly;
 
 namespace Versionize.Tests
 {
     public class WorkingCopyTests
     {
+        private readonly TestPlatformAbstractions _testPlatformAbstractions;
+
         public WorkingCopyTests()
         {
-            CommandLineUI.Platform = new TestPlatformAbstractions();
+            _testPlatformAbstractions = new TestPlatformAbstractions();
+            CommandLineUI.Platform = _testPlatformAbstractions;
         }
 
         [Fact]
@@ -22,7 +23,7 @@ namespace Versionize.Tests
         {
             var workingCopy = WorkingCopy.Discover(Directory.GetCurrentDirectory());
 
-            Assert.NotNull(workingCopy);
+            workingCopy.ShouldNotBeNull();
         }
 
         [Fact]
@@ -32,7 +33,7 @@ namespace Versionize.Tests
                 Path.Combine(Path.GetTempPath(), "ShouldExitIfNoWorkingCopyCouldBeDiscovered");
             Directory.CreateDirectory(directoryWithoutWorkingCopy);
 
-            Assert.Throws<CommandLineExitException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
+            Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
         }
 
         [Fact]
@@ -40,7 +41,7 @@ namespace Versionize.Tests
         {
             var directoryWithoutWorkingCopy = Path.Combine(Path.GetTempPath(), "ShouldExitIfWorkingCopyDoesNotExist");
 
-            Assert.Throws<CommandLineExitException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
+            Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
         }
 
         [Fact]
@@ -49,7 +50,68 @@ namespace Versionize.Tests
             var workingCopy = WorkingCopy.Discover(Directory.GetCurrentDirectory());
             workingCopy.Versionize(dryrun: true, skipDirtyCheck: true);
 
-            // TODO: Assert messages
+            _testPlatformAbstractions.Messages.Count.ShouldBe(4);
+            _testPlatformAbstractions.Messages[0].ShouldBe("Discovered 1 versionable projects");
+        }
+
+        [Fact]
+        public void ShouldExitIfWorkingCopyIsDirty()
+        {
+            var workingDirectory = TempDir.Create();
+            using var tempRepository = TempRepository.Create(workingDirectory);
+            
+            TempCsProject.Create(workingDirectory);
+
+            var workingCopy = WorkingCopy.Discover(workingDirectory);
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize());
+            
+            _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+            _testPlatformAbstractions.Messages[0].ShouldBe($"Repository {workingDirectory} is dirty. Please commit your changes.");
+
+            Cleanup.DeleteDirectory(workingDirectory);
+        }
+
+        [Fact]
+        public void ShouldExitGracefullyIfNoGitInitialized()
+        {
+            var workingDirectory = TempDir.Create();
+            Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(workingDirectory));
+
+            _testPlatformAbstractions.Messages[0].ShouldBe($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
+            
+            Cleanup.DeleteDirectory(workingDirectory);
+        }
+
+        [Fact]
+        public void ShouldExitIfWorkingCopyContainsNoProjects()
+        {
+            var workingDirectory = TempDir.Create();
+            using var tempRepository = TempRepository.Create(workingDirectory);
+
+            var workingCopy = WorkingCopy.Discover(workingDirectory);
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize());
+            
+            _testPlatformAbstractions.Messages[0].ShouldBe($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.");
+            
+            Cleanup.DeleteDirectory(workingDirectory);
+        }
+
+        [Fact]
+        public void ShouldExitIfProjectsUseInconsistentNaming()
+        {
+            var workingDirectory = TempDir.Create();
+            using var tempRepository = TempRepository.Create(workingDirectory);
+
+            TempCsProject.Create(Path.Join(workingDirectory, "project1"), "1.1.0");
+            TempCsProject.Create(Path.Join(workingDirectory, "project2"), "2.0.0");
+
+            CommitAll(tempRepository);
+
+            var workingCopy = WorkingCopy.Discover(workingDirectory);
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize());
+            _testPlatformAbstractions.Messages[0].ShouldBe($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
+
+            Cleanup.DeleteDirectory(workingDirectory);
         }
 
         [Fact]
@@ -58,31 +120,21 @@ namespace Versionize.Tests
             var workingDirectory = TempDir.Create();
             using var tempRepository = TempRepository.Create(workingDirectory);
             
-            TempCsProject.Create(tempRepository.Info.WorkingDirectory);
-
-            // Create author
-            var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-
+            TempCsProject.Create(workingDirectory);
+            
             var workingFilePath = Path.Join(workingDirectory, "hello.txt");
 
-            // Create and commit testfile
+            // Create and commit a test file
             File.WriteAllText(workingFilePath, "First line of text");
-            Commands.Stage(tempRepository, "*");
-            tempRepository.Commit("feat: Initial commit", author, author);
+            CommitAll(tempRepository);
 
             // Run versionize
             var workingCopy = WorkingCopy.Discover(workingDirectory);
             workingCopy.Versionize();
 
             // Add insignificant change
-            using (var sw = File.AppendText(workingFilePath))
-            {
-                sw.WriteLine("This is another line of text");
-            }
-
-            Commands.Stage(tempRepository, "*");
-            author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-            tempRepository.Commit("chore: Added line of text", author, author);
+            File.AppendAllText(workingFilePath, "This is another line of text");
+            CommitAll(tempRepository, "chore: Added line of text");
 
             // Get last commit
             var lastCommit = tempRepository.Head.Tip;
@@ -91,16 +143,25 @@ namespace Versionize.Tests
             try
             {
                 workingCopy.Versionize(ignoreInsignificant: true);
+
+                throw new InvalidOperationException("Expected to throw in Versionize call");
             }
             catch (CommandLineExitException ex)
             {
-                Assert.Equal(0, ex.ExitCode);
+                ex.ExitCode.ShouldBe(0);
             }
 
-            Assert.Equal(lastCommit, tempRepository.Head.Tip);
+            lastCommit.ShouldBe(tempRepository.Head.Tip);
 
             // Cleanup
             Cleanup.DeleteDirectory(workingDirectory);
+        }
+
+        private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
+        {
+            var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
+            Commands.Stage(repository, "*");
+            repository.Commit(message, author, author);
         }
     }
 }
