@@ -344,3 +344,4 @@ ASALocalRun/
 coveragereport/
 .sonarqube/
 coverage/
+Versionize.Tests/coverage.*
