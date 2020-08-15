@@ -14,16 +14,6 @@ namespace Versionize.CommandLine
             Environment.Exit(exitCode);
         }
 
-        public void WriteLine(string message)
-        {
-            if (Verbosity == LogLevel.Silent)
-            {
-                return;
-            }
-
-            Console.WriteLine(message);
-        }
-
         public void WriteLine(string message, Color color)
         {
             if (Verbosity == LogLevel.Silent)
