@@ -6,7 +6,7 @@ namespace Versionize.Tests.TestSupport
     {
         public static string Create()
         {
-            var tempDir = Path.Join(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetTempFileName()));
+            var tempDir = Path.Join(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             Directory.CreateDirectory(tempDir);
 
             return tempDir;
