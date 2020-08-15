@@ -13,7 +13,7 @@ namespace Versionize.Tests.TestSupport
             var csProjFile = $"{tempDir}/{projectDirName}.csproj";
 
             // Create .net project
-            Process.Start("dotnet", $"new console -o {tempDir}").WaitForExit();
+            Process.Start("dotnet", $"new console --output {tempDir} --no-restore").WaitForExit();
 
             // Add version string to csproj
             var doc = new XmlDocument {PreserveWhitespace = true};
