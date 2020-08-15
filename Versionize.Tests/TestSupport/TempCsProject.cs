@@ -9,12 +9,21 @@ namespace Versionize.Tests.TestSupport
     {
         public static string Create(string tempDir, string version = "1.0.0")
         {
+            Directory.CreateDirectory(tempDir);
+
             var projectDirName = new DirectoryInfo(tempDir).Name;
             var csProjFile = $"{tempDir}/{projectDirName}.csproj";
 
             // Create .net project
-            Process.Start("dotnet", $"new console --output {tempDir} --no-restore").WaitForExit();
-
+            // Process.Start("dotnet", $"new console --output {tempDir} --no-restore").WaitForExit();
+            var projectFileContents = 
+                $@"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <Version>{version}</Version>
+    </PropertyGroup>
+</Project>";
+            File.WriteAllText(csProjFile, projectFileContents);
+            
             // Add version string to csproj
             var doc = new XmlDocument {PreserveWhitespace = true};
 
