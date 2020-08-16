@@ -1,9 +1,16 @@
+using Versionize.CommandLine;
+using Versionize.Tests.TestSupport;
 using Xunit;
 
 namespace Versionize.Tests
 {
     public class ProgramTests
     {
+        public ProgramTests()
+        {
+            CommandLineUI.Platform = new TestPlatformAbstractions();
+        }
+
         [Fact]
         public void ShouldRunVersionizeWithDryRunOption()
         {
