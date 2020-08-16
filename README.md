@@ -46,7 +46,8 @@ Options:
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
-  -i|--ignore-insignificant-commits    Dont do anything when only insignificant commits (anything other then fix, feat, or BREAKING) are found
+  -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING) are found
+  --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
 ```
 
 ## Supported commit types

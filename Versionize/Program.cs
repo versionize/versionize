@@ -27,7 +27,7 @@ namespace Versionize
 
             var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
             var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
-            var optionIncludeAllCommitsInChangelog = app.Option("--changelog-include-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
+            var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
 
             app.OnExecute(() =>
             {
