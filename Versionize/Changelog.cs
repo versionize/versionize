@@ -7,19 +7,14 @@ namespace Versionize
 {
     public class Changelog
     {
-        private readonly FileInfo _file;
+        private const string Preamble = @"# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.\n";
 
-        private const string Preamble = @"# Change Log
-
-All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
-";
-
-        private Changelog(FileInfo file)
+        private Changelog(string file)
         {
-            _file = file;
+            FilePath = file;
         }
 
-        public string FilePath { get => _file.FullName; }
+        public string FilePath { get; }
 
         public void Write(Version version, DateTimeOffset versionTime, IEnumerable<ConventionalCommit> commits,
             bool includeAllCommitsInChangelog = false)
@@ -66,21 +61,27 @@ All notable changes to this project will be documented in this file. See [versio
                 }
             }
 
-            if (_file.Exists)
+            if (File.Exists(FilePath))
             {
-                var contents = File.ReadAllText(_file.FullName);
+                var contents = File.ReadAllText(FilePath);
 
-                var firstReleaseHeadlineIdx = contents.IndexOf("##");
+                var firstReleaseHeadlineIdx = contents.IndexOf("<a name=\"", StringComparison.Ordinal);
 
                 if (firstReleaseHeadlineIdx >= 0)
                 {
-                    contents = contents.Substring(firstReleaseHeadlineIdx);
+                    markdown = contents.Insert(firstReleaseHeadlineIdx, markdown);
+                }
+                else
+                {
+                    markdown = contents + "\n\n" + markdown;   
                 }
 
-                markdown += contents;
+                File.WriteAllText(FilePath, markdown);
             }
-
-            File.WriteAllText(_file.FullName, Preamble + "\n" + markdown);
+            else
+            {
+                File.WriteAllText(FilePath, Preamble + "\n" + markdown);
+            }
         }
 
         public static string BuildBlock(string header, IEnumerable<ConventionalCommit> commits)
@@ -99,7 +100,8 @@ All notable changes to this project will be documented in this file. See [versio
 
         public static Changelog Discover(string directory)
         {
-            var changelogFile = new FileInfo(Path.Combine(directory, "CHANGELOG.md"));
+            
+            var changelogFile = Path.Combine(directory, "CHANGELOG.md");
 
             return new Changelog(changelogFile);
         }
