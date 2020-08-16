@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.5.1"></a>
+## 1.5.1 (2020-8-16)
+
+### Bug Fixes
+
+* fix changelog link generation issues to support appending to existing changelogs
+
 <a name="1.5.0"></a>
 ## 1.5.0 (2020-8-16)
 
