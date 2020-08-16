@@ -15,12 +15,12 @@ namespace Versionize
             _directory = directory;
         }
 
-        public void Versionize(
-            bool dryrun = false,
+        public void Versionize(bool dryrun = false,
             bool skipDirtyCheck = false,
             bool skipCommit = false,
             string releaseVersion = null,
-            bool ignoreInsignificant = false)
+            bool ignoreInsignificant = false, 
+            bool includeAllCommitsInChangelog = false)
         {
             var workingDirectory = _directory.FullName;
 
@@ -66,7 +66,7 @@ namespace Versionize
                     Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
                 }
 
-                if (!String.IsNullOrWhiteSpace(releaseVersion))
+                if (!string.IsNullOrWhiteSpace(releaseVersion))
                 {
                     try
                     {
@@ -97,7 +97,7 @@ namespace Versionize
 
                 if (!dryrun)
                 {
-                    changelog.Write(nextVersion, versionTime, conventionalCommits);
+                    changelog.Write(nextVersion, versionTime, conventionalCommits, includeAllCommitsInChangelog);
                 }
 
                 Step($"updated CHANGELOG.md");

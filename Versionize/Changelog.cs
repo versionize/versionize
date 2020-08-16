@@ -21,7 +21,8 @@ All notable changes to this project will be documented in this file. See [versio
 
         public string FilePath { get => _file.FullName; }
 
-        public void Write(Version version, DateTimeOffset versionTime, IEnumerable<ConventionalCommit> commits)
+        public void Write(Version version, DateTimeOffset versionTime, IEnumerable<ConventionalCommit> commits,
+            bool includeAllCommitsInChangelog = false)
         {
             // TODO: Implement a gitish version reference builder - bitbucket / github
             var markdown = $"<a name=\"{version}\"></a>";
@@ -30,7 +31,7 @@ All notable changes to this project will be documented in this file. See [versio
             markdown += "\n";
             markdown += "\n";
 
-            var bugFixes = BuildBlock("Bug Fixes", commits.Where(commit => "fix".Equals(commit.Type)));
+            var bugFixes = BuildBlock("Bug Fixes", commits.Where(commit => commit.IsFix));
 
             if (!String.IsNullOrWhiteSpace(bugFixes))
             {
@@ -38,7 +39,7 @@ All notable changes to this project will be documented in this file. See [versio
                 markdown += "\n";
             }
 
-            var features = BuildBlock("Features", commits.Where(commit => "feat".Equals(commit.Type)));
+            var features = BuildBlock("Features", commits.Where(commit => commit.IsFeature));
 
             if (!String.IsNullOrWhiteSpace(features))
             {
@@ -46,12 +47,23 @@ All notable changes to this project will be documented in this file. See [versio
                 markdown += "\n";
             }
 
-            var breaking = BuildBlock("Breaking Changes", commits.Where(commit => commit.Notes.Any(note => "BREAKING CHANGE".Equals(note.Title))));
+            var breaking = BuildBlock("Breaking Changes", commits.Where(commit => commit.IsBreakingChange));
 
             if (!String.IsNullOrWhiteSpace(breaking))
             {
                 markdown += breaking;
                 markdown += "\n";
+            }
+
+            if (includeAllCommitsInChangelog)
+            {
+                var other = BuildBlock("Other", commits.Where(commit => !commit.IsFix && !commit.IsFeature && !commit.IsBreakingChange));
+
+                if (!string.IsNullOrWhiteSpace(other))
+                {
+                    markdown += other;
+                    markdown += "\n";
+                }
             }
 
             if (_file.Exists)
@@ -71,7 +83,7 @@ All notable changes to this project will be documented in this file. See [versio
             File.WriteAllText(_file.FullName, Preamble + "\n" + markdown);
         }
 
-        public string BuildBlock(string header, IEnumerable<ConventionalCommit> commits)
+        public static string BuildBlock(string header, IEnumerable<ConventionalCommit> commits)
         {
             if (!commits.Any())
             {
@@ -82,12 +94,7 @@ All notable changes to this project will be documented in this file. See [versio
             block += "\n";
             block += "\n";
 
-            foreach (var commit in commits)
-            {
-                block += $"* {commit.Subject}\n";
-            }
-
-            return block;
+            return commits.Aggregate(block, (current, commit) => current + $"* {commit.Subject}\n");
         }
 
         public static Changelog Discover(string directory)

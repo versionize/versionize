@@ -27,6 +27,7 @@ namespace Versionize
 
             var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
             var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
+            var optionIncludeAllCommitsInChangelog = app.Option("--changelog-include-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
 
             app.OnExecute(() =>
             {
@@ -39,7 +40,9 @@ namespace Versionize
                         skipDirtyCheck: optionSkipDirty.HasValue(),
                         skipCommit: optionSkipCommit.HasValue(),
                         releaseVersion: optionReleaseAs.Value(),
-                        ignoreInsignificant: optionIgnoreInsignificant.HasValue());
+                        ignoreInsignificant: optionIgnoreInsignificant.HasValue(),
+                        includeAllCommitsInChangelog: optionIncludeAllCommitsInChangelog.HasValue()
+                        );
 
                 return 0;
             });

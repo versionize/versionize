@@ -40,20 +40,16 @@ namespace Versionize
             {
                 if (!string.IsNullOrWhiteSpace(conventionalCommit.Type))
                 {
-                    switch (conventionalCommit.Type)
+                    if (conventionalCommit.IsFix)
                     {
-                        case "fix":
-                            versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
-                            break;
-                        case "feat":
-                            versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
-                            break;
-                        default:
-                            break;
+                        versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
+                    } else if (conventionalCommit.IsFeature)
+                    {
+                        versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
                     }
                 }
 
-                if (conventionalCommit.Notes.Any(note => "BREAKING CHANGE".Equals(note.Title, StringComparison.InvariantCultureIgnoreCase)))
+                if (conventionalCommit.IsBreakingChange)
                 {
                     versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Major);
                 }
