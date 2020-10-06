@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -95,7 +95,10 @@ namespace Versionize
             block += "\n";
             block += "\n";
 
-            return commits.Aggregate(block, (current, commit) => current + $"* {commit.Subject}\n");
+            return commits
+                .OrderBy(c => c.Scope)
+                .ThenBy(c => c.Subject)
+                .Aggregate(block, (current, commit) => current + $"* {commit.SubjectWithScope}\n");
         }
 
         public static Changelog Discover(string directory)

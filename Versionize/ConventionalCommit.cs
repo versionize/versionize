@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +17,8 @@ namespace Versionize
         public bool IsFeature => Type == "feat";
         public bool IsFix => Type == "fix";
         public bool IsBreakingChange => Notes.Any(note => "BREAKING CHANGE".Equals(note.Title));
+
+        public string SubjectWithScope => string.IsNullOrEmpty(Scope) ? Subject : $"**{Scope}**: {Subject}";
     }
 
     public class ConventionalCommitNote
