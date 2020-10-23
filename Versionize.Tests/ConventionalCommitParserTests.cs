@@ -16,7 +16,7 @@ namespace Versionize.Tests
         {
             var parser = new ConventionalCommitParser();
 
-            var testCommit = new TestCommit("feat(scope): broadcast $destroy event on scope destruction");
+            var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
             var conventionalCommit = parser.Parse(testCommit);
 
             Assert.Equal("feat", conventionalCommit.Type);
@@ -29,7 +29,7 @@ namespace Versionize.Tests
         {
             var parser = new ConventionalCommitParser();
 
-            var testCommit = new TestCommit("broadcast $destroy event on scope destruction");
+            var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
             var conventionalCommit = parser.Parse(testCommit);
 
             Assert.Equal(testCommit.Message, conventionalCommit.Subject);
@@ -40,7 +40,7 @@ namespace Versionize.Tests
         {
             var parser = new ConventionalCommitParser();
 
-            var testCommit = new TestCommit("broadcast $destroy event: on scope destruction");
+            var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
             var conventionalCommit = parser.Parse(testCommit);
 
             Assert.Equal(testCommit.Message, conventionalCommit.Subject);
@@ -51,7 +51,7 @@ namespace Versionize.Tests
         {
             var parser = new ConventionalCommitParser();
 
-            var testCommit = new TestCommit("feat(scope): broadcast $destroy: event on scope destruction");
+            var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
             var conventionalCommit = parser.Parse(testCommit);
 
             Assert.Equal("feat", conventionalCommit.Type);
@@ -64,7 +64,7 @@ namespace Versionize.Tests
         {
             var parser = new ConventionalCommitParser();
 
-            var testCommit = new TestCommit("feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
+            var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
             var conventionalCommit = parser.Parse(testCommit);
 
             Assert.Single(conventionalCommit.Notes);
@@ -78,13 +78,17 @@ namespace Versionize.Tests
 
     public class TestCommit : Commit
     {
+        private readonly string _sha;
         private readonly string _message;
 
-        public TestCommit(string message)
+        public TestCommit(string sha, string message)
         {
+            _sha = sha;
             _message = message;
         }
 
         public override string Message { get => _message; }
+
+        public override string Sha { get => _sha; }
     }
 }

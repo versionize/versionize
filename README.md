@@ -133,8 +133,18 @@ versionize
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
 
+
+## Developing
+
+To get prettier test outputs run `dotnet test` with prettier test logger
+
+```bash
+dotnet test --logger prettier
+```
+
 ## Roadmap
 
-* Pre Releases to allow creating beta.1, beta.2 versions
-* ~~--silent command line switch to suppress commandline output~~
-* --should-version command line switch to test if a new version should be created based on commits and return a non zero exit code if no new version should be released
+* [ ] Pre Releases to allow creating beta.1, beta.2 versions
+* [x] ~~--silent command line switch to suppress commandline output~~
+* [x] `-i`, `--ignore-insignificant-commits` command line switch to not create a new version if only insignificant (chore, ...) commits were done
+* [x] GitHub URLs in changelog

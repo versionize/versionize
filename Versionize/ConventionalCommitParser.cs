@@ -23,14 +23,17 @@ namespace Versionize
 
         public ConventionalCommit Parse(Commit commit)
         {
-            var conventionalCommit = new ConventionalCommit();
+            var conventionalCommit = new ConventionalCommit
+            {
+                Sha = commit.Sha
+            };
 
             var commitMessageLines = commit.Message.Split(
                     new[] { "\r\n", "\r", "\n" },
                     StringSplitOptions.None
                 )
                 .Select(line => line.Trim())
-                .Where(line => !String.IsNullOrWhiteSpace(line))
+                .Where(line => !string.IsNullOrWhiteSpace(line))
                 .ToList();
 
             var header = commitMessageLines.FirstOrDefault();
