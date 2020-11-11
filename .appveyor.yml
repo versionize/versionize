@@ -4,10 +4,8 @@ branches:
   - master
 before_build:
   - cmd: dotnet --version
-  - cmd: dotnet tool install coveralls.net --global --version 1.0.0
 build_script:
   - cmd: dotnet build
 test_script:
   - cmd: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByFile="**/PlatformAbstractions.cs" Versionize.Tests/Versionize.Tests.csproj
-  - ps: csmacnz.Coveralls --opencover --useRelativePaths -i .\Versionize.Tests\coverage.opencover.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
 deploy: off

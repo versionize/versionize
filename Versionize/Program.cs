@@ -42,7 +42,7 @@ namespace Versionize
                         releaseVersion: optionReleaseAs.Value(),
                         ignoreInsignificant: optionIgnoreInsignificant.HasValue(),
                         includeAllCommitsInChangelog: optionIncludeAllCommitsInChangelog.HasValue()
-                        );
+                    );
 
                 return 0;
             });

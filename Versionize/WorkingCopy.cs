@@ -97,7 +97,8 @@ namespace Versionize
 
                 if (!dryrun)
                 {
-                    changelog.Write(nextVersion, versionTime, conventionalCommits, includeAllCommitsInChangelog);
+                    var changelogLinkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
+                    changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, includeAllCommitsInChangelog);
                 }
 
                 Step($"updated CHANGELOG.md");
@@ -119,10 +120,10 @@ namespace Versionize
 
                     // TODO: Check if tag exists before commit
                     var releaseCommitMessage = $"chore(release): {nextVersion}";
-                    Commit versionCommit = repo.Commit(releaseCommitMessage, author, committer);
+                    var versionCommit = repo.Commit(releaseCommitMessage, author, committer);
                     Step($"committed changes in projects and CHANGELOG.md");
 
-                    Tag newTag = repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
+                    repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
                     Step($"tagged release as {nextVersion}");
 
                     Information("");
