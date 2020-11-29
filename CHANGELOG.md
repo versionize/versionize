@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.6.1"></a>
+## [1.6.1](https://www.github.com/saintedlama/versionize/releases/tag/v1.6.1) (2020-11-29)
+
+### Bug Fixes
+
+* use friendly name of tag instead of annotation to support projects using lightweight tags ([1d07076](https://www.github.com/saintedlama/versionize/commit/1d070765f26966370650039b4cefd138ef193f06))
+
 <a name="1.6.0"></a>
 ## 1.6.0 (2020-11-29)
 
