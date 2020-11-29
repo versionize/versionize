@@ -15,7 +15,7 @@ namespace Versionize
             _directory = directory;
         }
 
-        public void Versionize(bool dryrun = false,
+        public System.Version Versionize(bool dryrun = false,
             bool skipDirtyCheck = false,
             bool skipCommit = false,
             string releaseVersion = null,
@@ -134,6 +134,8 @@ namespace Versionize
                     Information("");
                     Information($"i Commit and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
                 }
+
+                return nextVersion;
             }
         }
 

@@ -9,7 +9,7 @@ namespace Versionize
     {
         public static Tag SelectVersionTag(this Repository repository, Version version)
         {
-            return repository.Tags.SingleOrDefault(t => t.IsAnnotated && t.Annotation.Name == $"v{version}");
+            return repository.Tags.SingleOrDefault(t => t.FriendlyName == $"v{version}");
         }
 
         public static List<Commit> GteCommitsSinceLastVersion(this Repository repository, Tag versionTag)
