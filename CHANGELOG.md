@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.6.0"></a>
+## 1.6.0 (2020-11-29)
+
+### Features
+
+* support dotnet 5
+* add github links to changelog (#12)
+* Write change with scope (#10)
+
 <a name="1.5.1"></a>
 ## 1.5.1 (2020-8-16)
 
