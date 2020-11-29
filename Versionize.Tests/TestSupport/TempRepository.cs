@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
 using LibGit2Sharp;
 
 namespace Versionize.Tests.TestSupport

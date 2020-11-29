@@ -2,6 +2,7 @@ using Xunit;
 using LibGit2Sharp;
 using Shouldly;
 using System.Linq;
+using Versionize.Tests.TestSupport;
 
 namespace Versionize.Tests
 {
@@ -45,7 +46,8 @@ namespace Versionize.Tests
 
         private Repository SetupRepositoryWithRemote(string remoteName, string pushUrl) 
         {
-            var repo = new Repository();
+            var workingDirectory = TempDir.Create();
+            var repo = TempRepository.Create(workingDirectory);
             
             foreach (var existingRemoteName in repo.Network.Remotes.Select(remote => remote.Name)) {
               repo.Network.Remotes.Remove(existingRemoteName);
