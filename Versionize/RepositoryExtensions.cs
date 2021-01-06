@@ -12,7 +12,7 @@ namespace Versionize
             return repository.Tags.SingleOrDefault(t => t.FriendlyName == $"v{version}");
         }
 
-        public static List<Commit> GteCommitsSinceLastVersion(this Repository repository, Tag versionTag)
+        public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag)
         {
             if (versionTag == null)
             {
