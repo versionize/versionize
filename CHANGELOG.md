@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.6.2"></a>
+## [1.6.2](https://www.github.com/saintedlama/versionize/releases/tag/v1.6.2) (2021-1-9)
+
+### Bug Fixes
+
+* use preview version 0.27.0-preview-0096 to circumvent Ubuntu 20.04.1 issues (#19) ([f6ac24e](https://www.github.com/saintedlama/versionize/commit/f6ac24e5e6d41588fdaa79f9441a5ebb574eff0d))
+
 <a name="1.6.1"></a>
 ## [1.6.1](https://www.github.com/saintedlama/versionize/releases/tag/v1.6.1) (2020-11-29)
 
