@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Colorful.Console" Version="1.2.10" />
-    <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0096" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.5.0" />
   </ItemGroup>
 
