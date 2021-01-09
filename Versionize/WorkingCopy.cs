@@ -52,7 +52,7 @@ namespace Versionize
                 }
 
                 var versionTag = repo.SelectVersionTag(projects.Version);
-                var commitsInVersion = repo.GteCommitsSinceLastVersion(versionTag);
+                var commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
 
                 var commitParser = new ConventionalCommitParser();
                 var conventionalCommits = commitParser.Parse(commitsInVersion);
