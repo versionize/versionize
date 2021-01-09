@@ -145,6 +145,7 @@ dotnet test --logger prettier
 ## Roadmap
 
 * [ ] Pre Releases to allow creating beta.1, beta.2 versions
+* [ ] Support .versionrc like "standard-version" does
 * [x] ~~--silent command line switch to suppress commandline output~~
 * [x] `-i`, `--ignore-insignificant-commits` command line switch to not create a new version if only insignificant (chore, ...) commits were done
 * [x] GitHub URLs in changelog
