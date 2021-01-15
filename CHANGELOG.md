@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.6.3"></a>
+## [1.6.3](https://www.github.com/blyzer/versionize/releases/tag/v1.6.3) (2021-1-14)
+
+### Other
+
+* **Test:** adding text azure to the projecte solution ([0b3fcd7](https://www.github.com/blyzer/versionize/commit/0b3fcd796483ea19ade3fda76a9f9a4ae764115c))
+* **Test:** renaming method test ([7c6f2cb](https://www.github.com/blyzer/versionize/commit/7c6f2cb593c80ffea7c2fd21dfb66722d2c94adc))
+* **Test:** renaming test ([1c0a9c5](https://www.github.com/blyzer/versionize/commit/1c0a9c529dffccbd2cad5fb593ecb5bfe0afc168))
+* **Test:** wrong name changelog link builder ([8909138](https://www.github.com/blyzer/versionize/commit/89091382ec37761d707e8e8125f89fe21e0401ef))
+
 <a name="1.6.2"></a>
 ## [1.6.2](https://www.github.com/saintedlama/versionize/releases/tag/v1.6.2) (2021-1-9)
 
