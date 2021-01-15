@@ -14,7 +14,7 @@ namespace Versionize.Tests
             var repo = SetupRepositoryWithRemote("origin", "https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP.git");
             var linkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
 
-            linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
+            linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
         }
 
         [Fact]
@@ -23,7 +23,7 @@ namespace Versionize.Tests
             var repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
             var linkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
 
-            linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
+            linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace Versionize.Tests
             var repo = SetupRepositoryWithRemote("some", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
             var linkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
 
-            linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
+            linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
         }
 
         [Fact]
