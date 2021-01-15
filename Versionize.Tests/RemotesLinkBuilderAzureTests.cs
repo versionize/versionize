@@ -36,7 +36,7 @@ namespace Versionize.Tests
         }
 
         [Fact]
-        public void ShouldAzureFallbackToNoopInCaseNoGithubPushUrlWasDefined()
+        public void ShouldFallbackToNoopInCaseNoAzurePushUrlWasDefined()
         {
             var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/saintedlama/versionize.git");
             var linkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
