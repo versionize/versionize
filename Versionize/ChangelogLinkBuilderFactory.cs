@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using LibGit2Sharp;
 
@@ -14,6 +14,10 @@ namespace Versionize
             {
                 return new GithubLinkBuilder(origin.PushUrl);
             }
+            else if(origin != null && isAzurePushUrl(origin.PushUrl))
+            {
+                return new AzureLinkBuilder(origin.PushUrl);
+            }
 
             return new PlainLinkBuilder();
         }
@@ -21,6 +25,11 @@ namespace Versionize
         private static bool IsGithubPushUrl(string pushUrl)
         {
             return pushUrl.StartsWith("git@github.com:") || pushUrl.StartsWith("https://github.com/");
+        }
+
+        private static bool isAzurePushUrl(string pushUrl)
+        {
+            return pushUrl.StartsWith("git@ssh.dev.azure.com:") || (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"));
         }
     }
 }
