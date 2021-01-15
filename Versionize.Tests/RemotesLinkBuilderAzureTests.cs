@@ -6,7 +6,7 @@ using Versionize.Tests.TestSupport;
 
 namespace Versionize.Tests
 {
-    public class RemotesLinkBuilderAzureTests
+    public class ChangelogazureLinkBuilderFactoryTests
     {
         [Fact]
         public void ShouldCreateAnAzureUrlBuilderForHTTPSPushUrls()
