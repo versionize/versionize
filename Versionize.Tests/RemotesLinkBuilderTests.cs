@@ -44,7 +44,7 @@ namespace Versionize.Tests
             linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
         }
 
-        private Repository SetupRepositoryWithRemote(string remoteName, string pushUrl) 
+        private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl) 
         {
             var workingDirectory = TempDir.Create();
             var repo = TempRepository.Create(workingDirectory);
