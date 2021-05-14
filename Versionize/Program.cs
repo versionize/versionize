@@ -1,7 +1,4 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Reflection;
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 
