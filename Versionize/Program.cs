@@ -25,6 +25,7 @@ namespace Versionize
             var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
             var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
             var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
+            var optionReleaseCommitMessageSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci]", CommandOptionType.SingleValue);
 
             app.OnExecute(() =>
             {
@@ -38,7 +39,8 @@ namespace Versionize
                         skipCommit: optionSkipCommit.HasValue(),
                         releaseVersion: optionReleaseAs.Value(),
                         ignoreInsignificant: optionIgnoreInsignificant.HasValue(),
-                        includeAllCommitsInChangelog: optionIncludeAllCommitsInChangelog.HasValue()
+                        includeAllCommitsInChangelog: optionIncludeAllCommitsInChangelog.HasValue(),
+                        releaseCommitMessageSuffix: optionReleaseCommitMessageSuffix.Value()
                     );
 
                 return 0;

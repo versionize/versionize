@@ -19,8 +19,9 @@ namespace Versionize
             bool skipDirtyCheck = false,
             bool skipCommit = false,
             string releaseVersion = null,
-            bool ignoreInsignificant = false, 
-            bool includeAllCommitsInChangelog = false)
+            bool ignoreInsignificant = false,
+            bool includeAllCommitsInChangelog = false,
+            string releaseCommitMessageSuffix = null)
         {
             var workingDirectory = _directory.FullName;
 
@@ -119,7 +120,7 @@ namespace Versionize
                     var committer = author;
 
                     // TODO: Check if tag exists before commit
-                    var releaseCommitMessage = $"chore(release): {nextVersion}";
+                    var releaseCommitMessage = $"chore(release): {nextVersion} {releaseCommitMessageSuffix}".TrimEnd();
                     var versionCommit = repo.Commit(releaseCommitMessage, author, committer);
                     Step($"committed changes in projects and CHANGELOG.md");
 

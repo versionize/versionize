@@ -147,6 +147,28 @@ namespace Versionize.Tests
             lastCommit.ShouldBe(_testSetup.Repository.Head.Tip);
         }
 
+        [Fact]
+        public void ShouldAddSuffixToReleaseCommitMessage()
+        {
+            TempCsProject.Create(_testSetup.WorkingDirectory);
+
+            var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+            // Create and commit a test file
+            File.WriteAllText(workingFilePath, "First line of text");
+            CommitAll(_testSetup.Repository);
+
+            // Run versionize
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+            var suffix = "[skip ci]";
+            workingCopy.Versionize(releaseCommitMessageSuffix: suffix);
+
+            // Get last commit
+            var lastCommit = _testSetup.Repository.Head.Tip;
+
+            lastCommit.Message.ShouldContain(suffix);
+        }
+
         public void Dispose()
         {
             _testSetup.Dispose();
