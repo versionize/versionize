@@ -46,8 +46,10 @@ Options:
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
+  --skip-commit                        Skip commit and git tag after updating changelog and incrementing the version
   -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING) are found
   --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
+  --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
 ```
 
 ## Supported commit types
@@ -146,6 +148,8 @@ dotnet test --logger prettier
 
 * [ ] Pre Releases to allow creating beta.1, beta.2 versions
 * [ ] Support .versionrc like "standard-version" does
+* [ ] Support mono repo joint and disjoint version strategies
 * [x] ~~--silent command line switch to suppress commandline output~~
 * [x] `-i`, `--ignore-insignificant-commits` command line switch to not create a new version if only insignificant (chore, ...) commits were done
 * [x] GitHub URLs in changelog
+
