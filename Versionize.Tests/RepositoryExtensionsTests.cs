@@ -5,6 +5,7 @@ using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using LibGit2Sharp;
 using Shouldly;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests
 {
@@ -29,7 +30,7 @@ namespace Versionize.Tests
 
             _testSetup.Repository.Tags.Add($"v2.0.0", commit);
 
-            var versionTag = _testSetup.Repository.SelectVersionTag(new System.Version(2, 0, 0));
+            var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
 
             versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
         }
@@ -42,7 +43,7 @@ namespace Versionize.Tests
 
             _testSetup.Repository.Tags.Add($"v2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
 
-            var versionTag = _testSetup.Repository.SelectVersionTag(new System.Version(2, 0, 0));
+            var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
 
             versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
         }

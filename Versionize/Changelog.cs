@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {

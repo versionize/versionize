@@ -2,7 +2,9 @@ name: .NET Core
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - 'spike/**'
   pull_request:
     branches: [ master ]
 

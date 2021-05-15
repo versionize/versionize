@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Versionize;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
