@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using LibGit2Sharp;
 using static Versionize.CommandLine.CommandLineUI;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
@@ -15,7 +16,7 @@ namespace Versionize
             _directory = directory;
         }
 
-        public System.Version Versionize(bool dryrun = false,
+        public Version Versionize(bool dryrun = false,
             bool skipDirtyCheck = false,
             bool skipCommit = false,
             string releaseVersion = null,
@@ -71,7 +72,7 @@ namespace Versionize
                 {
                     try
                     {
-                        nextVersion = new System.Version(releaseVersion);
+                        nextVersion = Version.Parse(releaseVersion);
                     }
                     catch (Exception)
                     {

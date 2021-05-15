@@ -1,5 +1,5 @@
-using System;
 using Versionize;
+using Version = NuGet.Versioning.SemanticVersion;
 
 public interface IChangelogLinkBuilder
 {

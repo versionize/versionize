@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
@@ -56,7 +57,7 @@ namespace Versionize
 
             try
             {
-                return new Version(versionString);
+                return Version.Parse(versionString);
             }
             catch (Exception)
             {

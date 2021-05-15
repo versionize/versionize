@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LibGit2Sharp;
-using Version = System.Version;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
