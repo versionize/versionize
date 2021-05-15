@@ -4,6 +4,7 @@ using System.Linq;
 using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests
 {
@@ -53,7 +54,7 @@ namespace Versionize.Tests
             projects.WriteVersion(new Version(2, 0, 0));
 
             var updated = Projects.Discover(tempDir);
-            updated.Version.ShouldBe(new Version("2.0.0"));
+            updated.Version.ShouldBe(Version.Parse("2.0.0"));
         }
     }
 }

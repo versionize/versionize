@@ -4,6 +4,7 @@ using Xunit;
 using Versionize.Tests.TestSupport;
 using System.Collections.Generic;
 using Shouldly;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests
 {

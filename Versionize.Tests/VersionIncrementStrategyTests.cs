@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Shouldly;
 using Xunit;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests
 {

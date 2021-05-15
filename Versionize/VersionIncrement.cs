@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
@@ -18,13 +18,13 @@ namespace Versionize
             switch (_versionImpact)
             {
                 case VersionImpact.Patch:
-                    return new Version(version.Major, version.Minor, version.Build + 1);
+                    return new Version(version.Major, version.Minor, version.Patch + 1);
                 case VersionImpact.Minor:
                     return new Version(version.Major, version.Minor + 1, 0);
                 case VersionImpact.Major:
                     return new Version(version.Major + 1, 0, 0);
                 case VersionImpact.None:
-                    var buildVersion = ignoreInsignificant ? version.Build : version.Build + 1;
+                    var buildVersion = ignoreInsignificant ? version.Patch : version.Patch + 1;
                     return new Version(version.Major, version.Minor, buildVersion);
                 default:
                     throw new InvalidOperationException($"Version impact of {_versionImpact} cannot be handled");

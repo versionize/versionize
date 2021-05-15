@@ -1,5 +1,6 @@
 using System.IO;
 using McMaster.Extensions.CommandLineUtils;
+using NuGet.Versioning;
 using Versionize.CommandLine;
 
 namespace Versionize
