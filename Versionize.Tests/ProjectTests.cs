@@ -3,6 +3,7 @@ using System.IO;
 using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
+using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests
 {
