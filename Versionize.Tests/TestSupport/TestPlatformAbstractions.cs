@@ -9,7 +9,7 @@ namespace Versionize.Tests.TestSupport
     {
         public LogLevel Verbosity { get; set; }
         public List<string> Messages { get; } = new List<string>();
-        
+
         public void Exit(int exitCode)
         {
             throw new CommandLineExitException(exitCode);

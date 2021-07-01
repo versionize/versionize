@@ -56,8 +56,7 @@ namespace Versionize
                 var versionTag = repo.SelectVersionTag(projects.Version);
                 var commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
 
-                var commitParser = new ConventionalCommitParser();
-                var conventionalCommits = commitParser.Parse(commitsInVersion);
+                var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
 
                 var versionIncrement = VersionIncrementStrategy.CreateFrom(conventionalCommits);
 
@@ -103,7 +102,7 @@ namespace Versionize
                     changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, includeAllCommitsInChangelog);
                 }
 
-                Step($"updated CHANGELOG.md");
+                Step("updated CHANGELOG.md");
 
                 if (!dryrun && !skipCommit)
                 {
@@ -123,13 +122,13 @@ namespace Versionize
                     // TODO: Check if tag exists before commit
                     var releaseCommitMessage = $"chore(release): {nextVersion} {releaseCommitMessageSuffix}".TrimEnd();
                     var versionCommit = repo.Commit(releaseCommitMessage, author, committer);
-                    Step($"committed changes in projects and CHANGELOG.md");
+                    Step("committed changes in projects and CHANGELOG.md");
 
                     repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
                     Step($"tagged release as {nextVersion}");
 
                     Information("");
-                    Information($"i Run `git push --follow-tags origin master` to push all changes including tags");
+                    Information("i Run `git push --follow-tags origin master` to push all changes including tags");
                 }
                 else if (skipCommit)
                 {

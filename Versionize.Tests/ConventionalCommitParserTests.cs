@@ -1,9 +1,4 @@
-using System;
-using System.IO;
 using Xunit;
-using Versionize.Tests.TestSupport;
-using Versionize.CommandLine;
-using System.Collections.Generic;
 using LibGit2Sharp;
 using System.Linq;
 
@@ -14,10 +9,8 @@ namespace Versionize.Tests
         [Fact]
         public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessage()
         {
-            var parser = new ConventionalCommitParser();
-
             var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
-            var conventionalCommit = parser.Parse(testCommit);
+            var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
             Assert.Equal("feat", conventionalCommit.Type);
             Assert.Equal("scope", conventionalCommit.Scope);
@@ -27,10 +20,8 @@ namespace Versionize.Tests
         [Fact]
         public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGiven()
         {
-            var parser = new ConventionalCommitParser();
-
             var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
-            var conventionalCommit = parser.Parse(testCommit);
+            var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
             Assert.Equal(testCommit.Message, conventionalCommit.Subject);
         }
@@ -38,10 +29,8 @@ namespace Versionize.Tests
         [Fact]
         public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGivenButSubjectUsesColon()
         {
-            var parser = new ConventionalCommitParser();
-
             var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
-            var conventionalCommit = parser.Parse(testCommit);
+            var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
             Assert.Equal(testCommit.Message, conventionalCommit.Subject);
         }
@@ -49,10 +38,8 @@ namespace Versionize.Tests
         [Fact]
         public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessageIfSubjectUsesColon()
         {
-            var parser = new ConventionalCommitParser();
-
             var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
-            var conventionalCommit = parser.Parse(testCommit);
+            var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
             Assert.Equal("feat", conventionalCommit.Type);
             Assert.Equal("scope", conventionalCommit.Scope);
@@ -62,10 +49,8 @@ namespace Versionize.Tests
         [Fact]
         public void ShouldExtractCommitNotes()
         {
-            var parser = new ConventionalCommitParser();
-
             var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
-            var conventionalCommit = parser.Parse(testCommit);
+            var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
             Assert.Single(conventionalCommit.Notes);
 

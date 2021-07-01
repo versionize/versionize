@@ -17,7 +17,7 @@ namespace Versionize
 
         public bool IsEmpty()
         {
-            return _projects.Count() == 0;
+            return !_projects.Any();
         }
 
         public bool HasInconsistentVersioning()

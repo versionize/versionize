@@ -5,7 +5,7 @@ using System.Xml;
 
 namespace Versionize.Tests.TestSupport
 {
-    public class TempCsProject
+    public static class TempCsProject
     {
         public static string Create(string tempDir, string version = "1.0.0")
         {
@@ -23,7 +23,7 @@ namespace Versionize.Tests.TestSupport
     </PropertyGroup>
 </Project>";
             File.WriteAllText(csProjFile, projectFileContents);
-            
+
             // Add version string to csproj
             var doc = new XmlDocument {PreserveWhitespace = true};
 

@@ -6,22 +6,18 @@ using LibGit2Sharp;
 
 namespace Versionize
 {
-    public class ConventionalCommitParser
+    public static class ConventionalCommitParser
     {
-        static readonly string[] noteKeywords = new string[] { "BREAKING CHANGE" };
+        private static readonly string[] NoteKeywords = new string[] { "BREAKING CHANGE" };
 
         private static readonly Regex HeaderPattern = new Regex("^(?<type>\\w*)(?:\\((?<scope>.*)\\))?: (?<subject>.*)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
-        public ConventionalCommitParser()
+        public static List<ConventionalCommit> Parse(List<Commit> commits)
         {
+            return commits.ConvertAll(Parse);
         }
 
-        public List<ConventionalCommit> Parse(List<Commit> commits)
-        {
-            return commits.Select(Parse).ToList();
-        }
-
-        public ConventionalCommit Parse(Commit commit)
+        public static ConventionalCommit Parse(Commit commit)
         {
             var conventionalCommit = new ConventionalCommit
             {
@@ -57,7 +53,7 @@ namespace Versionize
             }
 
             for (var i =1;i<commitMessageLines.Count;i++) {
-                foreach (var noteKeyword in noteKeywords)
+                foreach (var noteKeyword in NoteKeywords)
                 {
                     var line = commitMessageLines[i];
                     if (line.StartsWith($"{noteKeyword}:"))
