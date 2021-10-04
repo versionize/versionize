@@ -4,9 +4,9 @@ using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Tests
+namespace Versionize.Changelog.Tests
 {
-    public class ChangelogLinkBuilderFactoryTests
+    public class GithubLinkBuilderTests
     {
         [Fact]
         public void ShouldCreateAGithubUrlBuilderForHTTPSPushUrls()

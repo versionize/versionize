@@ -2,7 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
-namespace Versionize
+namespace Versionize.Changelog
 {
     public class GithubLinkBuilder : IChangelogLinkBuilder
     {

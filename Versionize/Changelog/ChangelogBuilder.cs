@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using Version = NuGet.Versioning.SemanticVersion;
 
-namespace Versionize
+namespace Versionize.Changelog
 {
-    public class Changelog
+    public class ChangelogBuilder
     {
         private const string Preamble = @"# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.\n";
 
-        private Changelog(string file)
+        private ChangelogBuilder(string file)
         {
             FilePath = file;
         }
@@ -125,11 +125,11 @@ namespace Versionize
             return sb.ToString();
         }
 
-        public static Changelog Discover(string directory)
+        public static ChangelogBuilder CreateForPath(string directory)
         {
             var changelogFile = Path.Combine(directory, "CHANGELOG.md");
 
-            return new Changelog(changelogFile);
+            return new ChangelogBuilder(changelogFile);
         }
     }
 }

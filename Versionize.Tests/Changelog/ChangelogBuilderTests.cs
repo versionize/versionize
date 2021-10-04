@@ -5,14 +5,15 @@ using Versionize.Tests.TestSupport;
 using System.Collections.Generic;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
+using Versionize.Tests;
 
-namespace Versionize.Tests
+namespace Versionize.Changelog.Tests
 {
-    public class ChangelogTests : IDisposable
+    public class ChangelogBuilderTests : IDisposable
     {
         private readonly string _testDirectory;
 
-        public ChangelogTests()
+        public ChangelogBuilderTests()
         {
             _testDirectory = TempDir.Create();
         }
@@ -21,7 +22,7 @@ namespace Versionize.Tests
         public void ShouldGenerateAChangelogEvenForEmptyCommits()
         {
             var plainLinkBuilder = new PlainLinkBuilder();
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 1, 0), new DateTimeOffset(), plainLinkBuilder, new List<ConventionalCommit>());
 
             var wasChangelogWritten = File.Exists(Path.Join(_testDirectory, "CHANGELOG.md"));
@@ -32,7 +33,7 @@ namespace Versionize.Tests
         public void ShouldGenerateAChangelogForFixFeatAndBreakingCommits()
         {
             var plainLinkBuilder = new PlainLinkBuilder();
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 1, 0), new DateTimeOffset(), plainLinkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
@@ -53,7 +54,7 @@ namespace Versionize.Tests
             File.WriteAllText(Path.Combine(_testDirectory, "CHANGELOG.md"), "# Should be kept by versionize\n\nSome information about the changelog");
 
             var plainLinkBuilder = new PlainLinkBuilder();
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 0, 0), new DateTimeOffset(), plainLinkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
@@ -67,7 +68,7 @@ namespace Versionize.Tests
         public void ShouldBuildGithubHttpsCommitLinks()
         {
             var linkBuilder = new GithubLinkBuilder("https://github.com/organization/repository.git");
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 0, 0), new DateTimeOffset(), linkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
@@ -81,7 +82,7 @@ namespace Versionize.Tests
         public void ShouldBuildGithubSSHCommitLinks()
         {
             var linkBuilder = new GithubLinkBuilder("git@github.com:organization/repository.git");
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 0, 0), new DateTimeOffset(), linkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
@@ -95,7 +96,7 @@ namespace Versionize.Tests
         public void ShouldBuildGithubSSHVersionTagLinks()
         {
             var linkBuilder = new GithubLinkBuilder("https://github.com/organization/repository.git");
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 0, 0), new DateTimeOffset(), linkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
@@ -109,7 +110,7 @@ namespace Versionize.Tests
         public void ShouldBuildGithubHTTPSVersionTagLinks()
         {
             var linkBuilder = new GithubLinkBuilder("git@github.com:organization/repository.git");
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 0, 0), new DateTimeOffset(), linkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
@@ -123,7 +124,7 @@ namespace Versionize.Tests
         public void ShouldAppendToExistingChangelog()
         {
             var plainLinkBuilder = new PlainLinkBuilder();
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 0, 0), new DateTimeOffset(), plainLinkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
@@ -146,7 +147,7 @@ namespace Versionize.Tests
         [Fact]
         public void ShouldExposeFilePathProperty()
         {
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
 
             Assert.Equal(Path.Combine(_testDirectory, "CHANGELOG.md"), changelog.FilePath);
         }
@@ -155,7 +156,7 @@ namespace Versionize.Tests
         public void ShouldIncludeAllCommitsInChangelogWhenGiven()
         {
             var plainLinkBuilder = new PlainLinkBuilder();
-            var changelog = Changelog.Discover(_testDirectory);
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
             changelog.Write(new Version(1, 1, 0), new DateTimeOffset(), plainLinkBuilder, new List<ConventionalCommit>
             {
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "chore: nothing important")),

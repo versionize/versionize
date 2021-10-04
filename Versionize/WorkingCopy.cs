@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
+using Versionize.Changelog;
 using static Versionize.CommandLine.CommandLineUI;
 using Version = NuGet.Versioning.SemanticVersion;
 
@@ -94,7 +95,7 @@ namespace Versionize
 
                 Step($"bumping version from {projects.Version} to {nextVersion} in projects");
 
-                var changelog = Changelog.Discover(workingDirectory);
+                var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
 
                 if (!dryrun)
                 {

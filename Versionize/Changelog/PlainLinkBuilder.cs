@@ -1,7 +1,6 @@
-using Versionize;
 using Version = NuGet.Versioning.SemanticVersion;
 
-namespace Versionize
+namespace Versionize.Changelog
 {
     public class PlainLinkBuilder : IChangelogLinkBuilder
     {

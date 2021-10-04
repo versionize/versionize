@@ -2,7 +2,7 @@
 using System.Linq;
 using LibGit2Sharp;
 
-namespace Versionize
+namespace Versionize.Changelog
 {
     public abstract class ChangelogLinkBuilderFactory
     {

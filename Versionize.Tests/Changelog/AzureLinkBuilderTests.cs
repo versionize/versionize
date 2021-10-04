@@ -3,10 +3,11 @@ using LibGit2Sharp;
 using Shouldly;
 using System.Linq;
 using Versionize.Tests.TestSupport;
+using Versionize.Changelog;
 
-namespace Versionize.Tests
+namespace Versionize.Changelog.Tests
 {
-    public class ChangelogazureLinkBuilderFactoryTests
+    public class AzureLinkBuilderTests
     {
         [Fact]
         public void ShouldCreateAnAzureUrlBuilderForHTTPSPushUrls()
