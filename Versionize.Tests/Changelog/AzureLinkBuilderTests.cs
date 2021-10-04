@@ -1,9 +1,9 @@
-﻿using Xunit;
+﻿using System;
+using System.Linq;
 using LibGit2Sharp;
 using Shouldly;
-using System.Linq;
 using Versionize.Tests.TestSupport;
-using Versionize.Changelog;
+using Xunit;
 
 namespace Versionize.Changelog.Tests
 {
@@ -16,6 +16,12 @@ namespace Versionize.Changelog.Tests
             var linkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
 
             linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
+        }
+
+        [Fact]
+        public void ShouldIfUrlIsNoRecognizedSshOrHttpsUrl()
+        {
+            Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("azure.com"));
         }
 
         [Fact]
@@ -46,9 +52,16 @@ namespace Versionize.Changelog.Tests
         }
 
         [Fact]
+        public void ShouldThrowIfSSHUrlDoesNotEndWithGit()
+        {
+            Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP"));
+        }
+
+        [Fact]
         public void ShouldBuildASSHCommitLink()
         {
-            var commit = new ConventionalCommit {
+            var commit = new ConventionalCommit
+            {
                 Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
             };
 
@@ -61,7 +74,8 @@ namespace Versionize.Changelog.Tests
         [Fact]
         public void ShouldBuildAHTTPSCommitLink()
         {
-            var commit = new ConventionalCommit {
+            var commit = new ConventionalCommit
+            {
                 Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
             };
 
@@ -71,13 +85,20 @@ namespace Versionize.Changelog.Tests
             link.ShouldBe("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP/commit/734713bc047d87bf7eac9674765ae793478c50d3");
         }
 
+        [Fact]
+        public void ShouldThrowIfHTTPSUrlDoesNotEndWithGit()
+        {
+            Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP"));
+        }
+
         private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)
         {
             var workingDirectory = TempDir.Create();
             var repo = TempRepository.Create(workingDirectory);
 
-            foreach (var existingRemoteName in repo.Network.Remotes.Select(remote => remote.Name)) {
-              repo.Network.Remotes.Remove(existingRemoteName);
+            foreach (var existingRemoteName in repo.Network.Remotes.Select(remote => remote.Name))
+            {
+                repo.Network.Remotes.Remove(existingRemoteName);
             }
 
             repo.Network.Remotes.Add(remoteName, pushUrl);
