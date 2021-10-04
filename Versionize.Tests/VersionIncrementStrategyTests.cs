@@ -22,7 +22,7 @@ namespace Versionize.Tests
             strategy.NextVersion(new Version(1, 1, 1), true)
                 .ShouldBe(new Version(1, 1, 1));
         }
-        
+
         [Fact]
         public void ShouldNotIncrementPatchVersionForInsignificantCommitsIfIgnoreInsignificantIsGiven()
         {
@@ -30,11 +30,11 @@ namespace Versionize.Tests
             {
                 new ConventionalCommit() { Type = "chore"}
             });
-            
+
             strategy.NextVersion(new Version(1, 1, 1), true)
                 .ShouldBe(new Version(1, 1, 1));
         }
-        
+
         [Fact]
         public void ShouldIncrementPatchVersionForFixCommitsIfIgnoreInsignificantIsGiven()
         {
@@ -42,11 +42,11 @@ namespace Versionize.Tests
             {
                 new ConventionalCommit() { Type = "fix"}
             });
-            
+
             strategy.NextVersion(new Version(1, 1, 1), true)
                 .ShouldBe(new Version(1, 1, 2));
         }
-        
+
         [Fact]
         public void ShouldIncrementMinorVersionForFeatures()
         {
@@ -57,11 +57,11 @@ namespace Versionize.Tests
                     Type = "feat"
                 }
             });
-            
+
             strategy.NextVersion(new Version(1, 1, 1))
                 .ShouldBe(new Version(1, 2, 0));
         }
-        
+
         [Fact]
         public void ShouldIncrementMajorVersionForBreakingChanges()
         {
@@ -76,7 +76,7 @@ namespace Versionize.Tests
                     }
                 }
             });
-            
+
             strategy.NextVersion(new Version(1, 1, 1))
                 .ShouldBe(new Version(2, 0, 0));
         }
