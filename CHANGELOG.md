@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.7.0"></a>
+## [1.7.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.7.0) (2021-10-4)
+
+### Features
+
+* add azure links (#22) ([5ffca1a](https://www.github.com/saintedlama/versionize/commit/5ffca1a97475a9d7a9ff2763705d02cec680067f))
+* add release commit message suffix option (#25) ([3598a25](https://www.github.com/saintedlama/versionize/commit/3598a258818f88c4a7b997a3269f17e76850e956))
+* update dependencies (#31) ([aafaf2f](https://www.github.com/saintedlama/versionize/commit/aafaf2f247c7ed047641b15ef674be6c5f407b94))
+* update LibGit2Sharp ([9290f66](https://www.github.com/saintedlama/versionize/commit/9290f66e3084983e1f8ebb1d492cc24493fc357c))
+
 <a name="1.6.2"></a>
 ## [1.6.2](https://www.github.com/saintedlama/versionize/releases/tag/v1.6.2) (2021-1-9)
 
