@@ -28,7 +28,7 @@ namespace Versionize.Tests
             TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
             var commit = CommitAll(_testSetup.Repository);
 
-            _testSetup.Repository.Tags.Add($"v2.0.0", commit);
+            _testSetup.Repository.Tags.Add("v2.0.0", commit);
 
             var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
 
@@ -41,7 +41,7 @@ namespace Versionize.Tests
             TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
             var commit = CommitAll(_testSetup.Repository);
 
-            _testSetup.Repository.Tags.Add($"v2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
+            _testSetup.Repository.Tags.Add("v2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
 
             var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
 

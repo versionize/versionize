@@ -1,8 +1,8 @@
-using Xunit;
+using System.Linq;
 using LibGit2Sharp;
 using Shouldly;
-using System.Linq;
 using Versionize.Tests.TestSupport;
+using Xunit;
 
 namespace Versionize.Tests
 {
@@ -44,17 +44,18 @@ namespace Versionize.Tests
             linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
         }
 
-        private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl) 
+        private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)
         {
             var workingDirectory = TempDir.Create();
             var repo = TempRepository.Create(workingDirectory);
-            
-            foreach (var existingRemoteName in repo.Network.Remotes.Select(remote => remote.Name)) {
-              repo.Network.Remotes.Remove(existingRemoteName);
+
+            foreach (var existingRemoteName in repo.Network.Remotes.Select(remote => remote.Name))
+            {
+                repo.Network.Remotes.Remove(existingRemoteName);
             }
 
             repo.Network.Remotes.Add(remoteName, pushUrl);
-            
+
             return repo;
         }
     }

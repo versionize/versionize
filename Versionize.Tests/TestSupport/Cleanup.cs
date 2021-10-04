@@ -16,6 +16,6 @@ namespace Versionize.Tests.TestSupport
             }
 
             Directory.Delete(tempDir, true);
-        } 
+        }
     }
 }

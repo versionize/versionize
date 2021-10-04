@@ -1,9 +1,12 @@
 using Versionize;
 using Version = NuGet.Versioning.SemanticVersion;
 
-public interface IChangelogLinkBuilder
+namespace Versionize
 {
-    string BuildCommitLink(ConventionalCommit commit);
+    public interface IChangelogLinkBuilder
+    {
+        string BuildCommitLink(ConventionalCommit commit);
 
-    string BuildVersionTagLink(Version version);
+        string BuildVersionTagLink(Version version);
+    }
 }

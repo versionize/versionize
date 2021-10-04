@@ -14,7 +14,7 @@ namespace Versionize
             {
                 return new GithubLinkBuilder(origin.PushUrl);
             }
-            else if(origin != null && isAzurePushUrl(origin.PushUrl))
+            else if(origin != null && IsAzurePushUrl(origin.PushUrl))
             {
                 return new AzureLinkBuilder(origin.PushUrl);
             }
@@ -27,7 +27,7 @@ namespace Versionize
             return pushUrl.StartsWith("git@github.com:") || pushUrl.StartsWith("https://github.com/");
         }
 
-        private static bool isAzurePushUrl(string pushUrl)
+        private static bool IsAzurePushUrl(string pushUrl)
         {
             return pushUrl.StartsWith("git@ssh.dev.azure.com:") || (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"));
         }

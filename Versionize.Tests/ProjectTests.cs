@@ -40,12 +40,12 @@ namespace Versionize.Tests
 
             Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
         }
-        
+
         [Fact]
         public void ShouldUpdateTheVersionElementOnly()
         {
             var tempDir = TempDir.Create();
-            var projectFileContents = 
+            var projectFileContents =
                 @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>1.0.0</Version>
@@ -59,7 +59,7 @@ namespace Versionize.Tests
             project.WriteVersion(new Version(2, 0, 0));
 
             var versionedProjectContents = File.ReadAllText(projectFilePath);
-            
+
             versionedProjectContents.ShouldBe(projectFileContents.Replace("1.0.0", "2.0.0"));
         }
     }

@@ -12,8 +12,12 @@ namespace Versionize
     {
         public static int Main(string[] args)
         {
-            var app = new CommandLineApplication();
-            app.Name = "versionize";
+            var app = new CommandLineApplication
+            {
+                Name = "versionize",
+                UsePagerForHelpText = false
+            };
+
             app.HelpOption();
             app.VersionOption("-v|--version", GetVersion());
 
@@ -50,6 +54,6 @@ namespace Versionize
             return app.Execute(args);
         }
 
-        static string GetVersion() => typeof(Program).Assembly.GetName().Version.ToString();
+        private static string GetVersion() => typeof(Program).Assembly.GetName().Version.ToString();
     }
 }

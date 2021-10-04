@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Xml;
 
 namespace Versionize.Tests.TestSupport
@@ -16,7 +14,7 @@ namespace Versionize.Tests.TestSupport
 
             // Create .net project
             // Process.Start("dotnet", $"new console --output {tempDir} --no-restore").WaitForExit();
-            var projectFileContents = 
+            var projectFileContents =
                 $@"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>{version}</Version>
