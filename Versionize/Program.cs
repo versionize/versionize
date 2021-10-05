@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Text.Json;
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 
@@ -29,30 +31,82 @@ namespace Versionize
             var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
             var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
             var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
-            var optionReleaseCommitMessageSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
+            var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
 
             app.OnExecute(() =>
             {
-                CommandLineUI.Verbosity = optionSilent.HasValue() ? LogLevel.Silent : LogLevel.All;
+                var cwd = optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
+                var jsonFileConfig = FromJsonFile(Path.Join(cwd, ".versionize"));
+
+                // TODO: Silent option is missing in the config file
+                var options = MergeWithOptions(jsonFileConfig, new VersionizeOptions
+                {
+                    DryRun = optionDryRun.HasValue(),
+                    SkipDirty = optionSkipDirty.HasValue(),
+                    SkipCommit = optionSkipCommit.HasValue(),
+                    ReleaseAs = optionReleaseAs.Value(),
+                    IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
+                    ChangelogAll = optionIncludeAllCommitsInChangelog.HasValue(),
+                    CommitSuffix = optionCommitSuffix.Value(),
+                });
+
+                CommandLineUI.Verbosity = MergeBool(optionSilent.HasValue(), jsonFileConfig?.Silent) ? LogLevel.Silent : LogLevel.All;
 
                 WorkingCopy
-                    .Discover(optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory())
-                    .Versionize(
-                        dryrun: optionDryRun.HasValue(),
-                        skipDirtyCheck: optionSkipDirty.HasValue(),
-                        skipCommit: optionSkipCommit.HasValue(),
-                        releaseVersion: optionReleaseAs.Value(),
-                        ignoreInsignificant: optionIgnoreInsignificant.HasValue(),
-                        includeAllCommitsInChangelog: optionIncludeAllCommitsInChangelog.HasValue(),
-                        releaseCommitMessageSuffix: optionReleaseCommitMessageSuffix.Value()
-                    );
+                    .Discover(cwd)
+                    .Versionize(options);
 
                 return 0;
             });
 
-            return app.Execute(args);
+            try
+            {
+                return app.Execute(args);
+            }
+            catch (UnrecognizedCommandParsingException e)
+            {
+                return CommandLineUI.Exit(e.Message, 1);
+            }
         }
 
         private static string GetVersion() => typeof(Program).Assembly.GetName().Version.ToString();
+
+        private static ConfigurationContract FromJsonFile(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
+            try
+            {
+                var jsonString = File.ReadAllText(filePath);
+                return JsonSerializer.Deserialize<ConfigurationContract>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch (Exception e)
+            {
+                CommandLineUI.Exit($"Failed to parse .versionize file: {e.Message}", 1);
+                return null;
+            }
+        }
+
+        private static VersionizeOptions MergeWithOptions(ConfigurationContract optionalConfiguration, VersionizeOptions configuration)
+        {
+            return new VersionizeOptions
+            {
+                DryRun = MergeBool(configuration.DryRun, optionalConfiguration?.DryRun),
+                SkipDirty = MergeBool(configuration.SkipDirty, optionalConfiguration?.SkipDirty),
+                SkipCommit = MergeBool(configuration.SkipCommit, optionalConfiguration?.SkipCommit),
+                ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
+                IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
+                ChangelogAll = MergeBool(configuration.ChangelogAll, optionalConfiguration?.ChangelogAll),
+                CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
+            };
+        }
+
+        private static bool MergeBool(bool overridingValue, bool? optionalValue)
+        {
+            return !overridingValue ? optionalValue ?? overridingValue : overridingValue;
+        }
     }
 }

@@ -134,6 +134,11 @@ versionize
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
 
+## Configuration
+
+You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
+
+Any of the command line parameters accepted by `versionized` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file.
 
 ## Developing
 
@@ -146,9 +151,8 @@ dotnet test --logger prettier
 ## Roadmap
 
 * [ ] Pre Releases to allow creating beta.1, beta.2 versions
-* [ ] Support .versionrc like "standard-version" does
+* [x] Support .versionrc like "standard-version" does
 * [ ] Support mono repo joint and disjoint version strategies
 * [x] ~~--silent command line switch to suppress commandline output~~
 * [x] `-i`, `--ignore-insignificant-commits` command line switch to not create a new version if only insignificant (chore, ...) commits were done
 * [x] GitHub URLs in changelog
-
