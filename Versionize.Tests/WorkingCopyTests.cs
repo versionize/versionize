@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp;
 using Shouldly;
 using Versionize.CommandLine;
@@ -108,6 +109,30 @@ namespace Versionize.Tests
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
             _testPlatformAbstractions.Messages[0].ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
+        }
+
+        [Fact]
+        public void ShouldReleaseAsSpecifiedVersion()
+        {
+            TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+
+            CommitAll(_testSetup.Repository);
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+            workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
+
+            _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v2.0.0" });
+        }
+
+        [Fact]
+        public void ShouldExitIfReleaseAsSpecifiedVersionIsInvalid()
+        {
+            TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+
+            CommitAll(_testSetup.Repository);
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "kanguru" }));
         }
 
         [Fact]
