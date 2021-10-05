@@ -8,7 +8,7 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
-    public partial class WorkingCopy
+    public class WorkingCopy
     {
         private readonly DirectoryInfo _directory;
 
@@ -107,10 +107,7 @@ namespace Versionize
                     {
                         Commands.Stage(repo, projectFile);
                     }
-                }
 
-                if (!options.DryRun && !options.SkipCommit)
-                {
                     var author = repo.Config.BuildSignature(versionTime);
                     var committer = author;
 
