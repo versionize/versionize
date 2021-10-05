@@ -99,7 +99,7 @@ namespace Versionize
 
                 if (!dryrun)
                 {
-                    var changelogLinkBuilder = ChangelogLinkBuilderFactory.CreateFor(repo);
+                    var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);
                     changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, includeAllCommitsInChangelog);
                 }
 

@@ -4,7 +4,7 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog
 {
-    public class AzureLinkBuilder: IChangelogLinkBuilder
+    public class AzureLinkBuilder : IChangelogLinkBuilder
     {
         private readonly string _organization;
         private readonly string _repository;
@@ -40,6 +40,11 @@ namespace Versionize.Changelog
             {
                 throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as Azure SSH or HTTPS url");
             }
+        }
+
+        public static bool IsPushUrl(string pushUrl)
+        {
+            return pushUrl.StartsWith("git@ssh.dev.azure.com:") || (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"));
         }
 
         public string BuildVersionTagLink(Version version)

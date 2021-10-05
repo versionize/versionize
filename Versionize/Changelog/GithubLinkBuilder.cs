@@ -42,6 +42,11 @@ namespace Versionize.Changelog
             }
         }
 
+        public static bool IsPushUrl(string pushUrl)
+        {
+            return pushUrl.StartsWith("git@github.com:") || pushUrl.StartsWith("https://github.com/");
+        }
+
         public string BuildVersionTagLink(Version version)
         {
             return $"https://www.github.com/{_organization}/{_repository}/releases/tag/v{version}";
