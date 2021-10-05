@@ -19,7 +19,7 @@ namespace Versionize
                 return repository.Commits.ToList();
             }
 
-            var filter = new CommitFilter()
+            var filter = new CommitFilter
             {
                 ExcludeReachableFrom = versionTag
             };
