@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
-using Xunit;
-using Versionize.Tests.TestSupport;
-using Versionize.CommandLine;
+using System.Linq;
 using LibGit2Sharp;
 using Shouldly;
+using Versionize.CommandLine;
+using Versionize.Tests.TestSupport;
+using Xunit;
 
 namespace Versionize.Tests
 {
@@ -59,7 +60,7 @@ namespace Versionize.Tests
             CommitAll(_testSetup.Repository);
 
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-            workingCopy.Versionize(dryrun: true, skipDirtyCheck: true);
+            workingCopy.Versionize(new VersionizeOptions { DryRun = true, SkipDirty = true });
 
             _testPlatformAbstractions.Messages.Count.ShouldBe(4);
             _testPlatformAbstractions.Messages[0].ShouldBe("Discovered 1 versionable projects");
@@ -71,7 +72,7 @@ namespace Versionize.Tests
             TempCsProject.Create(_testSetup.WorkingDirectory);
 
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize());
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
             _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
             _testPlatformAbstractions.Messages[0].ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes.");
@@ -92,7 +93,7 @@ namespace Versionize.Tests
         public void ShouldExitIfWorkingCopyContainsNoProjects()
         {
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize());
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
             _testPlatformAbstractions.Messages[0].ShouldBe($"Could not find any projects files in {_testSetup.WorkingDirectory} that have a <Version> defined in their csproj file.");
         }
@@ -106,8 +107,32 @@ namespace Versionize.Tests
             CommitAll(_testSetup.Repository);
 
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize());
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
             _testPlatformAbstractions.Messages[0].ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
+        }
+
+        [Fact]
+        public void ShouldReleaseAsSpecifiedVersion()
+        {
+            TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+
+            CommitAll(_testSetup.Repository);
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+            workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
+
+            _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v2.0.0" });
+        }
+
+        [Fact]
+        public void ShouldExitIfReleaseAsSpecifiedVersionIsInvalid()
+        {
+            TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+
+            CommitAll(_testSetup.Repository);
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "kanguru" }));
         }
 
         [Fact]
@@ -123,7 +148,7 @@ namespace Versionize.Tests
 
             // Run versionize
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-            workingCopy.Versionize();
+            workingCopy.Versionize(new VersionizeOptions());
 
             // Add insignificant change
             File.AppendAllText(workingFilePath, "This is another line of text");
@@ -135,7 +160,7 @@ namespace Versionize.Tests
             // Run versionize, ignoring insignificant commits
             try
             {
-                workingCopy.Versionize(ignoreInsignificant: true);
+                workingCopy.Versionize(new VersionizeOptions { IgnoreInsignificantCommits = true });
 
                 throw new InvalidOperationException("Expected to throw in Versionize call");
             }
@@ -161,7 +186,7 @@ namespace Versionize.Tests
             // Run versionize
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             var suffix = "[skip ci]";
-            workingCopy.Versionize(releaseCommitMessageSuffix: suffix);
+            workingCopy.Versionize(new VersionizeOptions { CommitSuffix = suffix });
 
             // Get last commit
             var lastCommit = _testSetup.Repository.Head.Tip;

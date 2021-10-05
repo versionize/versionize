@@ -20,6 +20,7 @@
     <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0119" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
     <PackageReference Include="NuGet.Versioning" Version="5.11.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
 </Project>

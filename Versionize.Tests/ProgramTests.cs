@@ -1,13 +1,21 @@
+using System;
+using System.IO;
+using System.Linq;
+using LibGit2Sharp;
+using Shouldly;
 using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
 namespace Versionize.Tests
 {
-    public class ProgramTests
+    public class ProgramTests : IDisposable
     {
+        private readonly TestSetup _testSetup;
+
         public ProgramTests()
         {
+            _testSetup = TestSetup.Create();
             CommandLineUI.Platform = new TestPlatformAbstractions();
         }
 
@@ -25,6 +33,26 @@ namespace Versionize.Tests
             var exitCode = Program.Main(new[] { "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
 
             Assert.Equal(0, exitCode);
+        }
+
+        [Fact]
+        public void ShouldReadConfigurationFromConfigFile()
+        {
+            TempCsProject.Create(_testSetup.WorkingDirectory);
+
+            File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
+            File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), @"{ ""skipDirty"": true }");
+
+            var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory });
+
+            exitCode.ShouldBe(0);
+            File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
+            _testSetup.Repository.Commits.Count().ShouldBe(1);
+        }
+
+        public void Dispose()
+        {
+            _testSetup.Dispose();
         }
     }
 }
