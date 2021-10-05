@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.8.0"></a>
+## [1.8.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.8.0) (2021-10-5)
+
+### Features
+
+* support configuration via .versionize file in json format (#32) ([401cbce](https://www.github.com/saintedlama/versionize/commit/401cbce1f9d4c4cbe6a366cb7fd8ccd8214b4699))
+
 <a name="1.7.0"></a>
 ## [1.7.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.7.0) (2021-10-4)
 
