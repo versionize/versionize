@@ -27,14 +27,15 @@ jobs:
           prerelease: true
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: '0'
+    - name: Git Checkout
+      uses: actions/checkout@v2
     - name: Setup .NET Core ${{ matrix.dotnet.version }}
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet.version }}
         include-prerelease: ${{ matrix.dotnet.prerelease }}
+    - name : ls
+      run : "ls -als"
     - name: Test
       run: dotnet test Versionize.Tests\Versionize.Tests.csproj --framework ${{ matrix.dotnet.framework }} /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs" --no-restore --verbosity normal
 
