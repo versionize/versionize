@@ -15,11 +15,13 @@ jobs:
 
     strategy:
       matrix:
-        dotnet: [
-          { framework: 'netcoreapp3.1', version: '3.1.x' }
-          { framework: 'net5.0', version: '5.0.x' }
-          { framework: 'net6.0', version: '6.0.x' }
-        ]
+        dotnet:
+        - framework: 'netcoreapp3.1'
+          version: '3.1.x'
+        - framework: 'net5.0'
+          version: '5.0.x'
+        - framework: 'net6.0'
+          version: '6.0.x'
 
     steps:
     - uses: actions/checkout@v2
