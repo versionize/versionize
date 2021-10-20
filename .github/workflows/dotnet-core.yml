@@ -13,47 +13,27 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        dotnet:
-        - framework: 'netcoreapp3.1'
-          version: '3.1.x'
-          prerelease: false
-        - framework: 'net5.0'
-          version: '5.0.x'
-          prerelease: false
-        - framework: 'net6.0'
-          version: '6.0.x'
-          prerelease: true
-
     steps:
-    - name: Git Checkout
-      uses: actions/checkout@v2
-    - name: Setup .NET Core ${{ matrix.dotnet.version }}
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+    - name: Setup dotnet
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet.version }}
-        include-prerelease: ${{ matrix.dotnet.prerelease }}
-    - name : ls
-      run : "ls -als"
+        dotnet-version: '3.1.x'
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+        include-prerelease: true
     - name: Test
-      run: dotnet test Versionize.Tests/Versionize.Tests.csproj --framework ${{ matrix.dotnet.framework }} /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs" --verbosity normal
-
-    - name: Coveralls Parallel
+      run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs" --verbosity normal
+    - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-dotnet-${{ matrix.dotnet.version }}
-        parallel: true
-
-  coverage:
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: './Versionize.Tests/coverage.info'
