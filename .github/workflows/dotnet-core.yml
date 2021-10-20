@@ -1,4 +1,4 @@
-name: .NET Core
+name: CI
 
 on:
   push:
@@ -16,19 +16,35 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-depth: '0' 
-    - name: Setup .NET Core
+        fetch-depth: '0'
+
+    - name: Setup .NET Core 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    - name: Setup .NET Core 5.0
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '5.0.x'
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+    - name: Setup .NET Core 6.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+        include-prerelease: true
+
     - name: Test
-      run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs" --no-restore --verbosity normal
+      run: dotnet test --logger "trx" /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs"
+
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: XUnit Tests
+        path: Versionize.Tests/TestResults/*.trx
+        reporter: dotnet-trx
+
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: './Versionize.Tests/coverage.info' 
+        path-to-lcov: './Versionize.Tests/coverage.net6.0.info'
