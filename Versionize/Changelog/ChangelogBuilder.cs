@@ -9,7 +9,7 @@ namespace Versionize.Changelog
 {
     public class ChangelogBuilder
     {
-        private const string Preamble = @"# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.\n";
+        private const string Preamble = "# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.\n";
 
         private ChangelogBuilder(string file)
         {
