@@ -10,7 +10,7 @@ namespace Versionize.Changelog.Tests
     public class AzureLinkBuilderTests
     {
         [Fact]
-        public void ShouldIfUrlIsNoRecognizedSshOrHttpsUrl()
+        public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
         {
             Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("azure.com"));
         }
@@ -80,15 +80,21 @@ namespace Versionize.Changelog.Tests
         }
 
         [Fact]
-        public void ShouldThrowIfSSHUrlDoesNotEndWithGit()
+        public void ShouldCreateAnAzureUrlBuilderForSSHPushUrlsEvenWithoutGitSuffix()
         {
-            Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP"));
+            var repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP");
+            var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+
+            linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
         }
 
         [Fact]
-        public void ShouldThrowIfHTTPSUrlDoesNotEndWithGit()
+        public void ShouldCreateAnAzureUrlBuilderForHTTPSPushUrlsEvenWithoutGitSuffix()
         {
-            Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP"));
+            var repo = SetupRepositoryWithRemote("origin", "https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP");
+            var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+
+            linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
         }
 
         private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)

@@ -13,7 +13,7 @@ namespace Versionize.Changelog
         {
             if (pushUrl.StartsWith("git@ssh.dev.azure.com:"))
             {
-                var httpsPattern = new Regex("^git@ssh.dev.azure.com:(?<organization>.*?)/(?<repository>.*?)\\.git$");
+                var httpsPattern = new Regex("^git@ssh.dev.azure.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
                 var matches = httpsPattern.Match(pushUrl);
 
                 if (!matches.Success)
@@ -26,7 +26,7 @@ namespace Versionize.Changelog
             }
             else if (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"))
             {
-                var httpsPattern = new Regex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<repository>.*?)\\.git$");
+                var httpsPattern = new Regex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
                 var matches = httpsPattern.Match(pushUrl);
 
                 if (!matches.Success)
