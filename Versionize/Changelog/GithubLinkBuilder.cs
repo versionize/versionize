@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
@@ -13,7 +13,7 @@ namespace Versionize.Changelog
         {
             if (pushUrl.StartsWith("git@github.com:"))
             {
-                var httpsPattern = new Regex("^git@github.com:(?<organization>.*?)/(?<repository>.*?)\\.git$");
+                var httpsPattern = new Regex("^git@github.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
                 var matches = httpsPattern.Match(pushUrl);
 
                 if (!matches.Success)
@@ -26,7 +26,7 @@ namespace Versionize.Changelog
             }
             else if (pushUrl.StartsWith("https://github.com/"))
             {
-                var httpsPattern = new Regex("^https://github.com/(?<organization>.*?)/(?<repository>.*?)\\.git$");
+                var httpsPattern = new Regex("^https://github.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
                 var matches = httpsPattern.Match(pushUrl);
 
                 if (!matches.Success)

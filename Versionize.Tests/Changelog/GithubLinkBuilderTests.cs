@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using LibGit2Sharp;
 using Shouldly;
@@ -10,7 +10,7 @@ namespace Versionize.Changelog.Tests
     public class GithubLinkBuilderTests
     {
         [Fact]
-        public void ShouldIfUrlIsNoRecognizedSshOrHttpsUrl()
+        public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
         {
             Should.Throw<InvalidOperationException>(() => new GithubLinkBuilder("github.com"));
         }
@@ -52,15 +52,21 @@ namespace Versionize.Changelog.Tests
         }
 
         [Fact]
-        public void ShouldThrowIfSSHUrlDoesNotEndWithGit()
+        public void ShouldCreateAGithubUrlBuilderForSSHPushUrlsEvenWithoutGitSuffix()
         {
-            Should.Throw<InvalidOperationException>(() => new GithubLinkBuilder("git@github.com:saintedlama/versionize"));
+            var repo = SetupRepositoryWithRemote("origin", "git@github.com:saintedlama/versionize");
+            var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+
+            linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
         }
 
         [Fact]
-        public void ShouldThrowIfHTTPSUrlDoesNotEndWithGit()
+        public void ShouldCreateAGithubUrlBuilderForHTTPSPushUrlsEvenWithoutGitSuffix()
         {
-            Should.Throw<InvalidOperationException>(() => new GithubLinkBuilder("https://github.com/saintedlama/versionize"));
+            var repo = SetupRepositoryWithRemote("origin", "https://github.com/saintedlama/versionize");
+            var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+
+            linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
         }
 
         private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)
