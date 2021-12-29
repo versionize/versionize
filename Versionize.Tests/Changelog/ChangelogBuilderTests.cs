@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Xunit;
 using Versionize.Tests.TestSupport;
@@ -27,6 +27,20 @@ namespace Versionize.Changelog.Tests
 
             var wasChangelogWritten = File.Exists(Path.Join(_testDirectory, "CHANGELOG.md"));
             Assert.True(wasChangelogWritten);
+        }
+
+        [Fact]
+        public void ShouldGenerateWithoutLiteralLineBreakCharacters()
+        {
+            var plainLinkBuilder = new PlainLinkBuilder();
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+            changelog.Write(new Version(1, 1, 0), new DateTimeOffset(), plainLinkBuilder, new List<ConventionalCommit>
+            {
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+            });
+
+            var contents = File.ReadAllText(Path.Join(_testDirectory, "CHANGELOG.md"));
+            contents.ShouldNotContain("\\n");
         }
 
         [Fact]
