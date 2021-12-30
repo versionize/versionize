@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.9.0"></a>
+## [1.9.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.9.0) (2021-12-30)
+
+### Bug Fixes
+
+* changelog includes literal line break characters (#35) ([b0283b3](https://www.github.com/saintedlama/versionize/commit/b0283b3276e5c276ad97a44b7c49867473d96784))
+* invalid url exception (#36) ([e3db063](https://www.github.com/saintedlama/versionize/commit/e3db0632b0f96f240d4c08df96840d4d85d73622))
+
+### Features
+
+* deprecate netcoreapp2.1 and support net6.0 target frameworks (#33) ([e2fbf39](https://www.github.com/saintedlama/versionize/commit/e2fbf39903d94e625070a3ac78444132453ea48c))
+
 <a name="1.8.0"></a>
 ## [1.8.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.8.0) (2021-10-5)
 
