@@ -17,7 +17,7 @@ namespace Versionize.Changelog.Tests
         [Fact]
         public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
         {
-            Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("bitbucket.com"));
+            Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("bitbucket.org"));
         }
 
         [Fact]
