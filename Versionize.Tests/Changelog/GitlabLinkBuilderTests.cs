@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
-using NuGet.Versioning;
 using LibGit2Sharp;
+using NuGet.Versioning;
 using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -19,6 +19,18 @@ namespace Versionize.Changelog.Tests
         public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
         {
             Should.Throw<InvalidOperationException>(() => new GitlabLinkBuilder("gitlab.com"));
+        }
+
+        [Fact]
+        public void ShouldThrowIfUrlIsNoValidHttpsCloneUrl()
+        {
+            Should.Throw<InvalidOperationException>(() => new GitlabLinkBuilder("https://gitlab.com/inkscape"));
+        }
+
+        [Fact]
+        public void ShouldThrowIfUrlIsNoValidSshCloneUrl()
+        {
+            Should.Throw<InvalidOperationException>(() => new GitlabLinkBuilder("git@gitlab.com:inkscape"));
         }
 
         [Fact]
