@@ -88,11 +88,6 @@ namespace Versionize.Changelog.Tests
         [Fact]
         public void ShouldBuildASSHTagLink()
         {
-            var commit = new ConventionalCommit
-            {
-                Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
-            };
-
             var linkBuilder = new GitlabLinkBuilder(inkscapeSSH);
             var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
 
