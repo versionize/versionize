@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
-using System.ServiceModel;
+using NuGet.Versioning;
 using LibGit2Sharp;
 using Shouldly;
 using Versionize.Tests.TestSupport;
@@ -84,6 +84,30 @@ namespace Versionize.Changelog.Tests
 
             link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/commit/734713bc047d87bf7eac9674765ae793478c50d3");
         }
+
+        [Fact]
+        public void ShouldBuildASSHTagLink()
+        {
+            var commit = new ConventionalCommit
+            {
+                Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
+            };
+
+            var linkBuilder = new GitlabLinkBuilder(inkscapeSSH);
+            var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+
+            link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.0.0");
+        }
+
+        [Fact]
+        public void ShouldBuildAnHTTPSTagLink()
+        {
+            var linkBuilder = new GitlabLinkBuilder(inkscapeHTTPS);
+            var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+
+            link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.0.0");
+        }
+
 
         private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)
         {
