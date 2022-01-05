@@ -38,7 +38,6 @@ namespace Versionize
                 var cwd = optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
                 var jsonFileConfig = FromJsonFile(Path.Join(cwd, ".versionize"));
 
-                // TODO: Silent option is missing in the config file
                 var options = MergeWithOptions(jsonFileConfig, new VersionizeOptions
                 {
                     DryRun = optionDryRun.HasValue(),
@@ -80,6 +79,8 @@ namespace Versionize
 
             try
             {
+                CommandLineUI.Information($"Reading configuration from {filePath}");
+
                 var jsonString = File.ReadAllText(filePath);
                 return JsonSerializer.Deserialize<ConfigurationContract>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }

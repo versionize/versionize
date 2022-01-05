@@ -23,6 +23,10 @@ namespace Versionize.Changelog
             {
                 return new AzureLinkBuilder(origin.PushUrl);
             }
+            else if (GitlabLinkBuilder.IsPushUrl(origin.PushUrl))
+            {
+                return new GitlabLinkBuilder(origin.PushUrl);
+            }
             else if (BitbucketLinkBuilder.IsPushUrl(origin.PushUrl))
             {
                 return new BitbucketLinkBuilder(origin.PushUrl);
