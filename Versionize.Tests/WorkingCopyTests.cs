@@ -63,7 +63,7 @@ namespace Versionize.Tests
             workingCopy.Versionize(new VersionizeOptions { DryRun = true, SkipDirty = true });
 
             _testPlatformAbstractions.Messages.Count.ShouldBe(4);
-            _testPlatformAbstractions.Messages[0].ShouldBe("Discovered 1 versionable projects");
+            _testPlatformAbstractions.Messages[0].Message.ShouldBe("Discovered 1 versionable projects");
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Versionize.Tests
             Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
             _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-            _testPlatformAbstractions.Messages[0].ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes.");
+            _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes.");
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace Versionize.Tests
             var workingDirectory = TempDir.Create();
             Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(workingDirectory));
 
-            _testPlatformAbstractions.Messages[0].ShouldBe($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
+            _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
 
             Cleanup.DeleteDirectory(workingDirectory);
         }
@@ -95,7 +95,7 @@ namespace Versionize.Tests
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
-            _testPlatformAbstractions.Messages[0].ShouldBe($"Could not find any projects files in {_testSetup.WorkingDirectory} that have a <Version> defined in their csproj file.");
+            _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Could not find any projects files in {_testSetup.WorkingDirectory} that have a <Version> defined in their csproj file.");
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace Versionize.Tests
 
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-            _testPlatformAbstractions.Messages[0].ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
+            _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
         }
 
         [Fact]

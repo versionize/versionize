@@ -9,7 +9,6 @@ using Xunit;
 
 namespace Versionize.Changelog.Tests
 {
-
     public class GitlabLinkBuilderTests
     {
         private readonly string inkscapeSSH = "git@gitlab.com:inkscape/inkscape.git";

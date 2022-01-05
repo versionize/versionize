@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using LibGit2Sharp;
 using Shouldly;
 using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
@@ -12,27 +11,43 @@ namespace Versionize.Tests
     public class ProgramTests : IDisposable
     {
         private readonly TestSetup _testSetup;
+        private readonly TestPlatformAbstractions _testPlatformAbstractions;
 
         public ProgramTests()
         {
             _testSetup = TestSetup.Create();
-            CommandLineUI.Platform = new TestPlatformAbstractions();
+            TempCsProject.Create(_testSetup.WorkingDirectory, "1.1.0");
+
+            _testPlatformAbstractions = new TestPlatformAbstractions();
+            CommandLineUI.Platform = _testPlatformAbstractions;
         }
 
         [Fact]
         public void ShouldRunVersionizeWithDryRunOption()
         {
-            var exitCode = Program.Main(new[] { "--dry-run", "--skip-dirty" });
+            var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty" });
 
-            Assert.Equal(0, exitCode);
+            exitCode.ShouldBe(0);
+            _testPlatformAbstractions.Formmatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 1.1.0 in projects".Equals(f.Target)));
         }
 
         [Fact]
         public void ShouldVersionizeDesiredReleaseVersion()
         {
-            var exitCode = Program.Main(new[] { "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
+            var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
 
-            Assert.Equal(0, exitCode);
+            exitCode.ShouldBe(0);
+            _testPlatformAbstractions.Formmatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 2.0.0 in projects".Equals(f.Target)));
+        }
+
+        [Fact]
+        public void ShouldPrintTheCurrentVersionWithInspectCommand()
+        {
+            var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "inspect" });
+
+            exitCode.ShouldBe(0);
+            _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+            _testPlatformAbstractions.Messages[0].Message.ShouldBe("1.1.0");
         }
 
         [Fact]
