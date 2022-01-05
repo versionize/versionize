@@ -1,6 +1,5 @@
 # Versionize
 
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/r0rjv30llx7nhxl4?svg=true)](https://ci.appveyor.com/project/saintedlama/versionize)
 [![Coverage Status](https://coveralls.io/repos/saintedlama/versionize/badge.svg?branch=)](https://coveralls.io/r/saintedlama/versionize?branch=master)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
