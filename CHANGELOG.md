@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.10.0"></a>
+## [1.10.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.10.0) (2022-1-5)
+
+### Features
+
+* add Gitlab link builder (#38) ([94d79cc](https://www.github.com/saintedlama/versionize/commit/94d79ccbb2835df03bd693e5d1daeb6fd4fa8244))
+* implement a bitbucket link builder (#39) ([60df2da](https://www.github.com/saintedlama/versionize/commit/60df2dab83a96afd58343b1aeec4a86b43f88465))
+* update dependencies including LibGit2Sharp (#40) ([c02ba81](https://www.github.com/saintedlama/versionize/commit/c02ba8160eeb8bc2f005d95921f29ac622b825c7))
+* update libgit2sharp (#37) ([f5b8a08](https://www.github.com/saintedlama/versionize/commit/f5b8a0877592f67d85f6f7c3756ef0ca841cbcdd))
+
 <a name="1.9.0"></a>
 ## [1.9.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.9.0) (2021-12-30)
 
