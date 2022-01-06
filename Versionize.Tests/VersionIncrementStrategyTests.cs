@@ -64,7 +64,7 @@ namespace Versionize.Tests
                     Type = "chore",
                     Notes = new List<ConventionalCommitNote>
                     {
-                        new ConventionalCommitNote() { Title = "BREAKING CHANGE"}
+                        new ConventionalCommitNote { Title = "BREAKING CHANGE"}
                     }
                 }
             });
