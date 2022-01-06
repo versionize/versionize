@@ -33,6 +33,18 @@ namespace Versionize
             var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
             var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
 
+            var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
+            {
+                var cwd = optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
+
+                WorkingCopy
+                    .Discover(cwd)
+                    .Inspect();
+
+                return 0;
+            }));
+            inspectCmd.Description = "Prints the current version to stdout";
+
             app.OnExecute(() =>
             {
                 var cwd = optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
