@@ -17,6 +17,27 @@ namespace Versionize
             _directory = directory;
         }
 
+        public Version Inspect()
+        {
+            var workingDirectory = _directory.FullName;
+
+            var projects = Projects.Discover(workingDirectory);
+
+            if (projects.IsEmpty())
+            {
+                Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
+            }
+
+            if (projects.HasInconsistentVersioning())
+            {
+                Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
+            }
+
+            Information(projects.Version.ToNormalizedString());
+
+            return projects.Version;
+        }
+
         public Version Versionize(VersionizeOptions options)
         {
             var workingDirectory = _directory.FullName;
