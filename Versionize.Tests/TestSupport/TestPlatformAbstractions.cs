@@ -26,12 +26,12 @@ namespace Versionize.Tests.TestSupport
 
         public void WriteLine(string message, Color color)
         {
-            Messages.Add(new FormatterMessage() { Message = message });
+            Messages.Add(new FormatterMessage { Message = message });
         }
 
         public void WriteLineFormatted(string message, Color color, Formatter[] formatters)
         {
-            Messages.Add(new FormatterMessage() { Message = message, Formatters = formatters });
+            Messages.Add(new FormatterMessage { Message = message, Formatters = formatters });
         }
     }
 
