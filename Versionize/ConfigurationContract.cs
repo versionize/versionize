@@ -1,5 +1,4 @@
-
-using System;
+﻿using System;
 
 namespace Versionize
 {
@@ -13,5 +12,6 @@ namespace Versionize
         public bool? IgnoreInsignificantCommits { get; set; }
         public bool? ChangelogAll { get; set; }
         public String CommitSuffix { get; set; }
+        public ChangelogOptions Changelog { get; set; }
     }
 }

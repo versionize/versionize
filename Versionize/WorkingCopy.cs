@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
@@ -115,7 +115,7 @@ namespace Versionize
                 if (!options.DryRun)
                 {
                     var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);
-                    changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.ChangelogAll);
+                    changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
                 }
 
                 Step("updated CHANGELOG.md");

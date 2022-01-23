@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Version>1.10.0</Version>
     <ToolCommandName>versionize</ToolCommandName>
+    <LangVersion>latest</LangVersion>
     <PackAsTool>True</PackAsTool>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
