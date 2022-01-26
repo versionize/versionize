@@ -78,6 +78,19 @@ namespace Versionize
             {
                 return CommandLineUI.Exit(e.Message, 1);
             }
+            catch (LibGit2Sharp.NotFoundException e)
+            {
+                return CommandLineUI.Exit($@"
+Error: LibGit2Sharp.NotFoundException
+
+This is most likely caused by running versionize against a git repository cloned with depth --1.
+In case you're using the actions/checkout@v2 in github actions you could specify fetch-depth: '1'.
+For more detail see  https://github.com/actions/checkout
+
+Exception detail:
+
+{e}", 1);
+            }
         }
 
         private static string GetVersion() => typeof(Program).Assembly.GetName().Version.ToString();
