@@ -1,4 +1,4 @@
-# Versionize
+﻿# Versionize
 
 [![Coverage Status](https://coveralls.io/repos/saintedlama/versionize/badge.svg?branch=)](https://coveralls.io/r/saintedlama/versionize?branch=master)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -138,6 +138,36 @@ versionize detected a breaking change since the commit note `BREAKING CHANGE` wa
 You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
 
 Any of the command line parameters accepted by `versionized` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file.
+
+Changelog customization can only be done via a `.versionize` file. The following is an example configuration:
+
+```json
+{
+  "changelogAll": true,
+  "changelog": {
+    "header": "My Changelog",
+    "sections": [
+      {
+        "type": "feat",
+        "section": "✨ Features",
+        "hidden": false
+      },
+      {
+        "type": "fix",
+        "section": "🐛 Bug Fixes",
+        "hidden": true
+      },
+      {
+        "type": "perf",
+        "section": "🚀 Performance",
+        "hidden": false
+      }
+    ]
+  }
+}
+```
+
+Because `changelogAll` is true and the _fix_ section is hidden, fix commits will appear in the a section titled "Other".
 
 ## Developing
 
