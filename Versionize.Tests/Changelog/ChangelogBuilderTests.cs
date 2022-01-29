@@ -193,6 +193,28 @@ namespace Versionize.Changelog.Tests
         }
 
         [Fact]
+        public void ShouldUseCustomHeaderWhenSpecified()
+        {
+            var plainLinkBuilder = new PlainLinkBuilder();
+            var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+            changelog.Write(
+                new Version(1, 1, 0),
+                new DateTimeOffset(),
+                plainLinkBuilder,
+                new List<ConventionalCommit>
+                {
+                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                },
+                ChangelogOptions.Default with
+                {
+                    Header = "My custom changelog",
+                });
+
+            var changelogContents = File.ReadAllText(changelog.FilePath);
+            changelogContents.ShouldStartWith("My custom changelog", Case.Sensitive);
+        }
+
+        [Fact]
         public void ShouldAppendAtEndIfChangelogContainsExtraInformation()
         {
             File.WriteAllText(Path.Combine(_testDirectory, "CHANGELOG.md"), "# Should be kept by versionize\n\nSome information about the changelog");
