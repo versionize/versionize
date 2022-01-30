@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
 using McMaster.Extensions.CommandLineUtils;
@@ -57,9 +57,10 @@ namespace Versionize
                     SkipCommit = optionSkipCommit.HasValue(),
                     ReleaseAs = optionReleaseAs.Value(),
                     IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
-                    ChangelogAll = optionIncludeAllCommitsInChangelog.HasValue(),
                     CommitSuffix = optionCommitSuffix.Value(),
-                });
+                    Changelog = ChangelogOptions.Default,
+                },
+                optionIncludeAllCommitsInChangelog.HasValue());
 
                 CommandLineUI.Verbosity = MergeBool(optionSilent.HasValue(), jsonFileConfig?.Silent) ? LogLevel.Silent : LogLevel.All;
 
@@ -103,8 +104,14 @@ namespace Versionize
             }
         }
 
-        private static VersionizeOptions MergeWithOptions(ConfigurationContract optionalConfiguration, VersionizeOptions configuration)
+        private static VersionizeOptions MergeWithOptions(
+            ConfigurationContract optionalConfiguration,
+            VersionizeOptions configuration,
+            bool changelogAll)
         {
+            var includeAllCommits = MergeBool(changelogAll, optionalConfiguration?.ChangelogAll);
+            var changelog = MergeChangelogOptions(optionalConfiguration?.Changelog, configuration.Changelog);
+            changelog.IncludeAllCommits = includeAllCommits;
             return new VersionizeOptions
             {
                 DryRun = MergeBool(configuration.DryRun, optionalConfiguration?.DryRun),
@@ -112,8 +119,22 @@ namespace Versionize
                 SkipCommit = MergeBool(configuration.SkipCommit, optionalConfiguration?.SkipCommit),
                 ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
                 IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
-                ChangelogAll = MergeBool(configuration.ChangelogAll, optionalConfiguration?.ChangelogAll),
                 CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
+                Changelog = changelog,
+            };
+        }
+
+        private static ChangelogOptions MergeChangelogOptions(ChangelogOptions customOptions, ChangelogOptions defaultOptions)
+        {
+            if (customOptions == null)
+            {
+                return defaultOptions;
+            }
+
+            return new ChangelogOptions
+            {
+                Header = customOptions.Header ?? defaultOptions.Header,
+                Sections = customOptions.Sections ?? defaultOptions.Sections,
             };
         }
 

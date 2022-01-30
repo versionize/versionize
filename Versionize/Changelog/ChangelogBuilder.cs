@@ -9,8 +9,6 @@ namespace Versionize.Changelog
 {
     public class ChangelogBuilder
     {
-        private const string Preamble = "# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.\n";
-
         private ChangelogBuilder(string file)
         {
             FilePath = file;
@@ -18,10 +16,16 @@ namespace Versionize.Changelog
 
         public string FilePath { get; }
 
-        public void Write(Version version, DateTimeOffset versionTime, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits,
-            bool includeAllCommitsInChangelog = false)
+        public void Write(
+            Version version,
+            DateTimeOffset versionTime,
+            IChangelogLinkBuilder linkBuilder,
+            IEnumerable<ConventionalCommit> commits,
+            ChangelogOptions changelogOptions)
         {
-            var versionTagLink = string.IsNullOrWhiteSpace(linkBuilder.BuildVersionTagLink(version)) ? version.ToString() : $"[{version}]({linkBuilder.BuildVersionTagLink(version)})";
+            var versionTagLink = string.IsNullOrWhiteSpace(linkBuilder.BuildVersionTagLink(version))
+                ? version.ToString()
+                : $"[{version}]({linkBuilder.BuildVersionTagLink(version)})";
 
             var markdown = $"<a name=\"{version}\"></a>";
             markdown += "\n";
@@ -29,20 +33,17 @@ namespace Versionize.Changelog
             markdown += "\n";
             markdown += "\n";
 
-            var bugFixes = BuildBlock("Bug Fixes", linkBuilder, commits.Where(commit => commit.IsFix));
+            var visibleChangelogSections = changelogOptions.Sections.Where(x => !x.Hidden);
 
-            if (!string.IsNullOrWhiteSpace(bugFixes))
+            foreach (var changelogSection in visibleChangelogSections)
             {
-                markdown += bugFixes;
-                markdown += "\n";
-            }
-
-            var features = BuildBlock("Features", linkBuilder, commits.Where(commit => commit.IsFeature));
-
-            if (!string.IsNullOrWhiteSpace(features))
-            {
-                markdown += features;
-                markdown += "\n";
+                var matchingCommits = commits.Where(commit => commit.Type == changelogSection.Type);
+                var buildBlock = BuildBlock(changelogSection.Section, linkBuilder, matchingCommits);
+                if (!string.IsNullOrWhiteSpace(buildBlock))
+                {
+                    markdown += buildBlock;
+                    markdown += "\n";
+                }
             }
 
             var breaking = BuildBlock("Breaking Changes", linkBuilder, commits.Where(commit => commit.IsBreakingChange));
@@ -53,9 +54,12 @@ namespace Versionize.Changelog
                 markdown += "\n";
             }
 
-            if (includeAllCommitsInChangelog)
+            if (changelogOptions.IncludeAllCommits)
             {
-                var other = BuildBlock("Other", linkBuilder, commits.Where(commit => !commit.IsFix && !commit.IsFeature && !commit.IsBreakingChange));
+                var other = BuildBlock(
+                    "Other",
+                    linkBuilder,
+                    commits.Where(commit => !visibleChangelogSections.Any(x => x.Type == commit.Type) && !commit.IsBreakingChange));
 
                 if (!string.IsNullOrWhiteSpace(other))
                 {
@@ -83,7 +87,7 @@ namespace Versionize.Changelog
             }
             else
             {
-                File.WriteAllText(FilePath, Preamble + "\n" + markdown);
+                File.WriteAllText(FilePath, changelogOptions.Header + "\n" + markdown);
             }
         }
 
