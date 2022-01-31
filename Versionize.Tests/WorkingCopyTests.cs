@@ -49,21 +49,23 @@ namespace Versionize.Tests
         }
 
         [Fact]
-        public void ShouldPreformADryRun()
+        public void ShouldPerformADryRun()
         {
             TempCsProject.Create(_testSetup.WorkingDirectory);
 
             File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
-            CommitAll(_testSetup.Repository);
-
-            File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "Second commit");
-            CommitAll(_testSetup.Repository);
+            CommitAll(_testSetup.Repository, "feat: first commit");
 
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             workingCopy.Versionize(new VersionizeOptions { DryRun = true, SkipDirty = true });
 
-            _testPlatformAbstractions.Messages.Count.ShouldBe(4);
+            _testPlatformAbstractions.Messages.Count.ShouldBe(7);
             _testPlatformAbstractions.Messages[0].Message.ShouldBe("Discovered 1 versionable projects");
+            _testPlatformAbstractions.Messages[3].Message.ShouldBe("\n---");
+            _testPlatformAbstractions.Messages[4].Message.ShouldContain("* first commit");
+            _testPlatformAbstractions.Messages[5].Message.ShouldBe("---\n");
+            var wasChangelogWritten = File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
+            Assert.False(wasChangelogWritten);
         }
 
         [Fact]

@@ -71,10 +71,20 @@ namespace Versionize.Changelog.Tests
                 },
                 ChangelogOptions.Default);
 
-            var wasChangelogWritten = File.Exists(Path.Join(_testDirectory, "CHANGELOG.md"));
-            Assert.True(wasChangelogWritten);
+            var changelogContents = File.ReadAllText(changelog.FilePath);
 
-            // TODO: Assert changelog entries
+            var sb = new ChangelogStringBuilder();
+            sb.Append(ChangelogOptions.Preamble);
+            sb.Append("<a name=\"1.1.0\"></a>");
+            sb.Append("## 1.1.0 (1-1-1)", 2);
+            sb.Append("### Features", 2);
+            sb.Append("* a breaking change feature");
+            sb.Append("* a feature", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append("* a fix", 2);
+            sb.Append("### Breaking Changes", 2);
+            sb.Append("* a breaking change feature", 2);
+            Assert.Equal(sb.Build(), changelogContents);
         }
 
         [Fact]
@@ -371,6 +381,36 @@ namespace Versionize.Changelog.Tests
 
             changelogContents.ShouldContain("nothing important");
             changelogContents.ShouldContain("some foo bar");
+        }
+
+        [Fact]
+        public void GenerateMarkdownShouldGenerateMarkdownForFixFeatAndBreakingCommits()
+        {
+            var plainLinkBuilder = new PlainLinkBuilder();
+            string markdown = ChangelogBuilder.GenerateMarkdown(
+                new Version(1, 1, 0),
+                new DateTimeOffset(),
+                plainLinkBuilder,
+                new List<ConventionalCommit>
+                {
+                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                    ConventionalCommitParser.Parse(
+                        new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
+                },
+                ChangelogOptions.Default);
+
+            var sb = new ChangelogStringBuilder();
+            sb.Append("<a name=\"1.1.0\"></a>");
+            sb.Append("## 1.1.0 (1-1-1)", 2);
+            sb.Append("### Features", 2);
+            sb.Append("* a breaking change feature");
+            sb.Append("* a feature", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append("* a fix", 2);
+            sb.Append("### Breaking Changes", 2);
+            sb.Append("* a breaking change feature", 2);
+            Assert.Equal(sb.Build(), markdown);
         }
 
         public void Dispose()

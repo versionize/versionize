@@ -23,6 +23,38 @@ namespace Versionize.Changelog
             IEnumerable<ConventionalCommit> commits,
             ChangelogOptions changelogOptions)
         {
+            string markdown = GenerateMarkdown(version, versionTime, linkBuilder, commits, changelogOptions);
+
+            if (File.Exists(FilePath))
+            {
+                var contents = File.ReadAllText(FilePath);
+
+                var firstReleaseHeadlineIdx = contents.IndexOf("<a name=\"", StringComparison.Ordinal);
+
+                if (firstReleaseHeadlineIdx >= 0)
+                {
+                    markdown = contents.Insert(firstReleaseHeadlineIdx, markdown);
+                }
+                else
+                {
+                    markdown = contents + "\n\n" + markdown;
+                }
+
+                File.WriteAllText(FilePath, markdown);
+            }
+            else
+            {
+                File.WriteAllText(FilePath, changelogOptions.Header + "\n" + markdown);
+            }
+        }
+
+        public static string GenerateMarkdown(
+            Version version,
+            DateTimeOffset versionTime,
+            IChangelogLinkBuilder linkBuilder,
+            IEnumerable<ConventionalCommit> commits,
+            ChangelogOptions changelogOptions)
+        {
             var versionTagLink = string.IsNullOrWhiteSpace(linkBuilder.BuildVersionTagLink(version))
                 ? version.ToString()
                 : $"[{version}]({linkBuilder.BuildVersionTagLink(version)})";
@@ -68,27 +100,7 @@ namespace Versionize.Changelog
                 }
             }
 
-            if (File.Exists(FilePath))
-            {
-                var contents = File.ReadAllText(FilePath);
-
-                var firstReleaseHeadlineIdx = contents.IndexOf("<a name=\"", StringComparison.Ordinal);
-
-                if (firstReleaseHeadlineIdx >= 0)
-                {
-                    markdown = contents.Insert(firstReleaseHeadlineIdx, markdown);
-                }
-                else
-                {
-                    markdown = contents + "\n\n" + markdown;
-                }
-
-                File.WriteAllText(FilePath, markdown);
-            }
-            else
-            {
-                File.WriteAllText(FilePath, changelogOptions.Header + "\n" + markdown);
-            }
+            return markdown;
         }
 
         public static string BuildBlock(string header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)

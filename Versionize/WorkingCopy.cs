@@ -111,10 +111,17 @@ namespace Versionize
                 Step($"bumping version from {projects.Version} to {nextVersion} in projects");
 
                 var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
+                var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);
 
-                if (!options.DryRun)
+                if (options.DryRun)
                 {
-                    var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);
+                    string markdown = ChangelogBuilder.GenerateMarkdown(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
+                    Information("\n---");
+                    Information(markdown.TrimEnd('\n'));
+                    Information("---\n");
+                }
+                else
+                {
                     changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
                 }
 
