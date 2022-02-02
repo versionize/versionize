@@ -10,14 +10,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: '0'
-
     - name: Setup .NET Core 3.1
       uses: actions/setup-dotnet@v1
       with:
@@ -34,17 +31,3 @@ jobs:
 
     - name: Test
       run: dotnet test --logger "trx" /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs"
-
-    - name: Test Report
-      uses: dorny/test-reporter@v1
-      if: success() || failure()
-      with:
-        name: XUnit Tests
-        path: Versionize.Tests/TestResults/*.trx
-        reporter: dotnet-trx
-
-    - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: './Versionize.Tests/coverage.net6.0.info'
