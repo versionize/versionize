@@ -31,3 +31,17 @@ jobs:
 
     - name: Test
       run: dotnet test --logger "trx" /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs"
+
+    - name: Upload Test Results
+    - uses: actions/upload-artifact@v2
+      if: success() || failure()
+      with:
+        name: test-results
+        path: Versionize.Tests/TestResults/*.trx
+
+    - name: Upload Test Coverage
+    - uses: actions/upload-artifact@v2
+      if: success() || failure()
+      with:
+        name: test-coverage
+        path: Versionize.Tests/coverage.net6.0.info
