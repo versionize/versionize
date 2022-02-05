@@ -1,7 +1,0 @@
-language: csharp
-mono: none
-dotnet: 5.0
-script:
- - dotnet restore
- - dotnet build
- - dotnet test Versionize.Tests/Versionize.Tests.csproj
