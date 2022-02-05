@@ -39,9 +39,8 @@ jobs:
         name: test-results
         path: Versionize.Tests/TestResults/*.trx
 
-    - name: Upload Test Coverage
-      uses: actions/upload-artifact@v2
-      if: success() || failure()
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
       with:
-        name: test-coverage
-        path: Versionize.Tests/coverage.net6.0.info
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: './Versionize.Tests/coverage.net6.0.info'
