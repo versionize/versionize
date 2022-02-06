@@ -1,57 +1,56 @@
 using Version = NuGet.Versioning.SemanticVersion;
 
-namespace Versionize
+namespace Versionize;
+
+public class Projects
 {
-    public class Projects
+    private readonly IEnumerable<Project> _projects;
+
+    private Projects(IEnumerable<Project> projects)
     {
-        private readonly IEnumerable<Project> _projects;
+        _projects = projects;
+    }
 
-        private Projects(IEnumerable<Project> projects)
+    public bool IsEmpty()
+    {
+        return !_projects.Any();
+    }
+
+    public bool HasInconsistentVersioning()
+    {
+        var firstProjectVersion = _projects.FirstOrDefault()?.Version;
+
+        if (firstProjectVersion == null)
         {
-            _projects = projects;
+            return true;
         }
 
-        public bool IsEmpty()
+        return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
+    }
+
+    public Version Version { get => _projects.First().Version; }
+
+    public static Projects Discover(string workingDirectory)
+    {
+        var projects = Directory
+            .GetFiles(workingDirectory, "*.csproj", SearchOption.AllDirectories)
+            .Where(Project.IsVersionable)
+            .Select(Project.Create)
+            .ToList();
+
+        return new Projects(projects);
+    }
+
+    public void WriteVersion(Version nextVersion)
+    {
+        foreach (var project in _projects)
         {
-            return !_projects.Any();
+            project.WriteVersion(nextVersion);
         }
+    }
 
-        public bool HasInconsistentVersioning()
-        {
-            var firstProjectVersion = _projects.FirstOrDefault()?.Version;
-
-            if (firstProjectVersion == null)
-            {
-                return true;
-            }
-
-            return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
-        }
-
-        public Version Version { get => _projects.First().Version; }
-
-        public static Projects Discover(string workingDirectory)
-        {
-            var projects = Directory
-                .GetFiles(workingDirectory, "*.csproj", SearchOption.AllDirectories)
-                .Where(Project.IsVersionable)
-                .Select(Project.Create)
-                .ToList();
-
-            return new Projects(projects);
-        }
-
-        public void WriteVersion(Version nextVersion)
-        {
-            foreach (var project in _projects)
-            {
-                project.WriteVersion(nextVersion);
-            }
-        }
-
-        public IEnumerable<string> GetProjectFiles()
-        {
-            return _projects.Select(project => project.ProjectFile);
-        }
+    public IEnumerable<string> GetProjectFiles()
+    {
+        return _projects.Select(project => project.ProjectFile);
     }
 }

@@ -1,12 +1,11 @@
-namespace Versionize.Tests.TestSupport
-{
-    public class CommandLineExitException : Exception
-    {
-        public int ExitCode { get; }
+namespace Versionize.Tests.TestSupport;
 
-        public CommandLineExitException(int exitCode)
-        {
-            ExitCode = exitCode;
-        }
+public class CommandLineExitException : Exception
+{
+    public int ExitCode { get; }
+
+    public CommandLineExitException(int exitCode)
+    {
+        ExitCode = exitCode;
     }
 }

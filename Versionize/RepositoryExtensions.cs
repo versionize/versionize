@@ -1,28 +1,27 @@
 using LibGit2Sharp;
 using Version = NuGet.Versioning.SemanticVersion;
 
-namespace Versionize
+namespace Versionize;
+
+public static class RespositoryExtensions
 {
-    public static class RespositoryExtensions
+    public static Tag SelectVersionTag(this Repository repository, Version version)
     {
-        public static Tag SelectVersionTag(this Repository repository, Version version)
+        return repository.Tags.SingleOrDefault(t => t.FriendlyName == $"v{version}");
+    }
+
+    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag)
+    {
+        if (versionTag == null)
         {
-            return repository.Tags.SingleOrDefault(t => t.FriendlyName == $"v{version}");
+            return repository.Commits.ToList();
         }
 
-        public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag)
+        var filter = new CommitFilter
         {
-            if (versionTag == null)
-            {
-                return repository.Commits.ToList();
-            }
+            ExcludeReachableFrom = versionTag
+        };
 
-            var filter = new CommitFilter
-            {
-                ExcludeReachableFrom = versionTag
-            };
-
-            return repository.Commits.QueryBy(filter).ToList();
-        }
+        return repository.Commits.QueryBy(filter).ToList();
     }
 }
