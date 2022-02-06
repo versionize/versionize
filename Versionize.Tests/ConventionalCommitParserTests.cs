@@ -1,6 +1,5 @@
 using Xunit;
 using LibGit2Sharp;
-using System.Linq;
 
 namespace Versionize.Tests
 {

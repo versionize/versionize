@@ -1,8 +1,5 @@
-﻿using System;
-using System.IO;
-using Xunit;
+﻿using Xunit;
 using Versionize.Tests.TestSupport;
-using System.Collections.Generic;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.Tests;

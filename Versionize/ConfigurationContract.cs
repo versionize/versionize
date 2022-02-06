@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Versionize
+﻿namespace Versionize
 {
     public class ConfigurationContract
     {

@@ -1,5 +1,3 @@
-using System;
-
 namespace Versionize.Tests.TestSupport
 {
     public class CommandLineExitException : Exception

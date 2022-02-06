@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Versionize.Tests.TestSupport
+﻿namespace Versionize.Tests.TestSupport
 {
     public static class TempDir
     {

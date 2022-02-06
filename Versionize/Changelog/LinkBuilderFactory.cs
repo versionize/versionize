@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 
 namespace Versionize.Changelog
 {

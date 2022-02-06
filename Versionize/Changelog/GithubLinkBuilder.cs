@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog

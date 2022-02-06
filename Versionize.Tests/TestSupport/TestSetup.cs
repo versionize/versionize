@@ -1,4 +1,3 @@
-using System;
 using LibGit2Sharp;
 
 namespace Versionize.Tests.TestSupport

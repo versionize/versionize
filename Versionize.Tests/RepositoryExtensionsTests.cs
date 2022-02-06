@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Xunit;
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;

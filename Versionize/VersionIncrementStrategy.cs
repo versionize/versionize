@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize

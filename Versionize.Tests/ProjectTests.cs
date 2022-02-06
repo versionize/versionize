@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Xml;
+﻿using System.Xml;
 
 namespace Versionize.Tests.TestSupport
 {
