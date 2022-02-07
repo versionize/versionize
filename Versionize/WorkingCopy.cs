@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
+using NuGet.Versioning;
 using Versionize.Changelog;
 using static Versionize.CommandLine.CommandLineUI;
 using Version = NuGet.Versioning.SemanticVersion;
@@ -74,13 +75,20 @@ namespace Versionize
 
                 var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
 
-                var versionIncrement = VersionIncrementStrategy.CreateFrom(conventionalCommits);
+                var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
-                var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version, options.IgnoreInsignificantCommits);
+                // TODO: ignore insignificant commits has to be handled here
+                var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version, options.PreReleaseLabel);
 
                 if (options.IgnoreInsignificantCommits && nextVersion == projects.Version)
                 {
                     Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
+                }
+                else
+                {
+                    // TODO: This is not correctly implemented for pre-release versions
+                    // TODO: For non pre-release: Increase patch, for pre-release increase pre-release number label
+                    nextVersion = new SemanticVersion(nextVersion.Major, nextVersion.Minor, nextVersion.Patch + 1, nextVersion.ReleaseLabels, nextVersion.Metadata);
                 }
 
                 if (!string.IsNullOrWhiteSpace(options.ReleaseAs))

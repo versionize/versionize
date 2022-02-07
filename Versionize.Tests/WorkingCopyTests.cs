@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
@@ -194,6 +196,58 @@ namespace Versionize.Tests
             var lastCommit = _testSetup.Repository.Head.Tip;
 
             lastCommit.Message.ShouldContain(suffix);
+        }
+
+        [Fact]
+        public void ShouldPrereleaseToCurrentMaximumPrereleaseVersion()
+        {
+            TempCsProject.Create(_testSetup.WorkingDirectory);
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+            // Release an initial version
+            File.WriteAllText(workingFilePath, "Initial version");
+            CommitAll(_testSetup.Repository, "chore: initial commit");
+            workingCopy.Versionize(new VersionizeOptions());
+
+            // Prerelease as minor alpha
+            File.WriteAllText(workingFilePath, "Minor alpha");
+            CommitAll(_testSetup.Repository, "feat: feature prerelease");
+            workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
+
+            // Prerelease as major alpha
+            File.WriteAllText(workingFilePath, "Major alpha");
+            CommitAll(_testSetup.Repository, "chore: initial commit\n\nBREAKING CHANGE: This is a breaking change");
+            workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
+
+            var versionTagNames = VersionTagNames.ToList();
+            versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v2.0.0-alpha.0" });
+
+            /*
+            Tried how standard-version handles prereleases
+
+            > standard-version --prerelease alpha
+
+            1.0.2 -> 1.1.0-alpha.0
+
+            > git commit -a -m "feat: breaking change" -m "BREAKING CHANGE: breaks things"
+            > standard-version --prerelease alpha
+
+            1.1.0-alpha.0 -> 2.0.0-alpha.0
+
+            > git commit -a -m "feat: breaking change" -m "BREAKING CHANGE: breaks things"
+            > standard-version --prerelease alpha
+
+            2.0.0-alpha.0 -> 2.0.0-alpha.1
+
+            */
+
+        }
+
+        private IEnumerable<string> VersionTagNames
+        {
+            get { return _testSetup.Repository.Tags.Select(t => t.FriendlyName); }
         }
 
         public void Dispose()

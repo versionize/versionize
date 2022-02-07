@@ -1,49 +1,46 @@
 using System;
 using System.Collections.Generic;
-using Version = NuGet.Versioning.SemanticVersion;
+using NuGet.Versioning;
 
 namespace Versionize
 {
     public class VersionIncrementStrategy
     {
-        private readonly VersionImpact _versionImpact;
+        private readonly IEnumerable<ConventionalCommit> _conventionalCommits;
 
-        private VersionIncrementStrategy(VersionImpact versionImpact)
+        public VersionIncrementStrategy(IEnumerable<ConventionalCommit> conventionalCommits)
         {
-            _versionImpact = versionImpact;
+            _conventionalCommits = conventionalCommits;
         }
 
-        public Version NextVersion(Version version, bool ignoreInsignificant = false)
+        public SemanticVersion NextVersion(SemanticVersion version, string preReleaseLabel = null)
         {
-            switch (_versionImpact)
+            var versionImpact = CalculateVersionImpact();
+
+            return versionImpact switch
             {
-                case VersionImpact.Patch:
-                    return new Version(version.Major, version.Minor, version.Patch + 1);
-                case VersionImpact.Minor:
-                    return new Version(version.Major, version.Minor + 1, 0);
-                case VersionImpact.Major:
-                    return new Version(version.Major + 1, 0, 0);
-                case VersionImpact.None:
-                    var buildVersion = ignoreInsignificant ? version.Patch : version.Patch + 1;
-                    return new Version(version.Major, version.Minor, buildVersion);
-                default:
-                    throw new InvalidOperationException($"Version impact of {_versionImpact} cannot be handled");
-            }
+                VersionImpact.Patch => new SemanticVersion(version.Major, version.Minor, version.Patch + 1),
+                VersionImpact.Minor => new SemanticVersion(version.Major, version.Minor + 1, 0),
+                VersionImpact.Major => new SemanticVersion(version.Major + 1, 0, 0),
+                VersionImpact.None => version,
+                _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
+            };
         }
 
-        public static VersionIncrementStrategy CreateFrom(IEnumerable<ConventionalCommit> conventionalCommits)
+        private VersionImpact CalculateVersionImpact()
         {
             // TODO: Quick and dirty implementation - Conventions? Better comparison?
             var versionImpact = VersionImpact.None;
 
-            foreach (var conventionalCommit in conventionalCommits)
+            foreach (var conventionalCommit in _conventionalCommits)
             {
                 if (!string.IsNullOrWhiteSpace(conventionalCommit.Type))
                 {
                     if (conventionalCommit.IsFix)
                     {
                         versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
-                    } else if (conventionalCommit.IsFeature)
+                    }
+                    else if (conventionalCommit.IsFeature)
                     {
                         versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
                     }
@@ -55,7 +52,7 @@ namespace Versionize
                 }
             }
 
-            return new VersionIncrementStrategy(versionImpact);
+            return versionImpact;
         }
 
         private static VersionImpact MaxVersionImpact(VersionImpact impact1, VersionImpact impact2)
