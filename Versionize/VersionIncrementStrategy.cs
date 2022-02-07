@@ -17,7 +17,7 @@ namespace Versionize
         {
             var versionImpact = CalculateVersionImpact();
 
-            return versionImpact switch
+            var nextVersion = versionImpact switch
             {
                 VersionImpact.Patch => new SemanticVersion(version.Major, version.Minor, version.Patch + 1),
                 VersionImpact.Minor => new SemanticVersion(version.Major, version.Minor + 1, 0),
@@ -25,6 +25,15 @@ namespace Versionize
                 VersionImpact.None => version,
                 _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
             };
+
+            if (!string.IsNullOrWhiteSpace(preReleaseLabel))
+            {
+                return nextVersion.WithPreRelease(preReleaseLabel, 0);
+            }
+            else
+            {
+                return nextVersion;
+            }
         }
 
         private VersionImpact CalculateVersionImpact()
@@ -58,6 +67,14 @@ namespace Versionize
         private static VersionImpact MaxVersionImpact(VersionImpact impact1, VersionImpact impact2)
         {
             return (VersionImpact)Math.Max((int)impact1, (int)impact2);
+        }
+    }
+
+    public static class SemanticVersionExtensions
+    {
+        public static SemanticVersion WithPreRelease(this SemanticVersion version, string preReleaseLabel, int preReleaseNumber)
+        {
+            return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { preReleaseLabel, preReleaseNumber.ToString() }, null);
         }
     }
 

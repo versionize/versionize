@@ -109,19 +109,19 @@ namespace Versionize.Tests
         public static IEnumerable<object[]> StableToPreRelease()
         {
             // From stable release to pre-release
-            yield return Scenario("should increment major pre-release version for breaking changes")
+            yield return Scenario("major update to 2.0.0-alpha.0")
                 .FromVersion("1.0.0")
                 .GivenCommit("feat", "BREAKING CHANGE")
                 .PreRelease("alpha")
                 .ExpectVersion("2.0.0-alpha.0");
 
-            yield return Scenario("should increment minor pre-release version for feat commits")
+            yield return Scenario("minor update to 1.1.0-alpha.0")
                 .FromVersion("1.0.0")
                 .GivenCommit("feat")
                 .PreRelease("alpha")
                 .ExpectVersion("1.1.0-alpha.0");
 
-            yield return Scenario("should increment patch pre-release version for fix commits")
+            yield return Scenario("fix update to 1.0.1-alpha.0")
                 .FromVersion("1.0.0")
                 .GivenCommit("fix")
                 .PreRelease("alpha")
