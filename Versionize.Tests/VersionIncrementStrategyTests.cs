@@ -164,17 +164,25 @@ namespace Versionize.Tests
         public static IEnumerable<object[]> PreReleaseToStable()
         {
             // Release pre-releases from pre-release versions in next pre-release label
-            yield return Scenario("should increment from alpha to beta including minor for version changes")
-                .FromVersion("1.0.0-alpha.0")
+            yield return Scenario("release from major pre-release with feat commit")
+                .FromVersion("2.0.0-alpha.2")
                 .GivenCommit("feat")
-                .PreRelease("beta")
-                .ExpectVersion("1.1.0-beta.0");
+                .ExpectVersion("2.0.0");
 
-            yield return Scenario("should increment from alpha to beta in same major pre-release track")
+            yield return Scenario("release from major pre-release with fix commit")
                 .FromVersion("1.0.0-alpha.0")
                 .GivenCommit("fix")
-                .PreRelease("beta")
-                .ExpectVersion("1.0.0-beta.0");
+                .ExpectVersion("1.0.0");
+
+            yield return Scenario("release from minor pre-release with breaking change commit")
+                .FromVersion("1.1.0-alpha.0")
+                .GivenCommit("fix", "BREAKING CHANGE")
+                .ExpectVersion("2.0.0");
+
+            yield return Scenario("release from patch pre-release with feat commit")
+                .FromVersion("1.0.1-alpha.0")
+                .GivenCommit("feat")
+                .ExpectVersion("1.1.0");
         }
 
         public static TestScenarioBuilder Scenario(string description)

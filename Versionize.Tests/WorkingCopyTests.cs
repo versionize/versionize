@@ -203,7 +203,6 @@ namespace Versionize.Tests
         {
             TempCsProject.Create(_testSetup.WorkingDirectory);
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-
             var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
 
             // Release an initial version
@@ -213,7 +212,7 @@ namespace Versionize.Tests
 
             // Prerelease as minor alpha
             File.WriteAllText(workingFilePath, "Minor alpha");
-            CommitAll(_testSetup.Repository, "feat: feature prerelease");
+            CommitAll(_testSetup.Repository, "feat: feature pre-release");
             workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
 
             // Prerelease as major alpha
@@ -223,26 +222,6 @@ namespace Versionize.Tests
 
             var versionTagNames = VersionTagNames.ToList();
             versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v2.0.0-alpha.0" });
-
-            /*
-            Tried how standard-version handles prereleases
-
-            > standard-version --prerelease alpha
-
-            1.0.2 -> 1.1.0-alpha.0
-
-            > git commit -a -m "feat: breaking change" -m "BREAKING CHANGE: breaks things"
-            > standard-version --prerelease alpha
-
-            1.1.0-alpha.0 -> 2.0.0-alpha.0
-
-            > git commit -a -m "feat: breaking change" -m "BREAKING CHANGE: breaks things"
-            > standard-version --prerelease alpha
-
-            2.0.0-alpha.0 -> 2.0.0-alpha.1
-
-            */
-
         }
 
         private IEnumerable<string> VersionTagNames

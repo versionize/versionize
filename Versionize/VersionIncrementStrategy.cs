@@ -17,6 +17,7 @@ namespace Versionize
         public SemanticVersion NextVersion(SemanticVersion version, string preReleaseLabel = null)
         {
             var versionImpact = CalculateVersionImpact();
+            var isPrerelease = !string.IsNullOrEmpty(preReleaseLabel);
 
             var nextVersion = versionImpact switch
             {
@@ -27,11 +28,11 @@ namespace Versionize
                 _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
             };
 
-            if (version.IsPrerelease && !string.IsNullOrWhiteSpace(preReleaseLabel))
+            if (version.IsPrerelease && isPrerelease)
             {
                 if (versionImpact == VersionImpact.Patch)
                 {
-                    return version.WithNextPreRelease();
+                    return version.IncrementPreRelease();
                 }
 
                 if (versionImpact == VersionImpact.Minor)
@@ -39,11 +40,11 @@ namespace Versionize
                     // Next patch pre release
                     if (version.Patch == 0)
                     {
-                        return version.WithNextPreRelease();
+                        return version.IncrementPreRelease();
                     }
                     else
                     {
-                        return nextVersion.WithPreRelease(preReleaseLabel, 0);
+                        return nextVersion.AsPreRelease(preReleaseLabel, 0);
                     }
                 }
 
@@ -52,19 +53,53 @@ namespace Versionize
                     // Next patch pre release
                     if (version.Patch == 0 && version.Minor == 0)
                     {
-                        return version.WithNextPreRelease();
+                        return version.IncrementPreRelease();
                     }
                     else
                     {
-                        return nextVersion.WithPreRelease(preReleaseLabel, 0);
+                        return nextVersion.AsPreRelease(preReleaseLabel, 0);
                     }
                 }
 
                 return version;
             }
-            else if (!string.IsNullOrWhiteSpace(preReleaseLabel))
+            else if (!version.IsPrerelease && isPrerelease)
             {
-                return nextVersion.WithPreRelease(preReleaseLabel, 0);
+                return nextVersion.AsPreRelease(preReleaseLabel, 0);
+            }
+            else if (version.IsPrerelease && !isPrerelease)
+            {
+                // Pre-release to release
+                if (versionImpact == VersionImpact.Patch)
+                {
+                    return version.AsRelease();
+                }
+
+                if (versionImpact == VersionImpact.Minor)
+                {
+                    if (version.Patch == 0)
+                    {
+                        return version.AsRelease();
+                    }
+                    else
+                    {
+                        return nextVersion.AsRelease();
+                    }
+                }
+
+                if (versionImpact == VersionImpact.Major)
+                {
+                    if (version.Patch == 0 && version.Minor == 0)
+                    {
+                        return version.AsRelease();
+                    }
+                    else
+                    {
+                        return nextVersion.AsRelease();
+                    }
+                }
+
+                return version;
             }
             else
             {
@@ -108,12 +143,17 @@ namespace Versionize
 
     public static class SemanticVersionExtensions
     {
-        public static SemanticVersion WithPreRelease(this SemanticVersion version, string preReleaseLabel, int preReleaseNumber)
+        public static SemanticVersion AsPreRelease(this SemanticVersion version, string preReleaseLabel, int preReleaseNumber)
         {
             return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { preReleaseLabel, preReleaseNumber.ToString() }, null);
         }
 
-        public static SemanticVersion WithNextPreRelease(this SemanticVersion version)
+        public static SemanticVersion AsRelease(this SemanticVersion version)
+        {
+            return new SemanticVersion(version.Major, version.Minor, version.Patch);
+        }
+
+        public static SemanticVersion IncrementPreRelease(this SemanticVersion version)
         {
             // TODO: A bit whacky
             var releaseLabels = version.ReleaseLabels.ToArray();
@@ -122,6 +162,18 @@ namespace Versionize
             var preReleaseNumber = int.Parse(releaseLabels[1]);
 
             return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { preReleaseLabel, (preReleaseNumber + 1).ToString() }, null);
+        }
+
+        public static SemanticVersion IncrementPatchVersion(this SemanticVersion version)
+        {
+            if (version.IsPrerelease)
+            {
+                return version.IncrementPreRelease();
+            }
+            else
+            {
+                return new SemanticVersion(version.Major, version.Minor, version.Patch + 1);
+            }
         }
     }
 
