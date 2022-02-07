@@ -130,37 +130,31 @@ namespace Versionize.Tests
 
         public static IEnumerable<object[]> PreReleaseToPreRelease()
         {
-            yield return Scenario("should increment pre-release release label version for breaking changes")
+            yield return Scenario("pre-release number increment from major with breaking change commit")
                 .FromVersion("1.0.0-alpha.0")
                 .GivenCommit("feat", "BREAKING CHANGE")
                 .PreRelease("alpha")
                 .ExpectVersion("1.0.0-alpha.1");
 
-            yield return Scenario("should increment to major version for breaking changes in minor pre-release version")
+            yield return Scenario("version increment from minor to major with breaking change commit")
                 .FromVersion("1.1.0-alpha.0")
                 .GivenCommit("feat", "BREAKING CHANGE")
                 .PreRelease("alpha")
                 .ExpectVersion("2.0.0-alpha.0");
 
-            yield return Scenario("should not increase major version for breaking changes in pre-release version on major pre-release versions")
-                .FromVersion("2.0.0-alpha.0")
-                .GivenCommit("feat", "BREAKING CHANGE")
-                .PreRelease("alpha")
-                .ExpectVersion("2.0.0-alpha.1");
-
-            yield return Scenario("should increment pre-release version for patch commits in same minor pre-release")
+            yield return Scenario("pre-release number increment from minor with fix commit")
                 .FromVersion("1.1.0-alpha.0")
                 .GivenCommit("fix")
                 .PreRelease("alpha")
                 .ExpectVersion("1.1.0-alpha.1");
 
-            yield return Scenario("should increase pre-release version for feat commits in same minor pre-release")
+            yield return Scenario("pre-release number increment from minor with feat commit")
                 .FromVersion("1.1.0-alpha.0")
                 .GivenCommit("feat")
                 .PreRelease("alpha")
                 .ExpectVersion("1.1.0-alpha.1");
 
-            yield return Scenario("should not increment pre-release version for insignificant commits")
+            yield return Scenario("ignore insignificant commit")
                 .FromVersion("1.0.0-alpha.0")
                 .GivenCommit("chore")
                 .PreRelease("alpha")

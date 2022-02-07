@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NuGet.Versioning;
 
 namespace Versionize
@@ -26,7 +27,42 @@ namespace Versionize
                 _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
             };
 
-            if (!string.IsNullOrWhiteSpace(preReleaseLabel))
+            if (version.IsPrerelease && !string.IsNullOrWhiteSpace(preReleaseLabel))
+            {
+                if (versionImpact == VersionImpact.Patch)
+                {
+                    return version.WithNextPreRelease();
+                }
+
+                if (versionImpact == VersionImpact.Minor)
+                {
+                    // Next patch pre release
+                    if (version.Patch == 0)
+                    {
+                        return version.WithNextPreRelease();
+                    }
+                    else
+                    {
+                        return nextVersion.WithPreRelease(preReleaseLabel, 0);
+                    }
+                }
+
+                if (versionImpact == VersionImpact.Major)
+                {
+                    // Next patch pre release
+                    if (version.Patch == 0 && version.Minor == 0)
+                    {
+                        return version.WithNextPreRelease();
+                    }
+                    else
+                    {
+                        return nextVersion.WithPreRelease(preReleaseLabel, 0);
+                    }
+                }
+
+                return version;
+            }
+            else if (!string.IsNullOrWhiteSpace(preReleaseLabel))
             {
                 return nextVersion.WithPreRelease(preReleaseLabel, 0);
             }
@@ -75,6 +111,17 @@ namespace Versionize
         public static SemanticVersion WithPreRelease(this SemanticVersion version, string preReleaseLabel, int preReleaseNumber)
         {
             return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { preReleaseLabel, preReleaseNumber.ToString() }, null);
+        }
+
+        public static SemanticVersion WithNextPreRelease(this SemanticVersion version)
+        {
+            // TODO: A bit whacky
+            var releaseLabels = version.ReleaseLabels.ToArray();
+
+            var preReleaseLabel = releaseLabels[0];
+            var preReleaseNumber = int.Parse(releaseLabels[1]);
+
+            return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { preReleaseLabel, (preReleaseNumber + 1).ToString() }, null);
         }
     }
 
