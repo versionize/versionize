@@ -8,13 +8,6 @@ namespace Versionize.Tests
     public class VersionIncrementStrategyTests
     {
         [Fact]
-        public void ShouldIncrementPatchVersionForEmptyCommits()
-        {
-            var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>());
-            strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 1, 2));
-        }
-
-        [Fact]
         public void ShouldNotIncrementPatchVersionForEmptyCommitsIfIgnoreInsignificantIsGiven()
         {
             var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>());

@@ -71,6 +71,7 @@ namespace Versionize
                 }
 
                 var versionTag = repo.SelectVersionTag(projects.Version);
+                var isInitialRelease = versionTag == null;
                 var commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
 
                 var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
@@ -80,15 +81,15 @@ namespace Versionize
                 var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version, options.PreReleaseLabel);
 
                 // For non initial releases: for insignificant commits such as chore increment the patch version if IgnoreInsignificantCommits is not set
-                if (versionTag != null)
+                if (!isInitialRelease && nextVersion == projects.Version)
                 {
-                    if (nextVersion == projects.Version && !options.IgnoreInsignificantCommits)
+                    if (options.IgnoreInsignificantCommits)
                     {
-                        nextVersion = nextVersion.IncrementPatchVersion();
+                        Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
                     }
                     else
                     {
-                        Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
+                        nextVersion = nextVersion.IncrementPatchVersion();
                     }
                 }
 
