@@ -1,37 +1,35 @@
-using System;
 using System.Drawing;
 using Colorful;
 using Console = Colorful.Console;
 
-namespace Versionize.CommandLine
+namespace Versionize.CommandLine;
+
+public class PlatformAbstractions : IPlatformAbstractions
 {
-    public class PlatformAbstractions : IPlatformAbstractions
+    public LogLevel Verbosity { get; set; }
+
+    public void Exit(int exitCode)
     {
-        public LogLevel Verbosity { get; set; }
+        Environment.Exit(exitCode);
+    }
 
-        public void Exit(int exitCode)
+    public void WriteLine(string message, Color color)
+    {
+        if (Verbosity == LogLevel.Silent)
         {
-            Environment.Exit(exitCode);
+            return;
         }
 
-        public void WriteLine(string message, Color color)
-        {
-            if (Verbosity == LogLevel.Silent)
-            {
-                return;
-            }
+        Console.WriteLine(message, color);
+    }
 
-            Console.WriteLine(message, color);
+    public void WriteLineFormatted(string message, Color color, Formatter[] messageFormatters)
+    {
+        if (Verbosity == LogLevel.Silent)
+        {
+            return;
         }
 
-        public void WriteLineFormatted(string message, Color color, Formatter[] messageFormatters)
-        {
-            if (Verbosity == LogLevel.Silent)
-            {
-                return;
-            }
-
-            Console.WriteLineFormatted(message, color, messageFormatters);
-        }
+        Console.WriteLineFormatted(message, color, messageFormatters);
     }
 }
