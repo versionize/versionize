@@ -203,9 +203,9 @@ public class VersionIncrementStrategyTests
         private SemanticVersion _fromVersion;
         private string _description;
 
-        public TestScenarioBuilder FromVersion(string fromVersion)
+        public TestScenarioBuilder FromVersion(string version)
         {
-            _fromVersion = SemanticVersion.Parse(fromVersion);
+            _fromVersion = SemanticVersion.Parse(version);
             return this;
         }
 

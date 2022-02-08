@@ -22,7 +22,7 @@ public static class SemanticVersionExtensions
         var preReleaseLabel = releaseLabels[0];
         var preReleaseNumber = int.Parse(releaseLabels[1]);
 
-        var newReleaseLabels = new string[] { newPreReleaseLabel, (preReleaseLabel.Equals(newPreReleaseLabel)?(preReleaseNumber + 1):0).ToString() };
+        var newReleaseLabels = new[] { newPreReleaseLabel, (preReleaseLabel.Equals(newPreReleaseLabel) ? (preReleaseNumber + 1) : 0).ToString() };
         return new SemanticVersion(version.Major, version.Minor, version.Patch, newReleaseLabels, null);
     }
 
