@@ -203,25 +203,61 @@ namespace Versionize.Tests
         {
             TempCsProject.Create(_testSetup.WorkingDirectory);
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-            var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+            var fileCommitter = new FileCommitter(_testSetup);
 
             // Release an initial version
-            File.WriteAllText(workingFilePath, "Initial version");
-            CommitAll(_testSetup.Repository, "chore: initial commit");
+            fileCommitter.CommitChange("chore: initial commit");
             workingCopy.Versionize(new VersionizeOptions());
 
             // Prerelease as minor alpha
-            File.WriteAllText(workingFilePath, "Minor alpha");
-            CommitAll(_testSetup.Repository, "feat: feature pre-release");
+            fileCommitter.CommitChange("feat: feature pre-release");
             workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
 
             // Prerelease as major alpha
-            File.WriteAllText(workingFilePath, "Major alpha");
-            CommitAll(_testSetup.Repository, "chore: initial commit\n\nBREAKING CHANGE: This is a breaking change");
+            fileCommitter.CommitChange("chore: initial commit\n\nBREAKING CHANGE: This is a breaking change");
             workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
 
             var versionTagNames = VersionTagNames.ToList();
             versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v2.0.0-alpha.0" });
+        }
+
+        [Fact]
+        public void ShouldExitForInvalidPrereleaseSequences()
+        {
+            TempCsProject.Create(_testSetup.WorkingDirectory);
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            var fileCommitter = new FileCommitter(_testSetup);
+
+            // Release an initial version
+            fileCommitter.CommitChange("chore: initial commit");
+            workingCopy.Versionize(new VersionizeOptions());
+
+            // Prerelease a minor beta
+            fileCommitter.CommitChange("feat: feature pre-release");
+            workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "beta" });
+
+            // Try Prerelease a minor alpha
+            fileCommitter.CommitChange("feat: feature pre-release");
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" }));
+        }
+
+        [Fact]
+        public void ShouldExitForInvalidReleaseAsReleases()
+        {
+            TempCsProject.Create(_testSetup.WorkingDirectory);
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            var fileCommitter = new FileCommitter(_testSetup);
+
+            // Release an initial version
+            fileCommitter.CommitChange("chore: initial commit");
+            workingCopy.Versionize(new VersionizeOptions());
+
+            // Release as lower than current version
+            fileCommitter.CommitChange("feat: some feature");
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "0.9.0" }));
         }
 
         private IEnumerable<string> VersionTagNames
@@ -239,6 +275,23 @@ namespace Versionize.Tests
             var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
             Commands.Stage(repository, "*");
             repository.Commit(message, author, author);
+        }
+
+        class FileCommitter
+        {
+            private readonly TestSetup _testSetup;
+
+            public FileCommitter(TestSetup testSetup)
+            {
+                _testSetup = testSetup;
+            }
+
+            public void CommitChange(string commitMessage)
+            {
+                var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+                File.WriteAllText(workingFilePath, Guid.NewGuid().ToString());
+                CommitAll(_testSetup.Repository, commitMessage);
+            }
         }
     }
 }

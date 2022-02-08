@@ -4,8 +4,8 @@ using System.Linq;
 using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Changelog;
+using Versionize.Versioning;
 using static Versionize.CommandLine.CommandLineUI;
-using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize
 {
@@ -18,7 +18,7 @@ namespace Versionize
             _directory = directory;
         }
 
-        public Version Inspect()
+        public SemanticVersion Inspect()
         {
             var workingDirectory = _directory.FullName;
 
@@ -39,7 +39,7 @@ namespace Versionize
             return projects.Version;
         }
 
-        public Version Versionize(VersionizeOptions options)
+        public SemanticVersion Versionize(VersionizeOptions options)
         {
             var workingDirectory = _directory.FullName;
 
@@ -78,7 +78,7 @@ namespace Versionize
 
                 var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
-                var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version, options.PreReleaseLabel);
+                var nextVersion = isInitialRelease ? projects.Version : versionIncrement.NextVersion(projects.Version, options.PreReleaseLabel);
 
                 // For non initial releases: for insignificant commits such as chore increment the patch version if IgnoreInsignificantCommits is not set
                 if (!isInitialRelease && nextVersion == projects.Version)
@@ -97,12 +97,17 @@ namespace Versionize
                 {
                     try
                     {
-                        nextVersion = Version.Parse(options.ReleaseAs);
+                        nextVersion = SemanticVersion.Parse(options.ReleaseAs);
                     }
                     catch (Exception)
                     {
                         Exit($"Could not parse the specified release version {options.ReleaseAs} as valid version", 1);
                     }
+                }
+
+                if (nextVersion < projects.Version)
+                {
+                    Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {projects.Version}. This can be caused by using a wrong pre-release label or release as version", 1);
                 }
 
                 var versionTime = DateTimeOffset.Now;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NuGet.Versioning;
 using Shouldly;
+using Versionize.Tests.TestSupport;
 using Xunit;
 
 namespace Versionize.Tests
@@ -102,19 +103,19 @@ namespace Versionize.Tests
         public static IEnumerable<object[]> StableToPreRelease()
         {
             // From stable release to pre-release
-            yield return Scenario("major update to 2.0.0-alpha.0")
+            yield return Scenario("release number increment from major with breaking change commit to major alpha")
                 .FromVersion("1.0.0")
                 .GivenCommit("feat", "BREAKING CHANGE")
                 .PreRelease("alpha")
                 .ExpectVersion("2.0.0-alpha.0");
 
-            yield return Scenario("minor update to 1.1.0-alpha.0")
+            yield return Scenario("release number increment from major with feat commit to minor alpha")
                 .FromVersion("1.0.0")
                 .GivenCommit("feat")
                 .PreRelease("alpha")
                 .ExpectVersion("1.1.0-alpha.0");
 
-            yield return Scenario("fix update to 1.0.1-alpha.0")
+            yield return Scenario("release number increment from major with fix commit to patch alpha")
                 .FromVersion("1.0.0")
                 .GivenCommit("fix")
                 .PreRelease("alpha")
@@ -148,6 +149,18 @@ namespace Versionize.Tests
                 .ExpectVersion("1.1.0-alpha.1");
 
             yield return Scenario("ignore insignificant commit")
+                .FromVersion("1.0.0-alpha.0")
+                .GivenCommit("chore")
+                .PreRelease("alpha")
+                .ExpectVersion("1.0.0-alpha.0");
+
+            yield return Scenario("pre-release number increment from minor with fix commit with new pre-release label")
+                .FromVersion("1.1.0-alpha.0")
+                .GivenCommit("fix")
+                .PreRelease("beta")
+                .ExpectVersion("1.1.0-beta.0");
+
+            yield return Scenario("exit for lower version as existed commit")
                 .FromVersion("1.0.0-alpha.0")
                 .GivenCommit("chore")
                 .PreRelease("alpha")
@@ -234,6 +247,11 @@ namespace Versionize.Tests
             {
                 _expectedVersion = SemanticVersion.Parse(expectedVersion);
 
+                return Build();
+            }
+
+            public object[] Build()
+            {
                 return new object[] {
                     new TestScenario
                     {
