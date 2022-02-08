@@ -78,7 +78,7 @@ namespace Versionize
 
                 var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
-                var nextVersion = isInitialRelease ? projects.Version : versionIncrement.NextVersion(projects.Version, options.PreReleaseLabel);
+                var nextVersion = isInitialRelease ? projects.Version : versionIncrement.NextVersion(projects.Version, options.Prerelease);
 
                 // For non initial releases: for insignificant commits such as chore increment the patch version if IgnoreInsignificantCommits is not set
                 if (!isInitialRelease && nextVersion == projects.Version)

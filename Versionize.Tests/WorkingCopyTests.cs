@@ -212,11 +212,11 @@ namespace Versionize.Tests
 
             // Prerelease as minor alpha
             fileCommitter.CommitChange("feat: feature pre-release");
-            workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
+            workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha" });
 
             // Prerelease as major alpha
             fileCommitter.CommitChange("chore: initial commit\n\nBREAKING CHANGE: This is a breaking change");
-            workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" });
+            workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha" });
 
             var versionTagNames = VersionTagNames.ToList();
             versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v2.0.0-alpha.0" });
@@ -236,11 +236,11 @@ namespace Versionize.Tests
 
             // Prerelease a minor beta
             fileCommitter.CommitChange("feat: feature pre-release");
-            workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "beta" });
+            workingCopy.Versionize(new VersionizeOptions { Prerelease = "beta" });
 
             // Try Prerelease a minor alpha
             fileCommitter.CommitChange("feat: feature pre-release");
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { PreReleaseLabel = "alpha" }));
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha" }));
         }
 
         [Fact]

@@ -11,6 +11,6 @@ namespace Versionize
         public bool IgnoreInsignificantCommits { get; set; }
         public String CommitSuffix { get; set; }
         public ChangelogOptions Changelog { get; set; } = ChangelogOptions.Default;
-        public string PreReleaseLabel { get; set; }
+        public string Prerelease { get; set; }
     }
 }

@@ -32,6 +32,7 @@ namespace Versionize
             var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
             var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
             var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
+            var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
 
             var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
             {
@@ -58,7 +59,8 @@ namespace Versionize
                     ReleaseAs = optionReleaseAs.Value(),
                     IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
                     CommitSuffix = optionCommitSuffix.Value(),
-                    Changelog = ChangelogOptions.Default,
+                    Prerelease = optionPrerelease.Value(),
+                    Changelog = ChangelogOptions.Default
                 },
                 optionIncludeAllCommitsInChangelog.HasValue());
 
@@ -76,6 +78,10 @@ namespace Versionize
                 return app.Execute(args);
             }
             catch (UnrecognizedCommandParsingException e)
+            {
+                return CommandLineUI.Exit(e.Message, 1);
+            }
+            catch (CommandParsingException e)
             {
                 return CommandLineUI.Exit(e.Message, 1);
             }
@@ -133,6 +139,7 @@ Exception detail:
                 ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
                 IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
                 CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
+                Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
                 Changelog = changelog,
             };
         }
