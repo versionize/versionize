@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Version>1.10.0</Version>
     <ToolCommandName>versionize</ToolCommandName>
+    <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <PackAsTool>True</PackAsTool>
     <OutputType>Exe</OutputType>
