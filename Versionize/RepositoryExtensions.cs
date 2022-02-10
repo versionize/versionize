@@ -24,4 +24,12 @@ public static class RespositoryExtensions
 
         return repository.Commits.QueryBy(filter).ToList();
     }
+
+    public static bool IsConfiguredForCommits(this Repository repository)
+    {
+        var name = repository.Config.Get<string>("user.name");
+        var email = repository.Config.Get<string>("user.email");
+
+        return name != null && email != null;
+    }
 }
