@@ -4,9 +4,9 @@ namespace Versionize.Versioning;
 
 public static class SemanticVersionExtensions
 {
-    public static SemanticVersion AsPreRelease(this SemanticVersion version, string preReleaseLabel, int preReleaseNumber)
+    public static SemanticVersion AsPrerelease(this SemanticVersion version, string prereleaseLabel, int prereleaseNumber)
     {
-        return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { preReleaseLabel, preReleaseNumber.ToString() }, null);
+        return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { prereleaseLabel, prereleaseNumber.ToString() }, null);
     }
 
     public static SemanticVersion AsRelease(this SemanticVersion version)
@@ -14,26 +14,19 @@ public static class SemanticVersionExtensions
         return new SemanticVersion(version.Major, version.Minor, version.Patch);
     }
 
-    public static SemanticVersion IncrementPreRelease(this SemanticVersion version, string newPreReleaseLabel)
+    public static SemanticVersion IncrementPrerelease(this SemanticVersion version, string newPrereleaseLabel)
     {
-        // TODO: A bit whacky
-        var releaseLabels = version.ReleaseLabels.ToArray();
+        var prereleaseIdentifier = PrereleaseIdentifier.Parse(version);
 
-        var preReleaseLabel = releaseLabels[0];
-        var preReleaseNumber = int.Parse(releaseLabels[1]);
-
-        var newReleaseLabels = new[] { newPreReleaseLabel, (preReleaseLabel.Equals(newPreReleaseLabel) ? (preReleaseNumber + 1) : 0).ToString() };
-        return new SemanticVersion(version.Major, version.Minor, version.Patch, newReleaseLabels, null);
+        return new SemanticVersion(version.Major, version.Minor, version.Patch, prereleaseIdentifier.ApplyLabel(newPrereleaseLabel).BuildPrereleaseLabels(), null);
     }
 
     public static SemanticVersion IncrementPatchVersion(this SemanticVersion version)
     {
         if (version.IsPrerelease)
         {
-            // TODO: A bit whacky
-            var preReleaseLabel = version.ReleaseLabels.First();
-
-            return version.IncrementPreRelease(preReleaseLabel);
+            var prereleaseIdentifier = PrereleaseIdentifier.Parse(version);
+            return version.IncrementPrerelease(prereleaseIdentifier.Label);
         }
         else
         {

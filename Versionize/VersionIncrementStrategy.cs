@@ -12,10 +12,10 @@ public class VersionIncrementStrategy
         _conventionalCommits = conventionalCommits;
     }
 
-    public SemanticVersion NextVersion(SemanticVersion version, string preReleaseLabel = null)
+    public SemanticVersion NextVersion(SemanticVersion version, string prereleaseLabel = null)
     {
         var versionImpact = CalculateVersionImpact();
-        var isPrerelease = !string.IsNullOrEmpty(preReleaseLabel);
+        var isPrerelease = !string.IsNullOrEmpty(prereleaseLabel);
 
         var nextVersion = versionImpact switch
         {
@@ -33,11 +33,11 @@ public class VersionIncrementStrategy
                 return version;
             }
 
-            return IsWithinPrereleaseVersionRange(version, versionImpact)?version.IncrementPreRelease(preReleaseLabel):nextVersion.AsPreRelease(preReleaseLabel, 0);
+            return IsWithinPrereleaseVersionRange(version, versionImpact)?version.IncrementPrerelease(prereleaseLabel):nextVersion.AsPrerelease(prereleaseLabel, 0);
         }
         else if (!version.IsPrerelease && isPrerelease)
         {
-            return nextVersion.AsPreRelease(preReleaseLabel, 0);
+            return nextVersion.AsPrerelease(prereleaseLabel, 0);
         }
         else if (version.IsPrerelease && !isPrerelease)
         {

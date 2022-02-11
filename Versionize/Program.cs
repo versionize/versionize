@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
+using Versionize.Versioning;
 
 namespace Versionize;
 
@@ -75,9 +76,10 @@ public static class Program
         {
             return app.Execute(args);
         }
-        catch (UnrecognizedCommandParsingException e)
+        catch (Exception ex) when (ex is UnrecognizedCommandParsingException ||
+                                   ex is InvalidPrereleaseIdentifierException)
         {
-            return CommandLineUI.Exit(e.Message, 1);
+            return CommandLineUI.Exit(ex.Message, 1);
         }
         catch (LibGit2Sharp.NotFoundException e)
         {

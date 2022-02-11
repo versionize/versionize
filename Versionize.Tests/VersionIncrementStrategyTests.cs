@@ -65,107 +65,107 @@ public class VersionIncrementStrategyTests
     }
 
     [Theory]
-    [MemberData(nameof(StableToPreRelease))]
-    public void ShouldIncrementVersionFromStableToPreRelease(TestScenario testScenario)
+    [MemberData(nameof(StableToPrerelease))]
+    public void ShouldIncrementVersionFromStableToPrerelease(TestScenario testScenario)
     {
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
-        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PreReleaseLabel);
+        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel);
 
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
 
 
     [Theory]
-    [MemberData(nameof(PreReleaseToPreRelease))]
-    public void ShouldIncrementVersionFromPreReleaseToPreRelease(TestScenario testScenario)
+    [MemberData(nameof(PrereleaseToPrerelease))]
+    public void ShouldIncrementVersionFromPrereleaseToPrerelease(TestScenario testScenario)
     {
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
-        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PreReleaseLabel);
+        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel);
 
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
 
     [Theory]
-    [MemberData(nameof(PreReleaseToStable))]
-    public void ShouldIncrementVersionFromPreReleaseToStable(TestScenario testScenario)
+    [MemberData(nameof(PrereleaseToStable))]
+    public void ShouldIncrementVersionFromPrereleaseToStable(TestScenario testScenario)
     {
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
-        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PreReleaseLabel);
+        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel);
 
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
 
-    public static IEnumerable<object[]> StableToPreRelease()
+    public static IEnumerable<object[]> StableToPrerelease()
     {
         // From stable release to pre-release
         yield return Scenario("release number increment from major with breaking change commit to major alpha")
             .FromVersion("1.0.0")
             .GivenCommit("feat", "BREAKING CHANGE")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("2.0.0-alpha.0");
 
         yield return Scenario("release number increment from major with feat commit to minor alpha")
             .FromVersion("1.0.0")
             .GivenCommit("feat")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.1.0-alpha.0");
 
         yield return Scenario("release number increment from major with fix commit to patch alpha")
             .FromVersion("1.0.0")
             .GivenCommit("fix")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.0.1-alpha.0");
     }
 
-    public static IEnumerable<object[]> PreReleaseToPreRelease()
+    public static IEnumerable<object[]> PrereleaseToPrerelease()
     {
         yield return Scenario("pre-release number increment from major with breaking change commit")
             .FromVersion("1.0.0-alpha.0")
             .GivenCommit("feat", "BREAKING CHANGE")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.0.0-alpha.1");
 
         yield return Scenario("version increment from minor to major with breaking change commit")
             .FromVersion("1.1.0-alpha.0")
             .GivenCommit("feat", "BREAKING CHANGE")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("2.0.0-alpha.0");
 
         yield return Scenario("pre-release number increment from minor with fix commit")
             .FromVersion("1.1.0-alpha.0")
             .GivenCommit("fix")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.1.0-alpha.1");
 
         yield return Scenario("pre-release number increment from minor with feat commit")
             .FromVersion("1.1.0-alpha.0")
             .GivenCommit("feat")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.1.0-alpha.1");
 
         yield return Scenario("ignore insignificant commit")
             .FromVersion("1.0.0-alpha.0")
             .GivenCommit("chore")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.0.0-alpha.0");
 
         yield return Scenario("pre-release number increment from minor with fix commit with new pre-release label")
             .FromVersion("1.1.0-alpha.0")
             .GivenCommit("fix")
-            .PreRelease("beta")
+            .Prerelease("beta")
             .ExpectVersion("1.1.0-beta.0");
 
         yield return Scenario("exit for lower version as existed commit")
             .FromVersion("1.0.0-alpha.0")
             .GivenCommit("chore")
-            .PreRelease("alpha")
+            .Prerelease("alpha")
             .ExpectVersion("1.0.0-alpha.0");
     }
 
-    public static IEnumerable<object[]> PreReleaseToStable()
+    public static IEnumerable<object[]> PrereleaseToStable()
     {
         // Release pre-releases from pre-release versions in next pre-release label
         yield return Scenario("release from major pre-release with feat commit")
@@ -199,7 +199,7 @@ public class VersionIncrementStrategyTests
     {
         private readonly List<ConventionalCommit> _commits = new();
         private SemanticVersion _expectedVersion;
-        private string _preReleaseLabel;
+        private string _prereleaseLabel;
         private SemanticVersion _fromVersion;
         private string _description;
 
@@ -229,9 +229,9 @@ public class VersionIncrementStrategyTests
             return this;
         }
 
-        public TestScenarioBuilder PreRelease(string preReleaseLabel = null)
+        public TestScenarioBuilder Prerelease(string prereleaseLabel = null)
         {
-            _preReleaseLabel = preReleaseLabel;
+            _prereleaseLabel = prereleaseLabel;
             return this;
         }
 
@@ -256,7 +256,7 @@ public class VersionIncrementStrategyTests
                     Commits = _commits,
                     ExpectedVersion = _expectedVersion,
                     FromVersion = _fromVersion,
-                    PreReleaseLabel = _preReleaseLabel,
+                    PrereleaseLabel = _prereleaseLabel,
                     Description = _description,
                 }
             };
@@ -267,7 +267,7 @@ public class VersionIncrementStrategyTests
     {
         public List<ConventionalCommit> Commits { get; set; }
         public SemanticVersion ExpectedVersion { get; set; }
-        public string PreReleaseLabel { get; set; }
+        public string PrereleaseLabel { get; set; }
         public SemanticVersion FromVersion { get; set; }
 
         public string Description { get; set; }
