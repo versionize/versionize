@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.11.0"></a>
+## [1.11.0](https://www.github.com/versionize/versionize/releases/tag/v1.11.0) (2022-2-11)
+
+### Features
+
+* add inspect command (#41) ([5e0d464](https://www.github.com/versionize/versionize/commit/5e0d464060bb892637c0176d5ea5de2ec7fdb6be))
+* print changelog diff during a dry-run (#45) ([40a58f3](https://www.github.com/versionize/versionize/commit/40a58f3de4aabc0b214309b4de36554031cf7903))
+* print help on NotFoundException (#44) ([7cc1ddc](https://www.github.com/versionize/versionize/commit/7cc1ddcf7ad2258b93976b4c4b85dc29f80f5228))
+* support changelog customization options (#43) ([c27cf07](https://www.github.com/versionize/versionize/commit/c27cf072ffc91547d2953220df1a469ae3ff10d1))
+* support pre-releases  (#50) ([2aa68c7](https://www.github.com/versionize/versionize/commit/2aa68c743ceece5e909c27157fa50462405b7830))
+* warn about missing git configs (#53) ([5782999](https://www.github.com/versionize/versionize/commit/5782999c4967fd408c44ced1bffad697b22ba117))
+
 <a name="1.10.0"></a>
 ## [1.10.0](https://www.github.com/saintedlama/versionize/releases/tag/v1.10.0) (2022-1-5)
 
