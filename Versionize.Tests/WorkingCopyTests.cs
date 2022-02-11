@@ -193,6 +193,39 @@ public class WorkingCopyTests : IDisposable
         lastCommit.Message.ShouldContain(suffix);
     }
 
+    [Fact]
+    public void ShouldWarnAboutMissingGitConfiguration()
+    {
+        TempCsProject.Create(_testSetup.WorkingDirectory);
+
+        var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+        // Create and commit a test file
+        File.WriteAllText(workingFilePath, "First line of text");
+        CommitAll(_testSetup.Repository);
+
+        var configurationValues = new[] { "user.name", "user.email" }
+            .SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
+            .Cast<ConfigurationLevel>()
+            .Select(level => _testSetup.Repository.Config.Get<string>(key, level)))
+            .Where(c => c != null)
+            .ToList();
+
+        try
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Unset(c.Key, c.Level));
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
+            _testPlatformAbstractions.Messages.Last().Message.ShouldStartWith("Warning: Git configuration is missing");
+        }
+        finally
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Set(c.Key, c.Value, c.Level));
+        }
+    }
+
     public void Dispose()
     {
         _testSetup.Dispose();
