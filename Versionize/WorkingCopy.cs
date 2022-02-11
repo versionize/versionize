@@ -144,6 +144,13 @@ public class WorkingCopy
 
             if (!options.DryRun && !options.SkipCommit)
             {
+                if (!repo.IsConfiguredForCommits())
+                {
+                    Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
+git config --global user.name ""John Doe""
+$ git config --global user.email johndoe@example.com", 1);
+                }
+
                 Commands.Stage(repo, changelog.FilePath);
 
                 foreach (var projectFile in projects.GetProjectFiles())
