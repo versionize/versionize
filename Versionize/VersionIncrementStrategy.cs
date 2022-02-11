@@ -1,40 +1,70 @@
-using Version = NuGet.Versioning.SemanticVersion;
+using NuGet.Versioning;
+using Versionize.Versioning;
 
 namespace Versionize;
 
 public class VersionIncrementStrategy
 {
-    private readonly VersionImpact _versionImpact;
+    private readonly IEnumerable<ConventionalCommit> _conventionalCommits;
 
-    private VersionIncrementStrategy(VersionImpact versionImpact)
+    public VersionIncrementStrategy(IEnumerable<ConventionalCommit> conventionalCommits)
     {
-        _versionImpact = versionImpact;
+        _conventionalCommits = conventionalCommits;
     }
 
-    public Version NextVersion(Version version, bool ignoreInsignificant = false)
+    public SemanticVersion NextVersion(SemanticVersion version, string prereleaseLabel = null)
     {
-        switch (_versionImpact)
+        var versionImpact = CalculateVersionImpact();
+        var isPrerelease = !string.IsNullOrEmpty(prereleaseLabel);
+
+        var nextVersion = versionImpact switch
         {
-            case VersionImpact.Patch:
-                return new Version(version.Major, version.Minor, version.Patch + 1);
-            case VersionImpact.Minor:
-                return new Version(version.Major, version.Minor + 1, 0);
-            case VersionImpact.Major:
-                return new Version(version.Major + 1, 0, 0);
-            case VersionImpact.None:
-                var buildVersion = ignoreInsignificant ? version.Patch : version.Patch + 1;
-                return new Version(version.Major, version.Minor, buildVersion);
-            default:
-                throw new InvalidOperationException($"Version impact of {_versionImpact} cannot be handled");
+            VersionImpact.Patch => new SemanticVersion(version.Major, version.Minor, version.Patch + 1),
+            VersionImpact.Minor => new SemanticVersion(version.Major, version.Minor + 1, 0),
+            VersionImpact.Major => new SemanticVersion(version.Major + 1, 0, 0),
+            VersionImpact.None => version,
+            _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
+        };
+
+        if (version.IsPrerelease && isPrerelease)
+        {
+            if (versionImpact == VersionImpact.None)
+            {
+                return version;
+            }
+
+            return IsWithinPrereleaseVersionRange(version, versionImpact)?version.IncrementPrerelease(prereleaseLabel):nextVersion.AsPrerelease(prereleaseLabel, 0);
+        }
+        else if (!version.IsPrerelease && isPrerelease)
+        {
+            return nextVersion.AsPrerelease(prereleaseLabel, 0);
+        }
+        else if (version.IsPrerelease && !isPrerelease)
+        {
+            return (IsWithinPrereleaseVersionRange(version, versionImpact)?version:nextVersion).AsRelease();
+        }
+        else
+        {
+            return nextVersion;
         }
     }
 
-    public static VersionIncrementStrategy CreateFrom(IEnumerable<ConventionalCommit> conventionalCommits)
+    private bool IsWithinPrereleaseVersionRange(SemanticVersion version, VersionImpact versionImpact)  {
+        return versionImpact switch {
+            VersionImpact.None => true,
+            VersionImpact.Patch => true,
+            VersionImpact.Minor => version.Patch == 0,
+            VersionImpact.Major => version.Patch == 0 && version.Minor == 0,
+            _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
+        };
+    }
+
+    private VersionImpact CalculateVersionImpact()
     {
         // TODO: Quick and dirty implementation - Conventions? Better comparison?
         var versionImpact = VersionImpact.None;
 
-        foreach (var conventionalCommit in conventionalCommits)
+        foreach (var conventionalCommit in _conventionalCommits)
         {
             if (!string.IsNullOrWhiteSpace(conventionalCommit.Type))
             {
@@ -54,7 +84,7 @@ public class VersionIncrementStrategy
             }
         }
 
-        return new VersionIncrementStrategy(versionImpact);
+        return versionImpact;
     }
 
     private static VersionImpact MaxVersionImpact(VersionImpact impact1, VersionImpact impact2)

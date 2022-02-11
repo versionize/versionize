@@ -1,7 +1,11 @@
-﻿using LibGit2Sharp;
+﻿using System;
+using System.IO;
+using System.Linq;
+using LibGit2Sharp;
+using NuGet.Versioning;
 using Versionize.Changelog;
+using Versionize.Versioning;
 using static Versionize.CommandLine.CommandLineUI;
-using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize;
 
@@ -14,7 +18,7 @@ public class WorkingCopy
         _directory = directory;
     }
 
-    public Version Inspect()
+    public SemanticVersion Inspect()
     {
         var workingDirectory = _directory.FullName;
 
@@ -35,7 +39,7 @@ public class WorkingCopy
         return projects.Version;
     }
 
-    public Version Versionize(VersionizeOptions options)
+    public SemanticVersion Versionize(VersionizeOptions options)
     {
         var workingDirectory = _directory.FullName;
 
@@ -67,29 +71,43 @@ public class WorkingCopy
             }
 
             var versionTag = repo.SelectVersionTag(projects.Version);
+            var isInitialRelease = versionTag == null;
             var commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
 
             var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
 
-            var versionIncrement = VersionIncrementStrategy.CreateFrom(conventionalCommits);
+            var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
-            var nextVersion = versionTag == null ? projects.Version : versionIncrement.NextVersion(projects.Version, options.IgnoreInsignificantCommits);
+            var nextVersion = isInitialRelease ? projects.Version : versionIncrement.NextVersion(projects.Version, options.Prerelease);
 
-            if (options.IgnoreInsignificantCommits && nextVersion == projects.Version)
+            // For non initial releases: for insignificant commits such as chore increment the patch version if IgnoreInsignificantCommits is not set
+            if (!isInitialRelease && nextVersion == projects.Version)
             {
-                Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
+                if (options.IgnoreInsignificantCommits)
+                {
+                    Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
+                }
+                else
+                {
+                    nextVersion = nextVersion.IncrementPatchVersion();
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(options.ReleaseAs))
             {
                 try
                 {
-                    nextVersion = Version.Parse(options.ReleaseAs);
+                    nextVersion = SemanticVersion.Parse(options.ReleaseAs);
                 }
                 catch (Exception)
                 {
                     Exit($"Could not parse the specified release version {options.ReleaseAs} as valid version", 1);
                 }
+            }
+
+            if (nextVersion < projects.Version)
+            {
+                Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {projects.Version}. This can be caused by using a wrong pre-release label or release as version", 1);
             }
 
             var versionTime = DateTimeOffset.Now;
