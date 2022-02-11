@@ -11,11 +11,15 @@
     <Authors>saintedlama</Authors>
     <PackageTags>release;versioning;conventional;commit;git</PackageTags>
     <Description>Automatic versioning and CHANGELOG generation, using conventional commit messages.</Description>
-    <PackageProjectUrl>https://github.com/saintedlama/versionize</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/versionize/versionize</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/saintedlama/versionize</RepositoryUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/versionize/versionize</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <IncludeSource>true</IncludeSource>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,9 +28,17 @@
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.0" />
     <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\images\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\readme.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 </Project>
