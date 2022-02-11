@@ -1,13 +1,14 @@
 ﻿using System.Text.Json;
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
+using Versionize.Versioning;
 
 namespace Versionize;
 
 [Command(
     Name = "Versionize",
     Description = "Automatic versioning and CHANGELOG generation, using conventional commit messages")]
-public class Program
+public static class Program
 {
     public static int Main(string[] args)
     {
@@ -30,6 +31,7 @@ public class Program
         var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
         var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
         var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
+        var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
@@ -56,6 +58,7 @@ public class Program
                 ReleaseAs = optionReleaseAs.Value(),
                 IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
                 CommitSuffix = optionCommitSuffix.Value(),
+                Prerelease = optionPrerelease.Value(),
                 Changelog = ChangelogOptions.Default,
             },
             optionIncludeAllCommitsInChangelog.HasValue());
@@ -73,9 +76,10 @@ public class Program
         {
             return app.Execute(args);
         }
-        catch (UnrecognizedCommandParsingException e)
+        catch (Exception ex) when (ex is UnrecognizedCommandParsingException ||
+                                   ex is InvalidPrereleaseIdentifierException)
         {
-            return CommandLineUI.Exit(e.Message, 1);
+            return CommandLineUI.Exit(ex.Message, 1);
         }
         catch (LibGit2Sharp.NotFoundException e)
         {
@@ -131,6 +135,7 @@ Exception detail:
             ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
             IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
             CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
+            Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
             Changelog = changelog,
         };
     }

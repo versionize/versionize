@@ -34,20 +34,26 @@ dotnet tool install --global Versionize
 ## Usage
 
 ```bash
-Usage: versionize [options]
+Usage: versionize [command] [options]
 
 Options:
-  -?|-h|--help                         Show help information
-  -v|--version                         Show version information
+  -?|-h|--help                         Show help information.
+  -v|--version                         Show version information.
   -w|--workingDir <WORKING_DIRECTORY>  Directory containing projects to version
   -d|--dry-run                         Skip changing versions in projects, changelog generation and git commit
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
-  --skip-commit                        Skip commit and git tag after updating changelog and incrementing the version
-  -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING) are found
+  --skip-commit                        Skip commit and git tag after updating changelog and incrementing the
+                                       version
+  -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING)
+                                       are found
   --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
+  -p|--pre-release                     Release as pre-release version with given pre release label.
+
+Commands:
+  inspect                              Prints the current version to stdout
 ```
 
 ## Supported commit types
@@ -133,6 +139,33 @@ versionize
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
 
+### Pre-releases
+
+Versionize supports creating pre-release versions by using the `--pre-release` flag with a pre-release label, for example `alpha`.
+
+The following workflow illustrates how pre-release workflows with versionize work.
+
+```shell
+> git commit -a -m "chore: initial commit"
+> versionize
+// Generates version v1.0.0
+
+> git commit -a -m "feat: some feature"
+> versionize --pre-release alpha
+// Generates version v1.1.0-alpha.0
+
+> git commit -a -m "feat: some additional feature"
+> versionize --pre-release alpha
+// Generates version v1.1.0-alpha.1
+
+> git commit -a -m "feat: some breaking feature" -m "BREAKING CHANGE: This is a breaking change"
+> versionize --pre-release alpha
+// Generates version v2.0.0-alpha.0
+
+> versionize
+// Generates version v2.0.0
+```
+
 ## Configuration
 
 You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
@@ -179,7 +212,7 @@ dotnet test --logger prettier
 
 ## Roadmap
 
-* [ ] Pre Releases to allow creating beta.1, beta.2 versions
+* [x] Pre Releases to allow creating beta.1, beta.2 versions
 * [x] Support .versionrc like "standard-version" does
 * [ ] Support mono repo joint and disjoint version strategies
 * [x] ~~--silent command line switch to suppress commandline output~~
