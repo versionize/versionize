@@ -13,7 +13,7 @@ public class ProgramTests : IDisposable
     public ProgramTests()
     {
         _testSetup = TestSetup.Create();
-        TempCsProject.Create(_testSetup.WorkingDirectory, "1.1.0");
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
         _testPlatformAbstractions = new TestPlatformAbstractions();
         CommandLineUI.Platform = _testPlatformAbstractions;
@@ -50,7 +50,7 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldReadConfigurationFromConfigFile()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), @"{ ""skipDirty"": true }");

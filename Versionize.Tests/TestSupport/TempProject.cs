@@ -2,14 +2,23 @@
 
 namespace Versionize.Tests.TestSupport;
 
-public static class TempCsProject
+public static class TempProject
 {
-    public static string Create(string tempDir, string version = "1.0.0")
+    public static string CreateFsharpProject(string tempDir, string version = "1.0.0")
+    {
+        return Create(tempDir, "fsproj", version);
+    }
+    public static string CreateCsharpProject(string tempDir, string version = "1.0.0")
+    {
+        return Create(tempDir, "csproj", version);
+    }
+
+    private static string Create(string tempDir, string extension, string version = "1.0.0")
     {
         Directory.CreateDirectory(tempDir);
 
         var projectDirName = new DirectoryInfo(tempDir).Name;
-        var csProjFile = $"{tempDir}/{projectDirName}.csproj";
+        var csProjFile = $"{tempDir}/{projectDirName}.{extension}";
 
         // Create .net project
         var projectFileContents =
