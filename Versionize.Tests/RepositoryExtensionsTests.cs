@@ -23,7 +23,7 @@ public class RepositoryExtensionsTests : IDisposable
     [Fact]
     public void ShouldSelectLightweight()
     {
-        TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
         var commit = CommitAll(_testSetup.Repository);
 
         _testSetup.Repository.Tags.Add("v2.0.0", commit);
@@ -36,7 +36,7 @@ public class RepositoryExtensionsTests : IDisposable
     [Fact]
     public void ShouldSelectAnnotatedTags()
     {
-        TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
         var commit = CommitAll(_testSetup.Repository);
 
         _testSetup.Repository.Tags.Add("v2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");

@@ -11,8 +11,8 @@ public class ProjectsTests
     public void ShouldDiscoverAllProjects()
     {
         var tempDir = TempDir.Create();
-        TempCsProject.Create(Path.Join(tempDir, "project1"));
-        TempCsProject.Create(Path.Join(tempDir, "project2"));
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
 
         var projects = Projects.Discover(tempDir);
         projects.GetProjectFiles().Count().ShouldBe(2);
@@ -22,8 +22,8 @@ public class ProjectsTests
     public void ShouldDetectInconsistentVersions()
     {
         var tempDir = TempDir.Create();
-        TempCsProject.Create(Path.Join(tempDir, "project1"), "2.0.0");
-        TempCsProject.Create(Path.Join(tempDir, "project2"), "1.1.1");
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"), "2.0.0");
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
 
         var projects = Projects.Discover(tempDir);
         projects.HasInconsistentVersioning().ShouldBeTrue();
@@ -33,8 +33,8 @@ public class ProjectsTests
     public void ShouldDetectConsistentVersions()
     {
         var tempDir = TempDir.Create();
-        TempCsProject.Create(Path.Join(tempDir, "project1"));
-        TempCsProject.Create(Path.Join(tempDir, "project2"));
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
 
         var projects = Projects.Discover(tempDir);
         projects.HasInconsistentVersioning().ShouldBeFalse();
@@ -44,8 +44,8 @@ public class ProjectsTests
     public void ShouldWriteAllVersionsToProjectFiles()
     {
         var tempDir = TempDir.Create();
-        TempCsProject.Create(Path.Join(tempDir, "project1"), "1.1.1");
-        TempCsProject.Create(Path.Join(tempDir, "project2"), "1.1.1");
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"), "1.1.1");
+        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
 
         var projects = Projects.Discover(tempDir);
         projects.WriteVersion(new Version(2, 0, 0));

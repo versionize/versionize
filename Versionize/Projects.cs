@@ -32,11 +32,14 @@ public class Projects
 
     public static Projects Discover(string workingDirectory)
     {
-        var projects = Directory
-            .GetFiles(workingDirectory, "*.csproj", SearchOption.AllDirectories)
+        var filters = new[] { "*.csproj", "*.fsproj" };
+
+        var projects = filters.SelectMany(filter => Directory
+            .GetFiles(workingDirectory, filter, SearchOption.AllDirectories)
             .Where(Project.IsVersionable)
             .Select(Project.Create)
-            .ToList();
+            .ToList()
+        );
 
         return new Projects(projects);
     }

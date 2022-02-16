@@ -48,7 +48,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldPerformADryRun()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         CommitAll(_testSetup.Repository, "feat: first commit");
@@ -68,7 +68,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldExitIfWorkingCopyIsDirty()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
@@ -100,8 +100,8 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldExitIfProjectsUseInconsistentNaming()
     {
-        TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
-        TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project2"), "2.0.0");
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project2"), "2.0.0");
 
         CommitAll(_testSetup.Repository);
 
@@ -113,7 +113,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldReleaseAsSpecifiedVersion()
     {
-        TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
 
         CommitAll(_testSetup.Repository);
 
@@ -126,7 +126,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldExitIfReleaseAsSpecifiedVersionIsInvalid()
     {
-        TempCsProject.Create(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
 
         CommitAll(_testSetup.Repository);
 
@@ -137,7 +137,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldIgnoreInsignificantCommits()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
 
@@ -174,7 +174,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldAddSuffixToReleaseCommitMessage()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
 
@@ -196,7 +196,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldWarnAboutMissingGitConfiguration()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
 
@@ -229,7 +229,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldPrereleaseToCurrentMaximumPrereleaseVersion()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
         var fileCommitter = new FileCommitter(_testSetup);
@@ -253,7 +253,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldExitForInvalidPrereleaseSequences()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
         var fileCommitter = new FileCommitter(_testSetup);
@@ -274,7 +274,7 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldExitForInvalidReleaseAsReleases()
     {
-        TempCsProject.Create(_testSetup.WorkingDirectory);
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
         var fileCommitter = new FileCommitter(_testSetup);
@@ -286,6 +286,23 @@ public class WorkingCopyTests : IDisposable
         // Release as lower than current version
         fileCommitter.CommitChange("feat: some feature");
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "0.9.0" }));
+    }
+
+    [Fact]
+    public void ShouldSupportFsharpProjects()
+    {
+        TempProject.CreateFsharpProject(_testSetup.WorkingDirectory);
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("chore: initial commit");
+        workingCopy.Versionize(new VersionizeOptions());
+
+        var versionTagNames = VersionTagNames.ToList();
+        versionTagNames.ShouldBe(new[] { "v1.0.0" });
     }
 
     private IEnumerable<string> VersionTagNames
