@@ -37,15 +37,3 @@ public class PlatformAbstractions : IPlatformAbstractions
         Console.WriteLine();
     }
 }
-
-public class Formatter
-{
-    public Formatter(string target, ConsoleColor color)
-    {
-        Target = target;
-        Color = color;
-    }
-
-    public string Target { get; set; }
-    public ConsoleColor Color { get; set; }
-}
