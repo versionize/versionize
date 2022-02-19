@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Versionize.CommandLine;
+﻿namespace Versionize.CommandLine;
 
 public static class CommandLineUI
 {
@@ -21,23 +19,7 @@ public static class CommandLineUI
 
     public static void Step(string message)
     {
-        Platform.WriteLine(
-            new ColoredText
-            {
-                Text = "√",
-                Color = ConsoleColor.Green
-            },
-            new ColoredText
-            {
-                Text = " ",
-                Color = ConsoleColor.White
-            },
-            new ColoredText
-            {
-                Text = message,
-                Color = ConsoleColor.Gray
-            }
-        );
+        Platform.WriteLine(("√", ConsoleColor.Green), (" ", ConsoleColor.White), (message, ConsoleColor.Gray));
     }
 
     public static void DryRun(string message)

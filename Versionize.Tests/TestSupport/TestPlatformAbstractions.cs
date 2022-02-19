@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Versionize.CommandLine;
+﻿using Versionize.CommandLine;
 
 namespace Versionize.Tests.TestSupport;
 
@@ -18,8 +17,8 @@ public class TestPlatformAbstractions : IPlatformAbstractions
         Messages.Add(new List<string> { message });
     }
 
-    public void WriteLine(params ColoredText[] messages)
+    public void WriteLine(params (string text, ConsoleColor color)[] messages)
     {
-        Messages.Add(messages.Select(m => m.Text).ToList());
+        Messages.Add(messages.Select(m => m.text).ToList());
     }
 }

@@ -16,21 +16,21 @@ public class PlatformAbstractions : IPlatformAbstractions
             return;
         }
 
-        WriteLine(new ColoredText { Text = message, Color = color });
+        WriteLine((message, color));
     }
 
-    public void WriteLine(params ColoredText[] messages)
+    public void WriteLine(params (string text, ConsoleColor color)[] messages)
     {
         if (Verbosity == LogLevel.Silent)
         {
             return;
         }
 
-        foreach (var message in messages)
+        foreach (var (text, color) in messages)
         {
             var oldColor = Console.ForegroundColor;
-            Console.ForegroundColor = message.Color;
-            Console.Write(message.Text);
+            Console.ForegroundColor = color;
+            Console.Write(text);
             Console.ForegroundColor = oldColor;
         }
 
