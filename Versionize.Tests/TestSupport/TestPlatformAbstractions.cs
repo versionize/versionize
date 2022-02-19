@@ -15,7 +15,7 @@ public class TestPlatformAbstractions : IPlatformAbstractions
 
     public void WriteLine(string message, ConsoleColor color)
     {
-        Messages.Add(new List<string>() { message });
+        Messages.Add(new List<string> { message });
     }
 
     public void WriteLine(params ColoredText[] messages)
