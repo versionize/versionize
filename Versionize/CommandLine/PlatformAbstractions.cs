@@ -1,8 +1,4 @@
-using System.Drawing;
-using Colorful;
-using Console = Colorful.Console;
-
-namespace Versionize.CommandLine;
+﻿namespace Versionize.CommandLine;
 
 public class PlatformAbstractions : IPlatformAbstractions
 {
@@ -13,23 +9,31 @@ public class PlatformAbstractions : IPlatformAbstractions
         Environment.Exit(exitCode);
     }
 
-    public void WriteLine(string message, Color color)
+    public void WriteLine(string message, ConsoleColor color)
     {
         if (Verbosity == LogLevel.Silent)
         {
             return;
         }
 
-        Console.WriteLine(message, color);
+        WriteLine((message, color));
     }
 
-    public void WriteLineFormatted(string message, Color color, Formatter[] messageFormatters)
+    public void WriteLine(params (string text, ConsoleColor color)[] messages)
     {
         if (Verbosity == LogLevel.Silent)
         {
             return;
         }
 
-        Console.WriteLineFormatted(message, color, messageFormatters);
+        foreach (var (text, color) in messages)
+        {
+            var oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ForegroundColor = oldColor;
+        }
+
+        Console.WriteLine();
     }
 }

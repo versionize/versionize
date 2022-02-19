@@ -1,13 +1,10 @@
-﻿using System.Drawing;
-using Colorful;
-
-namespace Versionize.CommandLine;
+﻿namespace Versionize.CommandLine;
 
 public interface IPlatformAbstractions
 {
     void Exit(int exitCode);
-    void WriteLine(string message, Color color);
-    void WriteLineFormatted(string message, Color color, Formatter[] messageFormatters);
+    void WriteLine(string message, ConsoleColor color);
+    void WriteLine(params (string text, ConsoleColor color)[] messages);
 
     LogLevel Verbosity { get; set; }
 }

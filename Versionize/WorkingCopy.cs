@@ -131,9 +131,7 @@ public class WorkingCopy
             if (options.DryRun)
             {
                 string markdown = ChangelogBuilder.GenerateMarkdown(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
-                Information("\n---");
-                Information(markdown.TrimEnd('\n'));
-                Information("---\n");
+                DryRun(markdown.TrimEnd('\n'));
             }
             else
             {
