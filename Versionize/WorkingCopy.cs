@@ -83,9 +83,10 @@ public class WorkingCopy
             // For non initial releases: for insignificant commits such as chore increment the patch version if IgnoreInsignificantCommits is not set
             if (!isInitialRelease && nextVersion == projects.Version)
             {
-                if (options.IgnoreInsignificantCommits)
+                if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
                 {
-                    Exit($"Version was not affected by commits since last release ({projects.Version}), since you specified to ignore insignificant changes, no action will be performed.", 0);
+                    var exitCode = options.ExitInsignificantCommits ? 1 : 0;
+                    Exit($"Version was not affected by commits since last release ({projects.Version})", exitCode);
                 }
                 else
                 {

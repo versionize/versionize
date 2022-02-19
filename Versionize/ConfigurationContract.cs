@@ -8,6 +8,7 @@ public class ConfigurationContract
     public bool? SkipCommit { get; set; }
     public String ReleaseAs { get; set; }
     public bool? IgnoreInsignificantCommits { get; set; }
+    public bool? ExitInsignificantCommits { get; set; }
     public bool? ChangelogAll { get; set; }
     public String CommitSuffix { get; set; }
     public ChangelogOptions Changelog { get; set; }
