@@ -16,60 +16,25 @@ public class PlatformAbstractions : IPlatformAbstractions
             return;
         }
 
-        WriteInColor(Console.WriteLine, message, color);
+        WriteLine(new ColoredText { Text = message, Color = color });
     }
 
-    public void WriteLineFormatted(string message, ConsoleColor color, Formatter[] messageFormatters)
+    public void WriteLine(params ColoredText[] messages)
     {
         if (Verbosity == LogLevel.Silent)
         {
             return;
         }
 
-        var buffer = message.ToCharArray();
-        int startIndex = 0;
-        for (int i = 0; i < messageFormatters.Length; ++i)
+        foreach (var message in messages)
         {
-            var replacementText = messageFormatters[i].Target;
-            var replacementColor = messageFormatters[i].Color;
-            var replacementIndex = message.IndexOf($"{{{i}}}", startIndex);
-
-            if (replacementIndex == -1)
-            {
-                throw new InvalidOperationException($"{{{i}}} is not present in the formatted message: {message}.");
-            }
-            if (replacementIndex > 0)
-            {
-                // Write non-formatted text (up until the formatted part begins).
-                var count = replacementIndex - startIndex;
-                WriteInColor(Console.Write, buffer, startIndex, count, color);
-            }
-
-            // Write formatted text.
-            WriteInColor(Console.Write, replacementText, replacementColor);
-            int digits = i < 10 ? 1 : (int)Math.Floor(Math.Log10(i) + 1);
-            startIndex = replacementIndex + 2 + digits;
+            var oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = message.Color;
+            Console.Write(message.Text);
+            Console.ForegroundColor = oldColor;
         }
 
-        // Write remaining non-formatted text.
-        var remainingCount = message.Length - startIndex;
-        WriteInColor(Console.WriteLine, buffer, startIndex, remainingCount, color);
-    }
-
-    private static void WriteInColor<T>(Action<T> action, T target, ConsoleColor color)
-    {
-        var oldColor = System.Console.ForegroundColor;
-        System.Console.ForegroundColor = color;
-        action.Invoke(target);
-        System.Console.ForegroundColor = oldColor;
-    }
-
-    private static void WriteInColor(Action<char[], int, int> action, char[] buffer, int index, int count, ConsoleColor color)
-    {
-        var oldColor = System.Console.ForegroundColor;
-        System.Console.ForegroundColor = color;
-        action.Invoke(buffer, index, count);
-        System.Console.ForegroundColor = oldColor;
+        Console.WriteLine();
     }
 }
 

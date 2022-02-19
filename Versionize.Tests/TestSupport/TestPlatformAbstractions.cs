@@ -6,15 +6,7 @@ namespace Versionize.Tests.TestSupport;
 public class TestPlatformAbstractions : IPlatformAbstractions
 {
     public LogLevel Verbosity { get; set; }
-    public List<FormatterMessage> Messages { get; } = new List<FormatterMessage>();
-
-    public IEnumerable<Formatter[]> Formatters
-    {
-        get
-        {
-            return Messages.Select(m => m.Formatters).Where(formatter => formatter != null).ToList();
-        }
-    }
+    public List<List<string>> Messages { get; } = new List<List<string>>();
 
     public void Exit(int exitCode)
     {
@@ -23,17 +15,11 @@ public class TestPlatformAbstractions : IPlatformAbstractions
 
     public void WriteLine(string message, ConsoleColor color)
     {
-        Messages.Add(new FormatterMessage { Message = message });
+        Messages.Add(new List<string>() { message });
     }
 
-    public void WriteLineFormatted(string message, ConsoleColor color, Formatter[] formatters)
+    public void WriteLine(params ColoredText[] messages)
     {
-        Messages.Add(new FormatterMessage { Message = message, Formatters = formatters });
+        Messages.Add(messages.Select(m => m.Text).ToList());
     }
-}
-
-public class FormatterMessage
-{
-    public string Message { get; set; }
-    public Formatter[] Formatters { get; set; }
 }

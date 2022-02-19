@@ -57,10 +57,10 @@ public class WorkingCopyTests : IDisposable
         workingCopy.Versionize(new VersionizeOptions { DryRun = true, SkipDirty = true });
 
         _testPlatformAbstractions.Messages.Count.ShouldBe(7);
-        _testPlatformAbstractions.Messages[0].Message.ShouldBe("Discovered 1 versionable projects");
-        _testPlatformAbstractions.Messages[3].Message.ShouldBe("\n---");
-        _testPlatformAbstractions.Messages[4].Message.ShouldContain("* first commit");
-        _testPlatformAbstractions.Messages[5].Message.ShouldBe("---\n");
+        _testPlatformAbstractions.Messages[0][0].ShouldBe("Discovered 1 versionable projects");
+        _testPlatformAbstractions.Messages[3][0].ShouldBe("\n---");
+        _testPlatformAbstractions.Messages[4][0].ShouldContain("* first commit");
+        _testPlatformAbstractions.Messages[5][0].ShouldBe("---\n");
         var wasChangelogWritten = File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
         Assert.False(wasChangelogWritten);
     }
@@ -74,7 +74,7 @@ public class WorkingCopyTests : IDisposable
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-        _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes.");
+        _testPlatformAbstractions.Messages[0][0].ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes.");
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class WorkingCopyTests : IDisposable
         var workingDirectory = TempDir.Create();
         Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(workingDirectory));
 
-        _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
+        _testPlatformAbstractions.Messages[0][0].ShouldBe($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
 
         Cleanup.DeleteDirectory(workingDirectory);
     }
@@ -94,7 +94,7 @@ public class WorkingCopyTests : IDisposable
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
-        _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Could not find any projects files in {_testSetup.WorkingDirectory} that have a <Version> defined in their csproj file.");
+        _testPlatformAbstractions.Messages[0][0].ShouldBe($"Could not find any projects files in {_testSetup.WorkingDirectory} that have a <Version> defined in their csproj file.");
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class WorkingCopyTests : IDisposable
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-        _testPlatformAbstractions.Messages[0].Message.ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
+        _testPlatformAbstractions.Messages[0][0].ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
     }
 
     [Fact]
@@ -218,7 +218,7 @@ public class WorkingCopyTests : IDisposable
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
             Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-            _testPlatformAbstractions.Messages.Last().Message.ShouldStartWith("Warning: Git configuration is missing");
+            _testPlatformAbstractions.Messages.Last()[0].ShouldStartWith("Warning: Git configuration is missing");
         }
         finally
         {

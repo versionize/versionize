@@ -6,9 +6,14 @@ public interface IPlatformAbstractions
 {
     void Exit(int exitCode);
     void WriteLine(string message, ConsoleColor color);
-    void WriteLineFormatted(string message, ConsoleColor color, Formatter[] messageFormatters);
+    void WriteLine(params ColoredText[] messages);
 
     LogLevel Verbosity { get; set; }
+}
+
+public class ColoredText {
+    public string Text { get; set; }
+    public ConsoleColor Color { get; set; }
 }
 
 public enum LogLevel

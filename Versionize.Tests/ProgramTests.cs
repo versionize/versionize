@@ -25,7 +25,7 @@ public class ProgramTests : IDisposable
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty" });
 
         exitCode.ShouldBe(0);
-        _testPlatformAbstractions.Formatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 1.1.0 in projects".Equals(f.Target)));
+        _testPlatformAbstractions.Messages.ShouldContain(parts => parts.Any(part => part.Equals("bumping version from 1.1.0 to 1.1.0 in projects")));
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class ProgramTests : IDisposable
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
 
         exitCode.ShouldBe(0);
-        _testPlatformAbstractions.Formatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 2.0.0 in projects".Equals(f.Target)));
+        _testPlatformAbstractions.Messages.ShouldContain(parts => parts.Any(part => part.Equals("bumping version from 1.1.0 to 2.0.0 in projects")));
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class ProgramTests : IDisposable
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-        _testPlatformAbstractions.Messages[0].Message.ShouldBe("1.1.0");
+        _testPlatformAbstractions.Messages[0][0].ShouldBe("1.1.0");
     }
 
     [Fact]

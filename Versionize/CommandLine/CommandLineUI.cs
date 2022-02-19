@@ -21,14 +21,23 @@ public static class CommandLineUI
 
     public static void Step(string message)
     {
-        var messageFormatters = new Formatter[]
-        {
-            new Formatter("√", ConsoleColor.Green),
-            new Formatter(message, ConsoleColor.Gray),
-        };
-
-
-        Platform.WriteLineFormatted("{0} {1}", ConsoleColor.White, messageFormatters);
+        Platform.WriteLine(
+            new ColoredText
+            {
+                Text = "√",
+                Color = ConsoleColor.Green
+            },
+            new ColoredText
+            {
+                Text = " ",
+                Color = ConsoleColor.White
+            },
+            new ColoredText
+            {
+                Text = message,
+                Color = ConsoleColor.Gray
+            }
+        );
     }
 
     public static void DryRun(string message)
