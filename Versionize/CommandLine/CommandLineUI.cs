@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using Colorful;
 
 namespace Versionize.CommandLine;
 
@@ -9,7 +8,7 @@ public static class CommandLineUI
 
     public static int Exit(string message, int code)
     {
-        Platform.WriteLine(message, Color.Red);
+        Platform.WriteLine(message, ConsoleColor.Red);
         Platform.Exit(code);
 
         return code;
@@ -17,18 +16,26 @@ public static class CommandLineUI
 
     public static void Information(string message)
     {
-        Platform.WriteLine(message, Color.LightGray);
+        Platform.WriteLine(message, ConsoleColor.Gray);
     }
 
     public static void Step(string message)
     {
         var messageFormatters = new Formatter[]
         {
-            new Formatter("√", Color.Green),
-            new Formatter(message, Color.LightGray),
+            new Formatter("√", ConsoleColor.Green),
+            new Formatter(message, ConsoleColor.Gray),
         };
 
-        Platform.WriteLineFormatted("{0} {1}", Color.White, messageFormatters);
+
+        Platform.WriteLineFormatted("{0} {1}", ConsoleColor.White, messageFormatters);
+    }
+
+    public static void DryRun(string message)
+    {
+        Platform.WriteLine("\n---", ConsoleColor.Gray);
+        Platform.WriteLine(message, ConsoleColor.DarkGray);
+        Platform.WriteLine("---\n", ConsoleColor.Gray);
     }
 
     public static LogLevel Verbosity { get => Platform.Verbosity; set => Platform.Verbosity = value; }

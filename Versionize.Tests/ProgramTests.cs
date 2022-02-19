@@ -1,4 +1,4 @@
-using Shouldly;
+﻿using Shouldly;
 using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -25,7 +25,7 @@ public class ProgramTests : IDisposable
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty" });
 
         exitCode.ShouldBe(0);
-        _testPlatformAbstractions.Formmatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 1.1.0 in projects".Equals(f.Target)));
+        _testPlatformAbstractions.Formatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 1.1.0 in projects".Equals(f.Target)));
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class ProgramTests : IDisposable
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
 
         exitCode.ShouldBe(0);
-        _testPlatformAbstractions.Formmatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 2.0.0 in projects".Equals(f.Target)));
+        _testPlatformAbstractions.Formatters.ShouldContain(formatter => formatter.Any(f => "bumping version from 1.1.0 to 2.0.0 in projects".Equals(f.Target)));
     }
 
     [Fact]

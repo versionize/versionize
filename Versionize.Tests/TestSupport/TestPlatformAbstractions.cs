@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using Colorful;
 using Versionize.CommandLine;
 
 namespace Versionize.Tests.TestSupport;
@@ -9,7 +8,7 @@ public class TestPlatformAbstractions : IPlatformAbstractions
     public LogLevel Verbosity { get; set; }
     public List<FormatterMessage> Messages { get; } = new List<FormatterMessage>();
 
-    public IEnumerable<Formatter[]> Formmatters
+    public IEnumerable<Formatter[]> Formatters
     {
         get
         {
@@ -22,12 +21,12 @@ public class TestPlatformAbstractions : IPlatformAbstractions
         throw new CommandLineExitException(exitCode);
     }
 
-    public void WriteLine(string message, Color color)
+    public void WriteLine(string message, ConsoleColor color)
     {
         Messages.Add(new FormatterMessage { Message = message });
     }
 
-    public void WriteLineFormatted(string message, Color color, Formatter[] formatters)
+    public void WriteLineFormatted(string message, ConsoleColor color, Formatter[] formatters)
     {
         Messages.Add(new FormatterMessage { Message = message, Formatters = formatters });
     }
