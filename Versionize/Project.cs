@@ -1,14 +1,14 @@
 ﻿using System.Xml;
-using Version = NuGet.Versioning.SemanticVersion;
+using NuGet.Versioning;
 
 namespace Versionize;
 
 public class Project
 {
     public string ProjectFile { get; }
-    public Version Version { get; }
+    public SemanticVersion Version { get; }
 
-    private Project(string projectFile, Version version)
+    private Project(string projectFile, SemanticVersion version)
     {
         ProjectFile = projectFile;
         Version = version;
@@ -34,20 +34,11 @@ public class Project
         }
     }
 
-    private static Version ReadVersion(string projectFile)
+    private static SemanticVersion ReadVersion(string projectFile)
     {
-        XmlDocument doc = new XmlDocument { PreserveWhitespace = true };
+        var doc =  ReadProject(projectFile);
 
-        try
-        {
-            doc.Load(projectFile);
-        }
-        catch (Exception)
-        {
-            throw new InvalidOperationException($"Project {projectFile} is not a valid csproj file. Please make sure that you have a valid csproj file in place!");
-        }
-
-        var versionString = doc.SelectSingleNode("/Project/PropertyGroup/Version")?.InnerText;
+        var versionString = SelectVersionNode(doc)?.InnerText;
 
         if (string.IsNullOrWhiteSpace(versionString))
         {
@@ -56,7 +47,7 @@ public class Project
 
         try
         {
-            return Version.Parse(versionString);
+            return SemanticVersion.Parse(versionString);
         }
         catch (Exception)
         {
@@ -64,22 +55,34 @@ public class Project
         }
     }
 
-    public void WriteVersion(Version nextVersion)
+    public void WriteVersion(SemanticVersion nextVersion)
+    {
+        var doc = ReadProject(ProjectFile);
+
+        var versionElement = SelectVersionNode(doc);
+        versionElement.InnerText = nextVersion.ToString();
+
+        doc.Save(ProjectFile);
+    }
+
+    private static XmlNode SelectVersionNode(XmlDocument doc)
+    {
+        return doc.SelectSingleNode("/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='Version']");
+    }
+
+    private static XmlDocument ReadProject(string projectFile)
     {
         var doc = new XmlDocument { PreserveWhitespace = true };
 
         try
         {
-            doc.Load(ProjectFile);
+            doc.Load(projectFile);
         }
         catch (Exception)
         {
-            throw new InvalidOperationException($"Project {ProjectFile} is not a valid csproj file. Please make sure that you have a valid csproj file in place!");
+            throw new InvalidOperationException($"Project {projectFile} is not a valid xml project file. Please make sure that you have a valid project file in place!");
         }
 
-        var versionElement = doc.SelectSingleNode("/Project/PropertyGroup/Version");
-        versionElement.InnerText = nextVersion.ToString();
-
-        doc.Save(ProjectFile);
+        return doc;
     }
 }
