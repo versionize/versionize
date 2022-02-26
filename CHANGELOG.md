@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.
 
+<a name="1.12.0"></a>
+## [1.12.0](https://www.github.com/versionize/versionize/releases/tag/v1.12.0) (2022-2-26)
+
+### Features
+
+* add option to exit on insignificant commits (#58) ([1819c1c](https://www.github.com/versionize/versionize/commit/1819c1cb0c5cd3e5831548eb9b1bd64879f10688))
+* support fsharp projects (#55) ([488ce68](https://www.github.com/versionize/versionize/commit/488ce6862c7986a257512c3ea8cc0df67ef4b089))
+
+### Bug Fixes
+
+* console colors and removed coloring complexity (#57) ([ca217d2](https://www.github.com/versionize/versionize/commit/ca217d25e3e72d5f420f875c678d83ebad7066c5))
+* detect versions in xml namespaced projects (#62) ([7102a27](https://www.github.com/versionize/versionize/commit/7102a27e651619d21902557fe81cb7ecf2ec3f5b))
+
 <a name="1.11.0"></a>
 ## [1.11.0](https://www.github.com/versionize/versionize/releases/tag/v1.11.0) (2022-2-11)
 
