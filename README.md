@@ -48,6 +48,8 @@ Options:
                                        version
   -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING)
                                        are found
+  --exit-insignificant-commits         Exits with a non zero exit code if no significant commits (fix, feat or
+                                       BREAKING) are found
   --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
   -p|--pre-release                     Release as pre-release version with given pre release label.
