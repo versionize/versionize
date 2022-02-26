@@ -124,6 +124,21 @@ public class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void ShouldEmitAUsefulErrorMessageForDuplicateTags()
+    {
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
+
+        CommitAll(_testSetup.Repository);
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
+
+        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" }));
+
+        _testPlatformAbstractions.Messages.Last().ShouldBe("Version 2.0.0 already exists. Please use a different version.");
+    }
+
+    [Fact]
     public void ShouldExitIfReleaseAsSpecifiedVersionIsInvalid()
     {
         TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
