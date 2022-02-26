@@ -7,6 +7,7 @@ public class VersionizeOptions
     public bool SkipCommit { get; set; }
     public String ReleaseAs { get; set; }
     public bool IgnoreInsignificantCommits { get; set; }
+    public bool ExitInsignificantCommits { get; set; }
     public String CommitSuffix { get; set; }
     public string Prerelease { get; set; }
     public ChangelogOptions Changelog { get; set; } = ChangelogOptions.Default;

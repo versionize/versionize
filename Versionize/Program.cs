@@ -29,6 +29,7 @@ public static class Program
 
         var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
         var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
+        var optionExitInsignificant = app.Option("--exit-insignificant-commits", "Exits with a non zero exit code if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
         var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
         var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
@@ -57,6 +58,7 @@ public static class Program
                 SkipCommit = optionSkipCommit.HasValue(),
                 ReleaseAs = optionReleaseAs.Value(),
                 IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
+                ExitInsignificantCommits = optionExitInsignificant.HasValue(),
                 CommitSuffix = optionCommitSuffix.Value(),
                 Prerelease = optionPrerelease.Value(),
                 Changelog = ChangelogOptions.Default,
@@ -134,6 +136,7 @@ Exception detail:
             SkipCommit = MergeBool(configuration.SkipCommit, optionalConfiguration?.SkipCommit),
             ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
             IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
+            ExitInsignificantCommits = MergeBool(configuration.ExitInsignificantCommits, optionalConfiguration?.ExitInsignificantCommits),
             CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
             Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
             Changelog = changelog,
