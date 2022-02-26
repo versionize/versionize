@@ -1,4 +1,4 @@
-using Version = NuGet.Versioning.SemanticVersion;
+using NuGet.Versioning;
 
 namespace Versionize;
 
@@ -28,7 +28,7 @@ public class Projects
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 
-    public Version Version { get => _projects.First().Version; }
+    public SemanticVersion Version { get => _projects.First().Version; }
 
     public static Projects Discover(string workingDirectory)
     {
@@ -44,7 +44,7 @@ public class Projects
         return new Projects(projects);
     }
 
-    public void WriteVersion(Version nextVersion)
+    public void WriteVersion(SemanticVersion nextVersion)
     {
         foreach (var project in _projects)
         {

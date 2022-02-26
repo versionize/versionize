@@ -1,7 +1,7 @@
-﻿using Shouldly;
+﻿using NuGet.Versioning;
+using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
-using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests;
 
@@ -48,9 +48,31 @@ public class ProjectsTests
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
 
         var projects = Projects.Discover(tempDir);
-        projects.WriteVersion(new Version(2, 0, 0));
+        projects.WriteVersion(new SemanticVersion(2, 0, 0));
 
         var updated = Projects.Discover(tempDir);
-        updated.Version.ShouldBe(Version.Parse("2.0.0"));
+        updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
+    }
+
+    [Fact]
+    public void ShouldDetectVersionInNamespacedXmlProjects()
+    {
+        var tempDir = TempDir.Create();
+        var version = SemanticVersion.Parse("1.0.0");
+
+        // Create .net project
+        var projectFileContents =
+$@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+   <PropertyGroup>
+        ...
+        <Version>{version}</Version>
+        ...
+     </PropertyGroup>
+</Project>";
+
+        TempProject.CreateFromProjectContents(tempDir, "csproj", projectFileContents);
+
+        var projects = Projects.Discover(tempDir);
+        projects.Version.ShouldBe(version);
     }
 }
