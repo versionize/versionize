@@ -43,7 +43,7 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldFallbackToNoopInCaseNoAzurePushUrlWasDefined()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/saintedlama/versionize.git");
+        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
