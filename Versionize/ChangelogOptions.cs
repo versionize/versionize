@@ -5,8 +5,8 @@ namespace Versionize;
 // TODO: Consider creating a ChangelogConfigurationContract as a layer of abstraction.
 public record class ChangelogOptions
 {
-    public const string Preamble = "# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/saintedlama/versionize) for commit guidelines.\n";
-    public static readonly ChangelogOptions Default = new ChangelogOptions
+    public const string Preamble = "# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.\n";
+    public static readonly ChangelogOptions Default = new()
     {
         Header = Preamble,
         IncludeAllCommits = false,

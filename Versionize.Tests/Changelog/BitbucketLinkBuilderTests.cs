@@ -11,8 +11,8 @@ public class BitBucketLinkBuilderTests
 {
     private readonly string sshOrgPushUrl = "git@bitbucket.org:mobiloitteinc/dotnet-codebase.git";
     private readonly string sshComPushUrl = "git@bitbucket.com:mobiloitteinc/dotnet-codebase.git";
-    private readonly string httpsOrgPushUrl = "https://saintedlama@bitbucket.org/mobiloitteinc/dotnet-codebase.git";
-    private readonly string httpsComPushUrl = "https://saintedlama@bitbucket.com/mobiloitteinc/dotnet-codebase.git";
+    private readonly string httpsOrgPushUrl = "https://versionize@bitbucket.org/mobiloitteinc/dotnet-codebase.git";
+    private readonly string httpsComPushUrl = "https://versionize@bitbucket.com/mobiloitteinc/dotnet-codebase.git";
 
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
@@ -23,7 +23,7 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldThrowIfUrlIsNoValidHttpsCloneUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("https://saintedlama@bitbucket.org/"));
+        Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("https://versionize@bitbucket.org/"));
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldFallbackToNoopInCaseNoBitbucketPushUrlWasDefined()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/saintedlama/versionize.git");
+        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();

@@ -16,7 +16,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldCreateAGithubUrlBuilderForHTTPSPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://github.com/saintedlama/versionize.git");
+        var repo = SetupRepositoryWithRemote("origin", "https://github.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
@@ -25,7 +25,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldCreateAGithubUrlBuilderForSSHPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", "git@github.com:saintedlama/versionize.git");
+        var repo = SetupRepositoryWithRemote("origin", "git@github.com:versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
@@ -34,7 +34,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldPickFirstRemoteInCaseNoOriginWasFound()
     {
-        var repo = SetupRepositoryWithRemote("some", "git@github.com:saintedlama/versionize.git");
+        var repo = SetupRepositoryWithRemote("some", "git@github.com:versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
@@ -43,7 +43,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldFallbackToNoopInCaseNoGithubPushUrlWasDefined()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/saintedlama/versionize.git");
+        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
@@ -52,7 +52,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldCreateAGithubUrlBuilderForSSHPushUrlsEvenWithoutGitSuffix()
     {
-        var repo = SetupRepositoryWithRemote("origin", "git@github.com:saintedlama/versionize");
+        var repo = SetupRepositoryWithRemote("origin", "git@github.com:versionize/versionize");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
@@ -61,7 +61,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldCreateAGithubUrlBuilderForHTTPSPushUrlsEvenWithoutGitSuffix()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://github.com/saintedlama/versionize");
+        var repo = SetupRepositoryWithRemote("origin", "https://github.com/versionize/versionize");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();

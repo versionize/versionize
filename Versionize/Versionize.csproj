@@ -8,7 +8,7 @@
     <PackAsTool>True</PackAsTool>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <Authors>saintedlama</Authors>
+    <Authors>saintedlama;cab452005</Authors>
     <PackageTags>release;versioning;conventional;commit;git</PackageTags>
     <Description>Automatic versioning and CHANGELOG generation, using conventional commit messages.</Description>
     <PackageProjectUrl>https://github.com/versionize/versionize</PackageProjectUrl>

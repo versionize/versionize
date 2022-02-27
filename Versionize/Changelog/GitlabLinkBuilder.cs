@@ -10,9 +10,6 @@ public class GitlabLinkBuilder : IChangelogLinkBuilder
 
     public GitlabLinkBuilder(string pushUrl)
     {
-        // git@gitlab.com:saintedlama/gitlab-ce.git
-        // https://gitlab.com/saintedlama/gitlab-ce.git
-
         if (pushUrl.StartsWith("git@gitlab.com:"))
         {
             var httpsPattern = new Regex("^git@gitlab.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
