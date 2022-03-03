@@ -95,13 +95,13 @@ public class WorkingCopyTests : IDisposable
     [Fact]
     public void InspectShouldExitForProjectsInconsistentVersion()
     {
-        var projectPath1 = TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>1.0.0</Version>
     </PropertyGroup>
 </Project>");
 
-        var projectPath2 = TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>2.0.0</Version>
     </PropertyGroup>
