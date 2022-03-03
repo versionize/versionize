@@ -46,6 +46,28 @@ public class RepositoryExtensionsTests : IDisposable
         versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
     }
 
+    [Fact]
+    public void ShouldVerifyThatTagNamesStartWith_v_Prefix()
+    {
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
+        var commit = CommitAll(_testSetup.Repository);
+
+        var tag = _testSetup.Repository.Tags.Add("2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
+
+        tag.IsSemanticVersionTag().ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ShouldVerifyThatSemanticVersionTagCanBeParsed()
+    {
+        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
+        var commit = CommitAll(_testSetup.Repository);
+
+        var tag = _testSetup.Repository.Tags.Add("vNext", commit, GetAuthorSignature(), "Some annotation message without a version included");
+
+        tag.IsSemanticVersionTag().ShouldBeFalse();
+    }
+
     private static Commit CommitAll(IRepository repository, string message = "feat: Initial commit")
     {
         var author = GetAuthorSignature();

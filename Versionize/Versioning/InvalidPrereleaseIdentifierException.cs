@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Versionize.Versioning;
 
 [Serializable]
-internal class InvalidPrereleaseIdentifierException : Exception
+public class InvalidPrereleaseIdentifierException : Exception
 {
     public InvalidPrereleaseIdentifierException()
     {
