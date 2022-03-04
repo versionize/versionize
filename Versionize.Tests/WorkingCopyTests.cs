@@ -78,6 +78,43 @@ public class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void InspectShouldExitIfNoProjectWithVersionIsFound()
+    {
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory, "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+    </PropertyGroup>
+</Project>");
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect());
+
+        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+        _testPlatformAbstractions.Messages[0].ShouldEndWith(" that have a <Version> defined in their csproj file.");
+    }
+
+    [Fact]
+    public void InspectShouldExitForProjectsInconsistentVersion()
+    {
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+</Project>");
+
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <Version>2.0.0</Version>
+    </PropertyGroup>
+</Project>");
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect());
+
+        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+        _testPlatformAbstractions.Messages[0].ShouldContain("have an inconsistent <Version> defined in their csproj file");
+    }
+
+    [Fact]
     public void ShouldExitGracefullyIfNoGitInitialized()
     {
         var workingDirectory = TempDir.Create();
