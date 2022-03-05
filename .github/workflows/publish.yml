@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [*] #[master]
+    branches: ['*'] # should be set to master/main after tests are done
 
 jobs:
   publish-new-version:
@@ -24,11 +24,11 @@ jobs:
         run: versionize --dry-run --changelog-all # --exit-insignificant-commits
       - name: Build Package
         run: dotnet pack --output nupkgs --include-source --configuration Release --include-symbols
+      - name: Push to Nuget
+        run: dotnet nuget push "nupkgs/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}}
 #      - name: Push changes
 #        uses: ad-m/github-push-action@master
 #        with:
 #          github_token: ${{ secrets.GITHUB_TOKEN }}
 #          branch: ${{ github.ref }}
 #          tags: true
-#      - name: Push to Nuget
-#        run: dotnet nuget push "nupkgs/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}}
