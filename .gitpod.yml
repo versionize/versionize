@@ -1,0 +1,11 @@
+image: gitpod/workspace-dotnet
+tasks:
+  - init: |
+      echo 'TODO: build project'
+    command: |
+      echo 'TODO: using dotnet image'
+vscode:
+  extensions:
+    - muhammad-sammy.csharp
+    - hbenl.vscode-test-explorer
+    - hbenl.test-adapter-converter
