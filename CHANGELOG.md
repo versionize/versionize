@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.12.1"></a>
+## [1.12.1](https://www.github.com/versionize/versionize/releases/tag/v1.12.1) (2022-3-5)
+
+### Bug Fixes
+
+* check if version tag exists (#64) ([1627983](https://www.github.com/versionize/versionize/commit/16279838b3b0d935ef639a25fedc7426a606d89e))
+
+### Other
+
+* automatic nuget releases from github (#63) ([25472b2](https://www.github.com/versionize/versionize/commit/25472b2850e95e30525fb2ea4868e921af4fcb54))
+* include git push in release cmd (#66) ([e985c68](https://www.github.com/versionize/versionize/commit/e985c68f13213a33600aa68e345f3ac971aa23bc))
+* test some edge cases (#67) ([bd2e1e1](https://www.github.com/versionize/versionize/commit/bd2e1e1620be89edef231975db59aec06d0ac793))
+* use versionize org not saintedlama org (#65) ([8e7b369](https://www.github.com/versionize/versionize/commit/8e7b369e0b3872e84e0b97a2fc984acd4ab9377f))
+
 <a name="1.12.0"></a>
 ## [1.12.0](https://www.github.com/versionize/versionize/releases/tag/v1.12.0) (2022-2-26)
 
