@@ -69,8 +69,7 @@ public class ProjectTests
     </PropertyGroup>
 </Project>");
 
-        var isVersionable = Project.IsVersionable(projectFilePath);
-        isVersionable.ShouldBeFalse();
+        Project.Create(projectFilePath).IsVersionable.ShouldBeFalse();
     }
 
     [Fact]
@@ -84,8 +83,7 @@ public class ProjectTests
     </PropertyGroup>
 </Project>");
 
-        var isVersionable = Project.IsVersionable(projectFilePath);
-        isVersionable.ShouldBeFalse();
+        Project.Create(projectFilePath).IsVersionable.ShouldBeFalse();
     }
 
     private static string WriteProjectFile(string dir, string projectFileContents)

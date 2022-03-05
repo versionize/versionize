@@ -11,24 +11,24 @@ public class Projects
         _projects = projects;
     }
 
-    public bool IsEmpty()
+    public IEnumerable<Project> Versionables
     {
-        return !_projects.Any();
+        get { return _projects.Where(p => p.IsVersionable); }
     }
 
     public bool HasInconsistentVersioning()
     {
-        var firstProjectVersion = _projects.FirstOrDefault()?.Version;
+        var firstProjectVersion = Versionables.FirstOrDefault()?.Version;
 
         if (firstProjectVersion == null)
         {
             return true;
         }
 
-        return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
+        return Versionables.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 
-    public SemanticVersion Version { get => _projects.First().Version; }
+    public SemanticVersion Version { get => Versionables.First().Version; }
 
     public static Projects Discover(string workingDirectory)
     {
@@ -36,7 +36,6 @@ public class Projects
 
         var projects = filters.SelectMany(filter => Directory
             .GetFiles(workingDirectory, filter, SearchOption.AllDirectories)
-            .Where(Project.IsVersionable)
             .Select(Project.Create)
             .ToList()
         );
@@ -46,14 +45,9 @@ public class Projects
 
     public void WriteVersion(SemanticVersion nextVersion)
     {
-        foreach (var project in _projects)
+        foreach (var project in Versionables)
         {
             project.WriteVersion(nextVersion);
         }
-    }
-
-    public IEnumerable<string> GetProjectFiles()
-    {
-        return _projects.Select(project => project.ProjectFile);
     }
 }

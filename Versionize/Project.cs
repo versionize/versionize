@@ -3,46 +3,35 @@ using NuGet.Versioning;
 
 namespace Versionize;
 
-public class Project
+public class Project : IVersionSource
 {
-    public string ProjectFile { get; }
+    public string FilePath { get; }
     public SemanticVersion Version { get; }
+
+    public bool IsVersionable { get { return Version != null; } }
 
     private Project(string projectFile, SemanticVersion version)
     {
-        ProjectFile = projectFile;
+        FilePath = projectFile;
         Version = version;
     }
 
     public static Project Create(string projectFile)
     {
-        var version = ReadVersion(projectFile);
+        SemanticVersion version = ReadVersion(projectFile);
 
         return new Project(projectFile, version);
     }
 
-    public static bool IsVersionable(string projectFile)
-    {
-        try
-        {
-            ReadVersion(projectFile);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
-
     private static SemanticVersion ReadVersion(string projectFile)
     {
-        var doc =  ReadProject(projectFile);
+        var doc = ReadProject(projectFile);
 
         var versionString = SelectVersionNode(doc)?.InnerText;
 
         if (string.IsNullOrWhiteSpace(versionString))
         {
-            throw new InvalidOperationException($"Project {projectFile} contains no or an empty <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>");
+            return null;
         }
 
         try
@@ -57,12 +46,12 @@ public class Project
 
     public void WriteVersion(SemanticVersion nextVersion)
     {
-        var doc = ReadProject(ProjectFile);
+        var doc = ReadProject(FilePath);
 
         var versionElement = SelectVersionNode(doc);
         versionElement.InnerText = nextVersion.ToString();
 
-        doc.Save(ProjectFile);
+        doc.Save(FilePath);
     }
 
     private static XmlNode SelectVersionNode(XmlDocument doc)
@@ -85,4 +74,12 @@ public class Project
 
         return doc;
     }
+}
+
+public interface IVersionSource
+{
+    bool IsVersionable { get; }
+    SemanticVersion Version { get; }
+    string FilePath {get;}
+    void WriteVersion(SemanticVersion nextVersion);
 }

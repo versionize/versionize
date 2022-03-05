@@ -15,7 +15,7 @@ public class ProjectsTests
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
 
         var projects = Projects.Discover(tempDir);
-        projects.GetProjectFiles().Count().ShouldBe(2);
+        projects.Versionables.Count().ShouldBe(2);
     }
 
     [Fact]
