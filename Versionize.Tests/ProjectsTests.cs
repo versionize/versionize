@@ -13,9 +13,10 @@ public class ProjectsTests
         var tempDir = TempDir.Create();
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
+        TempProject.CreateVBProject(Path.Join(tempDir, "project3"));
 
         var projects = Projects.Discover(tempDir);
-        projects.GetProjectFiles().Count().ShouldBe(2);
+        projects.GetProjectFiles().Count().ShouldBe(3);
     }
 
     [Fact]
