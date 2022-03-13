@@ -32,7 +32,7 @@ public class Projects
 
     public static Projects Discover(string workingDirectory)
     {
-        var filters = new[] { "*.csproj", "*.fsproj" };
+        var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj" };
 
         var projects = filters.SelectMany(filter => Directory
             .GetFiles(workingDirectory, filter, SearchOption.AllDirectories)
