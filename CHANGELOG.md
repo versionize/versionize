@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.13.0"></a>
+## [1.13.0](https://www.github.com/versionize/versionize/releases/tag/v1.13.0) (2022-3-13)
+
+### Features
+
+* support vbproj (#69) ([7e54235](https://www.github.com/versionize/versionize/commit/7e54235df2706af4b044dda3a3b75207bd075b2b))
+
 <a name="1.12.1"></a>
 ## [1.12.1](https://www.github.com/versionize/versionize/releases/tag/v1.12.1) (2022-3-5)
 
