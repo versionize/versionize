@@ -1,5 +1,6 @@
-using Xunit;
 using LibGit2Sharp;
+using Shouldly;
+using Xunit;
 
 namespace Versionize.Tests;
 
@@ -57,6 +58,19 @@ public class ConventionalCommitParserTests
 
         Assert.Equal("BREAKING CHANGE", breakingChangeNote.Title);
         Assert.Equal("this will break rc1 compatibility", breakingChangeNote.Text);
+    }
+
+    [Theory]
+    [InlineData("feat!: broadcast $destroy: event on scope destruction")]
+    [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
+    public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)
+    {
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+
+        conventionalCommit.Notes.ShouldHaveSingleItem();
+        conventionalCommit.Notes[0].Title.ShouldBe("BREAKING CHANGE");
+        conventionalCommit.Notes[0].Text.ShouldBe(string.Empty);
     }
 }
 
