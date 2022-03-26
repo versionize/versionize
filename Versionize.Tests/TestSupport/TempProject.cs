@@ -14,6 +14,11 @@ public static class TempProject
         return Create(tempDir, "csproj", version);
     }
 
+    public static string CreateVBProject(string tempDir, string version = "1.0.0")
+    {
+        return Create(tempDir, "vbproj", version);
+    }
+
     public static string Create(string tempDir, string extension, string version = "1.0.0")
     {
         var projectFileContents =

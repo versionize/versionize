@@ -206,6 +206,10 @@ Because `changelogAll` is true and the _fix_ section is hidden, fix commits will
 
 ## Developing
 
+Want to do a PR and not care about setting up your development environment?
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/versionize/versionize)
+
 To get prettier test outputs run `dotnet test` with prettier test logger
 
 ```bash

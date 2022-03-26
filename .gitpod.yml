@@ -1,0 +1,8 @@
+image: gitpod/workspace-dotnet
+tasks:
+  - name: Install Dependencies
+    init: dotnet restore
+
+vscode:
+  extensions:
+    - muhammad-sammy.csharp
