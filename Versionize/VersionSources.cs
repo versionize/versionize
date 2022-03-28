@@ -2,16 +2,16 @@ using NuGet.Versioning;
 
 namespace Versionize;
 
-public class Projects
+public class VersionSources
 {
-    private readonly IEnumerable<Project> _projects;
+    private readonly IEnumerable<IVersionSource> _projects;
 
-    private Projects(IEnumerable<Project> projects)
+    private VersionSources(IEnumerable<IVersionSource> projects)
     {
         _projects = projects;
     }
 
-    public IEnumerable<Project> Versionables
+    public IEnumerable<IVersionSource> Versionables
     {
         get { return _projects.Where(p => p.IsVersionable); }
     }
@@ -30,24 +30,19 @@ public class Projects
 
     public SemanticVersion Version { get => Versionables.First().Version; }
 
-    public static Projects Discover(string workingDirectory)
+    public static VersionSources Discover(string workingDirectory)
     {
-        var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj" };
+        var versionSources = new List<IVersionSource>();
+        versionSources.AddRange(MsBuildVersionSource.Discover(workingDirectory));
 
-        var projects = filters.SelectMany(filter => Directory
-            .GetFiles(workingDirectory, filter, SearchOption.AllDirectories)
-            .Select(Project.Create)
-            .ToList()
-        );
-
-        return new Projects(projects);
+        return new VersionSources(versionSources);
     }
 
     public void WriteVersion(SemanticVersion nextVersion)
     {
-        foreach (var project in Versionables)
+        foreach (var versionSource in Versionables)
         {
-            project.WriteVersion(nextVersion);
+            versionSource.WriteVersion(nextVersion);
         }
     }
 }

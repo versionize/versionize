@@ -3,24 +3,24 @@ using NuGet.Versioning;
 
 namespace Versionize;
 
-public class Project : IVersionSource
+public class MsBuildVersionSource : IVersionSource
 {
     public string FilePath { get; }
     public SemanticVersion Version { get; }
 
     public bool IsVersionable { get { return Version != null; } }
 
-    private Project(string projectFile, SemanticVersion version)
+    private MsBuildVersionSource(string projectFile, SemanticVersion version)
     {
         FilePath = projectFile;
         Version = version;
     }
 
-    public static Project Create(string projectFile)
+    public static MsBuildVersionSource Create(string projectFile)
     {
         SemanticVersion version = ReadVersion(projectFile);
 
-        return new Project(projectFile, version);
+        return new MsBuildVersionSource(projectFile, version);
     }
 
     private static SemanticVersion ReadVersion(string projectFile)
@@ -42,6 +42,17 @@ public class Project : IVersionSource
         {
             throw new InvalidOperationException($"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <Version>1.0.0</Version>");
         }
+    }
+
+    public static IEnumerable<IVersionSource> Discover(string workingDirectory)
+    {
+        var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj" };
+
+        return filters.SelectMany(filter => Directory
+            .GetFiles(workingDirectory, filter, SearchOption.AllDirectories)
+            .Select(Create)
+            .ToList()
+        );
     }
 
     public void WriteVersion(SemanticVersion nextVersion)
@@ -74,12 +85,4 @@ public class Project : IVersionSource
 
         return doc;
     }
-}
-
-public interface IVersionSource
-{
-    bool IsVersionable { get; }
-    SemanticVersion Version { get; }
-    string FilePath {get;}
-    void WriteVersion(SemanticVersion nextVersion);
 }

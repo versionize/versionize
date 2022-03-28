@@ -22,7 +22,7 @@ public class WorkingCopy
     {
         var workingDirectory = _directory.FullName;
 
-        var projects = Projects.Discover(workingDirectory);
+        var projects = VersionSources.Discover(workingDirectory);
 
         if (!projects.Versionables.Any())
         {
@@ -52,7 +52,7 @@ public class WorkingCopy
             Exit($"Repository {workingDirectory} is dirty. Please commit your changes.", 1);
         }
 
-        var projects = Projects.Discover(workingDirectory);
+        var projects = VersionSources.Discover(workingDirectory);
 
         if (!projects.Versionables.Any())
         {

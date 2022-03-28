@@ -5,18 +5,18 @@ using Xunit;
 
 namespace Versionize.Tests;
 
-public class ProjectsTests
+public class VersionSourcesTests
 {
     [Fact]
-    public void ShouldDiscoverAllProjects()
+    public void ShouldDiscoverAllVersionSources()
     {
         var tempDir = TempDir.Create();
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
         TempProject.CreateVBProject(Path.Join(tempDir, "project3"));
 
-        var projects = Projects.Discover(tempDir);
-        projects.Versionables.Count().ShouldBe(2);
+        var versionSources = VersionSources.Discover(tempDir);
+        versionSources.Versionables.Count().ShouldBe(3);
     }
 
     [Fact]
@@ -26,8 +26,8 @@ public class ProjectsTests
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"), "2.0.0");
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
 
-        var projects = Projects.Discover(tempDir);
-        projects.HasInconsistentVersioning().ShouldBeTrue();
+        var versionSources = VersionSources.Discover(tempDir);
+        versionSources.HasInconsistentVersioning().ShouldBeTrue();
     }
 
     [Fact]
@@ -37,26 +37,26 @@ public class ProjectsTests
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
 
-        var projects = Projects.Discover(tempDir);
-        projects.HasInconsistentVersioning().ShouldBeFalse();
+        var versionSources = VersionSources.Discover(tempDir);
+        versionSources.HasInconsistentVersioning().ShouldBeFalse();
     }
 
     [Fact]
-    public void ShouldWriteAllVersionsToProjectFiles()
+    public void ShouldWriteAllVersionsToMsBuildProjects()
     {
         var tempDir = TempDir.Create();
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"), "1.1.1");
         TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
 
-        var projects = Projects.Discover(tempDir);
-        projects.WriteVersion(new SemanticVersion(2, 0, 0));
+        var versionSources = VersionSources.Discover(tempDir);
+        versionSources.WriteVersion(new SemanticVersion(2, 0, 0));
 
-        var updated = Projects.Discover(tempDir);
+        var updated = VersionSources.Discover(tempDir);
         updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
     }
 
     [Fact]
-    public void ShouldDetectVersionInNamespacedXmlProjects()
+    public void ShouldDetectVersionInNamespacedMsBuildProject()
     {
         var tempDir = TempDir.Create();
         var version = SemanticVersion.Parse("1.0.0");
@@ -73,7 +73,7 @@ $@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schema
 
         TempProject.CreateFromProjectContents(tempDir, "csproj", projectFileContents);
 
-        var projects = Projects.Discover(tempDir);
-        projects.Version.ShouldBe(version);
+        var versionSources = VersionSources.Discover(tempDir);
+        versionSources.Version.ShouldBe(version);
     }
 }

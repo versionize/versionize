@@ -5,7 +5,7 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Tests;
 
-public class ProjectTests
+public class MsBuildVersionSourceTests
 {
     [Fact]
     public void ShouldThrowInCaseOfInvalidVersion()
@@ -20,7 +20,7 @@ public class ProjectTests
         var projectFilePath = Path.Join(tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
-        Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
+        Should.Throw<InvalidOperationException>(() => MsBuildVersionSource.Create(projectFilePath));
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class ProjectTests
         var projectFilePath = Path.Join(tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
-        Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
+        Should.Throw<InvalidOperationException>(() => MsBuildVersionSource.Create(projectFilePath));
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class ProjectTests
 </Project>";
         var projectFilePath = WriteProjectFile(tempDir, projectFileContents);
 
-        var project = Project.Create(projectFilePath);
+        var project = MsBuildVersionSource.Create(projectFilePath);
         project.WriteVersion(new Version(2, 0, 0));
 
         var versionedProjectContents = File.ReadAllText(projectFilePath);
@@ -69,7 +69,7 @@ public class ProjectTests
     </PropertyGroup>
 </Project>");
 
-        Project.Create(projectFilePath).IsVersionable.ShouldBeFalse();
+        MsBuildVersionSource.Create(projectFilePath).IsVersionable.ShouldBeFalse();
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class ProjectTests
     </PropertyGroup>
 </Project>");
 
-        Project.Create(projectFilePath).IsVersionable.ShouldBeFalse();
+        MsBuildVersionSource.Create(projectFilePath).IsVersionable.ShouldBeFalse();
     }
 
     private static string WriteProjectFile(string dir, string projectFileContents)
