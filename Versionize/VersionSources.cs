@@ -16,6 +16,8 @@ public class VersionSources
         get { return _projects.Where(p => p.IsVersionable); }
     }
 
+    public SemanticVersion Version { get => Versionables.First().Version; }
+
     public bool HasInconsistentVersioning()
     {
         var firstProjectVersion = Versionables.FirstOrDefault()?.Version;
@@ -28,7 +30,13 @@ public class VersionSources
         return Versionables.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 
-    public SemanticVersion Version { get => Versionables.First().Version; }
+    public void WriteVersion(SemanticVersion nextVersion)
+    {
+        foreach (var versionSource in Versionables)
+        {
+            versionSource.WriteVersion(nextVersion);
+        }
+    }
 
     public static VersionSources Discover(string workingDirectory)
     {
@@ -36,13 +44,5 @@ public class VersionSources
         versionSources.AddRange(MsBuildVersionSource.Discover(workingDirectory));
 
         return new VersionSources(versionSources);
-    }
-
-    public void WriteVersion(SemanticVersion nextVersion)
-    {
-        foreach (var versionSource in Versionables)
-        {
-            versionSource.WriteVersion(nextVersion);
-        }
     }
 }
