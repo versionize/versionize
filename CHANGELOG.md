@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.14.0"></a>
+## [1.14.0](https://www.github.com/versionize/versionize/releases/tag/v1.14.0) (2022-5-13)
+
+### Features
+
+* exclamation mark to signifying breaking ([74576d4](https://www.github.com/versionize/versionize/commit/74576d4b5da02130380d8c367052ebd8aa9a5910))
+
+### Other
+
+* configuring gitpod (#68) ([7f59f11](https://www.github.com/versionize/versionize/commit/7f59f119ec11eb5f00f492da03bcb92b57a49b31))
+* exit publishing workflow gracefully if no release is required (#70) ([c130107](https://www.github.com/versionize/versionize/commit/c1301077e971fabfda9ffa0c566ae0e1d7747959))
+
 <a name="1.13.0"></a>
 ## [1.13.0](https://www.github.com/versionize/versionize/releases/tag/v1.13.0) (2022-3-13)
 
