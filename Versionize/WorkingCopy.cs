@@ -70,7 +70,25 @@ public class WorkingCopy
             Information($"  * {project}");
         }
 
-        var versionTag = repo.SelectVersionTag(projects.Version);
+        var version = projects.Version;
+        if (options.AggregatePrereleases)
+        {
+            version = repo
+                .Tags
+                .Select(tag =>
+                {
+                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var version);
+                    return version;
+                })
+                .Where(x => x != null && !x.IsPrerelease)
+                .OrderByDescending(x => x.Major)
+                .ThenByDescending(x => x.Minor)
+                .ThenByDescending(x => x.Patch)
+                .FirstOrDefault();
+            Console.WriteLine(version);
+        }
+
+        var versionTag = repo.SelectVersionTag(version);
         var isInitialRelease = versionTag == null;
         var commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
 
