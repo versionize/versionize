@@ -53,6 +53,7 @@ Options:
   --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
   -p|--pre-release                     Release as pre-release version with given pre release label.
+  -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version.
 
 Commands:
   inspect                              Prints the current version to stdout
@@ -167,6 +168,44 @@ The following workflow illustrates how pre-release workflows with versionize wor
 > versionize
 // Generates version v2.0.0
 ```
+
+### Aggregated pre-releases changelog
+
+By default, each commit message only appears in the release it was introduced. When using the pre-release feature
+this can result in a fragmented changelog. For example, when promoting to a full release the user has to browse
+through all the pre-release sections to see what's included.
+
+```
+v1.0.0-alpha.0
+- featA
+v1.0.0-alpha.1
+- featB
+v1.0.0
+```
+
+So to get around that you can pass the `--aggregate-pre-releases` flag
+
+```
+versionize --pre-release alpha
+versionize --pre-release alpha
+versionize --aggregate-pre-releases
+```
+
+to get output like the following
+
+```
+v1.0.0-alpha.0
+- featA
+v1.0.0-alpha.1
+- featB
+v1.0.0
+- featA
+- featB
+```
+
+This also works together with the `pre-release` option
+
+versionize --pre-release alpha --aggregate-pre-releases
 
 ## Configuration
 
