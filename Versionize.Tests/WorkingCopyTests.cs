@@ -376,6 +376,73 @@ public class WorkingCopyTests : IDisposable
         versionTagNames.ShouldBe(new[] { "v1.0.0" });
     }
 
+    [Fact]
+    public void ShouldAggregatePrereleases()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("feat: initial commit");
+        workingCopy.Versionize(new VersionizeOptions { AggregatePrereleases = true });
+
+        // Prerelease as patch alpha
+        fileCommitter.CommitChange("fix: a fix");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", AggregatePrereleases = true });
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", AggregatePrereleases = true });
+
+        // Full release
+        workingCopy.Versionize(new VersionizeOptions { AggregatePrereleases = true });
+
+        // Full release
+        fileCommitter.CommitChange("feat: another feature");
+        workingCopy.Versionize(new VersionizeOptions { AggregatePrereleases = true });
+
+        var versionTagNames = VersionTagNames.ToList();
+        versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.0.1-alpha.0", "v1.1.0", "v1.1.0-alpha.0", "v1.2.0" });
+        
+        var commitDate = DateTime.Now.ToString("yyyy-M-d");
+        var changelogContents = File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
+        var sb = new ChangelogStringBuilder();
+        sb.Append(ChangelogOptions.Preamble);
+
+        sb.Append("<a name=\"1.2.0\"></a>");
+        sb.Append($"## 1.2.0 ({commitDate})", 2);
+        sb.Append("### Features", 2);
+        sb.Append("* another feature", 2);
+
+        sb.Append("<a name=\"1.1.0\"></a>");
+        sb.Append($"## 1.1.0 ({commitDate})", 2);
+        sb.Append("### Features", 2);
+        sb.Append("* a feature", 2);
+        sb.Append("### Bug Fixes", 2);
+        sb.Append("* a fix", 2);
+
+        sb.Append("<a name=\"1.1.0-alpha.0\"></a>");
+        sb.Append($"## 1.1.0-alpha.0 ({commitDate})", 2);
+        sb.Append("### Features", 2);
+        sb.Append("* a feature", 2);
+        sb.Append("### Bug Fixes", 2);
+        sb.Append("* a fix", 2);
+
+        sb.Append("<a name=\"1.0.1-alpha.0\"></a>");
+        sb.Append($"## 1.0.1-alpha.0 ({commitDate})", 2);
+        sb.Append("### Bug Fixes", 2);
+        sb.Append("* a fix", 2);
+
+        sb.Append("<a name=\"1.0.0\"></a>");
+        sb.Append($"## 1.0.0 ({commitDate})", 2);
+        sb.Append("### Features", 2);
+        sb.Append("* initial commit", 2);
+
+        Assert.Equal(sb.Build(), changelogContents);
+    }
+
     private IEnumerable<string> VersionTagNames
     {
         get { return _testSetup.Repository.Tags.Select(t => t.FriendlyName); }
