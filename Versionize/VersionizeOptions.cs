@@ -11,4 +11,5 @@ public class VersionizeOptions
     public String CommitSuffix { get; set; }
     public string Prerelease { get; set; }
     public ChangelogOptions Changelog { get; set; } = ChangelogOptions.Default;
+    public bool AggregatePrereleases { get; set; }
 }

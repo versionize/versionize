@@ -33,6 +33,7 @@ public static class Program
         var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
         var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
+        var optionAggregatePrereleases = app.Option("-a|--aggregate-pre-releases", "Include all pre-release commits in the changelog since the last full version.", CommandOptionType.NoValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
@@ -62,6 +63,7 @@ public static class Program
                 CommitSuffix = optionCommitSuffix.Value(),
                 Prerelease = optionPrerelease.Value(),
                 Changelog = ChangelogOptions.Default,
+                AggregatePrereleases = optionAggregatePrereleases.HasValue(),
             },
             optionIncludeAllCommitsInChangelog.HasValue());
 
@@ -140,6 +142,7 @@ Exception detail:
             CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
             Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
             Changelog = changelog,
+            AggregatePrereleases = configuration.AggregatePrereleases,
         };
     }
 
