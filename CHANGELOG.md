@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.15.0"></a>
+## [1.15.0](https://www.github.com/versionize/versionize/releases/tag/v1.15.0) (2022-6-26)
+
+### Features
+
+* add support for aggregating prereleases in changelog (#77) ([dae45f1](https://www.github.com/versionize/versionize/commit/dae45f1d38bc75e3b4ce9856d9463b7c00a89e46))
+
 <a name="1.14.0"></a>
 ## [1.14.0](https://www.github.com/versionize/versionize/releases/tag/v1.14.0) (2022-5-13)
 
