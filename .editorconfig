@@ -12,6 +12,8 @@ end_of_line = lf
 [*.cs]
 csharp_style_namespace_declarations=file_scoped:error
 
+dotnet_diagnostic.RCS1225.severity = none
+
 # Code files
 [*.{cs,csx,vb,vbx}]
 indent_size = 4

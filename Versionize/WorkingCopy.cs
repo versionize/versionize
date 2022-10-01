@@ -22,9 +22,9 @@ public class WorkingCopy
     {
         var workingDirectory = _directory.FullName;
 
-        var projects = Projects.Discover(workingDirectory);
+        var projects = VersionSources.Discover(workingDirectory);
 
-        if (projects.IsEmpty())
+        if (!projects.Versionables.Any())
         {
             Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
         }
@@ -52,9 +52,9 @@ public class WorkingCopy
             Exit($"Repository {workingDirectory} is dirty. Please commit your changes.", 1);
         }
 
-        var projects = Projects.Discover(workingDirectory);
+        var projects = VersionSources.Discover(workingDirectory);
 
-        if (projects.IsEmpty())
+        if (!projects.Versionables.Any())
         {
             Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
         }
@@ -64,8 +64,8 @@ public class WorkingCopy
             Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
         }
 
-        Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
-        foreach (var project in projects.GetProjectFiles())
+        Information($"Discovered {projects.Versionables.Count()} versionable projects");
+        foreach (var project in projects.Versionables.Select(v => v.FilePath))
         {
             Information($"  * {project}");
         }
@@ -144,7 +144,7 @@ public class WorkingCopy
         {
             projects.WriteVersion(nextVersion);
 
-            foreach (var projectFile in projects.GetProjectFiles())
+            foreach (var projectFile in projects.Versionables.Select(v => v.FilePath))
             {
                 Commands.Stage(repo, projectFile);
             }
@@ -176,7 +176,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             Commands.Stage(repo, changelog.FilePath);
 
-            foreach (var projectFile in projects.GetProjectFiles())
+            foreach (var projectFile in projects.Versionables.Select(v => v.FilePath))
             {
                 Commands.Stage(repo, projectFile);
             }
