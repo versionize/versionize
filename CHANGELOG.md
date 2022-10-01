@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.15.1"></a>
+## [1.15.1](https://www.github.com/versionize/versionize/releases/tag/v1.15.1) (2022-10-1)
+
+### Bug Fixes
+
+* bump message shows same version for prev and next Issue #78  (#81) ([59e4d76](https://www.github.com/versionize/versionize/commit/59e4d767f39c68e34c66bec1b9369794ef8bab7f))
+
 <a name="1.15.0"></a>
 ## [1.15.0](https://www.github.com/versionize/versionize/releases/tag/v1.15.0) (2022-6-26)
 
