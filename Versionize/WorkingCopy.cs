@@ -136,6 +136,9 @@ public class WorkingCopy
 
         var versionTime = DateTimeOffset.Now;
 
+
+        Step($"bumping version from {projects.Version} to {nextVersion} in projects");
+       
         // Commit changelog and version source
         if (!options.DryRun && (nextVersion != projects.Version))
         {
@@ -146,8 +149,6 @@ public class WorkingCopy
                 Commands.Stage(repo, projectFile);
             }
         }
-
-        Step($"bumping version from {projects.Version} to {nextVersion} in projects");
 
         var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);

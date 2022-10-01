@@ -443,6 +443,25 @@ public class WorkingCopyTests : IDisposable
         Assert.Equal(sb.Build(), changelogContents);
     }
 
+    [Fact]
+    public void ShouldDisplayExpectedMessage_BumpingVersionFromXToY()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.0.0");
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("feat: initial commit");
+        workingCopy.Versionize(new VersionizeOptions());
+
+        // Patch release
+        fileCommitter.CommitChange("fix: a fix");
+        workingCopy.Versionize(new VersionizeOptions());
+
+        _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.0 to 1.0.1 in projects");
+    }
+
     private IEnumerable<string> VersionTagNames
     {
         get { return _testSetup.Repository.Tags.Select(t => t.FriendlyName); }
