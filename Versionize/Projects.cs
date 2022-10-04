@@ -34,8 +34,14 @@ public class Projects
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj" };
 
+        var options = new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = true,
+        };
+
         var projects = filters.SelectMany(filter => Directory
-            .GetFiles(workingDirectory, filter, SearchOption.AllDirectories)
+            .GetFiles(workingDirectory, filter, options)
             .Where(Project.IsVersionable)
             .Select(Project.Create)
             .ToList()
