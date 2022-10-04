@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.15.2"></a>
+## [1.15.2](https://www.github.com/versionize/versionize/releases/tag/v1.15.2) (2022-10-4)
+
+### Bug Fixes
+
+* throws error when protected folder is encountered (#83) ([2f348dc](https://www.github.com/versionize/versionize/commit/2f348dc91e1a876ac289b1a780387ab791d045c1))
+
 <a name="1.15.1"></a>
 ## [1.15.1](https://www.github.com/versionize/versionize/releases/tag/v1.15.1) (2022-10-1)
 
