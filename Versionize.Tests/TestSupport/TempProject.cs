@@ -19,6 +19,11 @@ public static class TempProject
         return Create(tempDir, "vbproj", version);
     }
 
+    public static string CreateProps(string tempDir, string version = "1.0.0")
+    {
+        return Create(tempDir, "props", version);
+    }
+
     public static string Create(string tempDir, string extension, string version = "1.0.0")
     {
         var projectFileContents =
