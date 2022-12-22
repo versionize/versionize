@@ -27,7 +27,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
-        include-prerelease: true
+    - name: Setup .NET Core 7.0
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7.0.x'
 
     - name: Test
       run: dotnet test --logger "trx" /p:CollectCoverage=true /p:CoverletOutputFormat=lcov  /p:ExcludeByFile="**/PlatformAbstractions.cs"
@@ -43,4 +46,4 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: './Versionize.Tests/coverage.net6.0.info'
+        path-to-lcov: './Versionize.Tests/coverage.net7.0.info'
