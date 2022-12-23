@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.0"></a>
+## [1.17.0](https://www.github.com/versionize/versionize/releases/tag/v1.17.0) (2022-12-23)
+
+### Features
+
+* add support for "*.props" file (#85) ([7e58aa4](https://www.github.com/versionize/versionize/commit/7e58aa48017d0fa9bed1f8b11f40afd33e8388be))
+
 <a name="1.16.0"></a>
 ## [1.16.0](https://www.github.com/versionize/versionize/releases/tag/v1.16.0) (2022-12-23)
 
