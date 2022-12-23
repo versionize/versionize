@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.16.0"></a>
+## [1.16.0](https://www.github.com/versionize/versionize/releases/tag/v1.16.0) (2022-12-23)
+
+### Features
+
+* add net7 support ([39960e9](https://www.github.com/versionize/versionize/commit/39960e988b97d3277be2d7370b51316f485f62b3))
+
 <a name="1.15.2"></a>
 ## [1.15.2](https://www.github.com/versionize/versionize/releases/tag/v1.15.2) (2022-10-4)
 
