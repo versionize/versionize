@@ -11,16 +11,18 @@ namespace Versionize;
 
 public class WorkingCopy
 {
-    private readonly DirectoryInfo _directory;
+    private readonly DirectoryInfo _workingDirectory;
+    private readonly DirectoryInfo _gitDirectory;
 
-    private WorkingCopy(DirectoryInfo directory)
+    private WorkingCopy(DirectoryInfo workingDirectory, DirectoryInfo gitDirectory)
     {
-        _directory = directory;
+        _workingDirectory = workingDirectory;
+        _gitDirectory = gitDirectory;
     }
 
     public SemanticVersion Inspect()
     {
-        var workingDirectory = _directory.FullName;
+        var workingDirectory = _workingDirectory.FullName;
 
         var projects = Projects.Discover(workingDirectory);
 
@@ -41,9 +43,10 @@ public class WorkingCopy
 
     public SemanticVersion Versionize(VersionizeOptions options)
     {
-        var workingDirectory = _directory.FullName;
+        var workingDirectory = _workingDirectory.FullName;
+        var gitDirectory = _gitDirectory.FullName;
 
-        using var repo = new Repository(workingDirectory);
+        using var repo = new Repository(gitDirectory);
 
         var isDirty = repo.RetrieveStatus(new StatusOptions()).IsDirty;
 
@@ -218,7 +221,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             if (isWorkingCopy)
             {
-                return new WorkingCopy(workingCopyCandidate);
+                return new WorkingCopy(new DirectoryInfo(workingDirectory), workingCopyCandidate);
             }
 
             workingCopyCandidate = workingCopyCandidate.Parent;
