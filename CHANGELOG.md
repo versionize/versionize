@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.17.1"></a>
+## [1.17.1](https://www.github.com/versionize/versionize/releases/tag/v1.17.1) (2023-2-8)
+
+### Bug Fixes
+
+* changed 'WorkingCopy' to preserve 'workingDirectory' set in args while still resolving directory of '.git' folder ([89a9c8e](https://www.github.com/versionize/versionize/commit/89a9c8e136e4e3289ed53422bfb656cc12e777db))
+
 <a name="1.17.0"></a>
 ## [1.17.0](https://www.github.com/versionize/versionize/releases/tag/v1.17.0) (2022-12-23)
 
