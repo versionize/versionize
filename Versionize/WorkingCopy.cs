@@ -88,7 +88,7 @@ public class WorkingCopy
         }
 
         var isInitialRelease = false;
-        var commitsInVersion = new List<Commit>();
+        List<Commit> commitsInVersion;
         if (options.UseProjVersionForBumpLogic)
         {
             var lastReleaseCommit = repo.Commits.FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
