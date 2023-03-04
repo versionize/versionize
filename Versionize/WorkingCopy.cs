@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Changelog;
 using Versionize.Versioning;
@@ -88,12 +85,22 @@ public class WorkingCopy
                 .ThenByDescending(x => x.Minor)
                 .ThenByDescending(x => x.Patch)
                 .FirstOrDefault();
-            Console.WriteLine(version);
         }
 
-        var versionTag = repo.SelectVersionTag(version);
-        var isInitialRelease = versionTag == null;
-        var commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
+        var isInitialRelease = false;
+        var commitsInVersion = new List<Commit>();
+        if (options.UseProjVersionForBumpLogic)
+        {
+            var lastReleaseCommit = repo.Commits.FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+            isInitialRelease = lastReleaseCommit is null;
+            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit();
+        }
+        else
+        {
+            var versionTag = repo.SelectVersionTag(version);
+            isInitialRelease = versionTag == null;
+            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
+        }
 
         var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
 
@@ -101,7 +108,6 @@ public class WorkingCopy
 
         var nextVersion = isInitialRelease ? projects.Version : versionIncrement.NextVersion(projects.Version, options.Prerelease);
 
-        // For non initial releases: for insignificant commits such as chore increment the patch version if IgnoreInsignificantCommits is not set
         if (!isInitialRelease && nextVersion == projects.Version)
         {
             if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
@@ -132,7 +138,7 @@ public class WorkingCopy
             Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {projects.Version}. This can be caused by using a wrong pre-release label or release as version", 1);
         }
 
-        if (!options.DryRun && !options.SkipCommit && repo.VersionTagsExists(nextVersion))
+        if (repo.VersionTagsExists(nextVersion) && !options.DryRun && !options.SkipCommit && !options.SkipTag)
         {
             Exit($"Version {nextVersion} already exists. Please use a different version.", 1);
         }
@@ -191,16 +197,19 @@ $ git config --global user.email johndoe@example.com", 1);
             var versionCommit = repo.Commit(releaseCommitMessage, author, committer);
             Step("committed changes in projects and CHANGELOG.md");
 
-            repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
-            Step($"tagged release as {nextVersion}");
+            if (!options.SkipTag)
+            {
+                repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
+                Step($"tagged release as {nextVersion}");
+            }
 
             Information("");
-            Information("i Run `git push --follow-tags origin master` to push all changes including tags");
+            Information("Run `git push --follow-tags origin main` to push all changes including tags");
         }
         else if (options.SkipCommit)
         {
             Information("");
-            Information($"i Commit and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
+            Information($"Commit and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
         }
 
         return nextVersion;
