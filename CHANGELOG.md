@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.18.0"></a>
+## [1.18.0](https://www.github.com/versionize/versionize/releases/tag/v1.18.0) (2023-3-11)
+
+### Features
+
+* add skipTag and projVersionBumpLogic options (#94) ([e4228a3](https://www.github.com/versionize/versionize/commit/e4228a339cb00dd2b3fbe574a1928f65db5c0136))
+
 <a name="1.17.1"></a>
 ## [1.17.1](https://www.github.com/versionize/versionize/releases/tag/v1.17.1) (2023-2-8)
 
