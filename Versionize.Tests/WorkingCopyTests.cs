@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using NuGet.Versioning;
 using Shouldly;
 using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
@@ -460,6 +461,35 @@ public class WorkingCopyTests : IDisposable
         workingCopy.Versionize(new VersionizeOptions());
 
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.0 to 1.0.1 in projects");
+    }
+
+    [Fact]
+    public void ShouldUseProjVersionForBumpLogic()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("feat: initial commit");
+        workingCopy.Versionize(new VersionizeOptions());
+
+        // Prerelease as patch alpha
+        fileCommitter.CommitChange("fix: a fix");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipTag = true });
+
+        // Prerelease as patch alpha
+        fileCommitter.CommitChange("fix: another fix");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipTag = true, UseProjVersionForBumpLogic = true });
+
+        var versionTagNames = VersionTagNames.ToList();
+        versionTagNames.ShouldBe(new[] { "v1.0.0" });
+
+        var projects = Projects.Discover(_testSetup.WorkingDirectory);
+        projects.Version.ToNormalizedString().ShouldBe("1.0.1-alpha.1");
+
+        _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.1-alpha.0 to 1.0.1-alpha.1 in projects");
     }
 
     private IEnumerable<string> VersionTagNames

@@ -28,12 +28,14 @@ public static class Program
         var optionSilent = app.Option("--silent", "Suppress output to console", CommandOptionType.NoValue);
 
         var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
+        var optionSkipTag = app.Option("--skip-tag", "Skip git tag after making release commit", CommandOptionType.NoValue);
         var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
         var optionExitInsignificant = app.Option("--exit-insignificant-commits", "Exits with a non zero exit code if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
         var optionIncludeAllCommitsInChangelog = app.Option("--changelog-all", "Include all commits in the changelog not just fix, feat and breaking changes", CommandOptionType.NoValue);
         var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
         var optionAggregatePrereleases = app.Option("-a|--aggregate-pre-releases", "Include all pre-release commits in the changelog since the last full version.", CommandOptionType.NoValue);
+        var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "Use project version for bump logic, as opposed to git tag version.", CommandOptionType.NoValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
@@ -57,6 +59,7 @@ public static class Program
                 DryRun = optionDryRun.HasValue(),
                 SkipDirty = optionSkipDirty.HasValue(),
                 SkipCommit = optionSkipCommit.HasValue(),
+                SkipTag = optionSkipTag.HasValue(),
                 ReleaseAs = optionReleaseAs.Value(),
                 IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
                 ExitInsignificantCommits = optionExitInsignificant.HasValue(),
@@ -64,6 +67,7 @@ public static class Program
                 Prerelease = optionPrerelease.Value(),
                 Changelog = ChangelogOptions.Default,
                 AggregatePrereleases = optionAggregatePrereleases.HasValue(),
+                UseProjVersionForBumpLogic = optionUseProjVersionForBumpLogic.HasValue(),
             },
             optionIncludeAllCommitsInChangelog.HasValue());
 
@@ -136,6 +140,8 @@ Exception detail:
             DryRun = MergeBool(configuration.DryRun, optionalConfiguration?.DryRun),
             SkipDirty = MergeBool(configuration.SkipDirty, optionalConfiguration?.SkipDirty),
             SkipCommit = MergeBool(configuration.SkipCommit, optionalConfiguration?.SkipCommit),
+            // TODO: Consider supporting optionalConfiguration
+            SkipTag = configuration.SkipTag,
             ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
             IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
             ExitInsignificantCommits = MergeBool(configuration.ExitInsignificantCommits, optionalConfiguration?.ExitInsignificantCommits),
@@ -143,6 +149,8 @@ Exception detail:
             Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
             Changelog = changelog,
             AggregatePrereleases = configuration.AggregatePrereleases,
+            // TODO: Consider supporting optionalConfiguration
+            UseProjVersionForBumpLogic = configuration.UseProjVersionForBumpLogic,
         };
     }
 

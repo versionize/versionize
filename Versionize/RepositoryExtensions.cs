@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 
 namespace Versionize;
@@ -45,6 +45,22 @@ public static class RespositoryExtensions
         var filter = new CommitFilter
         {
             ExcludeReachableFrom = versionTag
+        };
+
+        return repository.Commits.QueryBy(filter).ToList();
+    }
+
+    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository)
+    {
+        var lastReleaseCommit = repository.Commits.FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+        if (lastReleaseCommit == null)
+        {
+            return repository.Commits.ToList();
+        }
+
+        var filter = new CommitFilter
+        {
+            ExcludeReachableFrom = lastReleaseCommit
         };
 
         return repository.Commits.QueryBy(filter).ToList();

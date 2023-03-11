@@ -9,12 +9,12 @@ Automatic versioning and CHANGELOG generation, using [conventional commit messag
 
 _how it works:_
 
-1. when you land commits on your `master` branch, select the _Squash and Merge_ option (not required).
+1. when you land commits on your `main` branch, select the _Squash and Merge_ option (not required).
 2. add a title and body that follows the [Conventional Commits Specification](https://conventionalcommits.org).
 3. when you're ready to release a nuget package:
-    1. `git checkout master; git pull origin master`
+    1. `git checkout main; git pull origin main`
     2. run `versionize`
-    3. `git push --follow-tags origin master`
+    3. `git push --follow-tags origin main`
     4. `dotnet pack`
     5. `dotnet nuget push`
 
@@ -46,6 +46,7 @@ Options:
   --silent                             Suppress output to console
   --skip-commit                        Skip commit and git tag after updating changelog and incrementing the
                                        version
+  --skip-tag                           Skip git tag after making release commit
   -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING)
                                        are found
   --exit-insignificant-commits         Exits with a non zero exit code if no significant commits (fix, feat or
@@ -54,6 +55,7 @@ Options:
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
   -p|--pre-release                     Release as pre-release version with given pre release label.
   -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version.
+  --proj-version-bump-logic            Use project version for bump logic, as opposed to git tag version.
 
 Commands:
   inspect                              Prints the current version to stdout
@@ -205,7 +207,17 @@ v1.0.0
 
 This also works together with the `pre-release` option
 
-versionize --pre-release alpha --aggregate-pre-releases
+`versionize --pre-release alpha --aggregate-pre-releases`
+
+### Skip pre-release tags
+
+Some developers may prefer not to tag pre-releases. Here's an example of how to achieve that:
+
+```
+versionize --pre-release alpha --skip-tag --proj-version-bump-logic
+```
+
+`proj-version-bump-logic` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_. 
 
 ## Configuration
 
