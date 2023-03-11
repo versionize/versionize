@@ -35,7 +35,7 @@ public static class Program
         var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
         var optionAggregatePrereleases = app.Option("-a|--aggregate-pre-releases", "Include all pre-release commits in the changelog since the last full version.", CommandOptionType.NoValue);
-        var optionUseProjVersionForBumpLogic = app.Option("-a|--proj-version-bump-logic", "Use the project version for bump logic, as opposed to git tag version.", CommandOptionType.NoValue);
+        var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "Use project version for bump logic, as opposed to git tag version.", CommandOptionType.NoValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
