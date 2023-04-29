@@ -46,9 +46,14 @@ public class GithubLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith("git@github.com:") || pushUrl.StartsWith("https://github.com/");
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(Version newVersion, Version previousVersion, string urlFormat)
     {
-        return $"https://www.github.com/{_organization}/{_repository}/releases/tag/v{version}";
+        if (!string.IsNullOrEmpty(urlFormat))
+        {
+            return ChangelogLinkUtil.CreateCompareUrl(urlFormat, _organization, _repository, newVersion, previousVersion);
+        }
+
+        return $"https://www.github.com/{_organization}/{_repository}/releases/tag/v{newVersion}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
@@ -46,9 +46,14 @@ public class GitlabLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith("git@gitlab.com:") || pushUrl.StartsWith("https://gitlab.com/");
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(Version newVersion, Version previousVersion, string urlFormat)
     {
-        return $"https://gitlab.com/{_organization}/{_repository}/-/tags/v{version}";
+        if (!string.IsNullOrEmpty(urlFormat))
+        {
+            return ChangelogLinkUtil.CreateCompareUrl(urlFormat, _organization, _repository, newVersion, previousVersion);
+        }
+
+        return $"https://gitlab.com/{_organization}/{_repository}/-/tags/v{newVersion}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)

@@ -161,15 +161,16 @@ public class WorkingCopy
 
         var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);
+        var previousVersion = projects.Version;
 
         if (options.DryRun)
         {
-            string markdown = ChangelogBuilder.GenerateMarkdown(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
+            string markdown = ChangelogBuilder.GenerateMarkdown(nextVersion, previousVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
             DryRun(markdown.TrimEnd('\n'));
         }
         else
         {
-            changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
+            changelog.Write(nextVersion, previousVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
         }
 
         Step("updated CHANGELOG.md");

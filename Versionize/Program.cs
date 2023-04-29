@@ -165,6 +165,7 @@ Exception detail:
         {
             Header = customOptions.Header ?? defaultOptions.Header,
             Sections = customOptions.Sections ?? defaultOptions.Sections,
+            CompareUrlFormat = customOptions.CompareUrlFormat ?? defaultOptions.CompareUrlFormat,
         };
     }
 

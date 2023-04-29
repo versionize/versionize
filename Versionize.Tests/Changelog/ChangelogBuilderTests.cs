@@ -22,6 +22,7 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>(),
@@ -38,11 +39,12 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
             },
             ChangelogOptions.Default);
 
@@ -57,14 +59,15 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
-                    ConventionalCommitParser.Parse(
-                        new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                ConventionalCommitParser.Parse(
+                    new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
             },
             ChangelogOptions.Default);
 
@@ -91,19 +94,20 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
             },
             ChangelogOptions.Default with
             {
                 Sections = new[]
                 {
-                        new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
-                        new ChangelogSection { Type = "fix", Hidden = true, Section = "Bug Fixes" },
+                    new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
+                    new ChangelogSection { Type = "fix", Hidden = true, Section = "Bug Fixes" },
                 }
             });
 
@@ -119,18 +123,19 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
             },
             ChangelogOptions.Default with
             {
                 Sections = new[]
                 {
-                        new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
+                    new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
                 }
             });
 
@@ -146,19 +151,20 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
             },
             ChangelogOptions.Default with
             {
                 Sections = new[]
                 {
-                        new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
-                        new ChangelogSection { Type = "fix", Section = "Bug Fixes" },
+                    new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
+                    new ChangelogSection { Type = "fix", Section = "Bug Fixes" },
                 }
             });
 
@@ -174,20 +180,21 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
             },
             ChangelogOptions.Default with
             {
                 IncludeAllCommits = true,
                 Sections = new[]
                 {
-                        new ChangelogSection { Type = "feat", Hidden = true, Section = "Features" },
-                        new ChangelogSection { Type = "fix", Hidden = true, Section = "Bug Fixes" },
+                    new ChangelogSection { Type = "feat", Hidden = true, Section = "Features" },
+                    new ChangelogSection { Type = "fix", Hidden = true, Section = "Bug Fixes" },
                 }
             });
 
@@ -206,11 +213,12 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
             },
             ChangelogOptions.Default with
             {
@@ -230,11 +238,12 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
             },
             ChangelogOptions.Default);
 
@@ -249,10 +258,11 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
+            new Version(1, 0, 0),
             new DateTimeOffset(),
             linkBuilder, new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
             },
             ChangelogOptions.Default);
 
@@ -267,11 +277,12 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
+            new Version(1, 0, 0),
             new DateTimeOffset(),
             linkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
             },
             ChangelogOptions.Default);
 
@@ -286,11 +297,12 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
+            new Version(1, 0, 0),
             new DateTimeOffset(),
             linkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
             },
             ChangelogOptions.Default);
 
@@ -305,10 +317,11 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
+            new Version(1, 0, 0),
             new DateTimeOffset(),
             linkBuilder, new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
             },
             ChangelogOptions.Default);
 
@@ -323,21 +336,23 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
+            new Version(1, 0, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
             },
             ChangelogOptions.Default);
 
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.1.0")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.1.0")),
             },
             ChangelogOptions.Default);
 
@@ -365,12 +380,13 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "chore: nothing important")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "chore: some foo bar")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "chore: nothing important")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "chore: some foo bar")),
             },
             ChangelogOptions.Default with { IncludeAllCommits = true });
 
@@ -386,14 +402,15 @@ public class ChangelogBuilderTests : IDisposable
         var plainLinkBuilder = new PlainLinkBuilder();
         string markdown = ChangelogBuilder.GenerateMarkdown(
             new Version(1, 1, 0),
+            new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
-                    ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-                    ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
-                    ConventionalCommitParser.Parse(
-                        new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+                ConventionalCommitParser.Parse(
+                    new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
             },
             ChangelogOptions.Default);
 

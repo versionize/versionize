@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using HandlebarsDotNet;
+using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
@@ -46,9 +47,14 @@ public class AzureLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith("git@ssh.dev.azure.com:") || (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"));
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(Version newVersion, Version previousVersion, string urlFormat)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/releases/tag/v{version}";
+        if (!string.IsNullOrEmpty(urlFormat))
+        {
+            return ChangelogLinkUtil.CreateCompareUrl(urlFormat, _organization, _repository, newVersion, previousVersion);
+        }
+
+        return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/releases/tag/v{newVersion}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)

@@ -24,4 +24,5 @@ public record class ChangelogOptions
     [JsonIgnore]
     public bool IncludeAllCommits { get; set; }
     public IEnumerable<ChangelogSection> Sections { get; set; }
+    public string CompareUrlFormat { get; set; }
 }

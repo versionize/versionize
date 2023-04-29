@@ -98,7 +98,7 @@ public class GitlabLinkBuilderTests
     public void ShouldBuildASSHTagLink()
     {
         var linkBuilder = new GitlabLinkBuilder(inkscapeSSH);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0), new SemanticVersion(0, 1, 0), null);
 
         link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.0.0");
     }
@@ -107,9 +107,27 @@ public class GitlabLinkBuilderTests
     public void ShouldBuildAnHTTPSTagLink()
     {
         var linkBuilder = new GitlabLinkBuilder(inkscapeHTTPS);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0), new SemanticVersion(0, 1, 0), null);
 
         link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.0.0");
+    }
+
+    [Theory]
+    [InlineData(
+        "",
+        "https://gitlab.com/myOrg/myRepo/-/tags/v1.2.3")]
+    [InlineData(
+        "https://www.gitlab.com/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
+        "https://www.gitlab.com/myOrg/myRepo/compare/v1.2.2...v1.2.3")]
+    public void ShouldBuildVersionTagLink(string compareUrlFormat, string expected)
+    {
+        SemanticVersion newVersion = SemanticVersion.Parse("1.2.3");
+        SemanticVersion previousVersion = SemanticVersion.Parse("1.2.2");
+
+        var linkBuilder = new GitlabLinkBuilder("https://gitlab.com/myOrg/myRepo.git");
+        var link = linkBuilder.BuildVersionTagLink(newVersion, previousVersion, compareUrlFormat);
+
+        link.ShouldBe(expected);
     }
 
 

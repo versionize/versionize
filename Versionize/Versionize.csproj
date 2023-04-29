@@ -23,6 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Handlebars.Net" Version="2.1.4" />
     <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0175" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.0" />
     <PackageReference Include="NuGet.Versioning" Version="6.1.0" />

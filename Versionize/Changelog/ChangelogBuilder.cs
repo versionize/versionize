@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using HandlebarsDotNet;
+using System.Text;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
@@ -13,13 +14,14 @@ public class ChangelogBuilder
     public string FilePath { get; }
 
     public void Write(
-        Version version,
+        Version newVersion,
+        Version previousVersion,
         DateTimeOffset versionTime,
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
         ChangelogOptions changelogOptions)
     {
-        string markdown = GenerateMarkdown(version, versionTime, linkBuilder, commits, changelogOptions);
+        string markdown = GenerateMarkdown(newVersion, previousVersion, versionTime, linkBuilder, commits, changelogOptions);
 
         if (File.Exists(FilePath))
         {
@@ -45,17 +47,19 @@ public class ChangelogBuilder
     }
 
     public static string GenerateMarkdown(
-        Version version,
+        Version newVersion,
+        Version previousVersion,
         DateTimeOffset versionTime,
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
         ChangelogOptions changelogOptions)
     {
-        var versionTagLink = string.IsNullOrWhiteSpace(linkBuilder.BuildVersionTagLink(version))
-            ? version.ToString()
-            : $"[{version}]({linkBuilder.BuildVersionTagLink(version)})";
+        var compareUrl = linkBuilder.BuildVersionTagLink(newVersion, previousVersion, changelogOptions.CompareUrlFormat);
+        var versionTagLink = string.IsNullOrWhiteSpace(compareUrl)
+            ? newVersion.ToString()
+            : $"[{newVersion}]({compareUrl})";
 
-        var markdown = $"<a name=\"{version}\"></a>";
+        var markdown = $"<a name=\"{newVersion}\"></a>";
         markdown += "\n";
         markdown += $"## {versionTagLink} ({versionTime.Year}-{versionTime.Month}-{versionTime.Day})";
         markdown += "\n";

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
@@ -54,9 +54,14 @@ public class BitbucketLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith(ComSshPrefix) || pushUrl.StartsWith(OrgSshPrefix) || IsHttpsPushUrl(pushUrl);
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(Version newVersion, Version previousVersion, string urlFormat)
     {
-        return $"https://bitbucket.{_domain}/{_organization}/{_repository}/src/v{version}";
+        if (!string.IsNullOrEmpty(urlFormat))
+        {
+            return ChangelogLinkUtil.CreateCompareUrl(urlFormat, _organization, _repository, newVersion, previousVersion);
+        }
+
+        return $"https://bitbucket.{_domain}/{_organization}/{_repository}/src/v{newVersion}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)
