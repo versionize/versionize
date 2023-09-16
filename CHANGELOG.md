@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.19.1"></a>
+## [1.19.1](https://www.github.com/versionize/versionize/releases/tag/v1.19.1) (2023-09-16)
+
+### Bug Fixes
+
+* unhandled stable to prerelease case ([dc71d88](https://www.github.com/versionize/versionize/commit/dc71d8853d36327ffbf1535fb0f6a0cee21ba218))
+
 <a name="1.19.0"></a>
 ## [1.19.0](https://www.github.com/versionize/versionize/releases/tag/v1.19.0) (2023-9-16)
 
