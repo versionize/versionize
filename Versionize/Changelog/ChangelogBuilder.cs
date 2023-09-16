@@ -57,7 +57,7 @@ public class ChangelogBuilder
 
         var markdown = $"<a name=\"{version}\"></a>";
         markdown += "\n";
-        markdown += $"## {versionTagLink} ({versionTime.Year}-{versionTime.Month}-{versionTime.Day})";
+        markdown += $"## {versionTagLink} ({versionTime.ToString("yyyy-MM-dd")})";
         markdown += "\n";
         markdown += "\n";
 
