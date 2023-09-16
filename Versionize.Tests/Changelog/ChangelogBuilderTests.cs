@@ -57,7 +57,7 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 1, 0),
-            new DateTimeOffset(),
+            DateTimeOffset.Parse("2021-5-2"),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
@@ -73,7 +73,7 @@ public class ChangelogBuilderTests : IDisposable
         var sb = new ChangelogStringBuilder();
         sb.Append(ChangelogOptions.Preamble);
         sb.Append("<a name=\"1.1.0\"></a>");
-        sb.Append("## 1.1.0 (1-1-1)", 2);
+        sb.Append("## 1.1.0 (2021-05-02)", 2);
         sb.Append("### Features", 2);
         sb.Append("* a breaking change feature");
         sb.Append("* a feature", 2);
@@ -230,7 +230,7 @@ public class ChangelogBuilderTests : IDisposable
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
-            new DateTimeOffset(),
+            DateTimeOffset.Parse("2021-5-2"),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
@@ -239,7 +239,7 @@ public class ChangelogBuilderTests : IDisposable
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
-        changelogContents.ShouldBe("# Should be kept by versionize\n\nSome information about the changelog\n\n<a name=\"1.0.0\"></a>\n## 1.0.0 (1-1-1)\n\n### Bug Fixes\n\n* a fix in version 1.0.0\n\n");
+        changelogContents.ShouldBe("# Should be kept by versionize\n\nSome information about the changelog\n\n<a name=\"1.0.0\"></a>\n## 1.0.0 (2021-05-02)\n\n### Bug Fixes\n\n* a fix in version 1.0.0\n\n");
     }
 
     [Fact]
@@ -386,7 +386,7 @@ public class ChangelogBuilderTests : IDisposable
         var plainLinkBuilder = new PlainLinkBuilder();
         string markdown = ChangelogBuilder.GenerateMarkdown(
             new Version(1, 1, 0),
-            new DateTimeOffset(),
+            DateTimeOffset.Parse("2021-5-2"),
             plainLinkBuilder,
             new List<ConventionalCommit>
             {
@@ -399,7 +399,7 @@ public class ChangelogBuilderTests : IDisposable
 
         var sb = new ChangelogStringBuilder();
         sb.Append("<a name=\"1.1.0\"></a>");
-        sb.Append("## 1.1.0 (1-1-1)", 2);
+        sb.Append("## 1.1.0 (2021-05-02)", 2);
         sb.Append("### Features", 2);
         sb.Append("* a breaking change feature");
         sb.Append("* a feature", 2);

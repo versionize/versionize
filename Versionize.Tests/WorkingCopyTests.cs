@@ -407,7 +407,7 @@ public class WorkingCopyTests : IDisposable
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.0.1-alpha.0", "v1.1.0", "v1.1.0-alpha.0", "v1.2.0" });
         
-        var commitDate = DateTime.Now.ToString("yyyy-M-d");
+        var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
         var changelogContents = File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
         var sb = new ChangelogStringBuilder();
         sb.Append(ChangelogOptions.Preamble);
