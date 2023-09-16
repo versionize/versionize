@@ -106,7 +106,10 @@ public class WorkingCopy
 
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
-        var nextVersion = isInitialRelease ? projects.Version : versionIncrement.NextVersion(projects.Version, options.Prerelease);
+        var allowInsignificantCommits = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
+        var nextVersion = isInitialRelease
+            ? projects.Version
+            : versionIncrement.NextVersion(projects.Version, options.Prerelease, allowInsignificantCommits);
 
         if (!isInitialRelease && nextVersion == projects.Version)
         {

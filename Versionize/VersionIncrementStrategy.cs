@@ -12,9 +12,12 @@ public class VersionIncrementStrategy
         _conventionalCommits = conventionalCommits;
     }
 
-    public SemanticVersion NextVersion(SemanticVersion version, string prereleaseLabel = null)
+    public SemanticVersion NextVersion(
+        SemanticVersion version,
+        string prereleaseLabel = null,
+        bool allowInsignificantCommits = true)
     {
-        var versionImpact = CalculateVersionImpact();
+        var versionImpact = CalculateVersionImpact(allowInsignificantCommits);
         var isPrerelease = !string.IsNullOrEmpty(prereleaseLabel);
 
         var nextVersion = versionImpact switch
@@ -61,7 +64,7 @@ public class VersionIncrementStrategy
         };
     }
 
-    private VersionImpact CalculateVersionImpact()
+    private VersionImpact CalculateVersionImpact(bool allowInsignificantCommits)
     {
         // TODO: Quick and dirty implementation - Conventions? Better comparison?
         var versionImpact = VersionImpact.None;
@@ -77,6 +80,10 @@ public class VersionIncrementStrategy
                 else if (conventionalCommit.IsFeature)
                 {
                     versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
+                }
+                else if (allowInsignificantCommits)
+                {
+                    versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
                 }
             }
 
