@@ -21,7 +21,7 @@ public class VersionIncrementStrategyTests
             new ConventionalCommit { Type = "chore" }
         });
 
-        strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 1, 1));
+        strategy.NextVersion(new SemanticVersion(1, 1, 1), null, false).ShouldBe(new SemanticVersion(1, 1, 1));
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class VersionIncrementStrategyTests
     {
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
-        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel);
+        var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel, !testScenario.IgnoreInsignificantCommits);
 
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
@@ -118,6 +118,12 @@ public class VersionIncrementStrategyTests
             .GivenCommit("fix")
             .Prerelease("alpha")
             .ExpectVersion("1.0.1-alpha.0");
+
+        yield return Scenario("release number increment from major with chore commit to patch alpha")
+            .FromVersion("1.0.0")
+            .GivenCommit("chore")
+            .Prerelease("alpha")
+            .ExpectVersion("1.0.1-alpha.0");
     }
 
     public static IEnumerable<object[]> PrereleaseToPrerelease()
@@ -150,6 +156,7 @@ public class VersionIncrementStrategyTests
             .FromVersion("1.0.0-alpha.0")
             .GivenCommit("chore")
             .Prerelease("alpha")
+            .IgnoreInsignificantCommits()
             .ExpectVersion("1.0.0-alpha.0");
 
         yield return Scenario("pre-release number increment from minor with fix commit with new pre-release label")
@@ -162,6 +169,7 @@ public class VersionIncrementStrategyTests
             .FromVersion("1.0.0-alpha.0")
             .GivenCommit("chore")
             .Prerelease("alpha")
+            .IgnoreInsignificantCommits()
             .ExpectVersion("1.0.0-alpha.0");
     }
 
@@ -202,6 +210,7 @@ public class VersionIncrementStrategyTests
         private string _prereleaseLabel;
         private SemanticVersion _fromVersion;
         private string _description;
+        private bool _ignoreInsignificantCommits;
 
         public TestScenarioBuilder FromVersion(string version)
         {
@@ -241,6 +250,12 @@ public class VersionIncrementStrategyTests
             return this;
         }
 
+        public TestScenarioBuilder IgnoreInsignificantCommits()
+        {
+            _ignoreInsignificantCommits = true;
+            return this;
+        }
+
         public object[] ExpectVersion(string expectedVersion)
         {
             _expectedVersion = SemanticVersion.Parse(expectedVersion);
@@ -258,6 +273,7 @@ public class VersionIncrementStrategyTests
                     FromVersion = _fromVersion,
                     PrereleaseLabel = _prereleaseLabel,
                     Description = _description,
+                    IgnoreInsignificantCommits = _ignoreInsignificantCommits,
                 }
             };
         }
@@ -271,6 +287,7 @@ public class VersionIncrementStrategyTests
         public SemanticVersion FromVersion { get; set; }
 
         public string Description { get; set; }
+        public bool IgnoreInsignificantCommits { get; internal set; }
 
         public override string ToString()
         {
