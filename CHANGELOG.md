@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.19.0"></a>
+## [1.19.0](https://www.github.com/versionize/versionize/releases/tag/v1.19.0) (2023-9-16)
+
+### Features
+
+* use ISO-8601 dates in changelog ([fd28b16](https://www.github.com/versionize/versionize/commit/fd28b16fa40d6cfc51dbd7cb5116f468c635f134))
+
 <a name="1.18.0"></a>
 ## [1.18.0](https://www.github.com/versionize/versionize/releases/tag/v1.18.0) (2023-3-11)
 
