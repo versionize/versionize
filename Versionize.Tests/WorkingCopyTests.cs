@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Versionize.Tests;
 
-public class WorkingCopyTests : IDisposable
+public partial class WorkingCopyTests : IDisposable
 {
     private readonly TestSetup _testSetup;
     private readonly TestPlatformAbstractions _testPlatformAbstractions;
