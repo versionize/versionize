@@ -73,6 +73,11 @@ public class WorkingCopy
             }    
         }
 
+        if (options.TagOnly)
+        {
+            Information("Tagging only, no checking of projects or commits will occur");
+        }
+
         var version = options.TagOnly ? new SemanticVersion(1, 0, 0) : projects.Version;
         if (options.AggregatePrereleases)
         {
@@ -222,7 +227,7 @@ $ git config --global user.email johndoe@example.com", 1);
             }).First();
             
             repo.Tags.Add($"v{nextVersion}", commitToTag , repo.Config.BuildSignature(versionTime), $"{nextVersion}");
-            Step($"tagged release as {nextVersion}");
+            Step($"tagged release as {nextVersion} against commit with sha {commitToTag.Sha}");
         }
         else if (options.SkipCommit)
         {
