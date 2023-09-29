@@ -189,7 +189,7 @@ public class WorkingCopy
 
         if (!options.DryRun && !options.SkipCommit &&  !options.TagOnly)
         {
-            if (!repo.IsConfiguredForCommits() && !options.TagOnly)
+            if (!repo.IsConfiguredForCommits())
             {
                 Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
 git config --global user.name ""John Doe""
