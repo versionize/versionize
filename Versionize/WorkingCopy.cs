@@ -78,7 +78,8 @@ public class WorkingCopy
             Information("Tagging only, no checking of projects or commits will occur");
         }
 
-        var version = options.TagOnly ? new SemanticVersion(1, 0, 0) : projects.Version;
+        var version = GetCurrentVersion(options, repo, projects);
+        
         if (options.AggregatePrereleases)
         {
             version = repo
@@ -219,7 +220,7 @@ $ git config --global user.email johndoe@example.com", 1);
             Information("");
             Information("Run `git push --follow-tags origin main` to push all changes including tags");
         }
-        else if (options.DryRun is false || options.TagOnly)
+        else if (options.DryRun is false && options.TagOnly)
         {
             var commitToTag = repo.Commits.QueryBy(new CommitFilter
             {
@@ -236,6 +237,31 @@ $ git config --global user.email johndoe@example.com", 1);
         }
 
         return nextVersion;
+    }
+
+    private static SemanticVersion GetCurrentVersion(VersionizeOptions options, Repository repo, Projects projects)
+    {
+        SemanticVersion version;
+        if (options.TagOnly)
+        {
+            version = repo.Tags
+                .Select(tag =>
+                {
+                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var v);
+                    return v;
+                })
+                .Where(x => x != null)
+                .OrderByDescending(x => x.Major)
+                .ThenByDescending(x => x.Minor)
+                .ThenByDescending(x => x.Patch)
+                .FirstOrDefault();
+        }
+        else
+        {
+            version = projects.Version;
+        }
+
+        return version;
     }
 
     public static WorkingCopy Discover(string workingDirectory)

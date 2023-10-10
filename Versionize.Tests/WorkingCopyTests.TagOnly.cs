@@ -6,6 +6,13 @@ namespace Versionize.Tests;
 
 public partial class WorkingCopyTests
 {
+
+    private readonly VersionizeOptions _defaultTagOnlyOptions = new()
+    {
+        SkipDirty = true,
+        TagOnly = true
+    };
+    
     [Fact]
     public void ShouldTagInitialVersionUsingTagOnly()
     {   
@@ -14,15 +21,36 @@ public partial class WorkingCopyTests
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         
         // Act
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         // Assert
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+        var commitThatShouldBeTagged = _testSetup.Repository.Commits.First();
+        
         _testSetup.Repository.Tags.Count().ShouldBe(1);
         _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v1.0.0" });
-        _testSetup.Repository.Commits.Count().ShouldBe(1);
+        var tag = _testSetup.Repository.Tags.First();
+        tag.Annotation.Target.Sha.ShouldBe(commitThatShouldBeTagged.Sha);
+    }
+    
+    [Fact]
+    public void ShouldTagInitialVersionUsingTagOnlyWithNonTrackedCommits()
+    {   
+        // Arrange
+        CommitAll(_testSetup.Repository); 
+        new FileCommitter(_testSetup).CommitChange("build: updated build pipeline");
+        new FileCommitter(_testSetup).CommitChange("build: updated build pipeline2");
+        new FileCommitter(_testSetup).CommitChange("build: updated build pipeline3");
+        new FileCommitter(_testSetup).CommitChange("build: updated build pipeline4");
+        
+        // Act
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        workingCopy.Versionize(_defaultTagOnlyOptions);
+
+        // Assert
+        _testSetup.Repository.Commits.Count().ShouldBe(5);
+        _testSetup.Repository.Tags.Count().ShouldBe(1);
+        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v1.0.0" });
     }
     
     [Fact]
@@ -31,18 +59,12 @@ public partial class WorkingCopyTests
         // Arrange
         CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         new FileCommitter(_testSetup).CommitChange("feat: first feature");
                     
         // Act
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         // Assert
         _testSetup
@@ -64,18 +86,12 @@ public partial class WorkingCopyTests
         // Arrange
         CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         new FileCommitter(_testSetup).CommitChange("fix: first feature");
                     
         // Act
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         // Assert
         _testSetup
@@ -97,10 +113,7 @@ public partial class WorkingCopyTests
         // Arrange
         CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         var fc = new FileCommitter(_testSetup);
         fc.CommitChange("fix: first fix");
@@ -108,10 +121,7 @@ public partial class WorkingCopyTests
         fc.CommitChange("feat: first feature");
                     
         // Act
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         // Assert
         _testSetup
@@ -125,5 +135,37 @@ public partial class WorkingCopyTests
             .Commits
             .Count()
             .ShouldBe(4);
+    }
+    
+    [Fact]
+    public void ShouldTagVersionAfterEachVersionizeCommandUsingTagOnly()
+    {
+        // Arrange
+        CommitAll(_testSetup.Repository);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        workingCopy.Versionize(new VersionizeOptions
+        {
+            TagOnly = true
+        });
+
+        new FileCommitter(_testSetup).CommitChange("fix: first fix");
+        workingCopy.Versionize(_defaultTagOnlyOptions);
+        new FileCommitter(_testSetup).CommitChange("fix: another fix");
+
+        // Act
+        workingCopy.Versionize(_defaultTagOnlyOptions);
+
+        // Assert
+        _testSetup
+            .Repository
+            .Tags
+            .Select(x => x.FriendlyName)
+            .ShouldBe(new[] { "v1.0.0", "v1.0.1", "v1.0.2" });
+
+        _testSetup
+            .Repository
+            .Commits
+            .Count()
+            .ShouldBe(3);
     }
 }

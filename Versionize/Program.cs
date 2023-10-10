@@ -143,6 +143,7 @@ Exception detail:
             SkipCommit = MergeBool(configuration.SkipCommit, optionalConfiguration?.SkipCommit),
             // TODO: Consider supporting optionalConfiguration
             SkipTag = configuration.SkipTag,
+            TagOnly = configuration.TagOnly,
             ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
             IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
             ExitInsignificantCommits = MergeBool(configuration.ExitInsignificantCommits, optionalConfiguration?.ExitInsignificantCommits),
