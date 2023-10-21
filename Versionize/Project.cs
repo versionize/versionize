@@ -16,7 +16,12 @@ public class Project
 
     public static Project Create(string projectFile)
     {
-        var version = ReadVersion(projectFile);
+        var (success,version, error) = ReadVersion(projectFile);
+        
+        if (!success)
+        {
+            throw new InvalidOperationException(error);
+        }
 
         return new Project(projectFile, version);
     }
@@ -25,8 +30,8 @@ public class Project
     {
         try
         {
-            ReadVersion(projectFile);
-            return true;
+            var (success, _, _) = ReadVersion(projectFile);
+            return success;
         }
         catch (Exception)
         {
@@ -34,7 +39,7 @@ public class Project
         }
     }
 
-    private static SemanticVersion ReadVersion(string projectFile)
+    private static (bool, SemanticVersion, string) ReadVersion(string projectFile)
     {
         var doc =  ReadProject(projectFile);
 
@@ -42,16 +47,20 @@ public class Project
 
         if (string.IsNullOrWhiteSpace(versionString))
         {
-            throw new InvalidOperationException($"Project {projectFile} contains no or an empty <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>");
+            return (false, 
+                null, 
+                $"Project {projectFile} contains no or an empty <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>"
+                );
         }
 
         try
         {
-            return SemanticVersion.Parse(versionString);
+            return (true, SemanticVersion.Parse(versionString),null);
         }
         catch (Exception)
         {
-            throw new InvalidOperationException($"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <Version>1.0.0</Version>");
+            return (false, null,
+            $"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <Version>1.0.0</Version>");
         }
     }
 
