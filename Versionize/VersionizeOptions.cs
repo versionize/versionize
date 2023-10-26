@@ -1,4 +1,4 @@
-﻿﻿namespace Versionize;
+﻿namespace Versionize;
 
 public class VersionizeOptions
 {
@@ -14,4 +14,5 @@ public class VersionizeOptions
     public ChangelogOptions Changelog { get; set; } = ChangelogOptions.Default;
     public bool AggregatePrereleases { get; set; }
     public bool UseProjVersionForBumpLogic { get; set; }
+    public bool AllowDifferentVersions { get; set; }
 }

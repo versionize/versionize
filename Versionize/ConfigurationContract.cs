@@ -13,4 +13,5 @@ public class ConfigurationContract
     public String CommitSuffix { get; set; }
     public ChangelogOptions Changelog { get; set; }
     public string Prerelease { get; set; }
+    public bool? AllowDifferentVersions { get; set; }
 }

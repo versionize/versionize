@@ -59,7 +59,7 @@ public class WorkingCopy
             Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
         }
 
-        if (projects.HasInconsistentVersioning())
+        if (projects.HasInconsistentVersioning() && !options.AllowDifferentVersions)
         {
             Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
         }
@@ -150,7 +150,7 @@ public class WorkingCopy
 
 
         Step($"bumping version from {projects.Version} to {nextVersion} in projects");
-       
+
         // Commit changelog and version source
         if (!options.DryRun && (nextVersion != projects.Version))
         {
