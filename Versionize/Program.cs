@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
+using System.Text.Json;
 using Versionize.CommandLine;
 using Versionize.Versioning;
 
@@ -36,6 +36,7 @@ public static class Program
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
         var optionAggregatePrereleases = app.Option("-a|--aggregate-pre-releases", "Include all pre-release commits in the changelog since the last full version.", CommandOptionType.NoValue);
         var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "Use project version for bump logic, as opposed to git tag version.", CommandOptionType.NoValue);
+        var optionAllowDifferentVersions = app.Option("--allow-different-versions", "Allow different version of projects in folder", CommandOptionType.NoValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
@@ -68,6 +69,7 @@ public static class Program
                 Changelog = ChangelogOptions.Default,
                 AggregatePrereleases = optionAggregatePrereleases.HasValue(),
                 UseProjVersionForBumpLogic = optionUseProjVersionForBumpLogic.HasValue(),
+                AllowDifferentVersions = optionAllowDifferentVersions.HasValue()
             },
             optionIncludeAllCommitsInChangelog.HasValue());
 
@@ -151,6 +153,7 @@ Exception detail:
             AggregatePrereleases = configuration.AggregatePrereleases,
             // TODO: Consider supporting optionalConfiguration
             UseProjVersionForBumpLogic = configuration.UseProjVersionForBumpLogic,
+            AllowDifferentVersions = MergeBool(configuration.AllowDifferentVersions, optionalConfiguration?.AllowDifferentVersions),
         };
     }
 
