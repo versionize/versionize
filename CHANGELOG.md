@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.20.0"></a>
+## [1.20.0](https://www.github.com/versionize/versionize/releases/tag/v1.20.0) (2023-10-27)
+
+### Features
+
+* ignore project file versions via --tag-only flag (#104) ([ae7b048](https://www.github.com/versionize/versionize/commit/ae7b04801cb90837539823471608cd1aed31279d))
+
+### Other
+
+* unnecessary exceptions when checking if a project is versionable (#106) ([4714d2f](https://www.github.com/versionize/versionize/commit/4714d2f1c357451ca2037dfb34e0b9428f23cec5))
+
 <a name="1.19.1"></a>
 ## [1.19.1](https://www.github.com/versionize/versionize/releases/tag/v1.19.1) (2023-09-16)
 
