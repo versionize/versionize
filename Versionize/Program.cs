@@ -26,7 +26,6 @@ public static class Program
         var optionSkipDirty = app.Option("--skip-dirty", "Skip git dirty check", CommandOptionType.NoValue);
         var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "Specify the release version manually", CommandOptionType.SingleValue);
         var optionSilent = app.Option("--silent", "Suppress output to console", CommandOptionType.NoValue);
-
         var optionSkipCommit = app.Option("--skip-commit", "Skip commit and git tag after updating changelog and incrementing the version", CommandOptionType.NoValue);
         var optionSkipTag = app.Option("--skip-tag", "Skip git tag after making release commit", CommandOptionType.NoValue);
         var optionIgnoreInsignificant = app.Option("-i|--ignore-insignificant-commits", "Do not bump the version if no significant commits (fix, feat or BREAKING) are found", CommandOptionType.NoValue);
@@ -36,6 +35,7 @@ public static class Program
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
         var optionAggregatePrereleases = app.Option("-a|--aggregate-pre-releases", "Include all pre-release commits in the changelog since the last full version.", CommandOptionType.NoValue);
         var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "Use project version for bump logic, as opposed to git tag version.", CommandOptionType.NoValue);
+        var optionTagOnly = app.Option("--tag-only", "Only works with git tags, does not commit or modify the csproj file.", CommandOptionType.NoValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
@@ -60,6 +60,7 @@ public static class Program
                 SkipDirty = optionSkipDirty.HasValue(),
                 SkipCommit = optionSkipCommit.HasValue(),
                 SkipTag = optionSkipTag.HasValue(),
+                TagOnly = optionTagOnly.HasValue(),
                 ReleaseAs = optionReleaseAs.Value(),
                 IgnoreInsignificantCommits = optionIgnoreInsignificant.HasValue(),
                 ExitInsignificantCommits = optionExitInsignificant.HasValue(),
@@ -142,6 +143,7 @@ Exception detail:
             SkipCommit = MergeBool(configuration.SkipCommit, optionalConfiguration?.SkipCommit),
             // TODO: Consider supporting optionalConfiguration
             SkipTag = configuration.SkipTag,
+            TagOnly = configuration.TagOnly,
             ReleaseAs = configuration.ReleaseAs ?? optionalConfiguration?.ReleaseAs,
             IgnoreInsignificantCommits = MergeBool(configuration.IgnoreInsignificantCommits, optionalConfiguration?.IgnoreInsignificantCommits),
             ExitInsignificantCommits = MergeBool(configuration.ExitInsignificantCommits, optionalConfiguration?.ExitInsignificantCommits),

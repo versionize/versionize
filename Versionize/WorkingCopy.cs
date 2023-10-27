@@ -54,31 +54,40 @@ public class WorkingCopy
 
         var projects = Projects.Discover(workingDirectory);
 
-        if (projects.IsEmpty())
+        if (projects.IsEmpty() && options.TagOnly is false)
         {
             Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
         }
 
-        if (projects.HasInconsistentVersioning())
+        if (options.TagOnly is false && projects.HasInconsistentVersioning())
         {
             Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
         }
 
-        Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
-        foreach (var project in projects.GetProjectFiles())
+        if (options.TagOnly is false)
         {
-            Information($"  * {project}");
+            Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
+            foreach (var project in projects.GetProjectFiles())
+            {
+                Information($"  * {project}");
+            }    
         }
 
-        var version = projects.Version;
+        if (options.TagOnly)
+        {
+            Information("Tagging only, no checking of projects or commits will occur");
+        }
+
+        var version = GetCurrentVersion(options, repo, projects);
+        
         if (options.AggregatePrereleases)
         {
             version = repo
                 .Tags
                 .Select(tag =>
                 {
-                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var version);
-                    return version;
+                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var v);
+                    return v;
                 })
                 .Where(x => x != null && !x.IsPrerelease)
                 .OrderByDescending(x => x.Major)
@@ -107,16 +116,16 @@ public class WorkingCopy
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
         var allowInsignificantCommits = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
-        var nextVersion = isInitialRelease
-            ? projects.Version
-            : versionIncrement.NextVersion(projects.Version, options.Prerelease, allowInsignificantCommits);
+        var nextVersion = isInitialRelease || version is null
+            ? version ?? new SemanticVersion(1,0,0)
+            : versionIncrement.NextVersion(version, options.Prerelease, allowInsignificantCommits);
 
-        if (!isInitialRelease && nextVersion == projects.Version)
+        if (!isInitialRelease && nextVersion == version)
         {
             if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
             {
                 var exitCode = options.ExitInsignificantCommits ? 1 : 0;
-                Exit($"Version was not affected by commits since last release ({projects.Version})", exitCode);
+                Exit($"Version was not affected by commits since last release ({version})", exitCode);
             }
             else
             {
@@ -136,7 +145,7 @@ public class WorkingCopy
             }
         }
 
-        if (nextVersion < projects.Version)
+        if (nextVersion < version)
         {
             Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {projects.Version}. This can be caused by using a wrong pre-release label or release as version", 1);
         }
@@ -148,11 +157,13 @@ public class WorkingCopy
 
         var versionTime = DateTimeOffset.Now;
 
-
-        Step($"bumping version from {projects.Version} to {nextVersion} in projects");
+        if (!options.TagOnly)
+        {
+            Step($"bumping version from {projects.Version} to {nextVersion} in projects");   
+        }
        
         // Commit changelog and version source
-        if (!options.DryRun && (nextVersion != projects.Version))
+        if (options.TagOnly is false && !options.DryRun && (nextVersion != projects.Version))
         {
             projects.WriteVersion(nextVersion);
 
@@ -177,7 +188,7 @@ public class WorkingCopy
 
         Step("updated CHANGELOG.md");
 
-        if (!options.DryRun && !options.SkipCommit)
+        if (!options.DryRun && !options.SkipCommit &&  !options.TagOnly)
         {
             if (!repo.IsConfiguredForCommits())
             {
@@ -209,6 +220,16 @@ $ git config --global user.email johndoe@example.com", 1);
             Information("");
             Information("Run `git push --follow-tags origin main` to push all changes including tags");
         }
+        else if (options.DryRun is false && options.TagOnly)
+        {
+            var commitToTag = repo.Commits.QueryBy(new CommitFilter
+            {
+                SortBy = CommitSortStrategies.Time
+            }).First();
+            
+            repo.Tags.Add($"v{nextVersion}", commitToTag , repo.Config.BuildSignature(versionTime), $"{nextVersion}");
+            Step($"tagged release as {nextVersion} against commit with sha {commitToTag.Sha}");
+        }
         else if (options.SkipCommit)
         {
             Information("");
@@ -216,6 +237,31 @@ $ git config --global user.email johndoe@example.com", 1);
         }
 
         return nextVersion;
+    }
+
+    private static SemanticVersion GetCurrentVersion(VersionizeOptions options, Repository repo, Projects projects)
+    {
+        SemanticVersion version;
+        if (options.TagOnly)
+        {
+            version = repo.Tags
+                .Select(tag =>
+                {
+                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var v);
+                    return v;
+                })
+                .Where(x => x != null)
+                .OrderByDescending(x => x.Major)
+                .ThenByDescending(x => x.Minor)
+                .ThenByDescending(x => x.Patch)
+                .FirstOrDefault();
+        }
+        else
+        {
+            version = projects.Version;
+        }
+
+        return version;
     }
 
     public static WorkingCopy Discover(string workingDirectory)
