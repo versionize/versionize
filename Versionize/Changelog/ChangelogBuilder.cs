@@ -125,7 +125,17 @@ public class ChangelogBuilder
             sb.Append($"**{commit.Scope}:** ");
         }
 
-        sb.Append(commit.Subject);
+        var subject = commit.Subject;
+        foreach (var issue in commit.Issues)
+        {
+            var issueLink = linkBuilder.BuildIssueLink(issue.Id);
+            if (!string.IsNullOrEmpty(issueLink))
+            {
+                subject = subject.Replace(issue.Token, $"[{issue.Token}]({issueLink})");
+            }
+        }
+
+        sb.Append(subject);
 
         var commitLink = linkBuilder.BuildCommitLink(commit);
 

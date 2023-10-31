@@ -51,6 +51,11 @@ public class AzureLinkBuilder : IChangelogLinkBuilder
         return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/releases/tag/v{version}";
     }
 
+    public string BuildIssueLink(string issueId)
+    {
+        return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/_workitems/edit/{issueId}";
+    }
+
     public string BuildCommitLink(ConventionalCommit commit)
     {
         return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/commit/{commit.Sha}";

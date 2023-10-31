@@ -95,6 +95,24 @@ public class GitlabLinkBuilderTests
     }
 
     [Fact]
+    public void ShouldBuildASSHIssueLink()
+    {
+        var linkBuilder = new GitlabLinkBuilder(inkscapeSSH);
+        var link = linkBuilder.BuildIssueLink("123");
+
+        link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/issues/123");
+    }
+
+    [Fact]
+    public void ShouldBuildAHTTPSIssueLink()
+    {
+        var linkBuilder = new GitlabLinkBuilder(inkscapeHTTPS);
+        var link = linkBuilder.BuildIssueLink("123");
+
+        link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/issues/123");
+    }
+
+    [Fact]
     public void ShouldBuildASSHTagLink()
     {
         var linkBuilder = new GitlabLinkBuilder(inkscapeSSH);

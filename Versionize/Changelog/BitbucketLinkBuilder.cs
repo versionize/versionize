@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
@@ -57,6 +57,11 @@ public class BitbucketLinkBuilder : IChangelogLinkBuilder
     public string BuildVersionTagLink(Version version)
     {
         return $"https://bitbucket.{_domain}/{_organization}/{_repository}/src/v{version}";
+    }
+
+    public string BuildIssueLink(string issueId)
+    {
+        return $"https://bitbucket.{_domain}/{_organization}/{_repository}/issues/{issueId}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)

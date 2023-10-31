@@ -167,6 +167,7 @@ Exception detail:
         {
             Header = customOptions.Header ?? defaultOptions.Header,
             Sections = customOptions.Sections ?? defaultOptions.Sections,
+            LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates
         };
     }
 

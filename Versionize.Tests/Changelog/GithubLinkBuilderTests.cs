@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using NuGet.Versioning;
 using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -65,6 +66,42 @@ public class GithubLinkBuilderTests
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         linkBuilder.ShouldBeAssignableTo<GithubLinkBuilder>();
+    }
+
+    [Fact]
+    public void ShouldBuildASSHLink()
+    {
+        var linkBuilder = new GithubLinkBuilder("git@github.com:versionize/versionize");
+
+        linkBuilder.BuildIssueLink("123")
+            .ShouldBe("https://www.github.com/versionize/versionize/issues/123");
+        linkBuilder.BuildCommitLink(
+                new ConventionalCommit
+                {
+                    Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
+                })
+            .ShouldBe("https://www.github.com/versionize/versionize/commit/734713bc047d87bf7eac9674765ae793478c50d3");
+        linkBuilder.BuildVersionTagLink(
+                new SemanticVersion(1, 2, 3))
+            .ShouldBe("https://www.github.com/versionize/versionize/releases/tag/v1.2.3");
+    }
+
+    [Fact]
+    public void ShouldBuildAHTTPSLink()
+    {
+        var linkBuilder = new GithubLinkBuilder("https://github.com/versionize/versionize.git");
+
+        linkBuilder.BuildIssueLink("123")
+            .ShouldBe("https://www.github.com/versionize/versionize/issues/123");
+        linkBuilder.BuildCommitLink(
+                new ConventionalCommit
+                {
+                    Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
+                })
+            .ShouldBe("https://www.github.com/versionize/versionize/commit/734713bc047d87bf7eac9674765ae793478c50d3");
+        linkBuilder.BuildVersionTagLink(
+                new SemanticVersion(1, 2, 3))
+            .ShouldBe("https://www.github.com/versionize/versionize/releases/tag/v1.2.3");
     }
 
     private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)

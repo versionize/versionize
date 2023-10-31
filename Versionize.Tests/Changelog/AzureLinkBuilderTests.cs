@@ -78,6 +78,24 @@ public class AzureLinkBuilderTests
     }
 
     [Fact]
+    public void ShouldBuildASSHIssueLink()
+    {
+        var linkBuilder = new AzureLinkBuilder("git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
+        var link = linkBuilder.BuildIssueLink("123");
+
+        link.ShouldBe("https://v3@dev.azure.com/v3/dosse/DosSE.ERP.Cloud/ERP/_workitems/edit/123");
+    }
+
+    [Fact]
+    public void ShouldBuildAHTTPSIssueLink()
+    {
+        var linkBuilder = new AzureLinkBuilder("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP.git");
+        var link = linkBuilder.BuildIssueLink("123");
+
+        link.ShouldBe("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP/_workitems/edit/123");
+    }
+
+    [Fact]
     public void ShouldCreateAnAzureUrlBuilderForSSHPushUrlsEvenWithoutGitSuffix()
     {
         var repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP");

@@ -24,4 +24,15 @@ public record class ChangelogOptions
     [JsonIgnore]
     public bool IncludeAllCommits { get; set; }
     public IEnumerable<ChangelogSection> Sections { get; set; }
+
+    public PlainLinkTemplates LinkTemplates { get; set; }
+}
+
+public record PlainLinkTemplates
+{
+    public string IssueLink { get; set; }
+
+    public string CommitLink { get; set; }
+
+    public string VersionTagLink { get; set; }
 }

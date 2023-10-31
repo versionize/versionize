@@ -51,6 +51,11 @@ public class GithubLinkBuilder : IChangelogLinkBuilder
         return $"https://www.github.com/{_organization}/{_repository}/releases/tag/v{version}";
     }
 
+    public string BuildIssueLink(string issueId)
+    {
+        return $"https://www.github.com/{_organization}/{_repository}/issues/{issueId}";
+    }
+
     public string BuildCommitLink(ConventionalCommit commit)
     {
         return $"https://www.github.com/{_organization}/{_repository}/commit/{commit.Sha}";
