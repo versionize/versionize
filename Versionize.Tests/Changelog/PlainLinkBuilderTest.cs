@@ -36,7 +36,7 @@ public class PlainLinkBuilderTest
         var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(
             repo,
-            new PlainLinkTemplates()
+            new PlainLinkTemplates
             {
                 IssueLink = "https://my-repo/issues/{issue}",
                 CommitLink = "https://my-repo/commits/{commitSha}",

@@ -58,7 +58,7 @@ public static class ConventionalCommitParser
             foreach (var issueMatch in issuesMatch.Cast<Match>())
             {
                 conventionalCommit.Issues.Add(
-                    new ConventionalCommitIssue()
+                    new ConventionalCommitIssue
                     {
                         Token = issueMatch.Groups["issueToken"].Value,
                         Id = issueMatch.Groups["issueId"].Value,
