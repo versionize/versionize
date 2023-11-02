@@ -174,7 +174,7 @@ public class WorkingCopy
         }
 
         var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
-        var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo);
+        var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Changelog.LinkTemplates);
 
         if (options.DryRun)
         {
