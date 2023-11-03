@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.21.0"></a>
+## [1.21.0](https://www.github.com/versionize/versionize/releases/tag/v1.21.0) (2023-11-03)
+
+### Features
+
+* add issue link support and templates for plain links (#109) ([0f030ec](https://www.github.com/versionize/versionize/commit/0f030ec556203a69b3738ec4c2c8980779017b02))
+
 <a name="1.20.0"></a>
 ## [1.20.0](https://www.github.com/versionize/versionize/releases/tag/v1.20.0) (2023-10-27)
 
