@@ -1,16 +1,17 @@
-﻿using LibGit2Sharp;
+﻿#nullable enable
+using LibGit2Sharp;
 
 namespace Versionize.Changelog;
 
 public abstract class LinkBuilderFactory
 {
-    public static IChangelogLinkBuilder CreateFor(Repository repository)
+    public static IChangelogLinkBuilder CreateFor(Repository repository, PlainLinkTemplates? linkTemplates = null)
     {
         var origin = repository.Network.Remotes.FirstOrDefault(remote => remote.Name == "origin") ?? repository.Network.Remotes.FirstOrDefault();
 
         if (origin == null)
         {
-            return new PlainLinkBuilder();
+            return new PlainLinkBuilder(linkTemplates);
         }
 
         if (GithubLinkBuilder.IsPushUrl(origin.PushUrl))
@@ -30,6 +31,6 @@ public abstract class LinkBuilderFactory
             return new BitbucketLinkBuilder(origin.PushUrl);
         }
 
-        return new PlainLinkBuilder();
+        return new PlainLinkBuilder(linkTemplates);
     }
 }

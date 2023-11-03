@@ -115,6 +115,24 @@ public class BitBucketLinkBuilderTests
     }
 
     [Fact]
+    public void ShouldBuildAnOrgSSHIssueLink()
+    {
+        var linkBuilder = new BitbucketLinkBuilder(sshOrgPushUrl);
+        var link = linkBuilder.BuildIssueLink("123");
+
+        link.ShouldBe("https://bitbucket.org/mobiloitteinc/dotnet-codebase/issues/123");
+    }
+
+    [Fact]
+    public void ShouldBuildAComSSHIssueLink()
+    {
+        var linkBuilder = new BitbucketLinkBuilder(sshComPushUrl);
+        var link = linkBuilder.BuildIssueLink("321");
+
+        link.ShouldBe("https://bitbucket.com/mobiloitteinc/dotnet-codebase/issues/321");
+    }
+
+    [Fact]
     public void ShouldBuildAnOrgHTTPSCommitLink()
     {
         var commit = new ConventionalCommit

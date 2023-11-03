@@ -1,3 +1,4 @@
+﻿using LibGit2Sharp;
 using System.Text.RegularExpressions;
 using Version = NuGet.Versioning.SemanticVersion;
 
@@ -49,6 +50,11 @@ public class GitlabLinkBuilder : IChangelogLinkBuilder
     public string BuildVersionTagLink(Version version)
     {
         return $"https://gitlab.com/{_organization}/{_repository}/-/tags/v{version}";
+    }
+
+    public string BuildIssueLink(string issueId)
+    {
+        return $"https://gitlab.com/{_organization}/{_repository}/-/issues/{issueId}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)

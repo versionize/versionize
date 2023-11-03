@@ -85,6 +85,48 @@ public class ChangelogBuilderTests : IDisposable
     }
 
     [Fact]
+    public void ShouldGenerateAChangelogForFixFeatAndIssueLink()
+    {
+        var githubLinkBuilder = new GithubLinkBuilder(
+            "https://github.com/versionize/versionize.git");
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        changelog.Write(
+            new Version(1, 1, 0),
+            DateTimeOffset.Parse("2023-10-31"),
+            githubLinkBuilder,
+            new List<ConventionalCommit>
+            {
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix #107")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature (#75)")),
+                ConventionalCommitParser.Parse(
+                    new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
+            },
+            ChangelogOptions.Default);
+
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+
+        var expectedContent = @$"{ChangelogOptions.Preamble}
+<a name=""1.1.0""></a>
+## [1.1.0](https://www.github.com/versionize/versionize/releases/tag/v1.1.0) (2023-10-31)
+
+### Features
+
+* a breaking change feature ([c360d6a](https://www.github.com/versionize/versionize/commit/c360d6a307909c6e571b29d4a329fd786c5d4543))
+* a feature ([#75](https://www.github.com/versionize/versionize/issues/75)) ([b360d6a](https://www.github.com/versionize/versionize/commit/b360d6a307909c6e571b29d4a329fd786c5d4543))
+
+### Bug Fixes
+
+* a fix [#107](https://www.github.com/versionize/versionize/issues/107) ([a360d6a](https://www.github.com/versionize/versionize/commit/a360d6a307909c6e571b29d4a329fd786c5d4543))
+
+### Breaking Changes
+
+* a breaking change feature ([c360d6a](https://www.github.com/versionize/versionize/commit/c360d6a307909c6e571b29d4a329fd786c5d4543))
+
+";
+        Assert.Equal(expectedContent, changelogContents);
+    }
+
+    [Fact]
     public void ShouldHideFixSectionWhenHideIsTrue()
     {
         var plainLinkBuilder = new PlainLinkBuilder();

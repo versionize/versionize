@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using Shouldly;
 using Xunit;
 
@@ -71,6 +71,29 @@ public class ConventionalCommitParserTests
         conventionalCommit.Notes.ShouldHaveSingleItem();
         conventionalCommit.Notes[0].Title.ShouldBe("BREAKING CHANGE");
         conventionalCommit.Notes[0].Text.ShouldBe(string.Empty);
+    }
+
+    [Theory]
+    [InlineData("fix: subject text #64", new[] {"64"})]
+    [InlineData("fix: subject #64 text", new[] { "64" })]
+    [InlineData("fix: #64 subject text", new[] { "64" })]
+    [InlineData("fix: subject text. #64 #65", new[] { "64", "65" })]
+    [InlineData("fix: subject text. (#64) (#65)", new[] { "64", "65" })]
+    [InlineData("fix: subject text. #64#65", new[] { "64", "65" })]
+    [InlineData("fix: #64 subject #65 text. (#66)", new[] { "64", "65", "66" })]
+    public void ShouldExtractCommitIssues(string commitMessage, string[] expectedIssues)
+    {
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+        var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
+
+        Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
+
+        foreach (var expectedIssue in expectedIssues)
+        {
+            var issue = conventionalCommit.Issues.SingleOrDefault(x => x.Id == expectedIssue);
+            Assert.NotNull(issue);
+            Assert.Equal(issue.Token, $"#{expectedIssue}");
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using LibGit2Sharp;
 
 namespace Versionize;
@@ -8,6 +8,8 @@ public static class ConventionalCommitParser
     private static readonly string[] NoteKeywords = new string[] { "BREAKING CHANGE" };
 
     private static readonly Regex HeaderPattern = new("^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+
+    private static readonly Regex IssuesPattern = new("(?<issueToken>#(?<issueId>\\d+))", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
 
     public static List<ConventionalCommit> Parse(List<Commit> commits)
     {
@@ -37,7 +39,6 @@ public static class ConventionalCommitParser
         }
 
         var match = HeaderPattern.Match(header);
-
         if (match.Success)
         {
             conventionalCommit.Scope = match.Groups["scope"].Value;
@@ -51,6 +52,17 @@ public static class ConventionalCommitParser
                     Title = "BREAKING CHANGE",
                     Text = string.Empty
                 });
+            }
+
+            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Subject);
+            foreach (var issueMatch in issuesMatch.Cast<Match>())
+            {
+                conventionalCommit.Issues.Add(
+                    new ConventionalCommitIssue
+                    {
+                        Token = issueMatch.Groups["issueToken"].Value,
+                        Id = issueMatch.Groups["issueId"].Value,
+                    });
             }
         }
         else
