@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.22.0"></a>
+## [1.22.0](https://www.github.com/versionize/versionize/releases/tag/v1.22.0) (2024-03-02)
+
+### Features
+
+* add net8 support ([#115](https://www.github.com/versionize/versionize/issues/115)) ([abbb236](https://www.github.com/versionize/versionize/commit/abbb236004a3e383e814fc43bfc49c266ff41777))
+
+### Bug Fixes
+
+* exception when doing pre-releases with --tag-only ([#116](https://www.github.com/versionize/versionize/issues/116)) ([535a631](https://www.github.com/versionize/versionize/commit/535a631bfe52db5f5d24459472b6901455f281f2))
+* pre-releases still fail when used with --tag-only ([7688053](https://www.github.com/versionize/versionize/commit/7688053692abbf68ae034c22eddbe202d89c6cfa))
+
+### Other
+
+* **fix:** test passes in ci but fails on windows ([d8284de](https://www.github.com/versionize/versionize/commit/d8284dea2d39413ce854e5e503253a5287814285))
+
 <a name="1.21.0"></a>
 ## [1.21.0](https://www.github.com/versionize/versionize/releases/tag/v1.21.0) (2023-11-03)
 
