@@ -93,6 +93,7 @@ public class WorkingCopy
                 .OrderByDescending(x => x.Major)
                 .ThenByDescending(x => x.Minor)
                 .ThenByDescending(x => x.Patch)
+                .ThenByDescending(x => x.Release)
                 .FirstOrDefault();
         }
 
