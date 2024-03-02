@@ -34,7 +34,8 @@ public static class Program
         var optionCommitSuffix = app.Option("--commit-suffix", "Suffix to be added to the end of the release commit message (e.g. [skip ci])", CommandOptionType.SingleValue);
         var optionPrerelease = app.Option("-p|--pre-release", "Release as pre-release version with given pre release label.", CommandOptionType.SingleValue);
         var optionAggregatePrereleases = app.Option("-a|--aggregate-pre-releases", "Include all pre-release commits in the changelog since the last full version.", CommandOptionType.NoValue);
-        var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "Use project version for bump logic, as opposed to git tag version.", CommandOptionType.NoValue);
+        var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "[DEPRECATED] Use --find-release-commit-via-message instead", CommandOptionType.NoValue);
+        var optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option("--find-release-commit-via-message", "Use commit message instead of tag to find last release commit", CommandOptionType.NoValue);
         var optionTagOnly = app.Option("--tag-only", "Only works with git tags, does not commit or modify the csproj file.", CommandOptionType.NoValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
@@ -68,7 +69,8 @@ public static class Program
                 Prerelease = optionPrerelease.Value(),
                 Changelog = ChangelogOptions.Default,
                 AggregatePrereleases = optionAggregatePrereleases.HasValue(),
-                UseProjVersionForBumpLogic = optionUseProjVersionForBumpLogic.HasValue(),
+                UseCommitMessageInsteadOfTagToFindLastReleaseCommit = optionUseProjVersionForBumpLogic.HasValue() ||
+                    optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
             },
             optionIncludeAllCommitsInChangelog.HasValue());
 
@@ -152,7 +154,7 @@ Exception detail:
             Changelog = changelog,
             AggregatePrereleases = configuration.AggregatePrereleases,
             // TODO: Consider supporting optionalConfiguration
-            UseProjVersionForBumpLogic = configuration.UseProjVersionForBumpLogic,
+            UseCommitMessageInsteadOfTagToFindLastReleaseCommit = configuration.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,
         };
     }
 

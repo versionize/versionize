@@ -79,10 +79,11 @@ public class WorkingCopy
         }
 
         var version = GetCurrentVersion(options, repo, projects);
+        var versionToUseForCommitDiff = version;
         
         if (options.AggregatePrereleases)
         {
-            version = repo
+            versionToUseForCommitDiff = repo
                 .Tags
                 .Select(tag =>
                 {
@@ -93,13 +94,12 @@ public class WorkingCopy
                 .OrderByDescending(x => x.Major)
                 .ThenByDescending(x => x.Minor)
                 .ThenByDescending(x => x.Patch)
-                .ThenByDescending(x => x.Release)
                 .FirstOrDefault();
         }
 
         var isInitialRelease = false;
         List<Commit> commitsInVersion;
-        if (options.UseProjVersionForBumpLogic)
+        if (options.UseCommitMessageInsteadOfTagToFindLastReleaseCommit)
         {
             var lastReleaseCommit = repo.Commits.FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
             isInitialRelease = lastReleaseCommit is null;
@@ -107,7 +107,7 @@ public class WorkingCopy
         }
         else
         {
-            var versionTag = repo.SelectVersionTag(version);
+            var versionTag = repo.SelectVersionTag(versionToUseForCommitDiff);
             isInitialRelease = versionTag == null;
             commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
         }
@@ -255,6 +255,7 @@ $ git config --global user.email johndoe@example.com", 1);
                 .OrderByDescending(x => x.Major)
                 .ThenByDescending(x => x.Minor)
                 .ThenByDescending(x => x.Patch)
+                .ThenByDescending(x => x.Release)
                 .FirstOrDefault();
         }
         else

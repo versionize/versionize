@@ -14,5 +14,14 @@ public class VersionizeOptions
     public string Prerelease { get; set; }
     public ChangelogOptions Changelog { get; set; } = ChangelogOptions.Default;
     public bool AggregatePrereleases { get; set; }
-    public bool UseProjVersionForBumpLogic { get; set; }
+
+    /// <summary>
+    /// Instead of looking for a version tag, look for the last commit
+    /// that starts with "chore(release):"
+    /// </summary>
+    /// <remarks>
+    /// Use case: user doesn't tag pre-releases (skip-tag), so the only way to get the
+    /// commit of the last release is to look for the last commit that contains a release message.
+    /// </remarks>
+    public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; set; }
 }

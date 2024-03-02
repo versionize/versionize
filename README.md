@@ -54,8 +54,10 @@ Options:
   --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
   -p|--pre-release                     Release as pre-release version with given pre release label.
-  -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version.
-  --proj-version-bump-logic            Use project version for bump logic, as opposed to git tag version.
+  -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version. Only applies when new version is stable (non pre-release).
+  --proj-version-bump-logic            [DEPRECATED] Use --find-release-commit-via-message instead.
+  --find-release-commit-via-message    Use commit message instead of tag to find last release commit.
+  --tag-only                           Only works with git tags, does not commit or modify the csproj file.
 
 Commands:
   inspect                              Prints the current version to stdout

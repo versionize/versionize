@@ -441,7 +441,9 @@ public partial class WorkingCopyTests : IDisposable
         sb.Append("### Features", 2);
         sb.Append("* initial commit", 2);
 
-        Assert.Equal(sb.Build(), changelogContents);
+        var expected = sb.Build();
+
+        Assert.Equal(expected, changelogContents);
     }
 
     [Fact]
@@ -464,7 +466,7 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
-    public void ShouldUseProjVersionForBumpLogic()
+    public void ShouldUseCommitMessageInsteadOfTagToFindLastReleaseCommit()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
@@ -481,7 +483,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Prerelease as patch alpha
         fileCommitter.CommitChange("fix: another fix");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipTag = true, UseProjVersionForBumpLogic = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipTag = true, UseCommitMessageInsteadOfTagToFindLastReleaseCommit = true });
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0" });
@@ -490,6 +492,62 @@ public partial class WorkingCopyTests : IDisposable
         projects.Version.ToNormalizedString().ShouldBe("1.0.1-alpha.1");
 
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.1-alpha.0 to 1.0.1-alpha.1 in projects");
+    }
+
+    [Fact]
+    public void ShouldBumpConsecutivePreReleasesWhenUsingTagOnly()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("feat: initial commit");
+        workingCopy.Versionize(new VersionizeOptions());
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature 2");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature 3");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+
+        var versionTagNames = VersionTagNames.ToList();
+        versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2" });
+    }
+
+    [Fact]
+    public void ShouldBumpConsecutivePreReleasesWhenAggregatingPrereleases()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("feat: initial commit");
+        workingCopy.Versionize(new VersionizeOptions());
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", AggregatePrereleases = true });
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature 2");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", AggregatePrereleases = true });
+
+        // Prerelease as minor alpha
+        fileCommitter.CommitChange("feat: a feature 3");
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", AggregatePrereleases = true });
+
+        var versionTagNames = VersionTagNames.ToList();
+        versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2" });
     }
 
     private IEnumerable<string> VersionTagNames
