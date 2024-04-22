@@ -91,7 +91,7 @@ public class ProgramTests : IDisposable
                 x => _testSetup.Repository.Commit(x,
                     new Signature("versionize", "test@versionize.com", DateTimeOffset.Now),
                     new Signature("versionize", "test@versionize.com", DateTimeOffset.Now),
-                    new CommitOptions() { AllowEmptyCommit = true }))
+                    new CommitOptions { AllowEmptyCommit = true }))
             .ToArray();
         
         var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--skip-dirty" });

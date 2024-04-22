@@ -109,7 +109,7 @@ public class ConventionalCommitParserTests
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
         var conventionalCommit = ConventionalCommitParser.Parse(
             testCommit,
-            new CommitParserOptions()
+            new CommitParserOptions
             {
                 HeaderPatterns = new []
                 {
