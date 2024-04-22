@@ -67,6 +67,7 @@ public static class Program
                 ExitInsignificantCommits = optionExitInsignificant.HasValue(),
                 CommitSuffix = optionCommitSuffix.Value(),
                 Prerelease = optionPrerelease.Value(),
+                CommitParser = CommitParserOptions.Default,
                 Changelog = ChangelogOptions.Default,
                 AggregatePrereleases = optionAggregatePrereleases.HasValue(),
                 UseCommitMessageInsteadOfTagToFindLastReleaseCommit = optionUseProjVersionForBumpLogic.HasValue() ||
@@ -136,6 +137,7 @@ Exception detail:
         bool changelogAll)
     {
         var includeAllCommits = MergeBool(changelogAll, optionalConfiguration?.ChangelogAll);
+        var commit = MergeCommitOptions(optionalConfiguration?.CommitParser, configuration.CommitParser);
         var changelog = MergeChangelogOptions(optionalConfiguration?.Changelog, configuration.Changelog);
         changelog.IncludeAllCommits = includeAllCommits;
         return new VersionizeOptions
@@ -151,10 +153,24 @@ Exception detail:
             ExitInsignificantCommits = MergeBool(configuration.ExitInsignificantCommits, optionalConfiguration?.ExitInsignificantCommits),
             CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
             Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
+            CommitParser = commit,
             Changelog = changelog,
             AggregatePrereleases = configuration.AggregatePrereleases,
             // TODO: Consider supporting optionalConfiguration
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = configuration.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,
+        };
+    }
+
+    private static CommitParserOptions MergeCommitOptions(CommitParserOptions customOptions, CommitParserOptions defaultOptions)
+    {
+        if (customOptions == null)
+        {
+            return defaultOptions;
+        }
+
+        return new CommitParserOptions
+        {
+            HeaderPatterns = customOptions.HeaderPatterns ?? defaultOptions.HeaderPatterns
         };
     }
 
