@@ -72,9 +72,9 @@ public class ConventionalCommitParserTests
         conventionalCommit.Notes[0].Title.ShouldBe("BREAKING CHANGE");
         conventionalCommit.Notes[0].Text.ShouldBe(string.Empty);
     }
-    
+
     [Theory]
-    [InlineData("fix: subject text #64", new[] { "64" })]
+    [InlineData("fix: subject text #64", new[] {"64"})]
     [InlineData("fix: subject #64 text", new[] { "64" })]
     [InlineData("fix: #64 subject text", new[] { "64" })]
     [InlineData("fix: subject text. #64 #65", new[] { "64", "65" })]
