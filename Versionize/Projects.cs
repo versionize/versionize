@@ -32,7 +32,7 @@ public class Projects
 
     public static Projects Discover(string workingDirectory)
     {
-        var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.props" };
+        var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.props", "*.esproj" };
 
         var options = new EnumerationOptions
         {
