@@ -162,8 +162,8 @@ public class WorkingCopy
         {
             Step($"bumping version from {projects.Version} to {nextVersion} in projects");   
         }
-       
-        // CommitParser changelog and version source
+
+        // Commit changelog and version source
         if (options.TagOnly is false && !options.DryRun && (nextVersion != projects.Version))
         {
             projects.WriteVersion(nextVersion);
@@ -234,7 +234,7 @@ $ git config --global user.email johndoe@example.com", 1);
         else if (options.SkipCommit)
         {
             Information("");
-            Information($"CommitParser and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
+            Information($"Commit and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
         }
 
         return nextVersion;
