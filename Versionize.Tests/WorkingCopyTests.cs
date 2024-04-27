@@ -479,7 +479,7 @@ public partial class WorkingCopyTests : IDisposable
                     Changelog = ChangelogOptions.Default
                 }
             },
-            new VersionizeOptions()
+            new VersionizeOptions
             {
                 AggregatePrereleases = true,
                 Project = new ProjectOptions
@@ -493,7 +493,7 @@ public partial class WorkingCopyTests : IDisposable
                     }
                 }
             },
-            new VersionizeOptions()
+            new VersionizeOptions
             {
                 AggregatePrereleases = true,
                 Project = new ProjectOptions
@@ -506,7 +506,7 @@ public partial class WorkingCopyTests : IDisposable
                     }
                 }
             },
-            new VersionizeOptions()
+            new VersionizeOptions
             {
                 AggregatePrereleases = true,
                 Project = new ProjectOptions
