@@ -16,7 +16,6 @@ public class ProgramTests : IDisposable
     public ProgramTests()
     {
         _testSetup = TestSetup.Create();
-        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
         _testPlatformAbstractions = new TestPlatformAbstractions();
         CommandLineUI.Platform = _testPlatformAbstractions;
@@ -25,6 +24,8 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldRunVersionizeWithDryRunOption()
     {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
+
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty" });
 
         exitCode.ShouldBe(0);
@@ -34,6 +35,8 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldVersionizeDesiredReleaseVersion()
     {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
+
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
 
         exitCode.ShouldBe(0);
@@ -43,6 +46,8 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldPrintTheCurrentVersionWithInspectCommand()
     {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
+
         var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "inspect" });
 
         exitCode.ShouldBe(0);
@@ -65,13 +70,68 @@ public class ProgramTests : IDisposable
         _testSetup.Repository.Commits.Count().ShouldBe(1);
     }
 
- 
+    [Fact]
+    public void ShouldPrintTheCurrentMonoRepoVersionWithInspectCommand()
+    {
+        var projects = new[]
+        {
+            (
+                new ProjectOptions
+                {
+                    Name = "Project1",
+                    Path = "project1",
+                },
+                "1.2.3"),
+            (
+                new ProjectOptions
+                {
+                    Name = "Project2",
+                    Path = "project2"
+                },
+                "3.2.1")
+        };
+
+        var config = new ConfigurationContract
+        {
+            Projects = projects.Select(x => x.Item1).ToArray()
+        };
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"),
+            JsonConvert.SerializeObject(config));
+
+        foreach (var (project, version) in projects)
+        {
+            TempProject.CreateCsharpProject(
+                Path.Combine(_testSetup.WorkingDirectory, project.Path),
+                version);
+        }
+
+        foreach (var (project, version) in projects)
+        {
+            var output = new TestPlatformAbstractions();
+            CommandLineUI.Platform = output;
+
+            var exitCode = Program.Main(
+                new[]
+                {
+                    "--workingDir", _testSetup.WorkingDirectory,
+                    "--proj-name", project.Name,
+                    "inspect"
+                });
+
+            exitCode.ShouldBe(0);
+            output.Messages.ShouldHaveSingleItem();
+            output.Messages[0].ShouldBe(version);
+        }
+    }
+
+
     [Fact]
     public void ShouldSupportMonoRepo()
     {
         var projects = new[]
         {
-            new ProjectOptions()
+            new ProjectOptions
             {
                 Name = "Project1",
                 Path = "project1",
@@ -80,7 +140,7 @@ public class ProgramTests : IDisposable
                     Header = "Project1 header"
                 }
             },
-            new ProjectOptions()
+            new ProjectOptions
             {
                 Name = "Project2",
                 Path = "project2"

@@ -19,7 +19,12 @@ public class WorkingCopy
 
     public SemanticVersion Inspect()
     {
-        var workingDirectory = _workingDirectory.FullName;
+        return Inspect(ProjectOptions.DefaultOneProjectPerRepo);
+    }
+
+    public SemanticVersion Inspect(ProjectOptions projectOptions)
+    {
+        var workingDirectory = Path.Combine(_workingDirectory.FullName, projectOptions.Path);
 
         var projects = Projects.Discover(workingDirectory);
 
@@ -36,6 +41,7 @@ public class WorkingCopy
         Information(projects.Version.ToNormalizedString());
 
         return projects.Version;
+
     }
 
     public SemanticVersion Versionize(VersionizeOptions options)
