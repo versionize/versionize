@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NuGet.Versioning;
 using Shouldly;
 using Versionize.CommandLine;
@@ -447,6 +448,164 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void ShouldMonoRepoSupported()
+    {
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        var projectsOptions = new[]
+        {
+            new VersionizeOptions()
+            {
+                AggregatePrereleases = true,
+                Project = new ProjectOptions
+                {
+                    Name = "Project0",
+                    Path = "project0",
+                    TagTemplate = "v{version}",
+                    Changelog = ChangelogOptions.Default with
+                    {
+                        Header = "Project0 header"
+                    }
+                }
+            },
+            new VersionizeOptions()
+            {
+                AggregatePrereleases = true,
+                Project = new ProjectOptions
+                {
+                    Name = "Project1",
+                    Path = "project1",
+                    TagTemplate = "{name}/v{version}",
+                    Changelog = ChangelogOptions.Default
+                }
+            },
+            new VersionizeOptions()
+            {
+                AggregatePrereleases = true,
+                Project = new ProjectOptions
+                {
+                    Name = "Project1-legacy",
+                    Path = "project1-legacy",
+                    TagTemplate = "Project1/legacy/v{version}",
+                    Changelog = ChangelogOptions.Default with
+                    {
+                        Header = "Project1-legacy header"
+                    }
+                }
+            },
+            new VersionizeOptions()
+            {
+                AggregatePrereleases = true,
+                Project = new ProjectOptions
+                {
+                    Name = "Project2",
+                    Path = "project2",
+                    Changelog = ChangelogOptions.Default with
+                    {
+                        Header = "Project2 header"
+                    }
+                }
+            },
+            new VersionizeOptions()
+            {
+                AggregatePrereleases = true,
+                Project = new ProjectOptions
+                {
+                    Name = "Project3",
+                    Path = "project3/src",
+                    TagTemplate = "experimental/{name}/v{version}",
+                    Changelog = ChangelogOptions.Default
+                }
+            }
+        };
+
+        foreach (var projectOptions in projectsOptions)
+        {
+            var project = projectOptions.Project;
+
+            TempProject.CreateCsharpProject(
+                Path.Join(_testSetup.WorkingDirectory, project.Path));
+
+            // Release an initial version
+            fileCommitter.CommitChange($"feat: initial commit at {project.Name}", project.Path);
+            workingCopy.Versionize(projectOptions);
+
+            // Prerelease as patch alpha
+            projectOptions.Prerelease = "alpha";
+            fileCommitter.CommitChange($"fix: a fix at {project.Name}", project.Path);
+            workingCopy.Versionize(projectOptions);
+            
+            // Prerelease as minor alpha
+            fileCommitter.CommitChange($"feat: a feature at {project.Name}", project.Path);
+            workingCopy.Versionize(projectOptions);
+            projectOptions.Prerelease = null;
+
+            // Full release
+            workingCopy.Versionize(projectOptions);
+
+            // Full release
+            fileCommitter.CommitChange($"feat: another feature at {project.Name}", project.Path);
+            workingCopy.Versionize(projectOptions);
+        }
+
+        foreach (var projectOptions in projectsOptions)
+        {
+            var project = projectOptions.Project;
+
+            var versionTagNames = VersionTagNames.ToList();
+            foreach (var expectedTag in new[]
+                         {
+                             "1.0.0", "1.0.1-alpha.0", "1.1.0", "1.1.0-alpha.0", "1.2.0"
+                         }
+                         .Select(project.GetTagName))
+            {
+                versionTagNames.ShouldContain(expectedTag);
+            }
+
+            var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
+            var changelogContents = File.ReadAllText(
+                Path.Join(_testSetup.WorkingDirectory, project.Path, "CHANGELOG.md"));
+            var sb = new ChangelogStringBuilder();
+            sb.Append(project.Changelog.Header);
+
+            sb.Append("<a name=\"1.2.0\"></a>");
+            sb.Append($"## 1.2.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* another feature at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.1.0\"></a>");
+            sb.Append($"## 1.1.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* a feature at {project.Name}", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append($"* a fix at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.1.0-alpha.0\"></a>");
+            sb.Append($"## 1.1.0-alpha.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* a feature at {project.Name}", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append($"* a fix at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.0.1-alpha.0\"></a>");
+            sb.Append($"## 1.0.1-alpha.0 ({commitDate})", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append($"* a fix at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.0.0\"></a>");
+            sb.Append($"## 1.0.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* initial commit at {project.Name}", 2);
+
+            var expected = sb.Build();
+
+            Assert.Equal(expected, changelogContents);
+        }
+    }
+
+    [Fact]
     public void ShouldDisplayExpectedMessage_BumpingVersionFromXToY()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.0.0");
@@ -576,9 +735,12 @@ public partial class WorkingCopyTests : IDisposable
             _testSetup = testSetup;
         }
 
-        public void CommitChange(string commitMessage)
+        public void CommitChange(string commitMessage, string changeOnDirectory = "")
         {
-            var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+            var directory = Path.Join(_testSetup.WorkingDirectory, changeOnDirectory);
+            Directory.CreateDirectory(directory);
+
+            var workingFilePath = Path.Join(directory, "hello.txt");
             File.WriteAllText(workingFilePath, Guid.NewGuid().ToString());
             CommitAll(_testSetup.Repository, commitMessage);
         }

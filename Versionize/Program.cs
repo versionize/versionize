@@ -37,6 +37,7 @@ public static class Program
         var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "[DEPRECATED] Use --find-release-commit-via-message instead", CommandOptionType.NoValue);
         var optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option("--find-release-commit-via-message", "Use commit message instead of tag to find last release commit", CommandOptionType.NoValue);
         var optionTagOnly = app.Option("--tag-only", "Only works with git tags, does not commit or modify the csproj file.", CommandOptionType.NoValue);
+        var optionsProjectName = app.Option("--proj-name", "Name of the project defined in the configuration file", CommandOptionType.SingleValue);
 
         var inspectCmd = app.Command("inspect", inspectCmd => inspectCmd.OnExecute(() =>
         {
@@ -68,12 +69,13 @@ public static class Program
                 CommitSuffix = optionCommitSuffix.Value(),
                 Prerelease = optionPrerelease.Value(),
                 CommitParser = CommitParserOptions.Default,
-                Changelog = ChangelogOptions.Default,
+                Project = ProjectOptions.DefaultOneProjectPerRepo,
                 AggregatePrereleases = optionAggregatePrereleases.HasValue(),
                 UseCommitMessageInsteadOfTagToFindLastReleaseCommit = optionUseProjVersionForBumpLogic.HasValue() ||
                     optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
             },
-            optionIncludeAllCommitsInChangelog.HasValue());
+            optionIncludeAllCommitsInChangelog.HasValue(),
+            optionsProjectName.Value());
 
             CommandLineUI.Verbosity = MergeBool(optionSilent.HasValue(), jsonFileConfig?.Silent) ? LogLevel.Silent : LogLevel.All;
 
@@ -134,12 +136,29 @@ Exception detail:
     private static VersionizeOptions MergeWithOptions(
         ConfigurationContract optionalConfiguration,
         VersionizeOptions configuration,
-        bool changelogAll)
+        bool changelogAll,
+        string projectName)
     {
-        var includeAllCommits = MergeBool(changelogAll, optionalConfiguration?.ChangelogAll);
+        var project =
+            optionalConfiguration?.Projects.FirstOrDefault(x =>
+                x.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase))
+            ?? configuration.Project;
+        if (project != null)
+        {
+            project.Changelog =
+                MergeChangelogOptions(project.Changelog,
+                    MergeChangelogOptions(optionalConfiguration?.Changelog, ChangelogOptions.Default));
+        }
+        else
+        {
+            project = configuration.Project;
+            project.Changelog =
+                MergeChangelogOptions(optionalConfiguration?.Changelog, ChangelogOptions.Default);
+        }
+        
+        project.Changelog.IncludeAllCommits = MergeBool(changelogAll, optionalConfiguration?.ChangelogAll);
         var commit = MergeCommitOptions(optionalConfiguration?.CommitParser, configuration.CommitParser);
-        var changelog = MergeChangelogOptions(optionalConfiguration?.Changelog, configuration.Changelog);
-        changelog.IncludeAllCommits = includeAllCommits;
+
         return new VersionizeOptions
         {
             DryRun = MergeBool(configuration.DryRun, optionalConfiguration?.DryRun),
@@ -154,7 +173,7 @@ Exception detail:
             CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
             Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
             CommitParser = commit,
-            Changelog = changelog,
+            Project = project,
             AggregatePrereleases = configuration.AggregatePrereleases,
             // TODO: Consider supporting optionalConfiguration
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = configuration.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,

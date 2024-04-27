@@ -40,7 +40,7 @@ public class WorkingCopy
 
     public SemanticVersion Versionize(VersionizeOptions options)
     {
-        var workingDirectory = _workingDirectory.FullName;
+        var workingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
         var gitDirectory = _gitDirectory.FullName;
 
         using var repo = new Repository(gitDirectory);
@@ -51,23 +51,23 @@ public class WorkingCopy
         {
             Exit($"Repository {workingDirectory} is dirty. Please commit your changes.", 1);
         }
+        
+        var projectsEntry = Projects.Discover(workingDirectory);
 
-        var projects = Projects.Discover(workingDirectory);
-
-        if (projects.IsEmpty() && options.TagOnly is false)
+        if (projectsEntry.IsEmpty() && options.TagOnly is false)
         {
             Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
         }
 
-        if (options.TagOnly is false && projects.HasInconsistentVersioning())
+        if (options.TagOnly is false && projectsEntry.HasInconsistentVersioning())
         {
             Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
         }
 
         if (options.TagOnly is false)
         {
-            Information($"Discovered {projects.GetProjectFiles().Count()} versionable projects");
-            foreach (var project in projects.GetProjectFiles())
+            Information($"Discovered {projectsEntry.GetProjectFiles().Count()} versionable projects");
+            foreach (var project in projectsEntry.GetProjectFiles())
             {
                 Information($"  * {project}");
             }    
@@ -78,18 +78,14 @@ public class WorkingCopy
             Information("Tagging only, no checking of projects or commits will occur");
         }
 
-        var version = GetCurrentVersion(options, repo, projects);
+        var version = GetCurrentVersion(options, repo, projectsEntry);
         var versionToUseForCommitDiff = version;
         
         if (options.AggregatePrereleases)
         {
             versionToUseForCommitDiff = repo
                 .Tags
-                .Select(tag =>
-                {
-                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var v);
-                    return v;
-                })
+                .Select(options.Project.ExtractTagVersion)
                 .Where(x => x != null && !x.IsPrerelease)
                 .OrderByDescending(x => x.Major)
                 .ThenByDescending(x => x.Minor)
@@ -101,15 +97,15 @@ public class WorkingCopy
         List<Commit> commitsInVersion;
         if (options.UseCommitMessageInsteadOfTagToFindLastReleaseCommit)
         {
-            var lastReleaseCommit = repo.Commits.FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+            var lastReleaseCommit = repo.GetCommits(options.Project).FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
             isInitialRelease = lastReleaseCommit is null;
-            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit();
+            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit(options.Project);
         }
         else
         {
-            var versionTag = repo.SelectVersionTag(versionToUseForCommitDiff);
+            var versionTag = repo.SelectVersionTag(versionToUseForCommitDiff, options.Project);
             isInitialRelease = versionTag == null;
-            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag);
+            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project);
         }
 
         var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
@@ -145,13 +141,13 @@ public class WorkingCopy
                 Exit($"Could not parse the specified release version {options.ReleaseAs} as valid version", 1);
             }
         }
-
+        
         if (nextVersion < version)
         {
-            Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {projects.Version}. This can be caused by using a wrong pre-release label or release as version", 1);
+            Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {projectsEntry.Version}. This can be caused by using a wrong pre-release label or release as version", 1);
         }
 
-        if (repo.VersionTagsExists(nextVersion) && !options.DryRun && !options.SkipCommit && !options.SkipTag)
+        if (repo.VersionTagsExists(nextVersion, options.Project) && !options.DryRun && !options.SkipCommit && !options.SkipTag)
         {
             Exit($"Version {nextVersion} already exists. Please use a different version.", 1);
         }
@@ -160,34 +156,36 @@ public class WorkingCopy
 
         if (!options.TagOnly)
         {
-            Step($"bumping version from {projects.Version} to {nextVersion} in projects");   
+            Step($"bumping version from {projectsEntry.Version} to {nextVersion} in projects");   
         }
 
         // Commit changelog and version source
-        if (options.TagOnly is false && !options.DryRun && (nextVersion != projects.Version))
+        if (options.TagOnly is false && !options.DryRun && (nextVersion != projectsEntry.Version))
         {
-            projects.WriteVersion(nextVersion);
+            projectsEntry.WriteVersion(nextVersion);
 
-            foreach (var projectFile in projects.GetProjectFiles())
+            foreach (var projectFile in projectsEntry.GetProjectFiles())
             {
                 Commands.Stage(repo, projectFile);
             }
         }
 
         var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
-        var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Changelog.LinkTemplates);
+        var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
 
         if (options.DryRun)
         {
-            string markdown = ChangelogBuilder.GenerateMarkdown(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
+            string markdown = ChangelogBuilder.GenerateMarkdown(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Project.Changelog);
             DryRun(markdown.TrimEnd('\n'));
         }
         else
         {
-            changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Changelog);
+            changelog.Write(nextVersion, versionTime, changelogLinkBuilder, conventionalCommits, options.Project.Changelog);
         }
 
         Step("updated CHANGELOG.md");
+
+        var tagNextVersionName = options.Project.GetTagName(nextVersion);
 
         if (!options.DryRun && !options.SkipCommit &&  !options.TagOnly)
         {
@@ -200,7 +198,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             Commands.Stage(repo, changelog.FilePath);
 
-            foreach (var projectFile in projects.GetProjectFiles())
+            foreach (var projectFile in projectsEntry.GetProjectFiles())
             {
                 Commands.Stage(repo, projectFile);
             }
@@ -214,8 +212,8 @@ $ git config --global user.email johndoe@example.com", 1);
 
             if (!options.SkipTag)
             {
-                repo.Tags.Add($"v{nextVersion}", versionCommit, author, $"{nextVersion}");
-                Step($"tagged release as {nextVersion}");
+                repo.Tags.Add(tagNextVersionName, versionCommit, author, $"{nextVersion}");
+                Step($"tagged release as {tagNextVersionName}");
             }
 
             Information("");
@@ -228,13 +226,13 @@ $ git config --global user.email johndoe@example.com", 1);
                 SortBy = CommitSortStrategies.Time
             }).First();
             
-            repo.Tags.Add($"v{nextVersion}", commitToTag , repo.Config.BuildSignature(versionTime), $"{nextVersion}");
-            Step($"tagged release as {nextVersion} against commit with sha {commitToTag.Sha}");
+            repo.Tags.Add(tagNextVersionName, commitToTag , repo.Config.BuildSignature(versionTime), $"{nextVersion}");
+            Step($"tagged release as {tagNextVersionName} against commit with sha {commitToTag.Sha}");
         }
         else if (options.SkipCommit)
         {
             Information("");
-            Information($"Commit and tagging of release was skipped. Tag this release as `v{nextVersion}` to make versionize detect the release");
+            Information($"Commit and tagging of release was skipped. Tag this release as `{tagNextVersionName}` to make versionize detect the release");
         }
 
         return nextVersion;
@@ -246,11 +244,7 @@ $ git config --global user.email johndoe@example.com", 1);
         if (options.TagOnly)
         {
             version = repo.Tags
-                .Select(tag =>
-                {
-                    SemanticVersion.TryParse(tag.FriendlyName[1..], out var v);
-                    return v;
-                })
+                .Select(options.Project.ExtractTagVersion)
                 .Where(x => x != null)
                 .OrderByDescending(x => x.Major)
                 .ThenByDescending(x => x.Minor)

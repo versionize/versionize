@@ -13,7 +13,7 @@ public class VersionizeOptions
     public String CommitSuffix { get; set; }
     public string Prerelease { get; set; }
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
-    public ChangelogOptions Changelog { get; set; } = ChangelogOptions.Default;
+    public ProjectOptions Project { get; set; } = ProjectOptions.DefaultOneProjectPerRepo;
     public bool AggregatePrereleases { get; set; }
 
     /// <summary>
