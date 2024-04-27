@@ -1,6 +1,4 @@
 ﻿using LibGit2Sharp;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using NuGet.Versioning;
 using Shouldly;
 using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
@@ -456,7 +454,7 @@ public partial class WorkingCopyTests : IDisposable
 
         var projectsOptions = new[]
         {
-            new VersionizeOptions()
+            new VersionizeOptions
             {
                 AggregatePrereleases = true,
                 Project = new ProjectOptions
@@ -470,7 +468,7 @@ public partial class WorkingCopyTests : IDisposable
                     }
                 }
             },
-            new VersionizeOptions()
+            new VersionizeOptions
             {
                 AggregatePrereleases = true,
                 Project = new ProjectOptions
