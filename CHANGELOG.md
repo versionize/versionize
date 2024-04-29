@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.23.0"></a>
+## [1.23.0](https://www.github.com/versionize/versionize/releases/tag/v1.23.0) (2024-04-29)
+
+### Features
+
+* add commit parser options ([#120](https://www.github.com/versionize/versionize/issues/120)) ([b2c137a](https://www.github.com/versionize/versionize/commit/b2c137a8616c651361c5e837795bfedfb862a25f))
+
 <a name="1.22.0"></a>
 ## [1.22.0](https://www.github.com/versionize/versionize/releases/tag/v1.22.0) (2024-03-02)
 
