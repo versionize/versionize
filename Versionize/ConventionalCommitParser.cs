@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿#nullable enable
+using System.Text.RegularExpressions;
 using LibGit2Sharp;
 
 namespace Versionize;
@@ -7,16 +8,26 @@ public static class ConventionalCommitParser
 {
     private static readonly string[] NoteKeywords = new string[] { "BREAKING CHANGE" };
 
-    private static readonly Regex HeaderPattern = new("^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private const string DefaultHeaderPattern = "^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$";
 
-    private static readonly Regex IssuesPattern = new("(?<issueToken>#(?<issueId>\\d+))", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private const string DefaultIssuesPattern = "(?<issueToken>#(?<issueId>\\d+))";
 
-    public static List<ConventionalCommit> Parse(List<Commit> commits)
+    private static readonly RegexOptions RegexOptions =
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline;
+
+    public static List<ConventionalCommit> Parse(List<Commit> commits, CommitParserOptions? options = null)
     {
-        return commits.ConvertAll(Parse);
+        return commits
+            .Select(x => Parse(x, options))
+            .ToList();
     }
 
     public static ConventionalCommit Parse(Commit commit)
+    {
+        return Parse(commit, null);
+    }
+
+    public static ConventionalCommit Parse(Commit commit, CommitParserOptions? options)
     {
         var conventionalCommit = new ConventionalCommit
         {
@@ -38,8 +49,23 @@ public static class ConventionalCommitParser
             return conventionalCommit;
         }
 
-        var match = HeaderPattern.Match(header);
-        if (match.Success)
+        var headerPatterns = new List<string>(
+            options?.HeaderPatterns ?? Array.Empty<string>())
+        {
+            DefaultHeaderPattern
+        };
+
+        Match? headerMatch = null;
+        foreach (var headerPattern in headerPatterns)
+        {
+            headerMatch = Regex.Match(header, headerPattern, RegexOptions);
+            if (headerMatch.Success)
+            {
+                break;
+            }
+        }
+        
+        if (headerMatch is { Success: true } match)
         {
             conventionalCommit.Scope = match.Groups["scope"].Value;
             conventionalCommit.Type = match.Groups["type"].Value;
@@ -54,7 +80,7 @@ public static class ConventionalCommitParser
                 });
             }
 
-            var issuesMatch = IssuesPattern.Matches(conventionalCommit.Subject);
+            var issuesMatch = Regex.Matches(conventionalCommit.Subject, DefaultIssuesPattern, RegexOptions);
             foreach (var issueMatch in issuesMatch.Cast<Match>())
             {
                 conventionalCommit.Issues.Add(
