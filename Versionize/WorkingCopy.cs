@@ -114,7 +114,7 @@ public class WorkingCopy
             commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project);
         }
 
-        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
+        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
 
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
