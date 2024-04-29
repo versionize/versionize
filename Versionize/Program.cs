@@ -68,6 +68,7 @@ public static class Program
                     ExitInsignificantCommits = optionExitInsignificant.HasValue(),
                     CommitSuffix = optionCommitSuffix.Value(),
                     Prerelease = optionPrerelease.Value(),
+                    CommitParser = CommitParserOptions.Default,
                     Project = ProjectOptions.DefaultOneProjectPerRepo,
                     AggregatePrereleases = optionAggregatePrereleases.HasValue(),
                     UseCommitMessageInsteadOfTagToFindLastReleaseCommit = optionUseProjVersionForBumpLogic.HasValue() ||
@@ -167,6 +168,8 @@ Exception detail:
         }
         
         project.Changelog.IncludeAllCommits = MergeBool(changelogAll, optionalConfiguration?.ChangelogAll);
+        var commit = MergeCommitOptions(optionalConfiguration?.CommitParser, configuration.CommitParser);
+
         return new VersionizeOptions
         {
             DryRun = MergeBool(configuration.DryRun, optionalConfiguration?.DryRun),
@@ -180,13 +183,27 @@ Exception detail:
             ExitInsignificantCommits = MergeBool(configuration.ExitInsignificantCommits, optionalConfiguration?.ExitInsignificantCommits),
             CommitSuffix = configuration.CommitSuffix ?? optionalConfiguration?.CommitSuffix,
             Prerelease = configuration.Prerelease ?? optionalConfiguration?.Prerelease,
+            CommitParser = commit,
             Project = project,
             AggregatePrereleases = configuration.AggregatePrereleases,
             // TODO: Consider supporting optionalConfiguration
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = configuration.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,
         };
     }
-    
+
+    private static CommitParserOptions MergeCommitOptions(CommitParserOptions customOptions, CommitParserOptions defaultOptions)
+    {
+        if (customOptions == null)
+        {
+            return defaultOptions;
+        }
+
+        return new CommitParserOptions
+        {
+            HeaderPatterns = customOptions.HeaderPatterns ?? defaultOptions.HeaderPatterns
+        };
+    }
+
     private static ChangelogOptions MergeChangelogOptions(ChangelogOptions customOptions, ChangelogOptions defaultOptions)
     {
         if (customOptions == null)

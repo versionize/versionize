@@ -72,9 +72,9 @@ public class ConventionalCommitParserTests
         conventionalCommit.Notes[0].Title.ShouldBe("BREAKING CHANGE");
         conventionalCommit.Notes[0].Text.ShouldBe(string.Empty);
     }
-
+    
     [Theory]
-    [InlineData("fix: subject text #64", new[] {"64"})]
+    [InlineData("fix: subject text #64", new[] { "64" })]
     [InlineData("fix: subject #64 text", new[] { "64" })]
     [InlineData("fix: #64 subject text", new[] { "64" })]
     [InlineData("fix: subject text. #64 #65", new[] { "64", "65" })]
@@ -94,6 +94,33 @@ public class ConventionalCommitParserTests
             Assert.NotNull(issue);
             Assert.Equal(issue.Token, $"#{expectedIssue}");
         }
+    }
+
+    [Theory]
+    [InlineData("fix: subject text #64", "", "fix", "subject text #64")]
+    [InlineData("feat(scope): subject text", "scope", "feat", "subject text")]
+    [InlineData("Merged PR 123: fix: subject text #64", "", "fix", "subject text #64")]
+    [InlineData("Merged PR 321: feat(scope): subject text", "scope", "feat", "subject text")]
+    [InlineData("Pull Request 11792: fix: subject text #64", "", "fix", "subject text #64")]
+    [InlineData("Pull Request 11792: feat(scope): subject text", "scope", "feat", "subject text")]
+    public void ShouldParseCommitWithExtraHeaderPatterns(string commitMessage,
+        string scope, string type, string subject)
+    {
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+        var conventionalCommit = ConventionalCommitParser.Parse(
+            testCommit,
+            new CommitParserOptions
+            {
+                HeaderPatterns = new []
+                {
+                    "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
+                    "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
+                }
+            });
+
+        Assert.Equal(conventionalCommit.Scope, scope);
+        Assert.Equal(conventionalCommit.Type, type);
+        Assert.Equal(conventionalCommit.Subject, subject);
     }
 }
 

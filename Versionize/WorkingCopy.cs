@@ -114,7 +114,7 @@ public class WorkingCopy
             commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project);
         }
 
-        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion);
+        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
 
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
@@ -164,7 +164,7 @@ public class WorkingCopy
         {
             Step($"bumping version from {projectsEntry.Version} to {nextVersion} in projects");   
         }
-       
+
         // Commit changelog and version source
         if (options.TagOnly is false && !options.DryRun && (nextVersion != projectsEntry.Version))
         {
