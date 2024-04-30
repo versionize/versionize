@@ -7,52 +7,74 @@ public static class RespositoryExtensions
 {
     public static Tag SelectVersionTag(this Repository repository, SemanticVersion version)
     {
-        return repository.Tags.SingleOrDefault(t => t.FriendlyName == $"v{version}");
+        return SelectVersionTag(repository, version, ProjectOptions.DefaultOneProjectPerRepo);
     }
 
-    public static IEnumerable<Tag> VersionTags(this Repository repository)
+    public static Tag SelectVersionTag(this Repository repository, SemanticVersion version, ProjectOptions project)
     {
-        return repository.Tags.Where(IsSemanticVersionTag);
-    }
+        if (version == null)
+        {
+            return null;
+        }
 
-    public static bool VersionTagsExists(this Repository repository, SemanticVersion version)
+        return repository.Tags.SingleOrDefault(t => t.FriendlyName.Equals(project.GetTagName(version)));
+    }
+    
+    public static bool VersionTagsExists(this Repository repository, SemanticVersion version, ProjectOptions project)
     {
-        return repository.VersionTags().Any(tag => tag.FriendlyName.Equals($"v{version}"));
+        var tagName = project.GetTagName(version);
+        return repository.Tags.Any(tag => tag.FriendlyName.Equals(tagName));
     }
 
     public static bool IsSemanticVersionTag(this Tag tag)
     {
-        if (string.IsNullOrWhiteSpace(tag.FriendlyName))
-        {
-            return false;
-        }
-
-        if (!tag.FriendlyName.StartsWith("v"))
-        {
-            return false;
-        }
-
-        return SemanticVersion.TryParse(tag.FriendlyName[1..], out SemanticVersion semanticVersion);
+        return IsSemanticVersionTag(tag, ProjectOptions.DefaultOneProjectPerRepo);
     }
 
-    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag)
+    public static bool IsSemanticVersionTag(this Tag tag, ProjectOptions project)
+    {
+        return project.ExtractTagVersion(tag) != null;
+    }
+
+    public static IEnumerable<Commit> GetCommits(this Repository repository, ProjectOptions project, CommitFilter filter = null)
+    {
+        if (!string.IsNullOrEmpty(project.Path))
+        {
+            filter ??= new CommitFilter();
+            filter.SortBy = CommitSortStrategies.Time | CommitSortStrategies.Topological;
+
+            return repository.Commits
+                .QueryBy(project.Path, filter)
+                .Select(x => x.Commit);
+        }
+        else
+        {
+            return filter != null
+                ? repository.Commits.QueryBy(filter)
+                : repository.Commits;
+        }
+    }
+
+    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag, ProjectOptions project)
     {
         if (versionTag == null)
         {
-            return repository.Commits.ToList();
+            return repository.GetCommits(project).ToList();
         }
 
         var filter = new CommitFilter
         {
             ExcludeReachableFrom = versionTag
         };
-
-        return repository.Commits.QueryBy(filter).ToList();
+        
+        return repository.GetCommits(project, filter).ToList();
     }
 
-    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository)
+    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project)
     {
-        var lastReleaseCommit = repository.Commits.FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+        var lastReleaseCommit = repository
+            .GetCommits(project)
+            .FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
         if (lastReleaseCommit == null)
         {
             return repository.Commits.ToList();
@@ -63,7 +85,7 @@ public static class RespositoryExtensions
             ExcludeReachableFrom = lastReleaseCommit
         };
 
-        return repository.Commits.QueryBy(filter).ToList();
+        return repository.GetCommits(project, filter).ToList();
     }
 
     public static bool IsConfiguredForCommits(this Repository repository)

@@ -12,6 +12,7 @@ public class ConfigurationContract
     public bool? ChangelogAll { get; set; }
     public String CommitSuffix { get; set; }
     public CommitParserOptions CommitParser { get; set; }
+    public ProjectOptions[] Projects { get; set; } = Array.Empty<ProjectOptions>();
     public ChangelogOptions Changelog { get; set; }
     public string Prerelease { get; set; }
 }
