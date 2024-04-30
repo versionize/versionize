@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.24.0"></a>
+## [1.24.0](https://www.github.com/versionize/versionize/releases/tag/v1.24.0) (2024-04-30)
+
+### Features
+
+* add monorepo support ([#121](https://www.github.com/versionize/versionize/issues/121)) ([37a5cf9](https://www.github.com/versionize/versionize/commit/37a5cf96984dfe52cbf0b0a52889e6015bb405c7))
+
 <a name="1.23.0"></a>
 ## [1.23.0](https://www.github.com/versionize/versionize/releases/tag/v1.23.0) (2024-04-29)
 
