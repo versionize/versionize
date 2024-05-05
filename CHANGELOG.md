@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.25.0"></a>
+## [1.25.0](https://www.github.com/versionize/versionize/releases/tag/v1.25.0) (2024-05-05)
+
+### Features
+
+* support .esproj files ([#119](https://www.github.com/versionize/versionize/issues/119)) ([f743729](https://www.github.com/versionize/versionize/commit/f743729624e48ca68c8864a5956db9cd495dd521))
+
 <a name="1.24.0"></a>
 ## [1.24.0](https://www.github.com/versionize/versionize/releases/tag/v1.24.0) (2024-04-30)
 
