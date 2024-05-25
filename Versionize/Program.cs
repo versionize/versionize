@@ -38,6 +38,7 @@ public static class Program
         var optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option("--find-release-commit-via-message", "Use commit message instead of tag to find last release commit", CommandOptionType.NoValue);
         var optionTagOnly = app.Option("--tag-only", "Only works with git tags, does not commit or modify the csproj file.", CommandOptionType.NoValue);
         var optionsProjectName = app.Option("--proj-name", "Name of the project defined in the configuration file", CommandOptionType.SingleValue);
+        var optionConfigurationDirectory = app.Option("--configDir <CONFIG_DIRECTORY>", "Directory containing the versionize configuration file", CommandOptionType.SingleValue);
 
         var inspectCmd = app.Command(
             "inspect",
@@ -54,7 +55,8 @@ public static class Program
         int Versionize(bool inspect = false)
         {
             var cwd = optionWorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
-            var jsonFileConfig = FromJsonFile(Path.Join(cwd, ".versionize"), inspect);
+            var configDirectory = optionConfigurationDirectory.Value() ?? cwd;
+            var jsonFileConfig = FromJsonFile(Path.Join(configDirectory, ".versionize"), inspect);
 
             var options = MergeWithOptions(jsonFileConfig, new VersionizeOptions
                 {
