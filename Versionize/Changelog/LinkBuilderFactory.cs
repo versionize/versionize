@@ -5,32 +5,29 @@ namespace Versionize.Changelog;
 
 public abstract class LinkBuilderFactory
 {
-    public static IChangelogLinkBuilder CreateFor(Repository repository, PlainLinkTemplates? linkTemplates = null)
+    public static IChangelogLinkBuilder CreateFor(Repository repository, ChangelogLinkTemplates? linkTemplates = null)
     {
         var origin = repository.Network.Remotes.FirstOrDefault(remote => remote.Name == "origin") ?? repository.Network.Remotes.FirstOrDefault();
 
         if (origin == null)
         {
-            return new PlainLinkBuilder(linkTemplates);
+            return new PlainLinkBuilder();
         }
 
-        if (GithubLinkBuilder.IsPushUrl(origin.PushUrl))
+        IChangelogLinkBuilder linkBuilder = origin.PushUrl switch
         {
-            return new GithubLinkBuilder(origin.PushUrl);
-        }
-        else if (AzureLinkBuilder.IsPushUrl(origin.PushUrl))
+            var x when GithubLinkBuilder.IsPushUrl(x) => new GithubLinkBuilder(x),
+            var x when AzureLinkBuilder.IsPushUrl(x) => new AzureLinkBuilder(x),
+            var x when GitlabLinkBuilder.IsPushUrl(x) => new GitlabLinkBuilder(x),
+            var x when BitbucketLinkBuilder.IsPushUrl(x) => new BitbucketLinkBuilder(x),
+            _ => new PlainLinkBuilder()
+        };
+
+        if (linkTemplates != null)
         {
-            return new AzureLinkBuilder(origin.PushUrl);
-        }
-        else if (GitlabLinkBuilder.IsPushUrl(origin.PushUrl))
-        {
-            return new GitlabLinkBuilder(origin.PushUrl);
-        }
-        else if (BitbucketLinkBuilder.IsPushUrl(origin.PushUrl))
-        {
-            return new BitbucketLinkBuilder(origin.PushUrl);
+            linkBuilder = new TemplatedLinkBuilder(linkTemplates, linkBuilder);
         }
 
-        return new PlainLinkBuilder(linkTemplates);
+        return linkBuilder;
     }
 }

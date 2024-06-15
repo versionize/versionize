@@ -2,7 +2,6 @@
 
 namespace Versionize;
 
-// TODO: Consider creating a ChangelogConfigurationContract as a layer of abstraction.
 public record class ChangelogOptions
 {
     public const string Preamble = "# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.\n";
@@ -25,10 +24,10 @@ public record class ChangelogOptions
     public bool IncludeAllCommits { get; set; }
     public IEnumerable<ChangelogSection> Sections { get; set; }
 
-    public PlainLinkTemplates LinkTemplates { get; set; }
+    public ChangelogLinkTemplates LinkTemplates { get; set; }
 }
 
-public record PlainLinkTemplates
+public record ChangelogLinkTemplates
 {
     public string IssueLink { get; set; }
 
