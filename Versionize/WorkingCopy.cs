@@ -51,11 +51,12 @@ public class WorkingCopy
 
         using var repo = new Repository(gitDirectory);
 
-        var isDirty = repo.RetrieveStatus(new StatusOptions()).IsDirty;
-
-        if (!options.SkipDirty && isDirty)
+        var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = false });
+        if (!options.SkipDirty && status.IsDirty)
         {
-            Exit($"Repository {workingDirectory} is dirty. Please commit your changes.", 1);
+            var dirtyFiles = status.Where(x => x.State != FileStatus.Ignored).Select(x => $"{x.State}: {x.FilePath}");
+            var dirtyFilesString = string.Join(Environment.NewLine, dirtyFiles);
+            Exit($"Repository {workingDirectory} is dirty. Please commit your changes:\n{dirtyFilesString}", 1);
         }
         
         var projectsEntry = Projects.Discover(workingDirectory);
