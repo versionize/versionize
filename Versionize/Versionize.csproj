@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.26.0</Version>
+    <Version>1.26.1</Version>
     <ToolCommandName>versionize</ToolCommandName>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.26.1"></a>
+## [1.26.1](https://www.github.com/versionize/versionize/releases/tag/v1.26.1) (2024-06-15)
+
+### Bug Fixes
+
+* azure tag links have wrong format ([#105](https://www.github.com/versionize/versionize/issues/105)) ([b4290c7](https://www.github.com/versionize/versionize/commit/b4290c7504575b95f19ad669c6d578bbf4b4e450))
+
 <a name="1.26.0"></a>
 ## [1.26.0](https://www.github.com/versionize/versionize/releases/tag/v1.26.0) (2024-06-15)
 
