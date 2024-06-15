@@ -60,13 +60,51 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
+        var config = new ConfigurationContract
+        {
+            SkipDirty = true,
+            Changelog = new ChangelogOptions
+            {
+                Header = "My Custom header"
+            }
+        };
+        var json = JsonConvert.SerializeObject(config);
+
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
-        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), @"{ ""skipDirty"": true }");
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), json);
 
         var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory });
 
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
+        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldContain("My Custom header");
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+    }
+
+    [Fact]
+    public void ShouldReadConfigurationFromConfigFileInCustomDirectory()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var config = new ConfigurationContract
+        {
+            SkipDirty = true,
+            Changelog = new ChangelogOptions
+            {
+                Header = "My Custom header"
+            }
+        };
+        var json = JsonConvert.SerializeObject(config);
+        var configDir = Path.Join(_testSetup.WorkingDirectory, "..");
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "..", ".versionize"), json);
+
+        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--skip-dirty" });
+
+        exitCode.ShouldBe(0);
+        File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
+        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldContain("My Custom header");
         _testSetup.Repository.Commits.Count().ShouldBe(1);
     }
 
