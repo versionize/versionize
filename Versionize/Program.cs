@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 using Versionize.Versioning;
@@ -154,8 +154,7 @@ Exception detail:
     {
         var project =
             optionalConfiguration?.Projects.FirstOrDefault(x =>
-                x.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase))
-            ?? configuration.Project;
+                x.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase));
         if (project != null)
         {
             project.Changelog =
