@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.26.0"></a>
+## [1.26.0](https://www.github.com/versionize/versionize/releases/tag/v1.26.0) (2024-06-15)
+
+### Features
+
+* add option to specify config directory ([38ad49d](https://www.github.com/versionize/versionize/commit/38ad49d44936b3e82919b75e1042546eaaf70961))
+
+### Bug Fixes
+
+* changelog config not applied when working with non-monorepo ([69c5014](https://www.github.com/versionize/versionize/commit/69c501421455006fa245993925912d85563fcdcb))
+
+### Other
+
+* add configDir and proj-name options to README ([f0fad7f](https://www.github.com/versionize/versionize/commit/f0fad7f9eecf88dde15a3baf2bd994c6de630e80))
+* add launchSettings.json ([cb02871](https://www.github.com/versionize/versionize/commit/cb028710e7276090f8c12d2b6dc07a76d68cc1b2))
+
 <a name="1.25.0"></a>
 ## [1.25.0](https://www.github.com/versionize/versionize/releases/tag/v1.25.0) (2024-05-05)
 
