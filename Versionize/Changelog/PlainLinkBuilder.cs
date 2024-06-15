@@ -5,43 +5,9 @@ namespace Versionize.Changelog;
 
 public class PlainLinkBuilder : IChangelogLinkBuilder
 {
-    private readonly PlainLinkTemplates? _templates;
+    public string BuildIssueLink(string issueId) => string.Empty;
 
-    public PlainLinkBuilder(PlainLinkTemplates? templates = null)
-    {
-        _templates = templates;
-    }
+    public string BuildCommitLink(ConventionalCommit commit) => string.Empty;
 
-    public string BuildIssueLink(string issueId)
-    {
-        if (_templates?.IssueLink is { } template)
-        {
-            return template.Replace(
-                "{issue}", issueId, StringComparison.OrdinalIgnoreCase);
-        }
-
-        return string.Empty;
-    }
-
-    public string BuildCommitLink(ConventionalCommit commit)
-    {
-        if (_templates?.CommitLink is { } template)
-        {
-            return template.Replace(
-                "{commitSha}", commit.Sha, StringComparison.OrdinalIgnoreCase);
-        }
-
-        return string.Empty;
-    }
-
-    public string BuildVersionTagLink(Version version)
-    {
-        if (_templates?.VersionTagLink is { } template)
-        {
-            return template.Replace(
-                "{version}", version.ToString(), StringComparison.OrdinalIgnoreCase);
-        }
-
-        return string.Empty;
-    }
+    public string BuildVersionTagLink(Version version) => string.Empty;
 }
