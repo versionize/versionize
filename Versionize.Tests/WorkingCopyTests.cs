@@ -66,15 +66,29 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void ShouldNotThrowForUntrackedFiles()
+    {
+        // Untracked file is the csproj.
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        Should.NotThrow(() => workingCopy.Versionize(new VersionizeOptions()));
+    }
+
+    [Fact]
     public void ShouldExitIfWorkingCopyIsDirty()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        CommitAll(_testSetup.Repository, "feat: first commit");
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "hello world");
+        Commands.Stage(_testSetup.Repository, "*");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
 
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-        _testPlatformAbstractions.Messages[0].ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes.");
+        _testPlatformAbstractions.Messages[0].ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes:\nNewInIndex: hello.txt");
     }
 
     [Fact]
