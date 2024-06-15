@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.27.0"></a>
+## [1.27.0](https://www.github.com/versionize/versionize/releases/tag/v1.27.0) (2024-06-15)
+
+### Features
+
+* print "dirty" files, and exclude untracked files from the dirty check ([a6d20b9](https://www.github.com/versionize/versionize/commit/a6d20b9291d01edf91558dc5a6ea44eb131adf6a))
+
 <a name="1.26.2"></a>
 ## [1.26.2](https://www.github.com/versionize/versionize/releases/tag/v1.26.2) (2024-06-15)
 
