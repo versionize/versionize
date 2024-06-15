@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 using Versionize.Versioning;
@@ -22,6 +22,7 @@ public static class Program
         app.VersionOption("-v|--version", GetVersion());
 
         var optionWorkingDirectory = app.Option("-w|--workingDir <WORKING_DIRECTORY>", "Directory containing projects to version", CommandOptionType.SingleValue);
+        var optionConfigurationDirectory = app.Option("--configDir <CONFIG_DIRECTORY>", "Directory containing the versionize configuration file", CommandOptionType.SingleValue);
         var optionDryRun = app.Option("-d|--dry-run", "Skip changing versions in projects, changelog generation and git commit", CommandOptionType.NoValue);
         var optionSkipDirty = app.Option("--skip-dirty", "Skip git dirty check", CommandOptionType.NoValue);
         var optionReleaseAs = app.Option("-r|--release-as <VERSION>", "Specify the release version manually", CommandOptionType.SingleValue);
@@ -37,8 +38,7 @@ public static class Program
         var optionUseProjVersionForBumpLogic = app.Option("--proj-version-bump-logic", "[DEPRECATED] Use --find-release-commit-via-message instead", CommandOptionType.NoValue);
         var optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option("--find-release-commit-via-message", "Use commit message instead of tag to find last release commit", CommandOptionType.NoValue);
         var optionTagOnly = app.Option("--tag-only", "Only works with git tags, does not commit or modify the csproj file.", CommandOptionType.NoValue);
-        var optionsProjectName = app.Option("--proj-name", "Name of the project defined in the configuration file", CommandOptionType.SingleValue);
-        var optionConfigurationDirectory = app.Option("--configDir <CONFIG_DIRECTORY>", "Directory containing the versionize configuration file", CommandOptionType.SingleValue);
+        var optionsProjectName = app.Option("--proj-name", "Name of a project defined in the configuration file (for monorepos)", CommandOptionType.SingleValue);
 
         var inspectCmd = app.Command(
             "inspect",

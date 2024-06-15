@@ -40,6 +40,7 @@ Options:
   -?|-h|--help                         Show help information.
   -v|--version                         Show version information.
   -w|--workingDir <WORKING_DIRECTORY>  Directory containing projects to version
+  --configDir <CONFIG_DIRECTORY>       Directory containing the .versionize configuration file
   -d|--dry-run                         Skip changing versions in projects, changelog generation and git commit
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
@@ -58,6 +59,7 @@ Options:
   --proj-version-bump-logic            [DEPRECATED] Use --find-release-commit-via-message instead.
   --find-release-commit-via-message    Use commit message instead of tag to find last release commit.
   --tag-only                           Only works with git tags, does not commit or modify the csproj file.
+  --proj-name                          Name of a project defined in the configuration file (for monorepos)
 
 Commands:
   inspect                              Prints the current version to stdout
@@ -273,7 +275,7 @@ dotnet test --logger prettier
 
 * [x] Pre Releases to allow creating beta.1, beta.2 versions
 * [x] Support .versionrc like "standard-version" does
-* [ ] Support mono repo joint and disjoint version strategies
+* [x] Support monorepo
 * [x] ~~--silent command line switch to suppress commandline output~~
 * [x] `-i`, `--ignore-insignificant-commits` command line switch to not create a new version if only insignificant (chore, ...) commits were done
 * [x] GitHub URLs in changelog
