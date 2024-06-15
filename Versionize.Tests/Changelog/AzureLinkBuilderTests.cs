@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using NuGet.Versioning;
 using Shouldly;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -75,6 +76,17 @@ public class AzureLinkBuilderTests
         var link = linkBuilder.BuildCommitLink(commit);
 
         link.ShouldBe("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP/commit/734713bc047d87bf7eac9674765ae793478c50d3");
+    }
+
+    [Fact]
+    public void ShouldBuildAHTTPSVersionTagLink()
+    {
+        var semVer = SemanticVersion.Parse("1.2.3");
+
+        var linkBuilder = new AzureLinkBuilder("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP.git");
+        var link = linkBuilder.BuildVersionTagLink(semVer);
+
+        link.ShouldBe("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP?version=GTv1.2.3");
     }
 
     [Fact]
