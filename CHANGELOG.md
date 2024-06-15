@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.26.2"></a>
+## [1.26.2](https://www.github.com/versionize/versionize/releases/tag/v1.26.2) (2024-06-15)
+
+### Bug Fixes
+
+* link templates get overwritten by default providers ([c73c075](https://www.github.com/versionize/versionize/commit/c73c075414cb6b070fb55b8ef759a712577b6397))
+
+### Other
+
+* fix wrong indentation ([40b82eb](https://www.github.com/versionize/versionize/commit/40b82eb5f7b4aed3b6eeafce319a623460fc2c60))
+
 <a name="1.26.1"></a>
 ## [1.26.1](https://www.github.com/versionize/versionize/releases/tag/v1.26.1) (2024-06-15)
 
