@@ -6,7 +6,7 @@ using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize;
 
-public class WorkingCopy
+public sealed class WorkingCopy
 {
     private readonly DirectoryInfo _workingDirectory;
     private readonly DirectoryInfo _gitDirectory;
@@ -195,7 +195,7 @@ public class WorkingCopy
         projectGroup.WriteVersion(nextVersion);
     }
 
-    private ChangelogBuilder? UpdateChangelog(
+    private ChangelogBuilder UpdateChangelog(
         Repository repo,
         SemanticVersion nextVersion,
         IReadOnlyList<ConventionalCommit> conventionalCommits,

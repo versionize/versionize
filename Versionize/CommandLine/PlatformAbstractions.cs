@@ -1,6 +1,6 @@
 ﻿namespace Versionize.CommandLine;
 
-public class PlatformAbstractions : IPlatformAbstractions
+public sealed class PlatformAbstractions : IPlatformAbstractions
 {
     public LogLevel Verbosity { get; set; }
 

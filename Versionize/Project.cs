@@ -3,7 +3,7 @@ using NuGet.Versioning;
 
 namespace Versionize;
 
-public class Project
+public sealed class Project
 {
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }

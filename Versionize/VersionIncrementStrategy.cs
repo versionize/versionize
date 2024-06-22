@@ -3,7 +3,7 @@ using Versionize.Versioning;
 
 namespace Versionize;
 
-public class VersionIncrementStrategy
+public sealed class VersionIncrementStrategy
 {
     private readonly IEnumerable<ConventionalCommit> _conventionalCommits;
 

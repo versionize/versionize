@@ -4,7 +4,7 @@ using NuGet.Versioning;
 
 namespace Versionize;
 
-public record ProjectOptions
+public sealed record ProjectOptions
 {
     public static readonly ProjectOptions DefaultOneProjectPerRepo =
         new()

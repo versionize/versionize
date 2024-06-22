@@ -3,7 +3,7 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-public class TemplatedLinkBuilder : IChangelogLinkBuilder
+public sealed class TemplatedLinkBuilder : IChangelogLinkBuilder
 {
     private readonly ChangelogLinkTemplates _templates;
     private readonly IChangelogLinkBuilder _fallbackBuilder;

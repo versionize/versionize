@@ -2,7 +2,7 @@
 
 namespace Versionize;
 
-public class Projects
+public sealed class Projects
 {
     private readonly IEnumerable<Project> _projects;
 

@@ -6,7 +6,7 @@ namespace Versionize;
 
 public static class ConventionalCommitParser
 {
-    private static readonly string[] NoteKeywords = new string[] { "BREAKING CHANGE" };
+    private static readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
     private const string DefaultHeaderPattern = "^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$";
 

@@ -62,9 +62,9 @@ Commands:
   inspect                              Prints the current version to stdout
 ```
 
-## V2 Breaking changes
+## V2
 
-### Breaking changes
+### Breaking Changes
 
 - `--skip-commit` now only skips the commit. Not the tag.
 - remove deprecated `--proj-version-bump-logic`.
@@ -73,7 +73,7 @@ Commands:
 
 ### Changes
 
- - Refactor to better maintainability.
+ - Refactor for better maintainability.
  - Update dependencies.
 
 ## Supported commit types

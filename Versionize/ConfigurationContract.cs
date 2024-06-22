@@ -1,21 +1,19 @@
 ﻿namespace Versionize;
 
-public class ConfigurationContract
+public sealed class ConfigFile
 {
     public bool? Silent { get; set; }
     public bool? DryRun { get; set; }
     public bool? SkipDirty { get; set; }
     public bool? SkipCommit { get; set; }
     public bool? SkipTag { get; set; }
-    public bool SkipChangelog { get; set; }
-    public String ReleaseAs { get; set; }
+    public bool? SkipChangelog { get; set; }
+    public string ReleaseAs { get; set; }
     public bool? IgnoreInsignificantCommits { get; set; }
     public bool? ExitInsignificantCommits { get; set; }
-    // TODO: Remove in favor of ChangelogOptions
-    public bool? ChangelogAll { get; set; }
-    public String CommitSuffix { get; set; }
+    public string CommitSuffix { get; set; }
     public CommitParserOptions CommitParser { get; set; }
-    public ProjectOptions[] Projects { get; set; } = Array.Empty<ProjectOptions>();
+    public ProjectOptions[] Projects { get; set; } = [];
     public ChangelogOptions Changelog { get; set; }
     public string Prerelease { get; set; }
 }

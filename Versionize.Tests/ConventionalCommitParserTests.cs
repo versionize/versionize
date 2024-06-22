@@ -111,11 +111,11 @@ public class ConventionalCommitParserTests
             testCommit,
             new CommitParserOptions
             {
-                HeaderPatterns = new []
-                {
+                HeaderPatterns =
+                [
                     "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
                     "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
-                }
+                ]
             });
 
         Assert.Equal(conventionalCommit.Scope, scope);

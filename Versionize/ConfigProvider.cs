@@ -6,22 +6,22 @@ namespace Versionize;
 
 public sealed class ConfigProvider
 {
-    private static CommandOption? _optionWorkingDirectory;
-    private static CommandOption? _optionConfigurationDirectory;
-    private static CommandOption? _optionDryRun;
-    private static CommandOption? _optionSkipDirty;
-    private static CommandOption? _optionReleaseAs;
-    private static CommandOption? _optionSilent;
-    private static CommandOption? _optionSkipCommit;
-    private static CommandOption? _optionSkipTag;
-    private static CommandOption? _optionIgnoreInsignificant;
-    private static CommandOption? _optionExitInsignificant;
-    private static CommandOption? _optionCommitSuffix;
-    private static CommandOption? _optionPrerelease;
-    private static CommandOption? _optionAggregatePrereleases;
-    private static CommandOption? _optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit;
-    private static CommandOption? _optionTagOnly;
-    private static CommandOption? _optionsProjectName;
+    private static CommandOption _optionWorkingDirectory;
+    private static CommandOption _optionConfigurationDirectory;
+    private static CommandOption _optionDryRun;
+    private static CommandOption _optionSkipDirty;
+    private static CommandOption _optionReleaseAs;
+    private static CommandOption _optionSilent;
+    private static CommandOption _optionSkipCommit;
+    private static CommandOption _optionSkipTag;
+    private static CommandOption _optionIgnoreInsignificant;
+    private static CommandOption _optionExitInsignificant;
+    private static CommandOption _optionCommitSuffix;
+    private static CommandOption _optionPrerelease;
+    private static CommandOption _optionAggregatePrereleases;
+    private static CommandOption _optionUseCommitMessageInsteadOfTagToFindLastReleaseCommit;
+    private static CommandOption _optionTagOnly;
+    private static CommandOption _optionsProjectName;
 
 
     public static void ConfigureOptions(CommandLineApplication app)
@@ -84,7 +84,7 @@ public sealed class ConfigProvider
         return options;
     }
 
-    private static ConfigurationContract FromJsonFile(string filePath)
+    private static ConfigFile FromJsonFile(string filePath)
     {
         if (!File.Exists(filePath))
         {
@@ -94,7 +94,7 @@ public sealed class ConfigProvider
         try
         {
             var jsonString = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<ConfigurationContract>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return JsonSerializer.Deserialize<ConfigFile>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
         catch (Exception e)
         {
@@ -104,7 +104,7 @@ public sealed class ConfigProvider
     }
 
     private static VersionizeOptions MergeWithOptions(
-        ConfigurationContract optionalConfiguration,
+        ConfigFile optionalConfiguration,
         VersionizeOptions configuration,
         string projectName)
     {

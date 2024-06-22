@@ -175,7 +175,7 @@ public partial class WorkingCopyTests : IDisposable
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
 
-        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v2.0.0" });
+        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(["v2.0.0"]);
     }
 
     [Fact]

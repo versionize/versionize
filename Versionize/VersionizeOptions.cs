@@ -1,6 +1,6 @@
 ﻿﻿namespace Versionize;
 
-public class VersionizeOptions
+public sealed class VersionizeOptions
 {
     public string WorkingDirectory { get; set; }
     public bool DryRun { get; set; }

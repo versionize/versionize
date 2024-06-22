@@ -26,7 +26,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
-        var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty" });
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.1.0 to 1.1.0 in projects");
@@ -37,7 +37,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
-        var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.1.0 to 2.0.0 in projects");
@@ -48,7 +48,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
-        var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "inspect" });
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "inspect"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
@@ -60,7 +60,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        var config = new ConfigurationContract
+        var config = new ConfigFile
         {
             SkipDirty = true,
             Changelog = new ChangelogOptions
@@ -73,7 +73,7 @@ public class ProgramTests : IDisposable
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), json);
 
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory });
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
 
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
@@ -86,7 +86,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        var config = new ConfigurationContract
+        var config = new ConfigFile
         {
             SkipDirty = true,
             Changelog = new ChangelogOptions
@@ -100,7 +100,7 @@ public class ProgramTests : IDisposable
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "..", ".versionize"), json);
 
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--skip-dirty" });
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--skip-dirty"]);
 
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
@@ -129,7 +129,7 @@ public class ProgramTests : IDisposable
                 "3.2.1")
         };
 
-        var config = new ConfigurationContract
+        var config = new ConfigFile
         {
             Projects = projects.Select(x => x.Item1).ToArray()
         };
@@ -150,12 +150,11 @@ public class ProgramTests : IDisposable
             CommandLineUI.Platform = output;
 
             var exitCode = Program.Main(
-                new[]
-                {
+                [
                     "--workingDir", _testSetup.WorkingDirectory,
                     "--proj-name", project.Name,
                     "inspect"
-                });
+                ]);
 
             exitCode.ShouldBe(0);
             output.Messages.ShouldHaveSingleItem();
@@ -185,7 +184,7 @@ public class ProgramTests : IDisposable
             }
         };
 
-        var config = new ConfigurationContract
+        var config = new ConfigFile
         {
             Projects = projects,
             Changelog = new ChangelogOptions
@@ -215,7 +214,7 @@ public class ProgramTests : IDisposable
 
         foreach (var project in projects)
         {
-            var exitCode = Program.Main(new[] {"-w", _testSetup.WorkingDirectory, "--proj-name", project.Name});
+            var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name]);
             exitCode.ShouldBe(0);
 
             var changelogFile = Path.Join(_testSetup.WorkingDirectory, project.Path, "CHANGELOG.md");
@@ -278,7 +277,7 @@ public class ProgramTests : IDisposable
                     new CommitOptions { AllowEmptyCommit = true }))
             .ToArray();
         
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--skip-dirty" });
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--skip-dirty"]);
 
         exitCode.ShouldBe(0);
         _testSetup.Repository.Commits.Count().ShouldBe(4);

@@ -28,7 +28,7 @@ public partial class WorkingCopyTests
         var commitThatShouldBeTagged = _testSetup.Repository.Commits.First();
         
         _testSetup.Repository.Tags.Count().ShouldBe(1);
-        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v1.0.0" });
+        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(["v1.0.0"]);
         var tag = _testSetup.Repository.Tags.First();
         tag.Annotation.Target.Sha.ShouldBe(commitThatShouldBeTagged.Sha);
     }
@@ -50,7 +50,7 @@ public partial class WorkingCopyTests
         // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(5);
         _testSetup.Repository.Tags.Count().ShouldBe(1);
-        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v1.0.0" });
+        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(["v1.0.0"]);
     }
     
     [Fact]
@@ -71,7 +71,7 @@ public partial class WorkingCopyTests
             .Repository
             .Tags
             .Select(x => x.FriendlyName)
-            .ShouldBe(new[] {"v1.0.0", "v1.1.0"});
+            .ShouldBe(["v1.0.0", "v1.1.0"]);
         
         _testSetup
             .Repository
@@ -98,7 +98,7 @@ public partial class WorkingCopyTests
             .Repository
             .Tags
             .Select(x => x.FriendlyName)
-            .ShouldBe(new[] {"v1.0.0", "v1.0.1"});
+            .ShouldBe(["v1.0.0", "v1.0.1"]);
         
         _testSetup
             .Repository
@@ -128,7 +128,7 @@ public partial class WorkingCopyTests
             .Repository
             .Tags
             .Select(x => x.FriendlyName)
-            .ShouldBe(new[] {"v1.0.0", "v1.1.0"});
+            .ShouldBe(["v1.0.0", "v1.1.0"]);
         
         _testSetup
             .Repository
@@ -160,7 +160,7 @@ public partial class WorkingCopyTests
             .Repository
             .Tags
             .Select(x => x.FriendlyName)
-            .ShouldBe(new[] { "v1.0.0", "v1.0.1", "v1.0.2" });
+            .ShouldBe(["v1.0.0", "v1.0.1", "v1.0.2"]);
 
         _testSetup
             .Repository
