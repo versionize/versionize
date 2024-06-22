@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;

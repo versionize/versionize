@@ -1,10 +1,13 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.BumpFiles;
 using Versionize.Changelog;
+using Versionize.ConventionalCommits;
+using Versionize.Git;
 using Versionize.Versioning;
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize;
+namespace Versionize.Config;
 
 public sealed class WorkingCopy
 {

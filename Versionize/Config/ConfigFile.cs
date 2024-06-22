@@ -1,4 +1,4 @@
-﻿namespace Versionize;
+﻿namespace Versionize.Config;
 
 public sealed class ConfigFile
 {

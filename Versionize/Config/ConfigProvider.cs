@@ -2,7 +2,7 @@
 using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 
-namespace Versionize;
+namespace Versionize.Config;
 
 public sealed class ConfigProvider
 {

@@ -1,5 +1,6 @@
 ﻿using NuGet.Versioning;
 using Shouldly;
+using Versionize.BumpFiles;
 using Versionize.Tests.TestSupport;
 using Xunit;
 

@@ -1,7 +1,7 @@
 ﻿using System.Xml;
 using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.BumpFiles;
 
 public sealed class Project
 {

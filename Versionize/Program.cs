@@ -1,5 +1,6 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
+using Versionize.Config;
 using Versionize.Versioning;
 
 namespace Versionize;

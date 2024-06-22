@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;

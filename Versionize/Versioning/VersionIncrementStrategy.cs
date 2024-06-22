@@ -1,7 +1,7 @@
 ﻿using NuGet.Versioning;
-using Versionize.Versioning;
+using Versionize.ConventionalCommits;
 
-namespace Versionize;
+namespace Versionize.Versioning;
 
 public sealed class VersionIncrementStrategy
 {
@@ -54,7 +54,7 @@ public sealed class VersionIncrementStrategy
         return nextVersion;
     }
 
-    private bool IsWithinPrereleaseVersionRange(SemanticVersion version, VersionImpact versionImpact)
+    private static bool IsWithinPrereleaseVersionRange(SemanticVersion version, VersionImpact versionImpact)
     {
         return versionImpact switch
         {

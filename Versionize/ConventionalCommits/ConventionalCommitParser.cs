@@ -1,8 +1,9 @@
 ﻿#nullable enable
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
+using Versionize.Config;
 
-namespace Versionize;
+namespace Versionize.ConventionalCommits;
 
 public static class ConventionalCommitParser
 {
@@ -64,7 +65,7 @@ public static class ConventionalCommitParser
                 break;
             }
         }
-        
+
         if (headerMatch is { Success: true } match)
         {
             conventionalCommit.Scope = match.Groups["scope"].Value;

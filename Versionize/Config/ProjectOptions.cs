@@ -2,7 +2,7 @@
 using LibGit2Sharp;
 using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.Config;
 
 public sealed record ProjectOptions
 {

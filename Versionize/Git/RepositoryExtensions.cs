@@ -1,9 +1,10 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.Config;
 
-namespace Versionize;
+namespace Versionize.Git;
 
-public static class RespositoryExtensions
+public static class RepositoryExtensions
 {
     public static Tag SelectVersionTag(this Repository repository, SemanticVersion version)
     {

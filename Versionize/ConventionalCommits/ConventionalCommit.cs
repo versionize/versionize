@@ -1,4 +1,4 @@
-﻿namespace Versionize;
+﻿namespace Versionize.ConventionalCommits;
 
 public sealed class ConventionalCommit
 {
