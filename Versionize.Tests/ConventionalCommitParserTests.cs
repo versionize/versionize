@@ -1,5 +1,7 @@
 ﻿using LibGit2Sharp;
 using Shouldly;
+using Versionize.Config;
+using Versionize.ConventionalCommits;
 using Xunit;
 
 namespace Versionize.Tests;
@@ -111,11 +113,11 @@ public class ConventionalCommitParserTests
             testCommit,
             new CommitParserOptions
             {
-                HeaderPatterns = new []
-                {
+                HeaderPatterns =
+                [
                     "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
                     "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
-                }
+                ]
             });
 
         Assert.Equal(conventionalCommit.Scope, scope);

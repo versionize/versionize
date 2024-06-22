@@ -1,4 +1,5 @@
-using Shouldly;
+﻿using Shouldly;
+using Versionize.BumpFiles;
 using Versionize.Tests.TestSupport;
 using Xunit;
 using Version = NuGet.Versioning.SemanticVersion;

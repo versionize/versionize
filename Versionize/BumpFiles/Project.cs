@@ -1,9 +1,9 @@
 ﻿using System.Xml;
 using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.BumpFiles;
 
-public class Project
+public sealed class Project
 {
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }

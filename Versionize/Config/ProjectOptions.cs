@@ -2,9 +2,9 @@
 using LibGit2Sharp;
 using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.Config;
 
-public record ProjectOptions
+public sealed record ProjectOptions
 {
     public static readonly ProjectOptions DefaultOneProjectPerRepo =
         new()
@@ -21,7 +21,7 @@ public record ProjectOptions
     
     public string TagTemplate { get; set; } = "{name}/v{version}";
 
-    public ChangelogOptions Changelog { get; set; } = new ();
+    public ChangelogOptions Changelog { get; set; } = new();
 
     public string GetTagPrefix()
     {
