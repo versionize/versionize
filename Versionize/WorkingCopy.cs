@@ -41,10 +41,254 @@ public class WorkingCopy
         Information(projects.Version.ToNormalizedString());
 
         return projects.Version;
-
     }
 
-    public SemanticVersion Versionize(VersionizeOptions options)
+    public void Versionize(VersionizeOptions options)
+    {
+        var workingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+        var gitDirectory = _gitDirectory.FullName;
+        using var repo = new Repository(gitDirectory);
+
+        var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = false });
+        if (status.IsDirty && !options.SkipDirty)
+        {
+            var dirtyFiles = status.Where(x => x.State != FileStatus.Ignored).Select(x => $"{x.State}: {x.FilePath}");
+            var dirtyFilesString = string.Join(Environment.NewLine, dirtyFiles);
+            Exit($"Repository {workingDirectory} is dirty. Please commit your changes:\n{dirtyFilesString}", 1);
+        }
+
+        SemanticVersion nextVersion = null;
+
+        // TODO: Consider the option of getting version from tag instead of project file
+        var projectGroup = Projects.Discover(workingDirectory);
+
+        if (!options.TagOnly)
+        {
+            if (projectGroup.IsEmpty())
+            {
+                Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
+            }
+            if (projectGroup.HasInconsistentVersioning())
+            {
+                Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
+            }
+
+            Information($"Discovered {projectGroup.GetProjectFiles().Count()} versionable projects");
+            foreach (var project in projectGroup.GetProjectFiles())
+            {
+                Information($"  * {project}");
+            }
+        }
+
+        var version = GetCurrentVersion(options, repo, projectGroup);
+
+        var (isInitialRelease, conventionalCommits) = GetConventionalCommits(repo, version, options);
+        nextVersion = BumpVersion(version, isInitialRelease, conventionalCommits, options);
+        UpdateBumpFiles(nextVersion, projectGroup, options);
+        var changelog = UpdateChangelog(repo, nextVersion, conventionalCommits, options);
+        CreateCommit(repo, options, nextVersion, projectGroup, changelog);
+        CreateTag(repo, options, nextVersion);
+    }
+
+    private (bool, IReadOnlyList<ConventionalCommit>) GetConventionalCommits(
+        Repository repo,
+        SemanticVersion version,
+        VersionizeOptions options)
+    {
+        var versionToUseForCommitDiff = version;
+
+        if (options.AggregatePrereleases)
+        {
+            versionToUseForCommitDiff = repo
+                .Tags
+                .Select(options.Project.ExtractTagVersion)
+                .Where(x => x != null && !x.IsPrerelease)
+                .OrderByDescending(x => x.Major)
+                .ThenByDescending(x => x.Minor)
+                .ThenByDescending(x => x.Patch)
+                .FirstOrDefault();
+        }
+
+        var isInitialRelease = false;
+        List<Commit> commitsInVersion;
+        if (options.UseCommitMessageInsteadOfTagToFindLastReleaseCommit)
+        {
+            var lastReleaseCommit = repo.GetCommits(options.Project).FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+            isInitialRelease = lastReleaseCommit is null;
+            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit(options.Project);
+        }
+        else
+        {
+            var versionTag = repo.SelectVersionTag(versionToUseForCommitDiff, options.Project);
+            isInitialRelease = versionTag == null;
+            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project);
+        }
+
+        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
+
+        return (isInitialRelease, conventionalCommits);
+    }
+
+    private SemanticVersion BumpVersion(
+        SemanticVersion version,
+        bool isInitialRelease,
+        IReadOnlyList<ConventionalCommit> conventionalCommits,
+        VersionizeOptions options)
+    {
+        var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
+
+        var allowInsignificantCommits = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
+        var nextVersion = isInitialRelease || version is null
+            ? version ?? new SemanticVersion(1, 0, 0)
+            : versionIncrement.NextVersion(version, options.Prerelease, allowInsignificantCommits);
+
+        if (!isInitialRelease && nextVersion == version)
+        {
+            if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
+            {
+                var exitCode = options.ExitInsignificantCommits ? 1 : 0;
+                Exit($"Version was not affected by commits since last release ({version})", exitCode);
+            }
+            else
+            {
+                nextVersion = nextVersion.IncrementPatchVersion();
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(options.ReleaseAs))
+        {
+            if (!SemanticVersion.TryParse(options.ReleaseAs, out nextVersion))
+            {
+                Exit($"Could not parse the specified release version {options.ReleaseAs} as valid version", 1);
+            }
+        }
+
+        if (nextVersion < version)
+        {
+            Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {version}. This can be caused by using a wrong pre-release label or release as version", 1);
+        }
+
+        return nextVersion;
+    }
+
+    private void UpdateBumpFiles(
+        SemanticVersion nextVersion,
+        Projects projectGroup,
+        VersionizeOptions options)
+    {
+        if (options.SkipCommit)
+        {
+            return;
+        }
+        if (options.TagOnly)
+        {
+            return;
+        }
+
+        Step($"bumping version from {projectGroup.Version} to {nextVersion} in projects");
+
+        if (options.DryRun)
+        {
+            return;
+        }
+
+        projectGroup.WriteVersion(nextVersion);
+    }
+
+    private ChangelogBuilder? UpdateChangelog(
+        Repository repo,
+        SemanticVersion nextVersion,
+        IReadOnlyList<ConventionalCommit> conventionalCommits,
+        VersionizeOptions options)
+    {
+        if (options.SkipChangelog)
+        {
+            return null;
+        }
+
+        var workingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+        var versionTime = DateTimeOffset.Now;
+        var changelog = ChangelogBuilder.CreateForPath(workingDirectory);
+        var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
+
+        if (options.DryRun)
+        {
+            string markdown = ChangelogBuilder.GenerateMarkdown(
+                nextVersion,
+                versionTime,
+                changelogLinkBuilder,
+                conventionalCommits,
+                options.Project.Changelog);
+            DryRun(markdown.TrimEnd('\n'));
+        }
+        else
+        {
+            changelog.Write(
+                nextVersion,
+                versionTime,
+                changelogLinkBuilder,
+                conventionalCommits,
+                options.Project.Changelog);
+        }
+        Step("updated CHANGELOG.md");
+
+        return changelog;
+    }
+
+    private void CreateCommit(
+        Repository repo,
+        VersionizeOptions options,
+        SemanticVersion nextVersion,
+        Projects projectGroup,
+        ChangelogBuilder changelog)
+    {
+        if (options.SkipCommit || options.DryRun)
+        {
+            return;
+        }
+        if (options.TagOnly)
+        {
+            return;
+        }
+
+        if (!repo.IsConfiguredForCommits())
+        {
+            Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
+git config --global user.name ""John Doe""
+$ git config --global user.email johndoe@example.com", 1);
+        }
+
+        Commands.Stage(repo, changelog.FilePath);
+        foreach (var projectFile in projectGroup.GetProjectFiles())
+        {
+            Commands.Stage(repo, projectFile);
+        }
+        var author = repo.Config.BuildSignature(DateTimeOffset.Now);
+        var committer = author;
+        var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
+        var versionCommit = repo.Commit(releaseCommitMessage, author, committer);
+        Step("committed changes in projects and CHANGELOG.md");
+    }
+
+    private void CreateTag(Repository repo, VersionizeOptions options, SemanticVersion nextVersion)
+    {
+        if (options.SkipTag || options.DryRun)
+        {
+            return;
+        }
+
+        if (repo.VersionTagsExists(nextVersion, options.Project))
+        {
+            Exit($"Version {nextVersion} already exists. Please use a different version.", 1);
+        }
+
+        var tagName = options.Project.GetTagName(nextVersion);
+        var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
+        repo.ApplyTag(tagName, tagger, $"{nextVersion}");
+        Step($"tagged release as {tagName} against commit with sha {repo.Head.Tip.Sha}");
+    }
+
+    public SemanticVersion Versionize2(VersionizeOptions options)
     {
         var workingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
         var gitDirectory = _gitDirectory.FullName;
@@ -163,7 +407,7 @@ public class WorkingCopy
 
         if (!options.TagOnly)
         {
-            Step($"bumping version from {projectsEntry.Version} to {nextVersion} in projects");   
+            Step($"bumping version from {projectsEntry.Version} to {nextVersion} in projects");
         }
 
         // Commit changelog and version source
@@ -228,6 +472,7 @@ $ git config --global user.email johndoe@example.com", 1);
         }
         else if (options.DryRun is false && options.TagOnly)
         {
+            // Use repo.HEAD
             var commitToTag = repo.Commits.QueryBy(new CommitFilter
             {
                 SortBy = CommitSortStrategies.Time
@@ -279,7 +524,6 @@ $ git config --global user.email johndoe@example.com", 1);
         do
         {
             var isWorkingCopy = workingCopyCandidate.GetDirectories(".git").Any();
-
             if (isWorkingCopy)
             {
                 return new WorkingCopy(new DirectoryInfo(workingDirectory), workingCopyCandidate);

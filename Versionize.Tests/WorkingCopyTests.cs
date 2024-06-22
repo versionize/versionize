@@ -48,7 +48,7 @@ public partial class WorkingCopyTests : IDisposable
     [Fact]
     public void ShouldPerformADryRun()
     {
-        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var projectPath = TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         CommitAll(_testSetup.Repository, "feat: first commit");
@@ -58,9 +58,13 @@ public partial class WorkingCopyTests : IDisposable
 
         _testPlatformAbstractions.Messages.Count.ShouldBe(7);
         _testPlatformAbstractions.Messages[0].ShouldBe("Discovered 1 versionable projects");
+        _testPlatformAbstractions.Messages[1].ShouldBe($"  * {projectPath}");
+        _testPlatformAbstractions.Messages[2].ShouldBe("√ bumping version from 1.0.0 to 1.0.0 in projects");
+        // "  * C:\\Users\\colt45\\AppData\\Local\\Temp\\yvek5zrr\\yvek5zrr.csproj"
         _testPlatformAbstractions.Messages[3].ShouldBe("\n---");
         _testPlatformAbstractions.Messages[4].ShouldContain("* first commit");
         _testPlatformAbstractions.Messages[5].ShouldBe("---\n");
+        _testPlatformAbstractions.Messages[6].ShouldBe("√ updated CHANGELOG.md");
         var wasChangelogWritten = File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
         Assert.False(wasChangelogWritten);
     }
@@ -353,6 +357,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Try Prerelease a minor alpha
         fileCommitter.CommitChange("feat: feature pre-release");
+        // TODO: validate message or code.
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha" }));
     }
 
@@ -370,6 +375,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Release as lower than current version
         fileCommitter.CommitChange("feat: some feature");
+        // TODO: validate message or code.
         Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "0.9.0" }));
     }
 

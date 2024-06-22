@@ -41,7 +41,7 @@ $@"<Project Sdk=""Microsoft.NET.Sdk"">
         Directory.CreateDirectory(tempDir);
 
         var projectDirName = new DirectoryInfo(tempDir).Name;
-        var csProjFile = $"{tempDir}/{projectDirName}.{extension}";
+        var csProjFile = $"{tempDir}{Path.DirectorySeparatorChar}{projectDirName}.{extension}";
 
         File.WriteAllText(csProjFile, projectFileContents);
 

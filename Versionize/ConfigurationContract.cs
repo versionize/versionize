@@ -6,9 +6,12 @@ public class ConfigurationContract
     public bool? DryRun { get; set; }
     public bool? SkipDirty { get; set; }
     public bool? SkipCommit { get; set; }
+    public bool? SkipTag { get; set; }
+    public bool SkipChangelog { get; set; }
     public String ReleaseAs { get; set; }
     public bool? IgnoreInsignificantCommits { get; set; }
     public bool? ExitInsignificantCommits { get; set; }
+    // TODO: Remove in favor of ChangelogOptions
     public bool? ChangelogAll { get; set; }
     public String CommitSuffix { get; set; }
     public CommitParserOptions CommitParser { get; set; }

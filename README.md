@@ -45,18 +45,15 @@ Options:
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
-  --skip-commit                        Skip commit and git tag after updating changelog and incrementing the
-                                       version
+  --skip-commit                        Skip commit after updating changelog and project files
   --skip-tag                           Skip git tag after making release commit
   -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING)
                                        are found
   --exit-insignificant-commits         Exits with a non zero exit code if no significant commits (fix, feat or
                                        BREAKING) are found
-  --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
   -p|--pre-release                     Release as pre-release version with given pre release label.
   -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version. Only applies when new version is stable (non pre-release).
-  --proj-version-bump-logic            [DEPRECATED] Use --find-release-commit-via-message instead.
   --find-release-commit-via-message    Use commit message instead of tag to find last release commit.
   --tag-only                           Only works with git tags, does not commit or modify the csproj file.
   --proj-name                          Name of a project defined in the configuration file (for monorepos)
@@ -64,6 +61,20 @@ Options:
 Commands:
   inspect                              Prints the current version to stdout
 ```
+
+## V2 Breaking changes
+
+### Breaking changes
+
+- `--skip-commit` now only skips the commit. Not the tag.
+- remove deprecated `--proj-version-bump-logic`.
+- remove `--changelog-all` in favor of changelog options in '.versionize`.
+- remove support for netcoreapp3.1, net5.0, and net6.0. Now only supports net7.0 and net8.0.
+
+### Changes
+
+ - Refactor to better maintainability.
+ - Update dependencies.
 
 ## Supported commit types
 

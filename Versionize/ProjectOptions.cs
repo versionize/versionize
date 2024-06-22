@@ -21,7 +21,7 @@ public record ProjectOptions
     
     public string TagTemplate { get; set; } = "{name}/v{version}";
 
-    public ChangelogOptions Changelog { get; set; } = new ();
+    public ChangelogOptions Changelog { get; set; } = new();
 
     public string GetTagPrefix()
     {
