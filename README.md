@@ -227,7 +227,8 @@ versionize --pre-release alpha --skip-tag --proj-version-bump-logic
 
 You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
 
-Any of the command line parameters accepted by `versionized` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file.
+Any of the command line parameters accepted by `versionized` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file. 
+The `.versionize` configuration file is deserialized into a `ConfigurationContract.cs` object behind the scenes.
 
 Changelog customization can only be done via a `.versionize` file. The following is an example configuration:
 
