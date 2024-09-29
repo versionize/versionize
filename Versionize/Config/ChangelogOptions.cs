@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Versionize.Config;
+﻿namespace Versionize.Config;
 
 public sealed record class ChangelogOptions
 {
@@ -17,10 +15,6 @@ public sealed record class ChangelogOptions
     };
 
     public string Header { get; set; }
-    // Ignoring this serialization option for the moment, since ConfigurationContract
-    // already has this option. It would be nice to remove that other option in favor
-    // of this one, but it would be a breaking change.
-    [JsonIgnore]
     public bool IncludeAllCommits { get; set; }
     public IEnumerable<ChangelogSection> Sections { get; set; }
 
