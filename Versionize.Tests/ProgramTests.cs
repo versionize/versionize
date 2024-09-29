@@ -61,7 +61,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        var config = new ConfigurationContract
+        var config = new FileConfig
         {
             SkipDirty = true,
             Changelog = new ChangelogOptions
@@ -87,7 +87,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        var config = new ConfigurationContract
+        var config = new FileConfig
         {
             SkipDirty = true,
             Changelog = new ChangelogOptions
@@ -130,7 +130,7 @@ public class ProgramTests : IDisposable
                 "3.2.1")
         };
 
-        var config = new ConfigurationContract
+        var config = new FileConfig
         {
             Projects = projects.Select(x => x.Item1).ToArray()
         };
@@ -186,7 +186,7 @@ public class ProgramTests : IDisposable
             }
         };
 
-        var config = new ConfigurationContract
+        var config = new FileConfig
         {
             Projects = projects,
             Changelog = new ChangelogOptions
