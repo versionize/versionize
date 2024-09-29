@@ -1,12 +1,13 @@
 ﻿#nullable enable
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
+using Versionize.Config;
 
-namespace Versionize;
+namespace Versionize.ConventionalCommits;
 
 public static class ConventionalCommitParser
 {
-    private static readonly string[] NoteKeywords = new string[] { "BREAKING CHANGE" };
+    private static readonly string[] NoteKeywords = ["BREAKING CHANGE"];
 
     private const string DefaultHeaderPattern = "^(?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$";
 
@@ -64,7 +65,7 @@ public static class ConventionalCommitParser
                 break;
             }
         }
-        
+
         if (headerMatch is { Success: true } match)
         {
             conventionalCommit.Scope = match.Groups["scope"].Value;

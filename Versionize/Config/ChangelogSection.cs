@@ -1,6 +1,6 @@
-﻿namespace Versionize;
+﻿namespace Versionize.Config;
 
-public class ChangelogSection
+public sealed class ChangelogSection
 {
     public string Type { get; set; }
     public string Section { get; set; }

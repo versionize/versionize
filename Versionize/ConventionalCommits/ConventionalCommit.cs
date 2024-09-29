@@ -1,6 +1,6 @@
-﻿namespace Versionize;
+﻿namespace Versionize.ConventionalCommits;
 
-public class ConventionalCommit
+public sealed class ConventionalCommit
 {
     public string Sha { get; set; }
 
@@ -10,9 +10,9 @@ public class ConventionalCommit
 
     public string Subject { get; set; }
 
-    public List<ConventionalCommitNote> Notes { get; set; } = new List<ConventionalCommitNote>();
+    public List<ConventionalCommitNote> Notes { get; set; } = [];
 
-    public List<ConventionalCommitIssue> Issues { get; set; } = new List<ConventionalCommitIssue>();
+    public List<ConventionalCommitIssue> Issues { get; set; } = [];
 
     public bool IsFeature => Type == "feat";
     public bool IsFix => Type == "fix";

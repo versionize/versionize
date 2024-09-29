@@ -3,6 +3,7 @@ using LibGit2Sharp;
 using Newtonsoft.Json;
 using Shouldly;
 using Versionize.CommandLine;
+using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 

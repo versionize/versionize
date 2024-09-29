@@ -19,7 +19,10 @@ public static class CommandLineUI
 
     public static void Step(string message)
     {
-        Platform.WriteLine(("√", ConsoleColor.Green), (" ", ConsoleColor.White), (message, ConsoleColor.Gray));
+        Platform.WriteLine(
+            ("√", ConsoleColor.Green),
+            (" ", ConsoleColor.White),
+            (message, ConsoleColor.Gray));
     }
 
     public static void DryRun(string message)
@@ -29,5 +32,9 @@ public static class CommandLineUI
         Platform.WriteLine("---\n", ConsoleColor.Gray);
     }
 
-    public static LogLevel Verbosity { get => Platform.Verbosity; set => Platform.Verbosity = value; }
+    public static LogLevel Verbosity
+    {
+        get => Platform.Verbosity;
+        set => Platform.Verbosity = value;
+    }
 }

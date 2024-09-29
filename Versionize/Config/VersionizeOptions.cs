@@ -1,6 +1,6 @@
-﻿﻿namespace Versionize;
+﻿﻿namespace Versionize.Config;
 
-public class VersionizeOptions
+public sealed class VersionizeOptions
 {
     public bool DryRun { get; set; }
     public bool SkipDirty { get; set; }

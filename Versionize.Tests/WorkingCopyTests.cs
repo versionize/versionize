@@ -1,6 +1,8 @@
 ﻿using LibGit2Sharp;
 using Shouldly;
+using Versionize.BumpFiles;
 using Versionize.CommandLine;
+using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 

@@ -1,9 +1,10 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.Config;
 
-namespace Versionize;
+namespace Versionize.Git;
 
-public static class RespositoryExtensions
+public static class RepositoryExtensions
 {
     public static Tag SelectVersionTag(this Repository repository, SemanticVersion version)
     {
@@ -19,7 +20,7 @@ public static class RespositoryExtensions
 
         return repository.Tags.SingleOrDefault(t => t.FriendlyName.Equals(project.GetTagName(version)));
     }
-    
+
     public static bool VersionTagsExists(this Repository repository, SemanticVersion version, ProjectOptions project)
     {
         var tagName = project.GetTagName(version);
@@ -66,7 +67,7 @@ public static class RespositoryExtensions
         {
             ExcludeReachableFrom = versionTag
         };
-        
+
         return repository.GetCommits(project, filter).ToList();
     }
 
