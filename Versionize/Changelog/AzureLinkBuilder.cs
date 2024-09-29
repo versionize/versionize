@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
@@ -13,8 +13,8 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
     {
         if (pushUrl.StartsWith("git@ssh.dev.azure.com:"))
         {
-            var httpsPattern = new Regex("^git@ssh.dev.azure.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
-            var matches = httpsPattern.Match(pushUrl);
+            var regex = SshRegex();
+            var matches = regex.Match(pushUrl);
 
             if (!matches.Success)
             {
@@ -26,8 +26,8 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
         }
         else if (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"))
         {
-            var httpsPattern = new Regex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
-            var matches = httpsPattern.Match(pushUrl);
+            var regex = HttpsRegex();
+            var matches = regex.Match(pushUrl);
 
             if (!matches.Success)
             {
@@ -61,4 +61,10 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
     {
         return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/commit/{commit.Sha}";
     }
+
+    [GeneratedRegex("^git@ssh.dev.azure.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    private static partial Regex SshRegex();
+
+    [GeneratedRegex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    private static partial Regex HttpsRegex();
 }
