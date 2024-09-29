@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
@@ -17,8 +17,8 @@ public sealed partial class BitbucketLinkBuilder : IChangelogLinkBuilder
     {
         if (pushUrl.StartsWith(OrgSshPrefix) || pushUrl.StartsWith(ComSshPrefix))
         {
-            var httpsPattern = new Regex("^git@bitbucket\\.(?<domain>org|com):(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
-            var matches = httpsPattern.Match(pushUrl);
+            var regex = SshRegex();
+            var matches = regex.Match(pushUrl);
 
             if (!matches.Success)
             {
@@ -31,8 +31,8 @@ public sealed partial class BitbucketLinkBuilder : IChangelogLinkBuilder
         }
         else if (IsHttpsPushUrl(pushUrl))
         {
-            var httpsPattern = new Regex("^https://.*?bitbucket\\.(?<domain>org|com)/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
-            var matches = httpsPattern.Match(pushUrl);
+            var regex = HttpsRegex();
+            var matches = regex.Match(pushUrl);
 
             if (!matches.Success)
             {
@@ -71,6 +71,15 @@ public sealed partial class BitbucketLinkBuilder : IChangelogLinkBuilder
 
     private static bool IsHttpsPushUrl(string pushUrl)
     {
-        return new Regex("^https://.*?@bitbucket\\.(org|com)/.*$").IsMatch(pushUrl);
+        return HttpsPushUrlRegex().IsMatch(pushUrl);
     }
+
+    [GeneratedRegex("^git@bitbucket\\.(?<domain>org|com):(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    private static partial Regex SshRegex();
+
+    [GeneratedRegex("^https://.*?bitbucket\\.(?<domain>org|com)/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    private static partial Regex HttpsRegex();
+
+    [GeneratedRegex("^https://.*?@bitbucket\\.(org|com)/.*$")]
+    private static partial Regex HttpsPushUrlRegex();
 }
