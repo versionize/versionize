@@ -2,6 +2,8 @@
 using NuGet.Versioning;
 using Shouldly;
 using Versionize.Changelog;
+using Versionize.Config;
+using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
 

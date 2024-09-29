@@ -2,6 +2,7 @@
 using LibGit2Sharp;
 using NuGet.Versioning;
 using Shouldly;
+using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
 

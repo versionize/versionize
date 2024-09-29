@@ -1,10 +1,10 @@
-﻿using LibGit2Sharp;
 using System.Text.RegularExpressions;
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-public class GitlabLinkBuilder : IChangelogLinkBuilder
+public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
 {
     private readonly string _organization;
     private readonly string _repository;

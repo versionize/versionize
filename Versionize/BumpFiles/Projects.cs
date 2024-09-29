@@ -1,8 +1,8 @@
 using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.BumpFiles;
 
-public class Projects
+public sealed class Projects
 {
     private readonly IEnumerable<Project> _projects;
 
@@ -10,6 +10,8 @@ public class Projects
     {
         _projects = projects;
     }
+
+    public SemanticVersion Version { get => _projects.First().Version; }
 
     public bool IsEmpty()
     {
@@ -27,8 +29,6 @@ public class Projects
 
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
-
-    public SemanticVersion Version { get => _projects.First().Version; }
 
     public static Projects Discover(string workingDirectory)
     {

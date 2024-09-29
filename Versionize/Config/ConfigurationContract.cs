@@ -1,6 +1,6 @@
-﻿namespace Versionize;
+﻿namespace Versionize.Config;
 
-public class ConfigurationContract
+public sealed class ConfigurationContract
 {
     public bool? Silent { get; set; }
     public bool? DryRun { get; set; }
@@ -12,7 +12,7 @@ public class ConfigurationContract
     public bool? ChangelogAll { get; set; }
     public String CommitSuffix { get; set; }
     public CommitParserOptions CommitParser { get; set; }
-    public ProjectOptions[] Projects { get; set; } = Array.Empty<ProjectOptions>();
+    public ProjectOptions[] Projects { get; set; } = [];
     public ChangelogOptions Changelog { get; set; }
     public string Prerelease { get; set; }
 }

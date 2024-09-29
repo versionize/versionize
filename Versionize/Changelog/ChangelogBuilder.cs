@@ -1,9 +1,11 @@
 ﻿using System.Text;
+using Versionize.Config;
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-public class ChangelogBuilder
+public sealed class ChangelogBuilder
 {
     private ChangelogBuilder(string file)
     {
@@ -57,7 +59,7 @@ public class ChangelogBuilder
 
         var markdown = $"<a name=\"{version}\"></a>";
         markdown += "\n";
-        markdown += $"## {versionTagLink} ({versionTime.ToString("yyyy-MM-dd")})";
+        markdown += $"## {versionTagLink} ({versionTime:yyyy-MM-dd})";
         markdown += "\n";
         markdown += "\n";
 
@@ -141,7 +143,8 @@ public class ChangelogBuilder
 
         if (!string.IsNullOrWhiteSpace(commitLink))
         {
-            sb.Append($" ([{commit.Sha.Substring(0, 7)}]({commitLink}))");
+            var shortSha = commit.Sha[..7];
+            sb.Append($" ([{shortSha}]({commitLink}))");
         }
 
         return sb.ToString();

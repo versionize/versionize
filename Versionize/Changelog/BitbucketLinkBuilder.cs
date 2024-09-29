@@ -1,10 +1,10 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-// TODO: Accept both .org and .com extensions
-public class BitbucketLinkBuilder : IChangelogLinkBuilder
+public sealed partial class BitbucketLinkBuilder : IChangelogLinkBuilder
 {
     private const string OrgSshPrefix = "git@bitbucket.org:";
     private const string ComSshPrefix = "git@bitbucket.com:";

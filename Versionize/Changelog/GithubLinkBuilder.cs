@@ -1,9 +1,10 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-public class GithubLinkBuilder : IChangelogLinkBuilder
+public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder
 {
     private readonly string _organization;
     private readonly string _repository;
