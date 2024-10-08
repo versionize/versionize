@@ -1,5 +1,7 @@
 ﻿using LibGit2Sharp;
 using Shouldly;
+using Versionize.Config;
+using Versionize.ConventionalCommits;
 using Xunit;
 
 namespace Versionize.Tests;

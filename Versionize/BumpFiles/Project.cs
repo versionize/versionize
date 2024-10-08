@@ -1,9 +1,9 @@
 ﻿using System.Xml;
 using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.BumpFiles;
 
-public class Project
+public sealed class Project
 {
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }
@@ -16,8 +16,8 @@ public class Project
 
     public static Project Create(string projectFile)
     {
-        var (success,version, error) = ReadVersion(projectFile);
-        
+        var (success, version, error) = ReadVersion(projectFile);
+
         if (!success)
         {
             throw new InvalidOperationException(error);
@@ -39,28 +39,30 @@ public class Project
         }
     }
 
-    private static (bool, SemanticVersion, string) ReadVersion(string projectFile)
+    private static (bool Success, SemanticVersion Version, string Error) ReadVersion(string projectFile)
     {
-        var doc =  ReadProject(projectFile);
+        var doc = ReadProject(projectFile);
 
         var versionString = SelectVersionNode(doc)?.InnerText;
 
         if (string.IsNullOrWhiteSpace(versionString))
         {
-            return (false, 
-                null, 
-                $"Project {projectFile} contains no or an empty <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>"
-                );
+            return (
+                false,
+                null,
+                $"Project {projectFile} contains no or an empty <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>");
         }
 
         try
         {
-            return (true, SemanticVersion.Parse(versionString),null);
+            return (true, SemanticVersion.Parse(versionString), null);
         }
         catch (Exception)
         {
-            return (false, null,
-            $"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <Version>1.0.0</Version>");
+            return (
+                false,
+                null,
+                $"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <Version>1.0.0</Version>");
         }
     }
 

@@ -1,9 +1,9 @@
 ﻿using NuGet.Versioning;
-using Versionize.Versioning;
+using Versionize.ConventionalCommits;
 
-namespace Versionize;
+namespace Versionize.Versioning;
 
-public class VersionIncrementStrategy
+public sealed class VersionIncrementStrategy
 {
     private readonly IEnumerable<ConventionalCommit> _conventionalCommits;
 
@@ -54,8 +54,10 @@ public class VersionIncrementStrategy
         return nextVersion;
     }
 
-    private bool IsWithinPrereleaseVersionRange(SemanticVersion version, VersionImpact versionImpact)  {
-        return versionImpact switch {
+    private static bool IsWithinPrereleaseVersionRange(SemanticVersion version, VersionImpact versionImpact)
+    {
+        return versionImpact switch
+        {
             VersionImpact.None => true,
             VersionImpact.Patch => true,
             VersionImpact.Minor => version.Patch == 0,
@@ -66,7 +68,6 @@ public class VersionIncrementStrategy
 
     private VersionImpact CalculateVersionImpact(bool allowInsignificantCommits)
     {
-        // TODO: Quick and dirty implementation - Conventions? Better comparison?
         var versionImpact = VersionImpact.None;
 
         foreach (var conventionalCommit in _conventionalCommits)
@@ -105,7 +106,6 @@ public class VersionIncrementStrategy
 public enum VersionImpact
 {
     None = 0,
-
     Patch = 1,
     Minor = 2,
     Major = 3,

@@ -1,10 +1,10 @@
-﻿using LibGit2Sharp;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-public class GitlabLinkBuilder : IChangelogLinkBuilder
+public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
 {
     private readonly string _organization;
     private readonly string _repository;
@@ -13,8 +13,8 @@ public class GitlabLinkBuilder : IChangelogLinkBuilder
     {
         if (pushUrl.StartsWith("git@gitlab.com:"))
         {
-            var httpsPattern = new Regex("^git@gitlab.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
-            var matches = httpsPattern.Match(pushUrl);
+            var regex = SshRegex();
+            var matches = regex.Match(pushUrl);
 
             if (!matches.Success)
             {
@@ -26,8 +26,8 @@ public class GitlabLinkBuilder : IChangelogLinkBuilder
         }
         else if (pushUrl.StartsWith("https://gitlab.com/"))
         {
-            var httpsPattern = new Regex("^https://gitlab.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$");
-            var matches = httpsPattern.Match(pushUrl);
+            var regex = HttpsRegex();
+            var matches = regex.Match(pushUrl);
 
             if (!matches.Success)
             {
@@ -61,4 +61,10 @@ public class GitlabLinkBuilder : IChangelogLinkBuilder
     {
         return $"https://gitlab.com/{_organization}/{_repository}/-/commit/{commit.Sha}";
     }
+
+    [GeneratedRegex("^git@gitlab.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    private static partial Regex SshRegex();
+
+    [GeneratedRegex("^https://gitlab.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    private static partial Regex HttpsRegex();
 }
