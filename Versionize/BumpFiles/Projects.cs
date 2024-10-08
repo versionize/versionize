@@ -1,8 +1,10 @@
 using NuGet.Versioning;
+using Versionize.Config;
+using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.BumpFiles;
 
-public sealed class Projects
+public sealed class Projects : IBumpFile
 {
     private readonly IEnumerable<Project> _projects;
 
@@ -28,6 +30,29 @@ public sealed class Projects
         }
 
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
+    }
+
+    public void Update(
+        IBumpFile.Options options,
+        SemanticVersion nextVersion)
+    {
+        if (options.SkipCommit)
+        {
+            return;
+        }
+        if (options.TagOnly)
+        {
+            return;
+        }
+
+        Step($"bumping version from {Version} to {nextVersion} in projects");
+
+        if (options.DryRun)
+        {
+            return;
+        }
+
+        WriteVersion(nextVersion);
     }
 
     public static Projects Discover(string workingDirectory)
@@ -58,7 +83,7 @@ public sealed class Projects
         }
     }
 
-    public IEnumerable<string> GetProjectFiles()
+    public IEnumerable<string> GetFilePaths()
     {
         return _projects.Select(project => project.ProjectFile);
     }

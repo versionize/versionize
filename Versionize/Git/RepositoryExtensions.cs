@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.BumpFiles;
 using Versionize.Config;
 
 namespace Versionize.Git;
@@ -95,5 +96,42 @@ public static class RepositoryExtensions
         var email = repository.Config.Get<string>("user.email");
 
         return name != null && email != null;
+    }
+
+    public static SemanticVersion GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
+    {
+        SemanticVersion version;
+        if (options.TagOnly)
+        {
+            version = repository.Tags
+                .Select(options.Project.ExtractTagVersion)
+                .Where(x => x != null)
+                .OrderByDescending(x => x.Major)
+                .ThenByDescending(x => x.Minor)
+                .ThenByDescending(x => x.Patch)
+                .ThenByDescending(x => x.Release)
+                .FirstOrDefault();
+        }
+        else
+        {
+            version = bumpFile.Version;
+        }
+
+        return version;
+    }
+}
+
+public sealed class VersionOptions
+{
+    public bool TagOnly { get; init; }
+    public ProjectOptions Project { get; init; }
+    
+    public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
+    {
+        return new VersionOptions
+        {
+            TagOnly = versionizeOptions.TagOnly,
+            Project = versionizeOptions.Project,
+        };
     }
 }

@@ -4,22 +4,24 @@ namespace Versionize.Config;
 
 public sealed class CliConfig
 {
-    public CommandOption WorkingDirectory { get; init; }
-    public CommandOption ConfigurationDirectory { get; init; }
-    public CommandOption DryRun { get; init; }
-    public CommandOption SkipDirty { get; init; }
-    public CommandOption ReleaseAs { get; init; }
     public CommandOption Silent { get; init; }
+    public CommandOption DryRun { get; init; }
+    public CommandOption ReleaseAs { get; init; }
+    public CommandOption SkipDirty { get; init; }
     public CommandOption SkipCommit { get; init; }
     public CommandOption SkipTag { get; init; }
+    public CommandOption SkipChangelog { get; set; }
+    public CommandOption TagOnly { get; init; }
     public CommandOption IgnoreInsignificant { get; init; }
     public CommandOption ExitInsignificant { get; init; }
     public CommandOption CommitSuffix { get; init; }
     public CommandOption Prerelease { get; init; }
     public CommandOption AggregatePrereleases { get; init; }
-    public CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
-    public CommandOption TagOnly { get; init; }
+
+    public CommandOption WorkingDirectory { get; init; }
+    public CommandOption ConfigurationDirectory { get; init; }
     public CommandOption ProjectName { get; init; }
+    public CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
 
     public static CliConfig Create(CommandLineApplication app)
     {
@@ -35,14 +37,14 @@ public sealed class CliConfig
                 "Directory containing the versionize configuration file",
                 CommandOptionType.SingleValue),
 
+            Silent = app.Option(
+                "--silent",
+                "Suppress output to console",
+                CommandOptionType.NoValue),
+
             DryRun = app.Option(
                 "-d|--dry-run",
                 "Skip changing versions in projects, changelog generation and git commit",
-                CommandOptionType.NoValue),
-
-            SkipDirty = app.Option(
-                "--skip-dirty",
-                "Skip git dirty check",
                 CommandOptionType.NoValue),
 
             ReleaseAs = app.Option(
@@ -50,9 +52,9 @@ public sealed class CliConfig
                 "Specify the release version manually",
                 CommandOptionType.SingleValue),
 
-            Silent = app.Option(
-                "--silent",
-                "Suppress output to console",
+            SkipDirty = app.Option(
+                "--skip-dirty",
+                "Skip git dirty check",
                 CommandOptionType.NoValue),
 
             SkipCommit = app.Option(
@@ -63,6 +65,16 @@ public sealed class CliConfig
             SkipTag = app.Option(
                 "--skip-tag",
                 "Skip git tag after making release commit",
+                CommandOptionType.NoValue),
+
+            SkipChangelog = app.Option(
+                "--skip-changelog",
+                "Skip changelog generation",
+                CommandOptionType.NoValue),
+
+            TagOnly = app.Option(
+                "--tag-only",
+                "Only works with git tags, does not commit or modify the csproj file.",
                 CommandOptionType.NoValue),
 
             IgnoreInsignificant = app.Option(
@@ -90,20 +102,15 @@ public sealed class CliConfig
                 "Include all pre-release commits in the changelog since the last full version.",
                 CommandOptionType.NoValue),
 
+            ProjectName = app.Option(
+                "--proj-name",
+                "Name of a project defined in the configuration file (for monorepos)",
+                CommandOptionType.SingleValue),
+
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option(
                 "--find-release-commit-via-message",
                 "Use commit message instead of tag to find last release commit",
                 CommandOptionType.NoValue),
-
-            TagOnly = app.Option(
-                "--tag-only",
-                "Only works with git tags, does not commit or modify the csproj file.",
-                CommandOptionType.NoValue),
-
-            ProjectName = app.Option(
-                "--proj-name",
-                "Name of a project defined in the configuration file (for monorepos)",
-                CommandOptionType.SingleValue)
         };
     }
 }

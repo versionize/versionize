@@ -2,21 +2,22 @@
 
 public sealed class VersionizeOptions
 {
-    public string WorkingDirectory { get; set; }
     public bool DryRun { get; set; }
+    public string ReleaseAs { get; set; }
     public bool SkipDirty { get; set; }
     public bool SkipCommit { get; set; }
-    public bool SkipChangelog { get; set; }
     public bool SkipTag { get; set; }
+    public bool SkipChangelog { get; set; }
     public bool TagOnly { get; set; }
-    public string ReleaseAs { get; set; }
     public bool IgnoreInsignificantCommits { get; set; }
     public bool ExitInsignificantCommits { get; set; }
     public string CommitSuffix { get; set; }
     public string Prerelease { get; set; }
+    public bool AggregatePrereleases { get; set; }
+    
+    public string WorkingDirectory { get; set; }
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
     public ProjectOptions Project { get; set; } = ProjectOptions.DefaultOneProjectPerRepo;
-    public bool AggregatePrereleases { get; set; }
 
     /// <summary>
     /// Instead of looking for a version tag, look for the last commit

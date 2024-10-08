@@ -18,7 +18,7 @@ public class ProjectsTests
         TempProject.CreateProps(Path.Join(tempDir, "project4"));
 
         var projects = Projects.Discover(tempDir);
-        projects.GetProjectFiles().Count().ShouldBe(4);
+        projects.GetFilePaths().Count().ShouldBe(4);
     }
 
     [Fact]
