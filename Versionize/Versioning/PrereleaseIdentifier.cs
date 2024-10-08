@@ -1,8 +1,8 @@
-using NuGet.Versioning;
+﻿using NuGet.Versioning;
 
 namespace Versionize.Versioning;
 
-public class PrereleaseIdentifier
+public sealed class PrereleaseIdentifier
 {
     public string Label { get; }
     public int Number { get; }
@@ -25,7 +25,7 @@ public class PrereleaseIdentifier
 
     public string[] BuildPrereleaseLabels()
     {
-        return new[] { Label, Number.ToString() };
+        return [Label, Number.ToString()];
     }
 
     public static PrereleaseIdentifier Parse(SemanticVersion version)
