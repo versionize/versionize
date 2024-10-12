@@ -5,15 +5,14 @@ namespace Versionize.Config;
 
 public static class ConfigProvider
 {
-    public static VersionizeOptions GetSelectedOptions(CliConfig cliConfig)
+    public static VersionizeOptions GetSelectedOptions(string cwd, CliConfig cliConfig)
     {
-        var baseWorkingDirectory = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
-        var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? baseWorkingDirectory;
+        var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
         var fileConfigPath = Path.Join(configDirectory, ".versionize");
         var fileConfig = FromJsonFile(fileConfigPath);
 
         var options = MergeWithOptions(
-            baseWorkingDirectory,
+            cwd,
             fileConfig,
             cliConfig);
 

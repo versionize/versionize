@@ -20,7 +20,6 @@ public sealed class ChangelogUpdater
             return null;
         }
 
-        //var workingDirectory = Path.Combine(_workingDirectory.FullName, _options.Project.Path);
         var versionTime = DateTimeOffset.Now;
         var changelog = ChangelogBuilder.CreateForPath(options.WorkingDirectory);
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);

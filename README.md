@@ -45,20 +45,19 @@ Options:
   --skip-dirty                         Skip git dirty check
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
-  --skip-commit                        Skip commit and git tag after updating changelog and incrementing the
-                                       version
-  --skip-tag                           Skip git tag after making release commit
-  -i|--ignore-insignificant-commits    Do not bump the version if no significant commits (fix, feat or BREAKING)
+  --skip-commit                        Don't commit changes to the git repository
+  --skip-tag                           Don't tag the release commit
+  --skip-changelog                     Don't update the changelog
+  -i|--ignore-insignificant-commits    Don't bump the version if no significant commits (fix, feat or BREAKING)
                                        are found
   --exit-insignificant-commits         Exits with a non zero exit code if no significant commits (fix, feat or
                                        BREAKING) are found
-  --changelog-all                      Include all commits in the changelog not just fix, feat and breaking changes
   --commit-suffix                      Suffix to be added to the end of the release commit message (e.g. [skip ci])
   -p|--pre-release                     Release as pre-release version with given pre release label.
-  -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version. Only applies when new version is stable (non pre-release).
-  --proj-version-bump-logic            [DEPRECATED] Use --find-release-commit-via-message instead.
+  -a|--aggregate-pre-releases          Include all pre-release commits in the changelog since the last full version.
+                                       Only applies when new version is stable (non pre-release).
   --find-release-commit-via-message    Use commit message instead of tag to find last release commit.
-  --tag-only                           Only works with git tags, does not commit or modify the csproj file.
+  --tag-only                           Don't read/write the version from/to project files. Depend on version tags only.
   --proj-name                          Name of a project defined in the configuration file (for monorepos)
 
 Commands:
@@ -218,17 +217,19 @@ This also works together with the `pre-release` option
 Some developers may prefer not to tag pre-releases. Here's an example of how to achieve that:
 
 ```
-versionize --pre-release alpha --skip-tag --proj-version-bump-logic
+versionize --pre-release alpha --skip-tag
+versionize --pre-release alpha --skip-tag --find-release-commit-via-message
+...
 ```
 
-`proj-version-bump-logic` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_. 
+`find-release-commit-via-message` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_. 
 
 ## Configuration
 
 You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
 
-Any of the command line parameters accepted by `versionized` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file. 
-The `.versionize` configuration file is deserialized into a `ConfigurationContract.cs` object behind the scenes.
+Any of the command line parameters accepted by `versionize` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file. 
+The `.versionize` configuration file is deserialized into a `FileConfig.cs` object behind the scenes.
 
 Changelog customization can only be done via a `.versionize` file. The following is an example configuration:
 
@@ -274,9 +275,8 @@ dotnet test --logger prettier
 
 ## Roadmap
 
-* [x] Pre Releases to allow creating beta.1, beta.2 versions
-* [x] Support .versionrc like "standard-version" does
-* [x] Support monorepo
-* [x] ~~--silent command line switch to suppress commandline output~~
-* [x] `-i`, `--ignore-insignificant-commits` command line switch to not create a new version if only insignificant (chore, ...) commits were done
-* [x] GitHub URLs in changelog
+* [] Signed release commits
+* [] Command to print out changelog entry since last release (as opposed to writing to a file)
+* [] Tag prefix config (for non mono-repos)
+* [] Add support for bumping a Unity project version
+* [] Improve documentation

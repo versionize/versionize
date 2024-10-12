@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp;
-using Shouldly;
+﻿using Shouldly;
 using Versionize.Config;
 using Xunit;
 
@@ -11,7 +10,8 @@ public partial class WorkingCopyTests
     private readonly VersionizeOptions _defaultTagOnlyOptions = new()
     {
         SkipDirty = true,
-        TagOnly = true
+        TagOnly = true,
+        SkipChangelog = true,
     };
     
     [Fact]
@@ -144,10 +144,7 @@ public partial class WorkingCopyTests
         // Arrange
         CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        workingCopy.Versionize(new VersionizeOptions
-        {
-            TagOnly = true
-        });
+        workingCopy.Versionize(_defaultTagOnlyOptions);
 
         new FileCommitter(_testSetup).CommitChange("fix: first fix");
         workingCopy.Versionize(_defaultTagOnlyOptions);

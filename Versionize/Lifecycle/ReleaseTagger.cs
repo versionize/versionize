@@ -35,9 +35,9 @@ public sealed class ReleaseTagger
         public bool DryRun { get; init; }
         public ProjectOptions Project { get; init; }
 
-        public static implicit operator ReleaseTagger.Options(VersionizeOptions versionizeOptions)
+        public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
-            return new ReleaseTagger.Options
+            return new Options
             {
                 DryRun = versionizeOptions.DryRun,
                 SkipTag = versionizeOptions.SkipTag,

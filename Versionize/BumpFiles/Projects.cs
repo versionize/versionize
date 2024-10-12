@@ -1,6 +1,4 @@
-using NuGet.Versioning;
-using Versionize.Config;
-using static Versionize.CommandLine.CommandLineUI;
+﻿using NuGet.Versioning;
 
 namespace Versionize.BumpFiles;
 
@@ -13,7 +11,7 @@ public sealed class Projects : IBumpFile
         _projects = projects;
     }
 
-    public SemanticVersion Version { get => _projects.First().Version; }
+    public SemanticVersion Version => _projects.First().Version;
 
     public bool IsEmpty()
     {
@@ -30,29 +28,6 @@ public sealed class Projects : IBumpFile
         }
 
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
-    }
-
-    public void Update(
-        IBumpFile.Options options,
-        SemanticVersion nextVersion)
-    {
-        if (options.SkipCommit)
-        {
-            return;
-        }
-        if (options.TagOnly)
-        {
-            return;
-        }
-
-        Step($"bumping version from {Version} to {nextVersion} in projects");
-
-        if (options.DryRun)
-        {
-            return;
-        }
-
-        WriteVersion(nextVersion);
     }
 
     public static Projects Discover(string workingDirectory)
