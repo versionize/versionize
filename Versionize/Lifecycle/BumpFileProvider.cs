@@ -11,6 +11,7 @@ public sealed class BumpFileProvider
         return options.FileType switch
         {
             BumpFileType.DotNet => GetProjectGroup(options),
+            BumpFileType.None => new NullBumpFile(),
             _ => throw new NotImplementedException($"Bump file type {options.FileType} is not implemented")
         };
     }
@@ -18,11 +19,6 @@ public sealed class BumpFileProvider
     private static IBumpFile GetProjectGroup(Options options)
     {
         var projectGroup = Projects.Discover(options.WorkingDirectory);
-
-        if (options.TagOnly)
-        {
-            return projectGroup;
-        }
 
         if (projectGroup.IsEmpty())
         {
@@ -42,7 +38,7 @@ public sealed class BumpFileProvider
 
         return projectGroup;
     }
-    
+
     public enum BumpFileType
     {
         None,
@@ -52,15 +48,14 @@ public sealed class BumpFileProvider
     public sealed class Options
     {
         public BumpFileType FileType { get; init; }
-        public bool TagOnly { get; init; }
         public string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
             return new Options
             {
-                FileType = BumpFileType.DotNet,
-                TagOnly = versionizeOptions.TagOnly,
+                // TODO: Assign value from VersionizeOptions when implemented
+                FileType = versionizeOptions.TagOnly ? BumpFileType.None : BumpFileType.DotNet,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
             };
         }

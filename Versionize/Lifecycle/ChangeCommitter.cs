@@ -1,8 +1,7 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Changelog;
 using Versionize.Config;
-using Versionize.Git;
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize;
@@ -20,21 +19,24 @@ public sealed class ChangeCommitter
         {
             return;
         }
-        if (options.TagOnly)
+
+        if (changelog is not null)
         {
-            return;
+            Commands.Stage(repo, changelog.FilePath);
         }
 
-        // TODO: Validate in Tagger too, or do a single check at the very beginning.
-        if (!repo.IsConfiguredForCommits())
+        var projectFiles = bumpFile.GetFilePaths();
+        if (projectFiles.Any())
         {
-            Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
-git config --global user.name ""John Doe""
-$ git config --global user.email johndoe@example.com", 1);
+            Commands.Stage(repo, projectFiles);
         }
 
-        Commands.Stage(repo, changelog.FilePath);
-        Commands.Stage(repo, bumpFile.GetFilePaths());
+        var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = false });
+        if (!status.Staged.Any() && !status.Added.Any())
+        {
+           return;
+        }
+
         var author = repo.Config.BuildSignature(DateTimeOffset.Now);
         var committer = author;
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
@@ -46,7 +48,6 @@ $ git config --global user.email johndoe@example.com", 1);
     {
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }
-        public bool TagOnly { get; init; }
         public string CommitSuffix { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
@@ -56,7 +57,6 @@ $ git config --global user.email johndoe@example.com", 1);
                 CommitSuffix = versionizeOptions.CommitSuffix,
                 DryRun = versionizeOptions.DryRun,
                 SkipCommit = versionizeOptions.SkipCommit,
-                TagOnly = versionizeOptions.TagOnly,
             };
         }
     }

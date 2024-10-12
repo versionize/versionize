@@ -1,4 +1,4 @@
-using NuGet.Versioning;
+﻿using NuGet.Versioning;
 using Versionize.Config;
 using static Versionize.CommandLine.CommandLineUI;
 
@@ -6,8 +6,8 @@ namespace Versionize;
 
 public sealed class BumpFileUpdater
 {
-    public void Update(
-        VersionizeOptions options,
+    public static void Update(
+        Options options,
         SemanticVersion nextVersion,
         IBumpFile bumpFile)
     {
@@ -15,18 +15,32 @@ public sealed class BumpFileUpdater
         {
             return;
         }
-        if (options.TagOnly)
-        {
-            return;
-        }
 
-        Step($"bumping version from {bumpFile.Version} to {nextVersion} in projects");
+        if (bumpFile.Version != new SemanticVersion(0, 0, 0))
+        {
+            Step($"bumping version from {bumpFile.Version} to {nextVersion} in projects");
+        }
 
         if (options.DryRun)
         {
             return;
         }
 
-        bumpFile.Update(options, nextVersion);
+        bumpFile.WriteVersion(nextVersion);
+    }
+
+    public sealed class Options
+    {
+        public bool SkipCommit { get; init; }
+        public bool DryRun { get; init; }
+
+        public static implicit operator Options(VersionizeOptions versionizeOptions)
+        {
+            return new Options
+            {
+                DryRun = versionizeOptions.DryRun,
+                SkipCommit = versionizeOptions.SkipCommit,
+            };
+        }
     }
 }

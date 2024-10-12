@@ -56,7 +56,7 @@ public class WorkingCopy
         var version = repo.GetCurrentVersion(options, bumpFile);
         var (isInitialRelease, conventionalCommits) = ConventionalCommitProvider.GetCommits(repo, options, version);
         var newVersion = VersionCalculator.Bump(options, version, isInitialRelease, conventionalCommits);
-        bumpFile.Update(options, newVersion);
+        BumpFileUpdater.Update(options, newVersion, bumpFile);
         var changelog = ChangelogUpdater.Update(repo, options, newVersion, conventionalCommits);
         ChangeCommitter.CreateCommit(repo, options, newVersion, bumpFile, changelog);
         ReleaseTagger.CreateTag(repo, options, newVersion);
@@ -67,7 +67,14 @@ public class WorkingCopy
         var gitDirectory = _gitDirectory.FullName;
         var repo = new Repository(gitDirectory);
 
-        if (options.SkipCommit || options.TagOnly)
+        if (!repo.IsConfiguredForCommits())
+        {
+            Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
+git config --global user.name ""John Doe""
+$ git config --global user.email johndoe@example.com", 1);
+        }
+
+        if (options.SkipCommit)
         {
             return repo;
         }

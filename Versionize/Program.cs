@@ -40,8 +40,7 @@ public static class Program
             var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
             var working = WorkingCopy.Discover(cwd);
 
-            var mergedOptions = ConfigProvider.GetSelectedOptions(cliConfig);
-            //var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig);
+            var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig);
 
             if (inspect)
             {
