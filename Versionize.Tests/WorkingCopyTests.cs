@@ -421,7 +421,7 @@ public partial class WorkingCopyTests : IDisposable
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.0.1-alpha.0", "v1.1.0", "v1.1.0-alpha.0", "v1.2.0" });
-        
+
         var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
         var changelogContents = File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
         var sb = new ChangelogStringBuilder();
@@ -489,6 +489,20 @@ public partial class WorkingCopyTests : IDisposable
                 AggregatePrereleases = true,
                 Project = new ProjectOptions
                 {
+                    Name = "Project0-subfolder",
+                    Path = "project0-subfolder",
+                    Changelog = ChangelogOptions.Default with
+                    {
+                        Header = "Project0-subfolder header",
+                        Path = "docs"
+                    }
+                }
+            },
+            new VersionizeOptions
+            {
+                AggregatePrereleases = true,
+                Project = new ProjectOptions
+                {
                     Name = "Project1",
                     Path = "project1",
                     TagTemplate = "{name}/v{version}",
@@ -542,6 +556,15 @@ public partial class WorkingCopyTests : IDisposable
             TempProject.CreateCsharpProject(
                 Path.Join(_testSetup.WorkingDirectory, project.Path));
 
+            if (!project.Changelog.Path.Equals(String.Empty))
+            {
+                var changelogDir = Path.GetFullPath(Path.Combine(_testSetup.WorkingDirectory, project.Path, project.Changelog.Path));
+                if (!Directory.Exists(changelogDir))
+                {
+                    Directory.CreateDirectory(changelogDir);
+                }
+            }
+
             // Release an initial version
             fileCommitter.CommitChange($"feat: initial commit at {project.Name}", project.Path);
             workingCopy.Versionize(projectOptions);
@@ -550,7 +573,7 @@ public partial class WorkingCopyTests : IDisposable
             projectOptions.Prerelease = "alpha";
             fileCommitter.CommitChange($"fix: a fix at {project.Name}", project.Path);
             workingCopy.Versionize(projectOptions);
-            
+
             // Prerelease as minor alpha
             fileCommitter.CommitChange($"feat: a feature at {project.Name}", project.Path);
             workingCopy.Versionize(projectOptions);
@@ -580,7 +603,8 @@ public partial class WorkingCopyTests : IDisposable
 
             var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
             var changelogContents = File.ReadAllText(
-                Path.Join(_testSetup.WorkingDirectory, project.Path, "CHANGELOG.md"));
+                Path.GetFullPath(Path.Combine(_testSetup.WorkingDirectory, project.Path, project.Changelog.Path, "CHANGELOG.md"))
+            );
             var sb = new ChangelogStringBuilder();
             sb.Append(project.Changelog.Header);
 

@@ -111,7 +111,8 @@ public static class ConfigProvider
         {
             Header = customOptions.Header ?? defaultOptions.Header,
             Sections = customOptions.Sections ?? defaultOptions.Sections,
-            LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates
+            LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates,
+            Path = customOptions.Path ?? defaultOptions.Path,
         };
     }
 
