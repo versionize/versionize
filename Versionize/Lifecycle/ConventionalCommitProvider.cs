@@ -26,7 +26,7 @@ public sealed class ConventionalCommitProvider
 
         var isInitialRelease = false;
         List<Commit> commitsInVersion;
-        var commitFilter = new CommitFilter()
+        var commitFilter = new CommitFilter
         {
             FirstParentOnly = options.FirstParentOnlyCommit
         };
