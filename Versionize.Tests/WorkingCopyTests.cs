@@ -393,6 +393,67 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void ShouldWriteFirstParentOnlyCommit()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // Release an initial version
+        fileCommitter.CommitChange("feat: initial commit");
+        workingCopy.Versionize(new VersionizeOptions() { FirstParentOnlyCommit = true });
+
+        var featBranch = _testSetup.Repository.CreateBranch("feature/new-feature");
+        Commands.Checkout(_testSetup.Repository, featBranch);
+
+        // Prerelease as patch alpha
+        fileCommitter.CommitChange("feat: add something on branch");
+        fileCommitter.CommitChange("feat: add something else on branch");
+        fileCommitter.CommitChange("feat: last add on branch");
+
+        var author = GetAuthorSignature();
+        Commands.Checkout(_testSetup.Repository, _testSetup.Repository.Branches["master"]);
+        workingCopy.Versionize(new VersionizeOptions() { FirstParentOnlyCommit = true });
+        workingCopy.Versionize(new VersionizeOptions() { FirstParentOnlyCommit = true });
+        _testSetup.Repository.Merge(featBranch, author, new MergeOptions()
+        {
+            CommitOnSuccess = true,
+        });
+
+        fileCommitter.CommitChange("feat: new feature on file");
+        workingCopy.Versionize(new VersionizeOptions() { FirstParentOnlyCommit = true });
+
+        var versionTagNames = VersionTagNames.ToList();
+        versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.0.1", "v1.0.2", "v1.1.0" });
+
+        var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
+        var changelogContents = File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
+        var sb = new ChangelogStringBuilder();
+        sb.Append(ChangelogOptions.Preamble);
+
+        sb.Append("<a name=\"1.1.0\"></a>");
+        sb.Append($"## 1.1.0 ({commitDate})", 2);
+        sb.Append("### Features", 2);
+        sb.Append("* new feature on file", 2);
+
+        sb.Append("<a name=\"1.0.2\"></a>");
+        sb.Append($"## 1.0.2 ({commitDate})", 2);
+
+        sb.Append("<a name=\"1.0.1\"></a>");
+        sb.Append($"## 1.0.1 ({commitDate})", 2);
+
+        sb.Append("<a name=\"1.0.0\"></a>");
+        sb.Append($"## 1.0.0 ({commitDate})", 2);
+        sb.Append("### Features", 2);
+        sb.Append("* initial commit", 2);
+
+        var expected = sb.Build();
+
+        Assert.Equal(expected, changelogContents);
+    }
+
+    [Fact]
     public void ShouldAggregatePrereleases()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
@@ -421,7 +482,7 @@ public partial class WorkingCopyTests : IDisposable
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.0.1-alpha.0", "v1.1.0", "v1.1.0-alpha.0", "v1.2.0" });
-        
+
         var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
         var changelogContents = File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"));
         var sb = new ChangelogStringBuilder();
@@ -550,7 +611,7 @@ public partial class WorkingCopyTests : IDisposable
             projectOptions.Prerelease = "alpha";
             fileCommitter.CommitChange($"fix: a fix at {project.Name}", project.Path);
             workingCopy.Versionize(projectOptions);
-            
+
             // Prerelease as minor alpha
             fileCommitter.CommitChange($"feat: a feature at {project.Name}", project.Path);
             workingCopy.Versionize(projectOptions);
@@ -735,9 +796,14 @@ public partial class WorkingCopyTests : IDisposable
 
     private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
     {
-        var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
+        var author = GetAuthorSignature();
         Commands.Stage(repository, "*");
         repository.Commit(message, author, author);
+    }
+
+    private static Signature GetAuthorSignature()
+    {
+        return new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
     }
 
     class FileCommitter

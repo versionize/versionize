@@ -84,6 +84,7 @@ public static class ConfigProvider
             CommitParser = commit,
             Project = project,
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
+            FirstParentOnlyCommit = MergeBool(cliConfig.FirstParentOnlyCommit.HasValue(), fileConfig?.FirstParentOnlyCommit),
         };
     }
 

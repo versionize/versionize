@@ -22,6 +22,10 @@ public sealed class CliConfig
     public CommandOption ConfigurationDirectory { get; init; }
     public CommandOption ProjectName { get; init; }
     public CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
+    /// <summary>
+    /// The first parent only options allows you to ignore commits that are not the first parent.
+    /// </summary>
+    public CommandOption FirstParentOnlyCommit { get; init; }
 
     public static CliConfig Create(CommandLineApplication app)
     {
@@ -110,6 +114,11 @@ public sealed class CliConfig
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option(
                 "--find-release-commit-via-message",
                 "Use commit message instead of tag to find last release commit",
+                CommandOptionType.NoValue),
+
+            FirstParentOnlyCommit = app.Option(
+                "--first-parent-commits",
+                "The first parent only options allows you to ignore commits that are not the first parent.",
                 CommandOptionType.NoValue),
         };
     }
