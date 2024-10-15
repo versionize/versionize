@@ -402,8 +402,9 @@ public partial class WorkingCopyTests : IDisposable
 
         // Release an initial version
         fileCommitter.CommitChange("feat: initial commit");
-        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommit = true });
+        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommits = true });
 
+        var defaultBranch = _testSetup.Repository.Branches.First();
         var featBranch = _testSetup.Repository.CreateBranch("feature/new-feature");
         Commands.Checkout(_testSetup.Repository, featBranch);
 
@@ -413,16 +414,16 @@ public partial class WorkingCopyTests : IDisposable
         fileCommitter.CommitChange("feat: last add on branch");
 
         var author = GetAuthorSignature();
-        Commands.Checkout(_testSetup.Repository, _testSetup.Repository.Branches["master"]);
-        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommit = true });
-        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommit = true });
+        Commands.Checkout(_testSetup.Repository, defaultBranch);
+        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommits = true });
+        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommits = true });
         _testSetup.Repository.Merge(featBranch, author, new MergeOptions
         {
             CommitOnSuccess = true,
         });
 
         fileCommitter.CommitChange("feat: new feature on file");
-        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommit = true });
+        workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommits = true });
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.0.1", "v1.0.2", "v1.1.0" });

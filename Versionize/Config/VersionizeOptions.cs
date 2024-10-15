@@ -1,4 +1,4 @@
-﻿namespace Versionize.Config;
+namespace Versionize.Config;
 
 public sealed class VersionizeOptions
 {
@@ -14,6 +14,10 @@ public sealed class VersionizeOptions
     public string CommitSuffix { get; set; }
     public string Prerelease { get; set; }
     public bool AggregatePrereleases { get; set; }
+    /// <summary>
+    /// Ignore commits beyond the first parent.
+    /// </summary>
+    public bool FirstParentOnlyCommits { get; set; }
 
     public string WorkingDirectory { get; set; }
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
@@ -28,9 +32,4 @@ public sealed class VersionizeOptions
     /// commit of the last release is to look for the last commit that contains a release message.
     /// </remarks>
     public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; set; }
-
-    /// <summary>
-    /// The first parent only options allows you to ignore commits that are not the first parent.
-    /// </summary>
-    public bool FirstParentOnlyCommit { get; set; }
 }
