@@ -17,15 +17,15 @@ public sealed class CliConfig
     public CommandOption CommitSuffix { get; init; }
     public CommandOption Prerelease { get; init; }
     public CommandOption AggregatePrereleases { get; init; }
+    /// <summary>
+    /// Ignore commits beyond the first parent.
+    /// </summary>
+    public CommandOption FirstParentOnlyCommits { get; init; }
 
     public CommandOption WorkingDirectory { get; init; }
     public CommandOption ConfigurationDirectory { get; init; }
     public CommandOption ProjectName { get; init; }
     public CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
-    /// <summary>
-    /// The first parent only options allows you to ignore commits that are not the first parent.
-    /// </summary>
-    public CommandOption FirstParentOnlyCommit { get; init; }
 
     public static CliConfig Create(CommandLineApplication app)
     {
@@ -106,6 +106,11 @@ public sealed class CliConfig
                 "Include all pre-release commits in the changelog since the last full version.",
                 CommandOptionType.NoValue),
 
+            FirstParentOnlyCommits = app.Option(
+                "--first-parent-only-commits",
+                "Ignore commits beyond the first parent.",
+                CommandOptionType.NoValue),
+
             ProjectName = app.Option(
                 "--proj-name",
                 "Name of a project defined in the configuration file (for monorepos)",
@@ -114,11 +119,6 @@ public sealed class CliConfig
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option(
                 "--find-release-commit-via-message",
                 "Use commit message instead of tag to find last release commit",
-                CommandOptionType.NoValue),
-
-            FirstParentOnlyCommit = app.Option(
-                "--first-parent-commits",
-                "The first parent only options allows you to ignore commits that are not the first parent.",
                 CommandOptionType.NoValue),
         };
     }

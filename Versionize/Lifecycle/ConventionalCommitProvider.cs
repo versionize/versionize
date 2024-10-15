@@ -28,7 +28,7 @@ public sealed class ConventionalCommitProvider
         List<Commit> commitsInVersion;
         var commitFilter = new CommitFilter
         {
-            FirstParentOnly = options.FirstParentOnlyCommit
+            FirstParentOnly = options.FirstParentOnlyCommits
         };
 
         if (options.UseCommitMessageInsteadOfTagToFindLastReleaseCommit)
@@ -54,7 +54,7 @@ public sealed class ConventionalCommitProvider
         public ProjectOptions Project { get; init; }
         public bool AggregatePrereleases { get; init; }
         public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
-        public bool FirstParentOnlyCommit { get; init; }
+        public bool FirstParentOnlyCommits { get; init; }
         public CommitParserOptions CommitParser { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
@@ -65,7 +65,7 @@ public sealed class ConventionalCommitProvider
                 CommitParser = versionizeOptions.CommitParser,
                 Project = versionizeOptions.Project,
                 UseCommitMessageInsteadOfTagToFindLastReleaseCommit = versionizeOptions.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,
-                FirstParentOnlyCommit = versionizeOptions.FirstParentOnlyCommit,
+                FirstParentOnlyCommits = versionizeOptions.FirstParentOnlyCommits,
             };
         }
     }

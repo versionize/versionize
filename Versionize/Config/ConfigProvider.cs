@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Versionize.CommandLine;
 
 namespace Versionize.Config;
@@ -81,10 +81,10 @@ public static class ConfigProvider
             CommitSuffix = cliConfig.CommitSuffix.Value() ?? fileConfig?.CommitSuffix,
             Prerelease = cliConfig.Prerelease.Value() ?? fileConfig?.Prerelease,
             AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases.HasValue(), fileConfig?.AggregatePrereleases),
+            FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits.HasValue(), fileConfig?.FirstParentOnlyCommits),
             CommitParser = commit,
             Project = project,
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
-            FirstParentOnlyCommit = MergeBool(cliConfig.FirstParentOnlyCommit.HasValue(), fileConfig?.FirstParentOnlyCommit),
         };
     }
 

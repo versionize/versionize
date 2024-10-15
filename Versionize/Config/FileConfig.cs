@@ -1,4 +1,4 @@
-﻿namespace Versionize.Config;
+namespace Versionize.Config;
 
 public sealed class FileConfig
 {
@@ -12,13 +12,13 @@ public sealed class FileConfig
     public bool? TagOnly { get; set; }
     public bool? IgnoreInsignificantCommits { get; set; }
     public bool? ExitInsignificantCommits { get; set; }
-    /// <summary>
-    /// The first parent only options allows you to ignore commits that are not the first parent.
-    /// </summary>
-    public bool? FirstParentOnlyCommit { get; set; }
     public string CommitSuffix { get; set; }
     public string Prerelease { get; set; }
     public bool? AggregatePrereleases { get; set; }
+    /// <summary>
+    /// Ignore commits beyond the first parent.
+    /// </summary>
+    public bool? FirstParentOnlyCommits { get; set; }
 
     public CommitParserOptions CommitParser { get; set; }
     public ProjectOptions[] Projects { get; set; } = [];
