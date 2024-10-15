@@ -54,17 +54,17 @@ public static class ConfigProvider
         if (project != null)
         {
             project.Changelog =
-                MergeChangelogOptions(project.Changelog,
-                    MergeChangelogOptions(fileConfig?.Changelog, ChangelogOptions.Default));
+                ChangelogOptions.Merge(project.Changelog,
+                    ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default));
         }
         else
         {
             project = ProjectOptions.DefaultOneProjectPerRepo;
             project.Changelog =
-                MergeChangelogOptions(fileConfig?.Changelog, ChangelogOptions.Default);
+                ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default);
         }
 
-        var commit = MergeCommitOptions(fileConfig?.CommitParser, CommitParserOptions.Default);
+        var commit = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
 
         return new VersionizeOptions
         {
@@ -84,35 +84,6 @@ public static class ConfigProvider
             CommitParser = commit,
             Project = project,
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
-        };
-    }
-
-    private static CommitParserOptions MergeCommitOptions(CommitParserOptions customOptions, CommitParserOptions defaultOptions)
-    {
-        if (customOptions == null)
-        {
-            return defaultOptions;
-        }
-
-        return new CommitParserOptions
-        {
-            HeaderPatterns = customOptions.HeaderPatterns ?? defaultOptions.HeaderPatterns
-        };
-    }
-
-    private static ChangelogOptions MergeChangelogOptions(ChangelogOptions customOptions, ChangelogOptions defaultOptions)
-    {
-        if (customOptions == null)
-        {
-            return defaultOptions;
-        }
-
-        return new ChangelogOptions
-        {
-            Header = customOptions.Header ?? defaultOptions.Header,
-            Sections = customOptions.Sections ?? defaultOptions.Sections,
-            LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates,
-            Path = customOptions.Path ?? defaultOptions.Path,
         };
     }
 
