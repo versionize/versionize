@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Changelog;
 using Versionize.Config;
@@ -21,7 +21,7 @@ public sealed class ChangelogUpdater
         }
 
         var versionTime = DateTimeOffset.Now;
-        var changelog = ChangelogBuilder.CreateForPath(options.WorkingDirectory);
+        var changelog = ChangelogBuilder.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path)));
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
 
         if (options.DryRun)
@@ -47,7 +47,7 @@ public sealed class ChangelogUpdater
 
         return changelog;
     }
-    
+
     public sealed class Options
     {
         public bool SkipChangelog { get; init; }
