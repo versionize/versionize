@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.0.0"></a>
+## [2.0.0](https://www.github.com/versionize/versionize/releases/tag/v2.0.0) (2024-10-15)
+
+### Features
+
+* add config for changelog file path ([#141](https://www.github.com/versionize/versionize/issues/141)) ([f0834da](https://www.github.com/versionize/versionize/commit/f0834dac072ee9b70147209b04a4cd8593e9f2d5))
+* add first-parent commits option ([#142](https://www.github.com/versionize/versionize/issues/142)) ([8308f2b](https://www.github.com/versionize/versionize/commit/8308f2b64283745c9f89cca1289f9202b4958e3a))
+* remove deprecated cli options and update logic ([61e2f42](https://www.github.com/versionize/versionize/commit/61e2f4205a4d56ace857541eb07fc13c99ffc4a2))
+
+### Breaking Changes
+
+* remove deprecated cli options and update logic ([61e2f42](https://www.github.com/versionize/versionize/commit/61e2f4205a4d56ace857541eb07fc13c99ffc4a2))
+* remove support for netcoreapp3.1, net5, net6 ([b873db5](https://www.github.com/versionize/versionize/commit/b873db55746fa5992b0608688eb81edc3d318e14))
+
+### Other
+
+* break up WorkingCopy logic into smaller units ([6bba7ba](https://www.github.com/versionize/versionize/commit/6bba7ba66b35181c672a7b5da48ac8c52fa149fa))
+* explain how .versionize deserialized ([cb406a6](https://www.github.com/versionize/versionize/commit/cb406a62ab249c3813d7c764903a67176cd76243))
+* final preparations for v2 release ([35f0c05](https://www.github.com/versionize/versionize/commit/35f0c057bced2ea6f9091c038036b4a79f04d6f3))
+* formatting, modernize syntax, add namespaces, seal classes ([d738f3e](https://www.github.com/versionize/versionize/commit/d738f3ed974a433dc88e39ef8209853521e1b5e8))
+* Introduce docs folder with mono-repo example ([db55150](https://www.github.com/versionize/versionize/commit/db55150d288e2626887f81f9b2a883d8da612400))
+* make releases manual ([dbf7290](https://www.github.com/versionize/versionize/commit/dbf7290553e6bdb12500bb08d4959a6bb6859afb))
+* move config from Program.cs to dedicated class ([70e5694](https://www.github.com/versionize/versionize/commit/70e56946f260e15fb4a2c4ca8e014df5c9087932))
+* organize files into folders ([968db28](https://www.github.com/versionize/versionize/commit/968db28a82ba74575c1343dcd556ca8010e7535e))
+* update Actions ([1814aa3](https://www.github.com/versionize/versionize/commit/1814aa302e905bb07ad6c4e27f89f6a55d59f862))
+* update nuget packages ([e986a1a](https://www.github.com/versionize/versionize/commit/e986a1a7dc90449662020f1cd3a0e6597bf743cb))
+* use source generator regex for link builders ([9b2885b](https://www.github.com/versionize/versionize/commit/9b2885b8b036c5b4104d932e952820d04a8fbcd7))
+
 <a name="1.27.0"></a>
 ## [1.27.0](https://www.github.com/versionize/versionize/releases/tag/v1.27.0) (2024-06-15)
 
