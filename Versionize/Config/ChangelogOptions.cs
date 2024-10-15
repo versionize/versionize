@@ -15,10 +15,25 @@ public sealed record class ChangelogOptions
     };
 
     public string Header { get; set; }
-    public bool IncludeAllCommits { get; set; }
+    public bool? IncludeAllCommits { get; set; }
     public IEnumerable<ChangelogSection> Sections { get; set; }
-
     public ChangelogLinkTemplates LinkTemplates { get; set; }
+
+    public static ChangelogOptions Merge(ChangelogOptions customOptions, ChangelogOptions defaultOptions)
+    {
+        if (customOptions == null)
+        {
+            return defaultOptions;
+        }
+
+        return new ChangelogOptions
+        {
+            Header = customOptions.Header ?? defaultOptions.Header,
+            IncludeAllCommits = customOptions.IncludeAllCommits ?? defaultOptions.IncludeAllCommits,
+            Sections = customOptions.Sections ?? defaultOptions.Sections,
+            LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates,
+        };
+    }
 }
 
 public record ChangelogLinkTemplates
