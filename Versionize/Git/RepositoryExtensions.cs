@@ -1,6 +1,5 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
-using Versionize.BumpFiles;
 using Versionize.Config;
 
 namespace Versionize.Git;
@@ -57,35 +56,31 @@ public static class RepositoryExtensions
         }
     }
 
-    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag, ProjectOptions project)
+    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag, ProjectOptions project, CommitFilter filter = null)
     {
         if (versionTag == null)
         {
-            return repository.GetCommits(project).ToList();
+            return repository.GetCommits(project, filter).ToList();
         }
 
-        var filter = new CommitFilter
-        {
-            ExcludeReachableFrom = versionTag
-        };
+        filter ??= new CommitFilter();
+        filter.ExcludeReachableFrom = versionTag;
 
         return repository.GetCommits(project, filter).ToList();
     }
 
-    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project)
+    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter filter = null)
     {
         var lastReleaseCommit = repository
-            .GetCommits(project)
+            .GetCommits(project, filter)
             .FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
         if (lastReleaseCommit == null)
         {
             return repository.Commits.ToList();
         }
 
-        var filter = new CommitFilter
-        {
-            ExcludeReachableFrom = lastReleaseCommit
-        };
+        filter ??= new CommitFilter();
+        filter.ExcludeReachableFrom = lastReleaseCommit;
 
         return repository.GetCommits(project, filter).ToList();
     }
@@ -125,7 +120,7 @@ public sealed class VersionOptions
 {
     public bool TagOnly { get; init; }
     public ProjectOptions Project { get; init; }
-    
+
     public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
     {
         return new VersionOptions

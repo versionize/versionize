@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
@@ -7,7 +7,7 @@ using Versionize.Git;
 namespace Versionize;
 
 public sealed class ConventionalCommitProvider
-{    
+{
     public static (bool, IReadOnlyList<ConventionalCommit>) GetCommits(Repository repo, Options options, SemanticVersion version)
     {
         var versionToUseForCommitDiff = version;
@@ -26,29 +26,35 @@ public sealed class ConventionalCommitProvider
 
         var isInitialRelease = false;
         List<Commit> commitsInVersion;
+        var commitFilter = new CommitFilter
+        {
+            FirstParentOnly = options.FirstParentOnlyCommit
+        };
+
         if (options.UseCommitMessageInsteadOfTagToFindLastReleaseCommit)
         {
-            var lastReleaseCommit = repo.GetCommits(options.Project).FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+            var lastReleaseCommit = repo.GetCommits(options.Project, commitFilter).FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
             isInitialRelease = lastReleaseCommit is null;
-            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit(options.Project);
+            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit(options.Project, commitFilter);
         }
         else
         {
             var versionTag = repo.SelectVersionTag(versionToUseForCommitDiff, options.Project);
             isInitialRelease = versionTag == null;
-            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project);
+            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project, commitFilter);
         }
 
         var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
 
         return (isInitialRelease, conventionalCommits);
     }
-    
+
     public sealed class Options
     {
         public ProjectOptions Project { get; init; }
         public bool AggregatePrereleases { get; init; }
         public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
+        public bool FirstParentOnlyCommit { get; init; }
         public CommitParserOptions CommitParser { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
@@ -59,6 +65,7 @@ public sealed class ConventionalCommitProvider
                 CommitParser = versionizeOptions.CommitParser,
                 Project = versionizeOptions.Project,
                 UseCommitMessageInsteadOfTagToFindLastReleaseCommit = versionizeOptions.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,
+                FirstParentOnlyCommit = versionizeOptions.FirstParentOnlyCommit,
             };
         }
     }
