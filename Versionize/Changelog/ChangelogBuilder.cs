@@ -84,7 +84,7 @@ public sealed class ChangelogBuilder
             markdown += "\n";
         }
 
-        if (changelogOptions.IncludeAllCommits)
+        if (changelogOptions.IncludeAllCommits.GetValueOrDefault())
         {
             var other = BuildBlock(
                 "Other",

@@ -11,11 +11,6 @@ public sealed class BumpFileUpdater
         SemanticVersion nextVersion,
         IBumpFile bumpFile)
     {
-        if (options.SkipCommit)
-        {
-            return;
-        }
-
         if (bumpFile.Version != new SemanticVersion(0, 0, 0))
         {
             Step($"bumping version from {bumpFile.Version} to {nextVersion} in projects");
@@ -31,7 +26,6 @@ public sealed class BumpFileUpdater
 
     public sealed class Options
     {
-        public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
@@ -39,7 +33,6 @@ public sealed class BumpFileUpdater
             return new Options
             {
                 DryRun = versionizeOptions.DryRun,
-                SkipCommit = versionizeOptions.SkipCommit,
             };
         }
     }
