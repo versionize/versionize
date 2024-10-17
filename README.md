@@ -1,4 +1,4 @@
-# Versionize
+﻿# Versionize
 
 [![Coverage Status](https://coveralls.io/repos/versionize/versionize/badge.svg?branch=)](https://coveralls.io/r/versionize/versionize?branch=master)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
@@ -60,6 +60,7 @@ Options:
   --tag-only                           Don't read/write the version from/to project files. Depend on version tags only.
   --proj-name                          Name of a project defined in the configuration file (for monorepos)
   --first-parent-only-commits          Ignore commits beyond the first parent
+  -s|--sign                            Sign the git commit and tag
 
 Commands:
   inspect                              Prints the current version to stdout

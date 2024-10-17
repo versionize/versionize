@@ -40,7 +40,17 @@ public sealed class ChangeCommitter
         var author = repo.Config.BuildSignature(DateTimeOffset.Now);
         var committer = author;
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
-        repo.Commit(releaseCommitMessage, author, committer);
+
+        if (options.Sign)
+        {
+            Versionize.Git.RepositoryExtensions.SignedCommit(releaseCommitMessage);
+        }
+        else
+        {
+            repo.Commit(releaseCommitMessage, author, committer);
+        }
+
+        // TODO: Make this message dynamic
         Step("committed changes in projects and CHANGELOG.md");
     }
     
@@ -48,6 +58,7 @@ public sealed class ChangeCommitter
     {
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }
+        public bool Sign { get; init; }
         public string CommitSuffix { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
@@ -56,6 +67,7 @@ public sealed class ChangeCommitter
             {
                 CommitSuffix = versionizeOptions.CommitSuffix,
                 DryRun = versionizeOptions.DryRun,
+                Sign = versionizeOptions.Sign,
                 SkipCommit = versionizeOptions.SkipCommit,
             };
         }

@@ -24,8 +24,15 @@ public sealed class ReleaseTagger
         }
 
         var tagName = options.Project.GetTagName(nextVersion);
-        var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
-        repo.ApplyTag(tagName, tagger, $"{nextVersion}");
+        if (options.Sign)
+        {
+            Versionize.Git.RepositoryExtensions.SignedTag(tagName, $"{nextVersion}");
+        }
+        else
+        {
+            var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
+            repo.ApplyTag(tagName, tagger, $"{nextVersion}");
+        }
         Step($"tagged release as {tagName} against commit with sha {repo.Head.Tip.Sha}");
     }
     
@@ -33,6 +40,7 @@ public sealed class ReleaseTagger
     {
         public bool SkipTag { get; init; }
         public bool DryRun { get; init; }
+        public bool Sign { get; init; }
         public ProjectOptions Project { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
@@ -40,6 +48,7 @@ public sealed class ReleaseTagger
             return new Options
             {
                 DryRun = versionizeOptions.DryRun,
+                Sign = versionizeOptions.Sign,
                 SkipTag = versionizeOptions.SkipTag,
                 Project = versionizeOptions.Project,
             };
