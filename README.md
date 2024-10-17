@@ -236,9 +236,9 @@ Changelog customization can only be done via a `.versionize` file. The following
 
 ```json
 {
-  "changelogAll": true,
   "changelog": {
     "header": "My Changelog",
+    "includeAllCommits": true,
     "sections": [
       {
         "type": "feat",
@@ -260,7 +260,7 @@ Changelog customization can only be done via a `.versionize` file. The following
 }
 ```
 
-Because `changelogAll` is true and the _fix_ section is hidden, fix commits will appear in the a section titled "Other".
+Because `IncludeAllCommits` is true and the _fix_ section is hidden, fix commits will appear in the a section titled "Other".
 
 ## Developing
 
