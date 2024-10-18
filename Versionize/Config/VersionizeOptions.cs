@@ -1,4 +1,4 @@
-namespace Versionize.Config;
+﻿namespace Versionize.Config;
 
 public sealed class VersionizeOptions
 {
@@ -18,6 +18,7 @@ public sealed class VersionizeOptions
     /// Ignore commits beyond the first parent.
     /// </summary>
     public bool FirstParentOnlyCommits { get; set; }
+    public bool Sign { get; set; }
 
     public string WorkingDirectory { get; set; }
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
