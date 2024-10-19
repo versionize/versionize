@@ -4,11 +4,11 @@ using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Git;
 
-namespace Versionize;
+namespace Versionize.Lifecycle;
 
 public sealed class ConventionalCommitProvider
 {
-    public static (bool, IReadOnlyList<ConventionalCommit>) GetCommits(Repository repo, Options options, SemanticVersion version)
+    public static (bool, IReadOnlyList<ConventionalCommit>) GetCommits(Repository repo, Options options, SemanticVersion? version)
     {
         var versionToUseForCommitDiff = version;
 
@@ -18,9 +18,9 @@ public sealed class ConventionalCommitProvider
                 .Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x != null && !x.IsPrerelease)
-                .OrderByDescending(x => x.Major)
-                .ThenByDescending(x => x.Minor)
-                .ThenByDescending(x => x.Patch)
+                .OrderByDescending(x => x!.Major)
+                .ThenByDescending(x => x!.Minor)
+                .ThenByDescending(x => x!.Patch)
                 .FirstOrDefault();
         }
 
@@ -51,11 +51,11 @@ public sealed class ConventionalCommitProvider
 
     public sealed class Options
     {
-        public ProjectOptions Project { get; init; }
+        public required ProjectOptions Project { get; init; }
         public bool AggregatePrereleases { get; init; }
         public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
         public bool FirstParentOnlyCommits { get; init; }
-        public CommitParserOptions CommitParser { get; init; }
+        public required CommitParserOptions CommitParser { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {

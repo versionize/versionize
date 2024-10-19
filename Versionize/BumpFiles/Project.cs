@@ -23,7 +23,7 @@ public sealed class Project
             throw new InvalidOperationException(error);
         }
 
-        return new Project(projectFile, version);
+        return new Project(projectFile, version!);
     }
 
     public static bool IsVersionable(string projectFile)
@@ -39,7 +39,7 @@ public sealed class Project
         }
     }
 
-    private static (bool Success, SemanticVersion Version, string Error) ReadVersion(string projectFile)
+    private static (bool Success, SemanticVersion? Version, string? Error) ReadVersion(string projectFile)
     {
         var doc = ReadProject(projectFile);
 
@@ -69,14 +69,14 @@ public sealed class Project
     public void WriteVersion(SemanticVersion nextVersion)
     {
         var doc = ReadProject(ProjectFile);
-
-        var versionElement = SelectVersionNode(doc);
+        var versionElement = SelectVersionNode(doc) ??
+            throw new InvalidOperationException($"Project {ProjectFile} does not contain a <Version> XML Element. Please add one if you want to version this project - for example use <Version>1.0.0</Version>");
         versionElement.InnerText = nextVersion.ToString();
 
         doc.Save(ProjectFile);
     }
 
-    private static XmlNode SelectVersionNode(XmlDocument doc)
+    private static XmlNode? SelectVersionNode(XmlDocument doc)
     {
         return doc.SelectSingleNode("/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='Version']");
     }

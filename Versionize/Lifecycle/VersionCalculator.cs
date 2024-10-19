@@ -1,23 +1,23 @@
-using NuGet.Versioning;
+﻿using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Versioning;
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize;
+namespace Versionize.Lifecycle;
 
 public sealed class VersionCalculator
 {
     public static SemanticVersion Bump(
         Options options,
-        SemanticVersion version,
+        SemanticVersion? version,
         bool isInitialRelease,
         IReadOnlyList<ConventionalCommit> conventionalCommits)
     {
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
         var allowInsignificantCommits = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
-        var nextVersion = isInitialRelease || version is null
+        SemanticVersion nextVersion = isInitialRelease || version is null
             ? version ?? new SemanticVersion(1, 0, 0)
             : versionIncrement.NextVersion(version, options.Prerelease, allowInsignificantCommits);
 
@@ -36,26 +36,26 @@ public sealed class VersionCalculator
 
         if (!string.IsNullOrWhiteSpace(options.ReleaseAs))
         {
-            if (!SemanticVersion.TryParse(options.ReleaseAs, out nextVersion))
+            if (!SemanticVersion.TryParse(options.ReleaseAs, out nextVersion!))
             {
                 Exit($"Could not parse the specified release version {options.ReleaseAs} as valid version", 1);
             }
         }
 
-        if (nextVersion < version)
+        if (version is not null && nextVersion! < version)
         {
             Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {version}. This can be caused by using a wrong pre-release label or release as version", 1);
         }
 
-        return nextVersion;
+        return nextVersion!;
     }
     
     public sealed class Options
     {
         public bool IgnoreInsignificantCommits { get; init; }
         public bool ExitInsignificantCommits { get; init; }
-        public string Prerelease { get; init; }
-        public string ReleaseAs { get; init; }
+        public string? Prerelease { get; init; }
+        public string? ReleaseAs { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {

@@ -4,7 +4,7 @@ using Versionize.Config;
 using Versionize.Git;
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize;
+namespace Versionize.Lifecycle;
 
 public sealed class ReleaseTagger
 {
@@ -42,8 +42,8 @@ public sealed class ReleaseTagger
         public bool SkipTag { get; init; }
         public bool DryRun { get; init; }
         public bool Sign { get; init; }
-        public ProjectOptions Project { get; init; }
-        public string WorkingDirectory { get; init; }
+        public required ProjectOptions Project { get; init; }
+        public required string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {

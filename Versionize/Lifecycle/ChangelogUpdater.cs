@@ -5,11 +5,11 @@ using Versionize.Config;
 using Versionize.ConventionalCommits;
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize;
+namespace Versionize.Lifecycle;
 
 public sealed class ChangelogUpdater
 {
-    public static ChangelogBuilder Update(
+    public static ChangelogBuilder? Update(
         Repository repo,
         Options options,
         SemanticVersion nextVersion,
@@ -21,7 +21,7 @@ public sealed class ChangelogUpdater
         }
 
         var versionTime = DateTimeOffset.Now;
-        var changelog = ChangelogBuilder.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path)));
+        var changelog = ChangelogBuilder.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? "")));
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
 
         if (options.DryRun)
@@ -52,8 +52,8 @@ public sealed class ChangelogUpdater
     {
         public bool SkipChangelog { get; init; }
         public bool DryRun { get; init; }
-        public ProjectOptions Project { get; init; }
-        public string WorkingDirectory { get; init; }
+        public required ProjectOptions Project { get; init; }
+        public required string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -62,7 +62,8 @@ public sealed class ChangelogUpdater
                 DryRun = versionizeOptions.DryRun,
                 SkipChangelog = versionizeOptions.SkipChangelog,
                 Project = versionizeOptions.Project,
-                WorkingDirectory = versionizeOptions.WorkingDirectory,
+                WorkingDirectory = versionizeOptions.WorkingDirectory ??
+                    throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
             };
         }
     }

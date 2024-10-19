@@ -6,7 +6,7 @@ using Versionize.Config;
 using Versionize.Git;
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize;
+namespace Versionize.Lifecycle;
 
 public sealed class ChangeCommitter
 {
@@ -15,7 +15,7 @@ public sealed class ChangeCommitter
         Options options,
         SemanticVersion nextVersion,
         IBumpFile bumpFile,
-        ChangelogBuilder changelog)
+        ChangelogBuilder? changelog)
     {
         if (options.SkipCommit || options.DryRun)
         {
@@ -61,8 +61,8 @@ public sealed class ChangeCommitter
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }
         public bool Sign { get; init; }
-        public string CommitSuffix { get; init; }
-        public string WorkingDirectory { get; init; }
+        public string? CommitSuffix { get; init; }
+        public  required string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {

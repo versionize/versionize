@@ -4,29 +4,29 @@ namespace Versionize.Config;
 
 public sealed class CliConfig
 {
-    public CommandOption Silent { get; init; }
-    public CommandOption DryRun { get; init; }
-    public CommandOption ReleaseAs { get; init; }
-    public CommandOption SkipDirty { get; init; }
-    public CommandOption SkipCommit { get; init; }
-    public CommandOption SkipTag { get; init; }
-    public CommandOption SkipChangelog { get; set; }
-    public CommandOption TagOnly { get; init; }
-    public CommandOption IgnoreInsignificant { get; init; }
-    public CommandOption ExitInsignificant { get; init; }
-    public CommandOption CommitSuffix { get; init; }
-    public CommandOption Prerelease { get; init; }
-    public CommandOption AggregatePrereleases { get; init; }
+    public required CommandOption Silent { get; init; }
+    public required CommandOption DryRun { get; init; }
+    public required CommandOption ReleaseAs { get; init; }
+    public required CommandOption SkipDirty { get; init; }
+    public required CommandOption SkipCommit { get; init; }
+    public required CommandOption SkipTag { get; init; }
+    public required CommandOption SkipChangelog { get; set; }
+    public required CommandOption TagOnly { get; init; }
+    public required CommandOption IgnoreInsignificant { get; init; }
+    public required CommandOption ExitInsignificant { get; init; }
+    public required CommandOption CommitSuffix { get; init; }
+    public required CommandOption Prerelease { get; init; }
+    public required CommandOption AggregatePrereleases { get; init; }
     /// <summary>
     /// Ignore commits beyond the first parent.
     /// </summary>
-    public CommandOption FirstParentOnlyCommits { get; init; }
-    public CommandOption Sign { get; init; }
+    public required CommandOption FirstParentOnlyCommits { get; init; }
+    public required CommandOption Sign { get; init; }
 
-    public CommandOption WorkingDirectory { get; init; }
-    public CommandOption ConfigurationDirectory { get; init; }
-    public CommandOption ProjectName { get; init; }
-    public CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
+    public required CommandOption WorkingDirectory { get; init; }
+    public required CommandOption ConfigurationDirectory { get; init; }
+    public required CommandOption ProjectName { get; init; }
+    public required CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
 
     public static CliConfig Create(CommandLineApplication app)
     {

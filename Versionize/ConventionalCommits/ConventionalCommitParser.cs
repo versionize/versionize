@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using Versionize.Config;
 
@@ -50,8 +49,7 @@ public static class ConventionalCommitParser
             return conventionalCommit;
         }
 
-        var headerPatterns = new List<string>(
-            options?.HeaderPatterns ?? Array.Empty<string>())
+        var headerPatterns = new List<string>(options?.HeaderPatterns ?? [])
         {
             DefaultHeaderPattern
         };

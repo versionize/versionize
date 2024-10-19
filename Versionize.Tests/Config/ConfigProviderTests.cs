@@ -1,12 +1,11 @@
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using Shouldly;
 using Versionize.CommandLine;
-using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Tests.Config;
+namespace Versionize.Config;
 
 public class ConfigProviderTests : IDisposable
 {
