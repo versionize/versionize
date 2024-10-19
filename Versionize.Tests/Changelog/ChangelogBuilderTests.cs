@@ -2,11 +2,10 @@
 using Versionize.Tests.TestSupport;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
-using Versionize.Tests;
 using Versionize.ConventionalCommits;
 using Versionize.Config;
 
-namespace Versionize.Changelog.Tests;
+namespace Versionize.Changelog;
 
 public class ChangelogBuilderTests : IDisposable
 {

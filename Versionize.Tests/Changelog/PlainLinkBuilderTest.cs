@@ -1,13 +1,12 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Shouldly;
-using Versionize.Changelog;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Tests.Changelog;
+namespace Versionize.Changelog;
 
 public class PlainLinkBuilderTest
 {

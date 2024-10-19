@@ -1,10 +1,9 @@
 ﻿using Shouldly;
-using Versionize.BumpFiles;
 using Versionize.Tests.TestSupport;
 using Xunit;
 using Version = NuGet.Versioning.SemanticVersion;
 
-namespace Versionize.Tests;
+namespace Versionize.BumpFiles;
 
 public class ProjectTests
 {
