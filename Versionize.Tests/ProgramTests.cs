@@ -7,7 +7,7 @@ using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Tests;
+namespace Versionize;
 
 public class ProgramTests : IDisposable
 {
