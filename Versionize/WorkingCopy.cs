@@ -3,6 +3,7 @@ using NuGet.Versioning;
 using Versionize.BumpFiles;
 using Versionize.Config;
 using Versionize.Git;
+using Versionize.Lifecycle;
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize;
@@ -90,7 +91,7 @@ $ git config --global user.email johndoe@example.com", 1);
         return repo;
     }
 
-    public static WorkingCopy Discover(string workingDirectoryPath)
+    public static WorkingCopy? Discover(string workingDirectoryPath)
     {
         var workingDirectory = new DirectoryInfo(workingDirectoryPath);
 
@@ -110,7 +111,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             currentDirectory = currentDirectory.Parent;
         }
-        while (currentDirectory.Parent != null);
+        while (currentDirectory is not null && currentDirectory.Parent != null);
 
         Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
 

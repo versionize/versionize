@@ -7,12 +7,12 @@ namespace Versionize.Git;
 
 public static class RepositoryExtensions
 {
-    public static Tag SelectVersionTag(this Repository repository, SemanticVersion version)
+    public static Tag? SelectVersionTag(this Repository repository, SemanticVersion version)
     {
         return SelectVersionTag(repository, version, ProjectOptions.DefaultOneProjectPerRepo);
     }
 
-    public static Tag SelectVersionTag(this Repository repository, SemanticVersion version, ProjectOptions project)
+    public static Tag? SelectVersionTag(this Repository repository, SemanticVersion? version, ProjectOptions project)
     {
         if (version == null)
         {
@@ -38,7 +38,7 @@ public static class RepositoryExtensions
         return project.ExtractTagVersion(tag) != null;
     }
 
-    public static IEnumerable<Commit> GetCommits(this Repository repository, ProjectOptions project, CommitFilter filter = null)
+    public static IEnumerable<Commit> GetCommits(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
     {
         if (!string.IsNullOrEmpty(project.Path))
         {
@@ -57,7 +57,7 @@ public static class RepositoryExtensions
         }
     }
 
-    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag versionTag, ProjectOptions project, CommitFilter filter = null)
+    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag? versionTag, ProjectOptions project, CommitFilter? filter = null)
     {
         if (versionTag == null)
         {
@@ -70,7 +70,7 @@ public static class RepositoryExtensions
         return repository.GetCommits(project, filter).ToList();
     }
 
-    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter filter = null)
+    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
     {
         var lastReleaseCommit = repository
             .GetCommits(project, filter)
@@ -94,18 +94,18 @@ public static class RepositoryExtensions
         return name != null && email != null;
     }
 
-    public static SemanticVersion GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
+    public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
     {
-        SemanticVersion version;
+        SemanticVersion? version;
         if (options.TagOnly)
         {
             version = repository.Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x != null)
-                .OrderByDescending(x => x.Major)
-                .ThenByDescending(x => x.Minor)
-                .ThenByDescending(x => x.Patch)
-                .ThenByDescending(x => x.Release)
+                .OrderByDescending(x => x!.Major)
+                .ThenByDescending(x => x!.Minor)
+                .ThenByDescending(x => x!.Patch)
+                .ThenByDescending(x => x!.Release)
                 .FirstOrDefault();
         }
         else
@@ -120,7 +120,7 @@ public static class RepositoryExtensions
 public sealed class VersionOptions
 {
     public bool TagOnly { get; init; }
-    public ProjectOptions Project { get; init; }
+    public required ProjectOptions Project { get; init; }
 
     public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
     {

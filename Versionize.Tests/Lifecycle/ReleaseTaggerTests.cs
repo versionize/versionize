@@ -7,7 +7,7 @@ using Versionize.Git;
 using Versionize.Config;
 using LibGit2Sharp;
 
-namespace Versionize.Tests;
+namespace Versionize.Lifecycle;
 
 public class ReleaseTaggerTests : IDisposable
 {
@@ -126,6 +126,7 @@ public class ReleaseTaggerTests : IDisposable
         _testSetup.Dispose();
     }
 
+    // TODO: Consider moving to a helper class
     private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
     {
         var user = repository.Config.Get<string>("user.name").Value;
@@ -136,6 +137,7 @@ public class ReleaseTaggerTests : IDisposable
         repository.Commit(message, author, committer);
     }
 
+    // TODO: Consider moving to a helper class
     class FileCommitter
     {
         private readonly TestSetup _testSetup;

@@ -3,7 +3,7 @@ using Versionize.BumpFiles;
 using Versionize.Config;
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize;
+namespace Versionize.Lifecycle;
 
 public sealed class BumpFileUpdater
 {

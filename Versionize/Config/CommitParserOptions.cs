@@ -6,7 +6,7 @@ public sealed class CommitParserOptions
 
     public string[] HeaderPatterns { get; set; } = [];
 
-    public static CommitParserOptions Merge(CommitParserOptions customOptions, CommitParserOptions defaultOptions)
+    public static CommitParserOptions Merge(CommitParserOptions? customOptions, CommitParserOptions defaultOptions)
     {
         if (customOptions == null)
         {

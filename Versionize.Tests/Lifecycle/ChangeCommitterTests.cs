@@ -7,7 +7,7 @@ using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Git;
 
-namespace Versionize.Tests;
+namespace Versionize.Lifecycle;
 
 public class ChangeCommitterTests : IDisposable
 {
@@ -28,6 +28,7 @@ public class ChangeCommitterTests : IDisposable
             Sign = false,
             CommitSuffix = "",
             SkipCommit = false,
+            WorkingDirectory = _testSetup.WorkingDirectory,
         };
         var bumpFile = new NullBumpFile();
         ChangelogBuilder changelog = null;
@@ -51,6 +52,7 @@ public class ChangeCommitterTests : IDisposable
             Sign = false,
             CommitSuffix = "",
             SkipCommit = true,
+            WorkingDirectory = _testSetup.WorkingDirectory,
         };
         var bumpFile = new NullBumpFile();
         ChangelogBuilder changelog = null;
@@ -77,6 +79,7 @@ public class ChangeCommitterTests : IDisposable
             Sign = false,
             CommitSuffix = commitSuffix,
             SkipCommit = false,
+            WorkingDirectory = _testSetup.WorkingDirectory,
         };
         var bumpFile = new NullBumpFile();
 
