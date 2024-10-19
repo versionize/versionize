@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 
 namespace Versionize.Config;

@@ -1,5 +1,4 @@
-﻿#nullable enable
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using Versionize.Config;
 
 namespace Versionize.Changelog;

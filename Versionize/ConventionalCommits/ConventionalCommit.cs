@@ -2,13 +2,13 @@
 
 public sealed class ConventionalCommit
 {
-    public string Sha { get; set; }
+    public string? Sha { get; init; }
 
-    public string Scope { get; set; }
+    public string? Scope { get; set; }
 
-    public string Type { get; set; }
+    public string? Type { get; set; }
 
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     public List<ConventionalCommitNote> Notes { get; set; } = [];
 
@@ -21,14 +21,14 @@ public sealed class ConventionalCommit
 
 public class ConventionalCommitNote
 {
-    public string Title { get; set; }
+    public string? Title { get; init; }
 
-    public string Text { get; set; }
+    public string? Text { get; init; }
 }
 
 public class ConventionalCommitIssue
 {
-    public string Token { get; set; }
+    public string? Token { get; init; }
 
-    public string Id { get; set; }
+    public string? Id { get; init; }
 }

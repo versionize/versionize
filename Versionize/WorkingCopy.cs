@@ -90,7 +90,7 @@ $ git config --global user.email johndoe@example.com", 1);
         return repo;
     }
 
-    public static WorkingCopy Discover(string workingDirectoryPath)
+    public static WorkingCopy? Discover(string workingDirectoryPath)
     {
         var workingDirectory = new DirectoryInfo(workingDirectoryPath);
 
@@ -110,7 +110,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             currentDirectory = currentDirectory.Parent;
         }
-        while (currentDirectory.Parent != null);
+        while (currentDirectory is not null && currentDirectory.Parent != null);
 
         Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
 

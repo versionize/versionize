@@ -14,7 +14,7 @@ public sealed class VersionIncrementStrategy
 
     public SemanticVersion NextVersion(
         SemanticVersion version,
-        string prereleaseLabel = null,
+        string? prereleaseLabel = null,
         bool allowInsignificantCommits = true)
     {
         var versionImpact = CalculateVersionImpact(allowInsignificantCommits);
@@ -37,12 +37,12 @@ public sealed class VersionIncrementStrategy
             }
 
             return IsWithinPrereleaseVersionRange(version, versionImpact)
-                ? version.IncrementPrerelease(prereleaseLabel)
-                : nextVersion.AsPrerelease(prereleaseLabel, 0);
+                ? version.IncrementPrerelease(prereleaseLabel!)
+                : nextVersion.AsPrerelease(prereleaseLabel!, 0);
         }
         else if (!version.IsPrerelease && isPrerelease)
         {
-            return nextVersion.AsPrerelease(prereleaseLabel, 0);
+            return nextVersion.AsPrerelease(prereleaseLabel!, 0);
         }
         else if (version.IsPrerelease && !isPrerelease)
         {
