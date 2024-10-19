@@ -6,7 +6,7 @@ using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Tests;
+namespace Versionize;
 
 public partial class WorkingCopyTests : IDisposable
 {

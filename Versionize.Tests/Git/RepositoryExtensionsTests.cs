@@ -4,9 +4,8 @@ using Versionize.CommandLine;
 using LibGit2Sharp;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
-using Versionize.Git;
 
-namespace Versionize.Tests;
+namespace Versionize.Git;
 
 public class RepositoryExtensionsTests : IDisposable
 {
