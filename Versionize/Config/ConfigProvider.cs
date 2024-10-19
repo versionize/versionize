@@ -16,6 +16,8 @@ public static class ConfigProvider
             fileConfig,
             cliConfig);
 
+        ValidateChangelogPaths(fileConfig, options.WorkingDirectory);
+
         CommandLineUI.Verbosity = MergeBool(cliConfig.Silent.HasValue(), fileConfig?.Silent)
             ? LogLevel.Silent
             : LogLevel.All;
@@ -91,5 +93,26 @@ public static class ConfigProvider
     private static bool MergeBool(bool overridingValue, bool? optionalValue)
     {
         return overridingValue ? overridingValue : (optionalValue ?? false);
+    }
+
+    private static void ValidateChangelogPaths(FileConfig fileConfig, string cwd)
+    {
+        if (fileConfig?.Projects is null)
+        {
+            return;
+        }
+
+        var changelogPaths = new HashSet<string>();
+
+        foreach (var project in fileConfig.Projects)
+        {
+            var changelogPath = Path.Combine(cwd, project.Path, project.Changelog?.Path ?? string.Empty);
+            var fullChangelogPath = Path.GetFullPath(changelogPath);
+
+            if (!changelogPaths.Add(fullChangelogPath))
+            {
+                CommandLineUI.Exit("Two or more projects have changelog paths pointing to the same location.", 1);
+            }
+        }
     }
 }
