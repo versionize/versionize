@@ -1,7 +1,9 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Config;
+using Versionize.Git;
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize;
@@ -43,7 +45,7 @@ public sealed class ChangeCommitter
 
         if (options.Sign)
         {
-            Versionize.Git.RepositoryExtensions.SignedCommit(releaseCommitMessage);
+            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage);
         }
         else
         {
@@ -60,6 +62,7 @@ public sealed class ChangeCommitter
         public bool DryRun { get; init; }
         public bool Sign { get; init; }
         public string CommitSuffix { get; init; }
+        public string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -69,6 +72,7 @@ public sealed class ChangeCommitter
                 DryRun = versionizeOptions.DryRun,
                 Sign = versionizeOptions.Sign,
                 SkipCommit = versionizeOptions.SkipCommit,
+                WorkingDirectory = versionizeOptions.WorkingDirectory,
             };
         }
     }

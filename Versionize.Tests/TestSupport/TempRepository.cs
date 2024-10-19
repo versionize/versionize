@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 
 namespace Versionize.Tests.TestSupport;
 

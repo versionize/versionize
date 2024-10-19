@@ -1,4 +1,5 @@
 ﻿using NuGet.Versioning;
+using Versionize.BumpFiles;
 using Versionize.Config;
 using static Versionize.CommandLine.CommandLineUI;
 

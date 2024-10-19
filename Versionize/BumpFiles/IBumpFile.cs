@@ -1,6 +1,6 @@
 ﻿using NuGet.Versioning;
 
-namespace Versionize;
+namespace Versionize.BumpFiles;
 
 public interface IBumpFile
 {

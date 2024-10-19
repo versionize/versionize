@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
@@ -32,6 +32,11 @@
 
   <ItemGroup>
     <Folder Include="Config\" />
-    <Folder Include="Lifecycle\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestKeyForGpgSigning.pgp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

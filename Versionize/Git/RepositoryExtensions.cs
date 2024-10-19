@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.BumpFiles;
 using Versionize.Config;
 
 namespace Versionize.Git;
@@ -114,52 +114,6 @@ public static class RepositoryExtensions
         }
 
         return version;
-    }
-
-    public static void RunGitCommand(string command, string args)
-    {
-        try
-        {
-            var processInfo = new ProcessStartInfo("git", $"{command} {args}")
-            {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using Process process = new Process();
-            process.StartInfo = processInfo;
-            process.Start();
-
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-
-            if (!string.IsNullOrEmpty(output))
-                Console.WriteLine($"Output: {output}");
-
-            if (!string.IsNullOrEmpty(error))
-                Console.WriteLine($"Error: {error}");
-
-            if (process.ExitCode != 0)
-                throw new Exception($"Git command failed with exit code {process.ExitCode}.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error running git command: {ex.Message}");
-        }
-    }
-
-    public static void SignedCommit(string commitMessage)
-    {
-        RunGitCommand("commit", $"-S -m \"{commitMessage}\"");
-    }
-
-    public static void SignedTag(string tagName, string message)
-    {
-        RunGitCommand("tag", $"-s \"{tagName}\" -m \"{message}\"");
     }
 }
 
