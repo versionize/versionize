@@ -5,7 +5,7 @@ using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Changelog.Tests;
+namespace Versionize.Changelog;
 
 public class AzureLinkBuilderTests
 {

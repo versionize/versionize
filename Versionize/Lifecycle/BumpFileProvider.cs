@@ -48,7 +48,7 @@ public sealed class BumpFileProvider
     public sealed class Options
     {
         public BumpFileType FileType { get; init; }
-        public string WorkingDirectory { get; init; }
+        public required string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -56,7 +56,8 @@ public sealed class BumpFileProvider
             {
                 // TODO: Assign value from VersionizeOptions when implemented
                 FileType = versionizeOptions.TagOnly ? BumpFileType.None : BumpFileType.DotNet,
-                WorkingDirectory = versionizeOptions.WorkingDirectory,
+                WorkingDirectory = versionizeOptions.WorkingDirectory ??
+                    throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
             };
         }
     }

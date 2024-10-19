@@ -1,9 +1,8 @@
 using NuGet.Versioning;
 using Shouldly;
-using Versionize.Versioning;
 using Xunit;
 
-namespace Versionize.Tests.Versioning;
+namespace Versionize.Versioning;
 
 public class PrereleaseIdentifierTests
 {

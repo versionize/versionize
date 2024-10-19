@@ -2,7 +2,7 @@
 using Versionize.Config;
 using Xunit;
 
-namespace Versionize.Tests;
+namespace Versionize;
 
 public partial class WorkingCopyTests
 {

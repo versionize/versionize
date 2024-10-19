@@ -1,10 +1,9 @@
 ﻿using NuGet.Versioning;
 using Shouldly;
 using Versionize.ConventionalCommits;
-using Versionize.Versioning;
 using Xunit;
 
-namespace Versionize.Tests;
+namespace Versionize.Versioning;
 
 public class VersionIncrementStrategyTests
 {

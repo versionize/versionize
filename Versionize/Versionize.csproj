@@ -5,6 +5,7 @@
     <ToolCommandName>versionize</ToolCommandName>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <PackAsTool>True</PackAsTool>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net7.0;net8.0</TargetFrameworks>

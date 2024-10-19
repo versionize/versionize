@@ -38,7 +38,7 @@ public static class Program
         int Versionize(bool inspect = false)
         {
             var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
-            var working = WorkingCopy.Discover(cwd);
+            WorkingCopy working = WorkingCopy.Discover(cwd)!;
 
             var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig);
 
@@ -79,5 +79,5 @@ Exception detail:
         }
     }
     
-    private static string GetVersion() => typeof(Program).Assembly.GetName().Version.ToString();
+    private static string GetVersion() => typeof(Program).Assembly.GetName().Version?.ToString() ?? "";
 }

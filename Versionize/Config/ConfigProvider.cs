@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Versionize.CommandLine;
 
 namespace Versionize.Config;
@@ -23,7 +23,7 @@ public static class ConfigProvider
         return options;
     }
 
-    private static FileConfig FromJsonFile(string filePath)
+    private static FileConfig? FromJsonFile(string filePath)
     {
         if (!File.Exists(filePath))
         {
@@ -44,10 +44,10 @@ public static class ConfigProvider
 
     private static VersionizeOptions MergeWithOptions(
         string baseWorkingDirectory,
-        FileConfig fileConfig,
+        FileConfig? fileConfig,
         CliConfig cliConfig)
     {
-        string projectName = cliConfig.ProjectName.Value();
+        string? projectName = cliConfig.ProjectName.Value();
         var project =
             fileConfig?.Projects.FirstOrDefault(x =>
                 x.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase));

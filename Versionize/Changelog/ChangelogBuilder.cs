@@ -63,7 +63,9 @@ public sealed class ChangelogBuilder
         markdown += "\n";
         markdown += "\n";
 
-        var visibleChangelogSections = changelogOptions.Sections.Where(x => !x.Hidden);
+        var visibleChangelogSections = changelogOptions.Sections is null
+            ? []
+            : changelogOptions.Sections.Where(x => !x.Hidden);
 
         foreach (var changelogSection in visibleChangelogSections)
         {
@@ -101,7 +103,7 @@ public sealed class ChangelogBuilder
         return markdown;
     }
 
-    public static string BuildBlock(string header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)
+    public static string? BuildBlock(string? header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)
     {
         if (!commits.Any())
         {
@@ -130,6 +132,18 @@ public sealed class ChangelogBuilder
         var subject = commit.Subject;
         foreach (var issue in commit.Issues)
         {
+            if (string.IsNullOrEmpty(subject))
+            {
+                continue;
+            }
+            if (string.IsNullOrEmpty(issue.Id))
+            {
+                continue;
+            }
+            if (string.IsNullOrEmpty(issue.Token))
+            {
+                continue;
+            }
             var issueLink = linkBuilder.BuildIssueLink(issue.Id);
             if (!string.IsNullOrEmpty(issueLink))
             {
@@ -143,7 +157,7 @@ public sealed class ChangelogBuilder
 
         if (!string.IsNullOrWhiteSpace(commitLink))
         {
-            var shortSha = commit.Sha[..7];
+            var shortSha = commit.Sha?[..7];
             sb.Append($" ([{shortSha}]({commitLink}))");
         }
 

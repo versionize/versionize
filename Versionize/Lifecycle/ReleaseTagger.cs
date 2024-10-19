@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.Git;
@@ -33,7 +33,7 @@ public sealed class ReleaseTagger
     {
         public bool SkipTag { get; init; }
         public bool DryRun { get; init; }
-        public ProjectOptions Project { get; init; }
+        public required ProjectOptions Project { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {

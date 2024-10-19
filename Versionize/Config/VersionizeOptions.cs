@@ -1,9 +1,9 @@
-namespace Versionize.Config;
+﻿namespace Versionize.Config;
 
 public sealed class VersionizeOptions
 {
     public bool DryRun { get; set; }
-    public string ReleaseAs { get; set; }
+    public string? ReleaseAs { get; set; }
     public bool SkipDirty { get; set; }
     public bool SkipCommit { get; set; }
     public bool SkipTag { get; set; }
@@ -11,15 +11,15 @@ public sealed class VersionizeOptions
     public bool TagOnly { get; set; }
     public bool IgnoreInsignificantCommits { get; set; }
     public bool ExitInsignificantCommits { get; set; }
-    public string CommitSuffix { get; set; }
-    public string Prerelease { get; set; }
+    public string? CommitSuffix { get; set; }
+    public string? Prerelease { get; set; }
     public bool AggregatePrereleases { get; set; }
     /// <summary>
     /// Ignore commits beyond the first parent.
     /// </summary>
     public bool FirstParentOnlyCommits { get; set; }
 
-    public string WorkingDirectory { get; set; }
+    public string? WorkingDirectory { get; set; }
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
     public ProjectOptions Project { get; set; } = ProjectOptions.DefaultOneProjectPerRepo;
 

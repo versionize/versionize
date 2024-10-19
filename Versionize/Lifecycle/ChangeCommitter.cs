@@ -13,7 +13,7 @@ public sealed class ChangeCommitter
         Options options,
         SemanticVersion nextVersion,
         IBumpFile bumpFile,
-        ChangelogBuilder changelog)
+        ChangelogBuilder? changelog)
     {
         if (options.SkipCommit || options.DryRun)
         {
@@ -48,7 +48,7 @@ public sealed class ChangeCommitter
     {
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }
-        public string CommitSuffix { get; init; }
+        public string? CommitSuffix { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
