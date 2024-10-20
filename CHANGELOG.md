@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.1.0"></a>
+## [2.1.0](https://www.github.com/versionize/versionize/releases/tag/v2.1.0) (2024-10-20)
+
+### Features
+
+* add support for signing commits and tags ([#144](https://www.github.com/versionize/versionize/issues/144)) ([4292413](https://www.github.com/versionize/versionize/commit/42924131022299f08b90db2aca74b05aa9d62f54))
+* modify "first parent only" option names to match ([366629b](https://www.github.com/versionize/versionize/commit/366629bba2a910cb3c3d3f9e3f3ca17fcdca186c))
+
+### Bug Fixes
+
+* changelog path option overwrites CHANGELOG.md if multiple projects point to the same location ([#148](https://www.github.com/versionize/versionize/issues/148)) ([4fb2ffa](https://www.github.com/versionize/versionize/commit/4fb2ffa19ef208c24d40901b1a95cf9bb68e8bca))
+
 <a name="2.0.0"></a>
 ## [2.0.0](https://www.github.com/versionize/versionize/releases/tag/v2.0.0) (2024-10-15)
 
