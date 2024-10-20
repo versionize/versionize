@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.BumpFiles;
 using Versionize.Config;
 
 namespace Versionize.Git;

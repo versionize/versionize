@@ -2,8 +2,8 @@
   "profiles": {
     "Versionize": {
       "commandName": "Project",
-      "commandLineArgs": "--skip-dirty --dry-run --skip-tag",
-      "workingDirectory": "C:\\Users\\colt45\\Desktop\\Dev\\DotNet\\OpenSource\\versionize"
+      "commandLineArgs": "--skip-dirty --skip-tag",
+      "workingDirectory": "D:\\OpenSource\\versionize-v2"
     }
   }
 }

@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.Git;
@@ -24,8 +24,16 @@ public sealed class ReleaseTagger
         }
 
         var tagName = options.Project.GetTagName(nextVersion);
-        var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
-        repo.ApplyTag(tagName, tagger, $"{nextVersion}");
+        if (options.Sign)
+        {
+            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}");
+        }
+        else
+        {
+            var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
+            repo.ApplyTag(tagName, tagger, $"{nextVersion}");
+        }
+
         Step($"tagged release as {tagName} against commit with sha {repo.Head.Tip.Sha}");
     }
     
@@ -33,15 +41,19 @@ public sealed class ReleaseTagger
     {
         public bool SkipTag { get; init; }
         public bool DryRun { get; init; }
+        public bool Sign { get; init; }
         public ProjectOptions Project { get; init; }
+        public string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
             return new Options
             {
                 DryRun = versionizeOptions.DryRun,
+                Sign = versionizeOptions.Sign,
                 SkipTag = versionizeOptions.SkipTag,
                 Project = versionizeOptions.Project,
+                WorkingDirectory = versionizeOptions.WorkingDirectory,
             };
         }
     }

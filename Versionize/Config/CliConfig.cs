@@ -21,6 +21,7 @@ public sealed class CliConfig
     /// Ignore commits beyond the first parent.
     /// </summary>
     public CommandOption FirstParentOnlyCommits { get; init; }
+    public CommandOption Sign { get; init; }
 
     public CommandOption WorkingDirectory { get; init; }
     public CommandOption ConfigurationDirectory { get; init; }
@@ -109,6 +110,11 @@ public sealed class CliConfig
             FirstParentOnlyCommits = app.Option(
                 "--first-parent-only-commits",
                 "Ignore commits beyond the first parent.",
+                CommandOptionType.NoValue),
+
+            Sign = app.Option(
+                "-s|--sign",
+                "Sign the git commit and tag.",
                 CommandOptionType.NoValue),
 
             ProjectName = app.Option(

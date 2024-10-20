@@ -102,7 +102,7 @@ $ git config --global user.email johndoe@example.com", 1);
         var currentDirectory = workingDirectory;
         do
         {
-            var foundGitDirectory = currentDirectory.GetDirectories(".git").Any();
+            var foundGitDirectory = currentDirectory.GetDirectories(".git").Length != 0;
             if (foundGitDirectory)
             {
                 return new WorkingCopy(workingDirectory, gitDirectory: currentDirectory);
