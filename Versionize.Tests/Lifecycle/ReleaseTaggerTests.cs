@@ -12,14 +12,11 @@ namespace Versionize.Tests;
 public class ReleaseTaggerTests : IDisposable
 {
     private readonly TestSetup _testSetup;
-    private readonly TestPlatformAbstractions _testPlatformAbstractions;
 
     public ReleaseTaggerTests()
     {
         _testSetup = TestSetup.Create();
-
-        _testPlatformAbstractions = new TestPlatformAbstractions();
-        CommandLineUI.Platform = _testPlatformAbstractions;
+        CommandLineUI.Platform = new TestPlatformAbstractions();
     }
 
     [Fact]
