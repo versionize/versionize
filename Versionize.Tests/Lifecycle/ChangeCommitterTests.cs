@@ -83,7 +83,7 @@ public class ChangeCommitterTests : IDisposable
         };
         var bumpFile = new NullBumpFile();
 
-        var changelogOptions = Config.ChangelogOptions.Default;
+        var changelogOptions = Versionize.Config.ChangelogOptions.Default;
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
             Version.Parse("2.0.0"),
@@ -127,7 +127,7 @@ public class ChangeCommitterTests : IDisposable
         };
         var bumpFile = new NullBumpFile();
 
-        var changelogOptions = Config.ChangelogOptions.Default;
+        var changelogOptions = Versionize.Config.ChangelogOptions.Default;
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
             Version.Parse("2.0.0"),
