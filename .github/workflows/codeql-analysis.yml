@@ -17,11 +17,22 @@ on:
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ master ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - 'Versionize/**'
+      - 'Versionize.Tests/**'
+      - 'Versionize.sln'
+      - '.github/workflows/**'
   schedule:
     - cron: '31 6 * * 1'
 
 jobs:
   analyze:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
