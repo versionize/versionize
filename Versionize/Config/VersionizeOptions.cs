@@ -1,4 +1,6 @@
-﻿namespace Versionize.Config;
+﻿using Versionize.Lifecycle;
+
+namespace Versionize.Config;
 
 public sealed class VersionizeOptions
 {
@@ -19,6 +21,7 @@ public sealed class VersionizeOptions
     /// </summary>
     public bool FirstParentOnlyCommits { get; set; }
     public bool Sign { get; set; }
+    public ProjectType ProjectType { get; set; }
 
     public string WorkingDirectory { get; set; } = "";
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;

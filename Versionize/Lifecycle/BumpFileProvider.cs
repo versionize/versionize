@@ -8,14 +8,16 @@ public sealed class BumpFileProvider
 {
     public static IBumpFile GetBumpFile(Options options)
     {
-        return options.FileType switch
+        return options.ProjectType switch
         {
-            BumpFileType.DotNet => GetProjectGroup(options),
-            BumpFileType.None => new NullBumpFile(),
-            _ => throw new NotImplementedException($"Bump file type {options.FileType} is not implemented")
+            ProjectType.DotNet => GetProjectGroup(options),
+            ProjectType.Unity => UnityBumpFile.Create(options.WorkingDirectory),
+            ProjectType.None => new NullBumpFile(),
+            _ => throw new NotImplementedException($"Bump file type {options.ProjectType} is not implemented")
         };
     }
 
+    // TODO: Consider moving this logic to the bump file class, including the CommandLineUI code
     private static IBumpFile GetProjectGroup(Options options)
     {
         var projectGroup = Projects.Discover(options.WorkingDirectory);
@@ -39,23 +41,16 @@ public sealed class BumpFileProvider
         return projectGroup;
     }
 
-    public enum BumpFileType
-    {
-        None,
-        DotNet
-    }
-
     public sealed class Options
     {
-        public BumpFileType FileType { get; init; }
+        public ProjectType ProjectType { get; init; }
         public required string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
             return new Options
             {
-                // TODO: Assign value from VersionizeOptions when implemented
-                FileType = versionizeOptions.TagOnly ? BumpFileType.None : BumpFileType.DotNet,
+                ProjectType = versionizeOptions.TagOnly ? ProjectType.None : versionizeOptions.ProjectType,
                 WorkingDirectory = versionizeOptions.WorkingDirectory ??
                     throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
             };

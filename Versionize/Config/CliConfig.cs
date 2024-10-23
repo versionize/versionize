@@ -22,6 +22,7 @@ public sealed class CliConfig
     /// </summary>
     public required CommandOption FirstParentOnlyCommits { get; init; }
     public required CommandOption Sign { get; init; }
+    public required CommandOption ProjectType { get; init; }
 
     public required CommandOption WorkingDirectory { get; init; }
     public required CommandOption ConfigurationDirectory { get; init; }
@@ -120,6 +121,12 @@ public sealed class CliConfig
             ProjectName = app.Option(
                 "--proj-name",
                 "Name of a project defined in the configuration file (for monorepos)",
+                CommandOptionType.SingleValue),
+
+            ProjectType = app.Option(
+                "--project-type",
+                "The type of project to version (dotnet, unity, none, etc.). " +
+                "If --tag-only is specified, this option is ignored and project-type is set to none.",
                 CommandOptionType.SingleValue),
 
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option(

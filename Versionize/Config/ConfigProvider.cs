@@ -85,9 +85,27 @@ public static class ConfigProvider
             AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases.HasValue(), fileConfig?.AggregatePrereleases),
             FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits.HasValue(), fileConfig?.FirstParentOnlyCommits),
             Sign = MergeBool(cliConfig.Sign.HasValue(), fileConfig?.Sign),
+            ProjectType = MergeProjectType(cliConfig.ProjectType.Value(), fileConfig?.ProjectType),
             CommitParser = commit,
             Project = project,
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
+        };
+    }
+
+    private static ProjectType MergeProjectType(string? cliValue, string? fileValue)
+    {
+        return cliValue switch
+        {
+            "dotnet" => ProjectType.DotNet,
+            "unity" => ProjectType.Unity,
+            "none" => ProjectType.None,
+            _ => fileValue switch
+            {
+                "dotnet" => ProjectType.DotNet,
+                "unity" => ProjectType.Unity,
+                "none" => ProjectType.None,
+                _ => ProjectType.DotNet,
+            },
         };
     }
 
