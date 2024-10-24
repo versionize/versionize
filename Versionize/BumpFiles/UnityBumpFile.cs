@@ -16,7 +16,7 @@ public sealed class UnityBumpFile : IBumpFile
         _version = version;
     }
 
-    public SemanticVersion Version => new(0, 0, 0);
+    public SemanticVersion Version => _version;
 
     public static UnityBumpFile Create(string workingDirectory)
     {

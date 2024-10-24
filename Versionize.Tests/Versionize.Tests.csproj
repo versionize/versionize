@@ -35,6 +35,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestData\ProjectSettings.asset">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestKeyForGpgSigning.pgp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

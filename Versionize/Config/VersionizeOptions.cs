@@ -21,7 +21,7 @@ public sealed class VersionizeOptions
     /// </summary>
     public bool FirstParentOnlyCommits { get; set; }
     public bool Sign { get; set; }
-    public ProjectType ProjectType { get; set; }
+    public ProjectType ProjectType { get; set; } = ProjectType.DotNet;
 
     public string WorkingDirectory { get; set; } = "";
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;

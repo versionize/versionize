@@ -5,19 +5,25 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.BumpFiles;
 
-public class ProjectTests
+public class ProjectTests : IDisposable
 {
+    private readonly string _tempDir;
+
+    public ProjectTests()
+    {
+        _tempDir = TempDir.Create();
+    }
+
     [Fact]
     public void ShouldThrowInCaseOfInvalidVersion()
     {
-        var tempDir = TempDir.Create();
         var projectFileContents = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>abcd</Version>
     </PropertyGroup>
 </Project>";
 
-        var projectFilePath = Path.Join(tempDir, "test.csproj");
+        var projectFilePath = Path.Join(_tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
         Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
@@ -26,14 +32,13 @@ public class ProjectTests
     [Fact]
     public void ShouldThrowInCaseOfInvalidXml()
     {
-        var tempDir = TempDir.Create();
         var projectFileContents = @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>1.0.0</Version>
     </PropertyGroup>
 ";
 
-        var projectFilePath = Path.Join(tempDir, "test.csproj");
+        var projectFilePath = Path.Join(_tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
         Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
@@ -42,14 +47,13 @@ public class ProjectTests
     [Fact]
     public void ShouldUpdateTheVersionElementOnly()
     {
-        var tempDir = TempDir.Create();
         var projectFileContents =
             @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version>1.0.0</Version>
     </PropertyGroup>
 </Project>";
-        var projectFilePath = WriteProjectFile(tempDir, projectFileContents);
+        var projectFilePath = WriteProjectFile(_tempDir, projectFileContents);
 
         var project = Project.Create(projectFilePath);
         project.WriteVersion(new Version(2, 0, 0));
@@ -62,8 +66,7 @@ public class ProjectTests
     [Fact]
     public void ShouldNotBeVersionableIfNoVersionIsContainedInProjectFile()
     {
-        var tempDir = TempDir.Create();
-        var projectFilePath = WriteProjectFile(tempDir,
+        var projectFilePath = WriteProjectFile(_tempDir,
 @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
     </PropertyGroup>
@@ -76,8 +79,7 @@ public class ProjectTests
     [Fact]
     public void ShouldBeDetectedAsNotVersionableIfAnEmptyVersionIsContainedInProjectFile()
     {
-        var tempDir = TempDir.Create();
-        var projectFilePath = WriteProjectFile(tempDir,
+        var projectFilePath = WriteProjectFile(_tempDir,
 @"<Project Sdk=""Microsoft.NET.Sdk"">
     <PropertyGroup>
         <Version></Version>
@@ -94,5 +96,13 @@ public class ProjectTests
         File.WriteAllText(projectFilePath, projectFileContents);
 
         return projectFilePath;
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_tempDir))
+        {
+            Directory.Delete(_tempDir, true);
+        }
     }
 }
