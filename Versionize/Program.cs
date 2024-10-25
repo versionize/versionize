@@ -39,8 +39,11 @@ public static class Program
         {
             var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
             WorkingCopy working = WorkingCopy.Discover(cwd)!;
+            var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
+            var fileConfigPath = Path.Join(configDirectory, ".versionize");
+            var fileConfig = FileConfig.Load(fileConfigPath);
 
-            var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig);
+            var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig, fileConfig);
 
             if (inspect)
             {

@@ -126,7 +126,7 @@ public sealed class VersionOptions
     {
         return new VersionOptions
         {
-            TagOnly = versionizeOptions.TagOnly,
+            TagOnly = versionizeOptions.ProjectType == ProjectType.None,
             Project = versionizeOptions.Project,
         };
     }

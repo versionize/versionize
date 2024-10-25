@@ -1,8 +1,8 @@
-namespace Versionize.Config;
+﻿namespace Versionize.Config;
 
 public enum ProjectType
 {
     None,
-    DotNet,
+    Dotnet,
     Unity,
 }

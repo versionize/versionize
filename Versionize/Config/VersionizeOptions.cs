@@ -10,7 +10,6 @@ public sealed class VersionizeOptions
     public bool SkipCommit { get; set; }
     public bool SkipTag { get; set; }
     public bool SkipChangelog { get; set; }
-    public bool TagOnly { get; set; }
     public bool IgnoreInsignificantCommits { get; set; }
     public bool ExitInsignificantCommits { get; set; }
     public string? CommitSuffix { get; set; }
@@ -21,7 +20,7 @@ public sealed class VersionizeOptions
     /// </summary>
     public bool FirstParentOnlyCommits { get; set; }
     public bool Sign { get; set; }
-    public ProjectType ProjectType { get; set; } = ProjectType.DotNet;
+    public ProjectType ProjectType { get; set; } = ProjectType.Dotnet;
 
     public string WorkingDirectory { get; set; } = "";
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;

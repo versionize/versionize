@@ -2,8 +2,8 @@
   "profiles": {
     "Versionize": {
       "commandName": "Project",
-      "commandLineArgs": "--skip-dirty --skip-tag",
-      "workingDirectory": "D:\\OpenSource\\versionize-v2"
+      "commandLineArgs": "--skip-dirty --skip-tag --project-type \"unity\"",
+      "workingDirectory": "D:\\OpenSource\\versionize"
     }
   }
 }

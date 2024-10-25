@@ -10,7 +10,7 @@ public sealed class BumpFileProvider
     {
         return options.ProjectType switch
         {
-            ProjectType.DotNet => GetProjectGroup(options),
+            ProjectType.Dotnet => GetProjectGroup(options),
             ProjectType.Unity => UnityBumpFile.Create(options.WorkingDirectory),
             ProjectType.None => new NullBumpFile(),
             _ => throw new NotImplementedException($"Bump file type {options.ProjectType} is not implemented")
@@ -50,7 +50,7 @@ public sealed class BumpFileProvider
         {
             return new Options
             {
-                ProjectType = versionizeOptions.TagOnly ? ProjectType.None : versionizeOptions.ProjectType,
+                ProjectType = versionizeOptions.ProjectType,
                 WorkingDirectory = versionizeOptions.WorkingDirectory ??
                     throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
             };
