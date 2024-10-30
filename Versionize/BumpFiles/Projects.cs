@@ -1,4 +1,5 @@
 ﻿using NuGet.Versioning;
+using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.BumpFiles;
 
@@ -28,6 +29,29 @@ public sealed class Projects : IBumpFile
         }
 
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
+    }
+
+    public static Projects Create(string workingDirectory)
+    {
+        var projectGroup = Projects.Discover(workingDirectory);
+
+        if (projectGroup.IsEmpty())
+        {
+            Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
+        }
+
+        if (projectGroup.HasInconsistentVersioning())
+        {
+            Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
+        }
+
+        Information($"Discovered {projectGroup.GetFilePaths().Count()} versionable projects");
+        foreach (var project in projectGroup.GetFilePaths())
+        {
+            Information($"  * {project}");
+        }
+
+        return projectGroup;
     }
 
     public static Projects Discover(string workingDirectory)

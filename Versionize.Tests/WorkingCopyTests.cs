@@ -767,15 +767,15 @@ public partial class WorkingCopyTests : IDisposable
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature 2");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature 3");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2" });

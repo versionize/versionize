@@ -38,17 +38,19 @@ public static class Program
         int Versionize(bool inspect = false)
         {
             var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
-            WorkingCopy working = WorkingCopy.Discover(cwd)!;
+            var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
+            var fileConfigPath = Path.Join(configDirectory, ".versionize");
+            var fileConfig = FileConfig.Load(fileConfigPath);
+            var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig, fileConfig);
 
-            var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig);
-
+            WorkingCopy workingCopy = WorkingCopy.Discover(cwd)!;
             if (inspect)
             {
-                working.Inspect(mergedOptions.Project);
+                workingCopy.Inspect(mergedOptions.Project);
             }
             else
             {
-                working.Versionize(mergedOptions);
+                workingCopy.Versionize(mergedOptions);
             }
 
             return 0;

@@ -30,6 +30,7 @@ public class WorkingCopy
     {
         var workingDirectory = Path.Combine(_workingDirectory.FullName, projectOptions.Path);
 
+        // TODO: Need to extract this bump file logic.
         var projects = Projects.Discover(workingDirectory);
 
         if (projects.IsEmpty())

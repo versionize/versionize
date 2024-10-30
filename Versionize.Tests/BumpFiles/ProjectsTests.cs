@@ -5,61 +5,63 @@ using Xunit;
 
 namespace Versionize.BumpFiles;
 
-public class ProjectsTests
+public class ProjectsTests : IDisposable
 {
+    private readonly string _tempDir;
+
+    public ProjectsTests()
+    {
+        _tempDir = TempDir.Create();
+    }
+
     [Fact]
     public void ShouldDiscoverAllProjects()
     {
-        var tempDir = TempDir.Create();
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
-        TempProject.CreateVBProject(Path.Join(tempDir, "project3"));
-        TempProject.CreateProps(Path.Join(tempDir, "project4"));
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"));
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"));
+        TempProject.CreateVBProject(Path.Join(_tempDir, "project3"));
+        TempProject.CreateProps(Path.Join(_tempDir, "project4"));
 
-        var projects = Projects.Discover(tempDir);
+        var projects = Projects.Discover(_tempDir);
         projects.GetFilePaths().Count().ShouldBe(4);
     }
 
     [Fact]
     public void ShouldDetectInconsistentVersions()
     {
-        var tempDir = TempDir.Create();
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"), "2.0.0");
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "2.0.0");
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.1.1");
 
-        var projects = Projects.Discover(tempDir);
+        var projects = Projects.Discover(_tempDir);
         projects.HasInconsistentVersioning().ShouldBeTrue();
     }
 
     [Fact]
     public void ShouldDetectConsistentVersions()
     {
-        var tempDir = TempDir.Create();
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"));
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"));
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"));
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"));
 
-        var projects = Projects.Discover(tempDir);
+        var projects = Projects.Discover(_tempDir);
         projects.HasInconsistentVersioning().ShouldBeFalse();
     }
 
     [Fact]
     public void ShouldWriteAllVersionsToProjectFiles()
     {
-        var tempDir = TempDir.Create();
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project1"), "1.1.1");
-        TempProject.CreateCsharpProject(Path.Join(tempDir, "project2"), "1.1.1");
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "1.1.1");
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.1.1");
 
-        var projects = Projects.Discover(tempDir);
+        var projects = Projects.Discover(_tempDir);
         projects.WriteVersion(new SemanticVersion(2, 0, 0));
 
-        var updated = Projects.Discover(tempDir);
+        var updated = Projects.Discover(_tempDir);
         updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
     }
 
     [Fact]
     public void ShouldDetectVersionInNamespacedXmlProjects()
     {
-        var tempDir = TempDir.Create();
         var version = SemanticVersion.Parse("1.0.0");
 
         // Create .net project
@@ -72,9 +74,17 @@ $@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schema
      </PropertyGroup>
 </Project>";
 
-        TempProject.CreateFromProjectContents(tempDir, "csproj", projectFileContents);
+        TempProject.CreateFromProjectContents(_tempDir, "csproj", projectFileContents);
 
-        var projects = Projects.Discover(tempDir);
+        var projects = Projects.Discover(_tempDir);
         projects.Version.ShouldBe(version);
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_tempDir))
+        {
+            Directory.Delete(_tempDir, true);
+        }
     }
 }
