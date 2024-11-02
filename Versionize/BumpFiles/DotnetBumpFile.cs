@@ -3,11 +3,14 @@ using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.BumpFiles;
 
-public sealed class Projects : IBumpFile
+/// <summary>
+/// A composite of one or more versionable <see cref="DotnetBumpFileProject"/> instances.
+/// </summary>
+public sealed class DotnetBumpFile : IBumpFile
 {
-    private readonly IEnumerable<Project> _projects;
+    private readonly IEnumerable<DotnetBumpFileProject> _projects;
 
-    private Projects(IEnumerable<Project> projects)
+    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects)
     {
         _projects = projects;
     }
@@ -31,9 +34,9 @@ public sealed class Projects : IBumpFile
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 
-    public static Projects Create(string workingDirectory)
+    public static DotnetBumpFile Create(string workingDirectory)
     {
-        var projectGroup = Projects.Discover(workingDirectory);
+        var projectGroup = DotnetBumpFile.Discover(workingDirectory);
 
         if (projectGroup.IsEmpty())
         {
@@ -54,7 +57,7 @@ public sealed class Projects : IBumpFile
         return projectGroup;
     }
 
-    public static Projects Discover(string workingDirectory)
+    public static DotnetBumpFile Discover(string workingDirectory)
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
 
@@ -66,12 +69,12 @@ public sealed class Projects : IBumpFile
 
         var projects = filters.SelectMany(filter => Directory
             .GetFiles(workingDirectory, filter, options)
-            .Where(Project.IsVersionable)
-            .Select(Project.Create)
+            .Where(DotnetBumpFileProject.IsVersionable)
+            .Select(DotnetBumpFileProject.Create)
             .ToList()
         );
 
-        return new Projects(projects);
+        return new DotnetBumpFile(projects);
     }
 
     public void WriteVersion(SemanticVersion nextVersion)

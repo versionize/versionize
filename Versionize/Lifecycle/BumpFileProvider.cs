@@ -9,7 +9,7 @@ public sealed class BumpFileProvider
     {
         return options.BumpFileType switch
         {
-            BumpFileType.Dotnet => Projects.Create(options.WorkingDirectory),
+            BumpFileType.Dotnet => DotnetBumpFile.Create(options.WorkingDirectory),
             BumpFileType.Unity => UnityBumpFile.Create(options.WorkingDirectory),
             BumpFileType.None => new NullBumpFile(),
             _ => throw new NotImplementedException($"Bump file type {options.BumpFileType} is not implemented")

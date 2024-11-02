@@ -3,18 +3,18 @@ using NuGet.Versioning;
 
 namespace Versionize.BumpFiles;
 
-public sealed class Project
+public sealed class DotnetBumpFileProject
 {
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }
 
-    private Project(string projectFile, SemanticVersion version)
+    private DotnetBumpFileProject(string projectFile, SemanticVersion version)
     {
         ProjectFile = projectFile;
         Version = version;
     }
 
-    public static Project Create(string projectFile)
+    public static DotnetBumpFileProject Create(string projectFile)
     {
         var (success, version, error) = ReadVersion(projectFile);
 
@@ -23,7 +23,7 @@ public sealed class Project
             throw new InvalidOperationException(error);
         }
 
-        return new Project(projectFile, version!);
+        return new DotnetBumpFileProject(projectFile, version!);
     }
 
     public static bool IsVersionable(string projectFile)

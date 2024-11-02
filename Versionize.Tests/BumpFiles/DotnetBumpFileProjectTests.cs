@@ -5,11 +5,11 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.BumpFiles;
 
-public class ProjectTests : IDisposable
+public class DotnetBumpFileProjectTests : IDisposable
 {
     private readonly string _tempDir;
 
-    public ProjectTests()
+    public DotnetBumpFileProjectTests()
     {
         _tempDir = TempDir.Create();
     }
@@ -26,7 +26,7 @@ public class ProjectTests : IDisposable
         var projectFilePath = Path.Join(_tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
-        Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
+        Should.Throw<InvalidOperationException>(() => DotnetBumpFileProject.Create(projectFilePath));
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class ProjectTests : IDisposable
         var projectFilePath = Path.Join(_tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
-        Should.Throw<InvalidOperationException>(() => Project.Create(projectFilePath));
+        Should.Throw<InvalidOperationException>(() => DotnetBumpFileProject.Create(projectFilePath));
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class ProjectTests : IDisposable
 </Project>";
         var projectFilePath = WriteProjectFile(_tempDir, projectFileContents);
 
-        var project = Project.Create(projectFilePath);
+        var project = DotnetBumpFileProject.Create(projectFilePath);
         project.WriteVersion(new Version(2, 0, 0));
 
         var versionedProjectContents = File.ReadAllText(projectFilePath);
@@ -72,7 +72,7 @@ public class ProjectTests : IDisposable
     </PropertyGroup>
 </Project>");
 
-        var isVersionable = Project.IsVersionable(projectFilePath);
+        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath);
         isVersionable.ShouldBeFalse();
     }
 
@@ -86,7 +86,7 @@ public class ProjectTests : IDisposable
     </PropertyGroup>
 </Project>");
 
-        var isVersionable = Project.IsVersionable(projectFilePath);
+        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath);
         isVersionable.ShouldBeFalse();
     }
 

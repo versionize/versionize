@@ -5,11 +5,11 @@ using Xunit;
 
 namespace Versionize.BumpFiles;
 
-public class ProjectsTests : IDisposable
+public class DotnetBumpFileTests : IDisposable
 {
     private readonly string _tempDir;
 
-    public ProjectsTests()
+    public DotnetBumpFileTests()
     {
         _tempDir = TempDir.Create();
     }
@@ -22,7 +22,7 @@ public class ProjectsTests : IDisposable
         TempProject.CreateVBProject(Path.Join(_tempDir, "project3"));
         TempProject.CreateProps(Path.Join(_tempDir, "project4"));
 
-        var projects = Projects.Discover(_tempDir);
+        var projects = DotnetBumpFile.Discover(_tempDir);
         projects.GetFilePaths().Count().ShouldBe(4);
     }
 
@@ -32,7 +32,7 @@ public class ProjectsTests : IDisposable
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "2.0.0");
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.1.1");
 
-        var projects = Projects.Discover(_tempDir);
+        var projects = DotnetBumpFile.Discover(_tempDir);
         projects.HasInconsistentVersioning().ShouldBeTrue();
     }
 
@@ -42,7 +42,7 @@ public class ProjectsTests : IDisposable
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"));
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"));
 
-        var projects = Projects.Discover(_tempDir);
+        var projects = DotnetBumpFile.Discover(_tempDir);
         projects.HasInconsistentVersioning().ShouldBeFalse();
     }
 
@@ -52,10 +52,10 @@ public class ProjectsTests : IDisposable
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "1.1.1");
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.1.1");
 
-        var projects = Projects.Discover(_tempDir);
+        var projects = DotnetBumpFile.Discover(_tempDir);
         projects.WriteVersion(new SemanticVersion(2, 0, 0));
 
-        var updated = Projects.Discover(_tempDir);
+        var updated = DotnetBumpFile.Discover(_tempDir);
         updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
     }
 
@@ -76,7 +76,7 @@ $@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schema
 
         TempProject.CreateFromProjectContents(_tempDir, "csproj", projectFileContents);
 
-        var projects = Projects.Discover(_tempDir);
+        var projects = DotnetBumpFile.Discover(_tempDir);
         projects.Version.ShouldBe(version);
     }
 
