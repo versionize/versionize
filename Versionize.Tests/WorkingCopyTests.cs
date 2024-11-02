@@ -102,7 +102,8 @@ public partial class WorkingCopyTests : IDisposable
 </Project>");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect());
+        var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
+        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect(options));
 
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
         _testPlatformAbstractions.Messages[0].ShouldEndWith(" that have a <Version> defined in their csproj file.");
@@ -124,7 +125,8 @@ public partial class WorkingCopyTests : IDisposable
 </Project>");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect());
+        var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
+        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect(options));
 
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
         _testPlatformAbstractions.Messages[0].ShouldContain("have an inconsistent <Version> defined in their csproj file");

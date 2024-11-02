@@ -46,7 +46,7 @@ public static class Program
             WorkingCopy workingCopy = WorkingCopy.Discover(cwd)!;
             if (inspect)
             {
-                workingCopy.Inspect(mergedOptions.Project);
+                workingCopy.Inspect(mergedOptions);
             }
             else
             {

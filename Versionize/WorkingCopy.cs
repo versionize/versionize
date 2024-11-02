@@ -1,6 +1,6 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
-using Versionize.BumpFiles;
+using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
 using Versionize.Lifecycle;
@@ -21,32 +21,15 @@ public class WorkingCopy
         _gitDirectory = gitDirectory;
     }
 
-    public SemanticVersion Inspect()
+    public SemanticVersion Inspect(VersionizeOptions options)
     {
-        return Inspect(ProjectOptions.DefaultOneProjectPerRepo);
-    }
-
-    public SemanticVersion Inspect(ProjectOptions projectOptions)
-    {
-        var workingDirectory = Path.Combine(_workingDirectory.FullName, projectOptions.Path);
-
-        // TODO: Need to extract this bump file logic.
-        var projects = DotnetBumpFile.Discover(workingDirectory);
-
-        if (projects.IsEmpty())
-        {
-            Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
-        }
-
-        if (projects.HasInconsistentVersioning())
-        {
-            Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
-        }
-
-        Information(projects.Version.ToNormalizedString());
-
-        return projects.Version;
-
+        // TODO: Implement "--tag-only" variation
+        options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+        CommandLineUI.Verbosity = CommandLine.LogLevel.Error;
+        var bumpFile = BumpFileProvider.GetBumpFile(options);
+        CommandLineUI.Verbosity = CommandLine.LogLevel.All;
+        Information(bumpFile.Version.ToNormalizedString());
+        return bumpFile.Version;
     }
 
     public void Versionize(VersionizeOptions options)
