@@ -95,9 +95,9 @@ public class ConfigProviderTests : IDisposable
     }
 
     [Theory]
-    [InlineData(new string[] { "--proj-name project1" }, BumpFileType.Dotnet)]
-    [InlineData(new string[] { "--proj-name project2" }, BumpFileType.Unity)]
-    public void ReturnsUnityProjectWhenMonoRepo(string[] cliInput, BumpFileType expectedBumpFileType)
+    [InlineData("--proj-name project1", BumpFileType.Dotnet)]
+    [InlineData("--proj-name project2", BumpFileType.Unity)]
+    public void ReturnsBumpFileTypeWhenMonoRepo(string cliInput, BumpFileType expectedBumpFileType)
     {
         var projects = new[]
         {
