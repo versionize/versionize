@@ -1,4 +1,7 @@
-﻿namespace Versionize.Config;
+﻿using System.Text.Json;
+using Versionize.CommandLine;
+
+namespace Versionize.Config;
 
 public sealed class FileConfig
 {
@@ -24,4 +27,23 @@ public sealed class FileConfig
     public CommitParserOptions? CommitParser { get; set; }
     public ProjectOptions[] Projects { get; set; } = [];
     public ChangelogOptions? Changelog { get; set; }
+
+    public static FileConfig? Load(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            return null;
+        }
+
+        try
+        {
+            var jsonString = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<FileConfig>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception e)
+        {
+            CommandLineUI.Exit($"Failed to parse .versionize file: {e.Message}", 1);
+            return null;
+        }
+    }
 }

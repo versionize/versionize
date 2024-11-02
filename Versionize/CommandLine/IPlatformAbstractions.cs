@@ -12,5 +12,6 @@ public interface IPlatformAbstractions
 public enum LogLevel
 {
     Silent = 0,
-    All = 1
+    Error = 1,
+    All = 2,
 }

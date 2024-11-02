@@ -6,7 +6,10 @@ public static class CommandLineUI
 
     public static int Exit(string message, int code)
     {
-        Platform.WriteLine(message, ConsoleColor.Red);
+        if (Verbosity >= LogLevel.Error)
+        {
+            Platform.WriteLine(message, ConsoleColor.Red);
+        }
         Platform.Exit(code);
 
         return code;
@@ -14,11 +17,19 @@ public static class CommandLineUI
 
     public static void Information(string message)
     {
+        if (Verbosity < LogLevel.All)
+        {
+            return;
+        }
         Platform.WriteLine(message, ConsoleColor.Gray);
     }
 
     public static void Step(string message)
     {
+        if (Verbosity < LogLevel.All)
+        {
+            return;
+        }
         Platform.WriteLine(
             ("√", ConsoleColor.Green),
             (" ", ConsoleColor.White),
@@ -27,6 +38,10 @@ public static class CommandLineUI
 
     public static void DryRun(string message)
     {
+        if (Verbosity < LogLevel.All)
+        {
+            return;
+        }
         Platform.WriteLine("\n---", ConsoleColor.Gray);
         Platform.WriteLine(message, ConsoleColor.DarkGray);
         Platform.WriteLine("---\n", ConsoleColor.Gray);

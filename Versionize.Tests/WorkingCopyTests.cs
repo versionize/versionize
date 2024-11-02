@@ -102,7 +102,8 @@ public partial class WorkingCopyTests : IDisposable
 </Project>");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect());
+        var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
+        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect(options));
 
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
         _testPlatformAbstractions.Messages[0].ShouldEndWith(" that have a <Version> defined in their csproj file.");
@@ -124,7 +125,8 @@ public partial class WorkingCopyTests : IDisposable
 </Project>");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect());
+        var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
+        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect(options));
 
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
         _testPlatformAbstractions.Messages[0].ShouldContain("have an inconsistent <Version> defined in their csproj file");
@@ -747,7 +749,7 @@ public partial class WorkingCopyTests : IDisposable
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0" });
 
-        var projects = Projects.Discover(_testSetup.WorkingDirectory);
+        var projects = DotnetBumpFile.Discover(_testSetup.WorkingDirectory);
         projects.Version.ToNormalizedString().ShouldBe("1.0.1-alpha.1");
 
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.1-alpha.0 to 1.0.1-alpha.1 in projects");
@@ -767,15 +769,15 @@ public partial class WorkingCopyTests : IDisposable
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature 2");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature 3");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", TagOnly = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2" });
