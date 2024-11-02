@@ -7,8 +7,8 @@ public sealed class UnityBumpFile : IBumpFile
 {
     private static readonly string versionPattern = @"bundleVersion:\s*([^\r\n]+)";
     
-    private string _projectSettingsPath;
-    private SemanticVersion _version;
+    private readonly string _projectSettingsPath;
+    private readonly SemanticVersion _version;
 
     public UnityBumpFile(string projectSettingsPath, SemanticVersion version)
     {

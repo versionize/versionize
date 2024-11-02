@@ -94,6 +94,45 @@ public class ConfigProviderTests : IDisposable
         options.BumpFileType.ShouldBe(expectedBumpFileType);
     }
 
+    [Theory]
+    [InlineData(new string[] { "--proj-name project1" }, BumpFileType.Dotnet)]
+    [InlineData(new string[] { "--proj-name project2" }, BumpFileType.Unity)]
+    public void ReturnsUnityProjectWhenMonoRepo(string[] cliInput, BumpFileType expectedBumpFileType)
+    {
+        var projects = new[]
+        {
+            new ProjectOptions
+            {
+                Name = "Project1",
+                Path = "project1",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project1 header",
+                }
+            },
+            new ProjectOptions
+            {
+                Name = "Project2",
+                Path = "project2",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project2 header",
+                }
+            }
+        };
+
+        var dotnetProjectPath = Path.Combine(_testSetup.WorkingDirectory, "project1");
+        var unityProjectPath = Path.Combine(_testSetup.WorkingDirectory, "project2");
+        TempProject.CreateCsharpProject(dotnetProjectPath);
+        TempProject.CreateUnityProject(unityProjectPath);
+        var fileConfig = new FileConfig { Projects = projects };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(cliInput);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.BumpFileType.ShouldBe(expectedBumpFileType);
+    }
+
     public void Dispose()
     {
         _testSetup.Dispose();
