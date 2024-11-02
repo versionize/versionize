@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.2.0"></a>
+## [2.2.0](https://www.github.com/versionize/versionize/releases/tag/v2.2.0) (2024-11-02)
+
+### Features
+
+* add support for unity projects ([#150](https://www.github.com/versionize/versionize/issues/150)) ([556856c](https://www.github.com/versionize/versionize/commit/556856c696853af910e7ccfd3f69907613c7d131))
+
 <a name="2.1.0"></a>
 ## [2.1.0](https://www.github.com/versionize/versionize/releases/tag/v2.1.0) (2024-10-20)
 
