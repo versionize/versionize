@@ -7,11 +7,6 @@ namespace Versionize.Git;
 
 public static class RepositoryExtensions
 {
-    public static Tag? SelectVersionTag(this Repository repository, SemanticVersion version)
-    {
-        return SelectVersionTag(repository, version, ProjectOptions.DefaultOneProjectPerRepo);
-    }
-
     public static Tag? SelectVersionTag(this Repository repository, SemanticVersion? version, ProjectOptions project)
     {
         if (version == null)
@@ -26,11 +21,6 @@ public static class RepositoryExtensions
     {
         var tagName = project.GetTagName(version);
         return repository.Tags.Any(tag => tag.FriendlyName.Equals(tagName));
-    }
-
-    public static bool IsSemanticVersionTag(this Tag tag)
-    {
-        return IsSemanticVersionTag(tag, ProjectOptions.DefaultOneProjectPerRepo);
     }
 
     public static bool IsSemanticVersionTag(this Tag tag, ProjectOptions project)
@@ -101,7 +91,7 @@ public static class RepositoryExtensions
         {
             version = repository.Tags
                 .Select(options.Project.ExtractTagVersion)
-                .Where(x => x != null)
+                .Where(x => x is not null)
                 .OrderByDescending(x => x!.Major)
                 .ThenByDescending(x => x!.Minor)
                 .ThenByDescending(x => x!.Patch)
@@ -114,6 +104,66 @@ public static class RepositoryExtensions
         }
 
         return version;
+    }
+
+    public static Tag? GetPreviousVersionTag(this Repository repository, SemanticVersion version, VersionizeOptions options)
+    {
+        var versionsEnumerable = repository.Tags
+            .Select(options.Project.ExtractTagVersion)
+            .Where(x => x is not null);
+        if (options.AggregatePrereleases)
+        {
+            versionsEnumerable = versionsEnumerable.Where(x => !x!.IsPrerelease);
+        }
+        var versions = versionsEnumerable
+            .OrderByDescending(x => x!.Major)
+            .ThenByDescending(x => x!.Minor)
+            .ThenByDescending(x => x!.Patch)
+            .ThenByDescending(x => x!.Release)
+            .ToArray();
+
+        var versionIndex = Array.IndexOf(versions, version);
+        if (versionIndex == -1 || versionIndex == versions.Length - 1)
+        {
+            return null;
+        }
+
+        return repository.Tags
+            .FirstOrDefault(tag => options.Project.ExtractTagVersion(tag) == versions[versionIndex + 1]);
+    }
+
+    public static Tag? GetNthMostRecentVersionTag(this Repository repository, int n)
+    {
+        if (n < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(n), "n must be greater than 0");
+        }
+        return repository.Tags
+            .OrderByDescending(x => x.Target.Peel<Commit>().Committer.When)
+            .Skip(n - 1)
+            .FirstOrDefault();
+    }
+
+    public static Commit? GetOldestCommitSinceDate(this Repository repository, DateTimeOffset date)
+    {
+        var filter = new CommitFilter
+        {
+            SortBy = CommitSortStrategies.Time | CommitSortStrategies.Topological,
+            FirstParentOnly = true,
+        };
+        return repository.Commits
+            .QueryBy(filter)
+            .FirstOrDefault(x => x.Committer.When >= date);
+    }
+
+    public static Commit? GetOldestCommitWithinLastXDays(this Repository repository, int days)
+    {
+        return GetOldestCommitSinceDate(repository, DateTimeOffset.Now.AddDays(-days));
+    }
+
+    public static Commit? GetOldestCommitWithinLastXMonths(this Repository repository, int months)
+    {
+        return GetOldestCommitSinceDate(repository, DateTimeOffset.Now.AddMonths(-months));
     }
 }
 

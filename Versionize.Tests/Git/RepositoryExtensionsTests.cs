@@ -4,6 +4,7 @@ using Versionize.CommandLine;
 using LibGit2Sharp;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
+using Versionize.Config;
 
 namespace Versionize.Git;
 
@@ -28,7 +29,9 @@ public class RepositoryExtensionsTests : IDisposable
 
         _testSetup.Repository.Tags.Add("v2.0.0", commit);
 
-        var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
+        var versionTag = _testSetup.Repository.SelectVersionTag(
+            new Version(2, 0, 0),
+            ProjectOptions.DefaultOneProjectPerRepo);
 
         versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
     }
@@ -41,7 +44,9 @@ public class RepositoryExtensionsTests : IDisposable
 
         _testSetup.Repository.Tags.Add("v2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
 
-        var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
+        var versionTag = _testSetup.Repository.SelectVersionTag(
+            new Version(2, 0, 0),
+            ProjectOptions.DefaultOneProjectPerRepo);
 
         versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
     }
@@ -54,7 +59,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         var tag = _testSetup.Repository.Tags.Add("2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
 
-        tag.IsSemanticVersionTag().ShouldBeFalse();
+        tag.IsSemanticVersionTag(ProjectOptions.DefaultOneProjectPerRepo).ShouldBeFalse();
     }
 
     [Fact]
@@ -65,7 +70,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         var tag = _testSetup.Repository.Tags.Add("vNext", commit, GetAuthorSignature(), "Some annotation message without a version included");
 
-        tag.IsSemanticVersionTag().ShouldBeFalse();
+        tag.IsSemanticVersionTag(ProjectOptions.DefaultOneProjectPerRepo).ShouldBeFalse();
     }
 
     private static Commit CommitAll(IRepository repository, string message = "feat: Initial commit")

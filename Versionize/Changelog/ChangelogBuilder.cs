@@ -63,6 +63,16 @@ public sealed class ChangelogBuilder
         markdown += "\n";
         markdown += "\n";
 
+        return markdown + GenerateCommitList(linkBuilder, commits, changelogOptions);
+    }
+
+    public static string GenerateCommitList(
+        IChangelogLinkBuilder linkBuilder,
+        IEnumerable<ConventionalCommit> commits,
+        ChangelogOptions changelogOptions)
+    {
+        var markdown = "";
+
         var visibleChangelogSections = changelogOptions.Sections is null
             ? []
             : changelogOptions.Sections.Where(x => !x.Hidden);

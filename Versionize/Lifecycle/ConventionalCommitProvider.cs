@@ -48,6 +48,20 @@ public sealed class ConventionalCommitProvider
 
         return (isInitialRelease, conventionalCommits);
     }
+    public static IReadOnlyList<ConventionalCommit> GetCommits(Repository repo, Options options, GitObject? fromRef, GitObject toRef)
+    {
+        var commitFilter = new CommitFilter
+        {
+            FirstParentOnly = options.FirstParentOnlyCommits,
+            IncludeReachableFrom = toRef,
+            ExcludeReachableFrom = fromRef,
+        };
+
+        List<Commit> commitsInVersion = repo.GetCommits(options.Project, commitFilter).ToList();
+        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
+
+        return conventionalCommits;
+    }
 
     public sealed class Options
     {

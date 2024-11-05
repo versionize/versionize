@@ -2,7 +2,7 @@
   "profiles": {
     "Versionize": {
       "commandName": "Project",
-      "commandLineArgs": "--skip-dirty --skip-tag",
+      "commandLineArgs": "--skip-dirty --skip-tag changelog",
       "workingDirectory": "D:\\OpenSource\\versionize-v2"
     }
   }

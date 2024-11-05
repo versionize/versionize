@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using System.Text.RegularExpressions;
 using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
@@ -30,6 +31,174 @@ public class WorkingCopy
         CommandLineUI.Verbosity = CommandLine.LogLevel.All;
         Information(bumpFile.Version.ToNormalizedString());
         return bumpFile.Version;
+    }
+
+    public void GenerateChanglog(VersionizeOptions options, string? rangeStr)
+    {
+        options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+
+        using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
+
+        // parse range
+        // if null, <from> defaults to latest version tag, and <to> defaults to HEAD
+        // format is <from>..<to> (should include one or both <from> and <to>)
+        // if <from> is not specified, it defaults to first commit
+        // if <to> is not specified, it defaults to HEAD
+        // ..sha, sha.., sha..sha
+        // version, version.., version..version
+        // 1m.., 7d..
+        // where <from> and <to> can be a version, a sha, or <n><unit> where <unit> is one of: d: day, m: month, v: version
+        // when used as <from>, <n><unit> means minus n units from HEAD
+        // when used as <to>, <n><unit> means plus n units from <from>
+        string? from = null;
+        string? to = null;
+        if (rangeStr != null)
+        {
+            var parts = rangeStr.Split("..");
+            if (parts.Length > 2)
+            {
+                Exit("Invalid range format. Expected <from>..<to>", 1);
+            }
+            if (parts.Length == 1)
+            {
+                // if parts[0] is version, from = GetPreviousTag(parts[0]), to = GetTag(parts[0])
+                // if parts[0] is sha, from = sha, to = HEAD
+                // if parts[0] is <n><unit>, from = GetOldestCommitWithinLastXUnits(n), to = HEAD
+            }
+
+            from = parts[0];
+            to = parts[1];
+        }
+
+        var fromRef = GetFromSha(repo, from, options.Project);
+        var toRef = GetToSha(repo, to, options.Project);
+
+        ////var version = repo.GetCurrentVersion(options);
+        //var version = SemanticVersion.Parse("1.23.0");
+
+        //var versionToUseForCommitDiff = version;
+        //if (options.AggregatePrereleases)
+        //{
+        //    versionToUseForCommitDiff = repo
+        //        .Tags
+        //        .Select(options.Project.ExtractTagVersion)
+        //        .Where(x => x != null && !x.IsPrerelease)
+        //        .OrderByDescending(x => x!.Major)
+        //        .ThenByDescending(x => x!.Minor)
+        //        .ThenByDescending(x => x!.Patch)
+        //        .FirstOrDefault();
+        //}
+
+        //var fromRef = repo.SelectVersionTag(versionToUseForCommitDiff, options.Project)?.Target;
+        //var toRef = repo.Head.Tip;
+
+        //var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, fromRef, toRef);
+        //var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
+        //string markdown = ChangelogBuilder.GenerateCommitList(
+        //    linkBuilder,
+        //    conventionalCommits,
+        //    options.Project.Changelog);
+
+        //Information(markdown);
+    }
+
+    //export default class GitHubMarkdown implements IMarkdown
+    //{
+    //  heading(text: string, level: number): string {
+    //    return `${'#'.repeat(level)} ${text}\n\n`
+    //  }
+
+    //  bold(text: string): string {
+    //    return `**${text}**`
+    //  }
+
+    //  link(display: string, link: string): string {
+    //    return `[${display}](${ link})`
+    //  }
+
+    //  ul(list: string[]): string {
+    //    return `* ${list.join('\n* ')}\n\n`
+    //  }
+    //}
+
+    private static (string, string) GetShaRange(Repository repo, string refStr, VersionizeOptions options)
+    {
+        if (SemanticVersion.TryParse(refStr, out var version))
+        {
+            var toTag = repo.SelectVersionTag(version, options.Project);
+            var fromTag = repo.GetPreviousVersionTag(version, options)?.Target.Sha ?? repo.GetOldestCommitSinceDate(DateTimeOffset.MinValue)!.Sha;
+            return (fromTag, toTag!.Target.Sha);
+        }
+
+        var unitRegex = new Regex(@"^(\d+)([dmv])$");
+        var match = unitRegex.Match(refStr);
+        if (match.Success)
+        {
+            var count = int.Parse(match.Groups[1].Value);
+            var unit = match.Groups[2].Value;
+            if (unit == "d")
+            {
+                return (repo.GetOldestCommitWithinLastXDays(count)!.Sha, repo.Head.Tip.Sha);
+            }
+            else if (unit == "m")
+            {
+                return (repo.GetOldestCommitWithinLastXMonths(count)!.Sha, repo.Head.Tip.Sha);
+            }
+            else if (unit == "v")
+            {
+                return (repo.GetNthMostRecentVersionTag(count)!.Target.Sha, repo.Head.Tip.Sha);
+            }
+        }
+
+        if (repo.Lookup<Commit>(refStr) is Commit commit)
+        {
+            return (commit.Sha, repo.Head.Tip.Sha);
+        }
+
+        throw new ArgumentException("Invalid <from> format");
+    }
+
+    private static string? GetFromSha(Repository repo, string? from, ProjectOptions project)
+    {
+        if (from is null)
+        {
+            // get very first commit
+            return repo.GetOldestCommitSinceDate(DateTimeOffset.MinValue)?.Sha;
+        }
+
+        if (SemanticVersion.TryParse(from, out var version))
+        {
+            var tag = repo.SelectVersionTag(version, project);
+            return tag?.Target.Sha;
+        }
+
+        var unitRegex = new Regex(@"^(\d+)([dmv])$");
+        var match = unitRegex.Match(from);
+        if (match.Success)
+        {
+            var count = int.Parse(match.Groups[1].Value);
+            var unit = match.Groups[2].Value;
+            if (unit == "d")
+            {
+                return repo.GetOldestCommitWithinLastXDays(count)?.Sha;
+            }
+            else if (unit == "m")
+            {
+                return repo.GetOldestCommitWithinLastXMonths(count)?.Sha;
+            }
+            else if (unit == "v")
+            {
+                return repo.GetNthMostRecentVersionTag(count)?.Target.Sha;
+            }
+        }
+
+        if (repo.Lookup<Commit>(from) is Commit commit)
+        {
+            return commit.Sha;
+        }
+
+        //throw new ArgumentException("Invalid <from> format");
+        return null;
     }
 
     public void Versionize(VersionizeOptions options)

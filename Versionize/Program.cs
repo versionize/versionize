@@ -28,6 +28,25 @@ public static class Program
             inspectCmd => inspectCmd.OnExecute(Inspect));
         inspectCmd.Description = "Prints the current version to stdout";
 
+        app.Command("changelog", changelogCmd =>
+        {
+            var rangeOption = changelogCmd.Option(
+                "-r|--range",
+                "The number of versions to include in the changelog",
+                CommandOptionType.SingleValue);
+            changelogCmd.OnExecute(() =>
+            {
+                var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
+                var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
+                var fileConfigPath = Path.Join(configDirectory, ".versionize");
+                var fileConfig = FileConfig.Load(fileConfigPath);
+                var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig, fileConfig);
+
+                WorkingCopy workingCopy = WorkingCopy.Discover(cwd)!;
+                workingCopy.GenerateChanglog(mergedOptions, rangeOption.Value());
+            });
+        });
+
         app.OnExecute(() => Versionize());
 
         int Inspect()
