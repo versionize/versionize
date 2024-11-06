@@ -43,16 +43,13 @@ public sealed record ProjectOptions
 
     public SemanticVersion? ExtractTagVersion(Tag tag)
     {
-        if (tag.FriendlyName != null)
-        {
-            var prefix = GetTagPrefix();
+        var prefix = GetTagPrefix();
 
-            if (tag.FriendlyName != null &&
-                tag.FriendlyName.StartsWith(prefix) &&
-                SemanticVersion.TryParse(tag.FriendlyName[prefix.Length..], out var version))
-            {
-                return version;
-            }
+        if (tag.FriendlyName != null &&
+            tag.FriendlyName.StartsWith(prefix) &&
+            SemanticVersion.TryParse(tag.FriendlyName[prefix.Length..], out var version))
+        {
+            return version;
         }
 
         return null;

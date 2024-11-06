@@ -64,14 +64,15 @@ public class WorkingCopy
                 // if parts[0] is version, from = GetPreviousTag(parts[0]), to = GetTag(parts[0])
                 // if parts[0] is sha, from = sha, to = HEAD
                 // if parts[0] is <n><unit>, from = GetOldestCommitWithinLastXUnits(n), to = HEAD
+                (from, to) = GetShaRange(repo, parts[0], options);
             }
 
             from = parts[0];
             to = parts[1];
         }
 
-        var fromRef = GetFromSha(repo, from, options.Project);
-        var toRef = GetToSha(repo, to, options.Project);
+        //var fromRef = GetFromSha(repo, from, options.Project);
+        //var toRef = GetToSha(repo, to, options.Project);
 
         ////var version = repo.GetCurrentVersion(options);
         //var version = SemanticVersion.Parse("1.23.0");
@@ -121,13 +122,23 @@ public class WorkingCopy
     //  }
     //}
 
-    private static (string, string) GetShaRange(Repository repo, string refStr, VersionizeOptions options)
+    private static (string From, string To) GetShaRange(Repository repo, string refStr, VersionizeOptions options)
     {
         if (SemanticVersion.TryParse(refStr, out var version))
         {
             var toTag = repo.SelectVersionTag(version, options.Project);
-            var fromTag = repo.GetPreviousVersionTag(version, options)?.Target.Sha ?? repo.GetOldestCommitSinceDate(DateTimeOffset.MinValue)!.Sha;
-            return (fromTag, toTag!.Target.Sha);
+            if (toTag is null)
+            {
+                throw new ArgumentException($"Version {version} not found");
+            }
+            var fromVersion = repo.GetPreviousVersion(version, options);
+            GitObject? fromRef = repo.SelectVersionTag(fromVersion, options.Project)?.Target ??
+                repo.GetOldestCommitSinceDate(DateTimeOffset.MinValue);
+            if (fromRef is null)
+            {
+                throw new ArgumentException("No previous version found");
+            }
+            return (fromRef.Sha, toTag.Target.Sha);
         }
 
         var unitRegex = new Regex(@"^(\d+)([dmv])$");
@@ -136,18 +147,18 @@ public class WorkingCopy
         {
             var count = int.Parse(match.Groups[1].Value);
             var unit = match.Groups[2].Value;
-            if (unit == "d")
+            GitObject? fromRef = unit switch
             {
-                return (repo.GetOldestCommitWithinLastXDays(count)!.Sha, repo.Head.Tip.Sha);
-            }
-            else if (unit == "m")
+                "d" => repo.GetOldestCommitWithinLastXDays(count),
+                "m" => repo.GetOldestCommitWithinLastXMonths(count),
+                "v" => repo.GetNthMostRecentVersionTag(count)?.Target,
+                _ => throw new ArgumentException("Invalid unit")
+            };
+            if (fromRef is null)
             {
-                return (repo.GetOldestCommitWithinLastXMonths(count)!.Sha, repo.Head.Tip.Sha);
+                throw new ArgumentException("No commits found");
             }
-            else if (unit == "v")
-            {
-                return (repo.GetNthMostRecentVersionTag(count)!.Target.Sha, repo.Head.Tip.Sha);
-            }
+            return (fromRef.Sha, repo.Head.Tip.Sha);
         }
 
         if (repo.Lookup<Commit>(refStr) is Commit commit)
@@ -158,18 +169,24 @@ public class WorkingCopy
         throw new ArgumentException("Invalid <from> format");
     }
 
-    private static string? GetFromSha(Repository repo, string? from, ProjectOptions project)
+    private static (string From, string To) GetShaRange(Repository repo, string from, string to, ProjectOptions project)
     {
-        if (from is null)
+        string fromRef = "";
+        if (string.IsNullOrEmpty(from))
         {
             // get very first commit
-            return repo.GetOldestCommitSinceDate(DateTimeOffset.MinValue)?.Sha;
+            fromRef = repo.GetOldestCommitSinceDate(DateTimeOffset.MinValue)?.Sha ?? throw new ArgumentException("No commits found");
+        }
+        string toRef = "";
+        if (string.IsNullOrEmpty(to))
+        {
+            toRef = repo.Head.Tip.Sha;
         }
 
         if (SemanticVersion.TryParse(from, out var version))
         {
             var tag = repo.SelectVersionTag(version, project);
-            return tag?.Target.Sha;
+            fromRef = tag?.Target.Sha ?? throw new ArgumentException($"Version {version} not found");
         }
 
         var unitRegex = new Regex(@"^(\d+)([dmv])$");
@@ -178,23 +195,23 @@ public class WorkingCopy
         {
             var count = int.Parse(match.Groups[1].Value);
             var unit = match.Groups[2].Value;
-            if (unit == "d")
+            GitObject? fromRef = unit switch
             {
-                return repo.GetOldestCommitWithinLastXDays(count)?.Sha;
-            }
-            else if (unit == "m")
+                "d" => repo.GetOldestCommitWithinLastXDays(count),
+                "m" => repo.GetOldestCommitWithinLastXMonths(count),
+                "v" => repo.GetNthMostRecentVersionTag(count)?.Target,
+                _ => throw new ArgumentException("Invalid unit")
+            };
+            if (fromRef is null)
             {
-                return repo.GetOldestCommitWithinLastXMonths(count)?.Sha;
+                throw new ArgumentException("No commits found");
             }
-            else if (unit == "v")
-            {
-                return repo.GetNthMostRecentVersionTag(count)?.Target.Sha;
-            }
+            return (fromRef.Sha, repo.Head.Tip.Sha);
         }
 
         if (repo.Lookup<Commit>(from) is Commit commit)
         {
-            return commit.Sha;
+            fromRef = commit.Sha;
         }
 
         //throw new ArgumentException("Invalid <from> format");

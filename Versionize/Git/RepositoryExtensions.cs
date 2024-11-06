@@ -106,7 +106,7 @@ public static class RepositoryExtensions
         return version;
     }
 
-    public static Tag? GetPreviousVersionTag(this Repository repository, SemanticVersion version, VersionizeOptions options)
+    public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, VersionizeOptions options)
     {
         var versionsEnumerable = repository.Tags
             .Select(options.Project.ExtractTagVersion)
@@ -128,8 +128,7 @@ public static class RepositoryExtensions
             return null;
         }
 
-        return repository.Tags
-            .FirstOrDefault(tag => options.Project.ExtractTagVersion(tag) == versions[versionIndex + 1]);
+        return versions[versionIndex + 1];
     }
 
     public static Tag? GetNthMostRecentVersionTag(this Repository repository, int n)
