@@ -64,6 +64,8 @@ Options:
 
 Commands:
   inspect                              Prints the current version to stdout
+  changelog                            Prints a given version's changelog to stdout
+    -v|--version <VERSION>             The version to include in the changelog (defaults to latest version if not specified)
 ```
 
 ## Supported commit types

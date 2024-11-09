@@ -1,4 +1,5 @@
-﻿using McMaster.Extensions.CommandLineUtils;
+﻿using LibGit2Sharp;
+using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Versioning;
@@ -23,38 +24,39 @@ public static class Program
 
         var cliConfig = CliConfig.Create(app);
 
-        var inspectCmd = app.Command(
-            "inspect",
-            inspectCmd => inspectCmd.OnExecute(Inspect));
-        inspectCmd.Description = "Prints the current version to stdout";
-
-        app.OnExecute(() => Versionize());
-
-        int Inspect()
+        app.Command("inspect", inspectCmd =>
         {
-            return Versionize(true);
-        }
+            inspectCmd.Description = "Prints the current version to stdout";
+            inspectCmd.OnExecute(() =>
+            {
+                var (workingCopy, options) = GetWorkingCopy(cliConfig);
+                workingCopy.Inspect(options);
+            });
+        });
 
-        int Versionize(bool inspect = false)
+        app.Command("changelog", changelogCmd =>
         {
-            var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
-            var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
-            var fileConfigPath = Path.Join(configDirectory, ".versionize");
-            var fileConfig = FileConfig.Load(fileConfigPath);
-            var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig, fileConfig);
+            changelogCmd.Description = "Prints a given version's changelog to stdout";
+            var versionOption = changelogCmd.Option(
+                "-v|--version <VERSION>",
+                "The version to include in the changelog",
+                CommandOptionType.SingleValue);
 
-            WorkingCopy workingCopy = WorkingCopy.Discover(cwd)!;
-            if (inspect)
+            changelogCmd.OnExecute(() =>
             {
-                workingCopy.Inspect(mergedOptions);
-            }
-            else
-            {
-                workingCopy.Versionize(mergedOptions);
-            }
+                var (workingCopy, options) = GetWorkingCopy(cliConfig);
+                workingCopy.GenerateChanglog(options, versionOption.Value());
+            });
+        });
 
+        int Versionize()
+        {
+            var (workingCopy, options) = GetWorkingCopy(cliConfig);
+            workingCopy.Versionize(options);
             return 0;
         }
+
+        app.OnExecute(() => Versionize());
 
         try
         {
@@ -79,6 +81,18 @@ Exception detail:
 
 {e}", 1);
         }
+    }
+
+    private static (WorkingCopy, VersionizeOptions) GetWorkingCopy(CliConfig cliConfig)
+    {
+        var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
+        var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
+        var fileConfigPath = Path.Join(configDirectory, ".versionize");
+        var fileConfig = FileConfig.Load(fileConfigPath);
+        var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig, fileConfig);
+        WorkingCopy workingCopy = WorkingCopy.Discover(cwd)!;
+
+        return (workingCopy, mergedOptions);
     }
     
     private static string GetVersion() => typeof(Program).Assembly.GetName().Version?.ToString() ?? "";

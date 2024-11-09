@@ -2,6 +2,8 @@
 using NuGet.Versioning;
 using Versionize.BumpFiles;
 using Versionize.Config;
+using Versionize.Lifecycle;
+using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.Git;
 
@@ -111,6 +113,58 @@ public static class RepositoryExtensions
         }
 
         return version;
+    }
+
+    public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, VersionizeOptions options)
+    {
+        var versionsEnumerable = repository.Tags
+            .Select(options.Project.ExtractTagVersion)
+            .Where(x => x is not null);
+        if (options.AggregatePrereleases)
+        {
+            versionsEnumerable = versionsEnumerable.Where(x => !x!.IsPrerelease);
+        }
+        var versions = versionsEnumerable
+            .OrderByDescending(x => x)
+            .ToArray();
+
+        var versionIndex = Array.IndexOf(versions, version);
+        if (versionIndex == -1 || versionIndex == versions.Length - 1)
+        {
+            return null;
+        }
+
+        return versions[versionIndex + 1];
+    }
+
+    public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, VersionizeOptions options)
+    {
+        if (string.IsNullOrEmpty(versionStr))
+        {
+            versionStr = repo.GetCurrentVersion(options, BumpFileProvider.GetBumpFile(options))?.ToNormalizedString();
+            if (string.IsNullOrEmpty(versionStr))
+            {
+                Exit("No version found", 1);
+                throw new InvalidOperationException("No version found");
+            }
+        }
+        if (SemanticVersion.TryParse(versionStr, out var version))
+        {
+            var toRef = repo.SelectVersionTag(version, options.Project)?.Target;
+            if (toRef is null)
+            {
+                Exit($"Tag for version '{version}' not found", 1);
+                throw new InvalidOperationException($"Tag for version '{version}' not found");
+            }
+
+            var fromVersion = repo.GetPreviousVersion(version, options);
+            GitObject? fromRef = repo.SelectVersionTag(fromVersion, options.Project)?.Target;
+
+            return (fromRef, toRef);
+        }
+
+        Exit($"Invalid version format '{versionStr}'", 1);
+        throw new InvalidOperationException($"Invalid version format '{versionStr}'");
     }
 }
 
