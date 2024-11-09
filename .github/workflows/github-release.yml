@@ -1,0 +1,30 @@
+name: 'GitHub Release'
+
+on:
+  workflow_run:
+    workflows: ['Publish to Nuget']
+    types:
+      - completed
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Versionize
+        run: dotnet tool install --global Versionize
+
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Get changelog
+        id: get-changelog
+        run: echo "CHANGELOG=$(versionize --tag-only changelog --preamble '# What's changed?')" >> $GITHUB_ENV
+
+      - name: Create a Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ env.CHANGELOG }}
