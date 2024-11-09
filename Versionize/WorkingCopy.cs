@@ -33,7 +33,7 @@ public class WorkingCopy
         return bumpFile.Version;
     }
 
-    public void GenerateChanglog(VersionizeOptions options, string? versionStr)
+    public void GenerateChanglog(VersionizeOptions options, string? versionStr, string? preamble)
     {
         options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
 
@@ -47,8 +47,9 @@ public class WorkingCopy
             conventionalCommits,
             options.Project.Changelog);
         CommandLineUI.Verbosity = CommandLine.LogLevel.All;
+        var changelog = preamble + markdown.TrimEnd();
 
-        Information(markdown.TrimEnd());
+        Information(changelog);
     }
 
     public void Versionize(VersionizeOptions options)

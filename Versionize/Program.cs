@@ -41,11 +41,15 @@ public static class Program
                 "-v|--version <VERSION>",
                 "The version to include in the changelog",
                 CommandOptionType.SingleValue);
+            var preambleOption = changelogCmd.Option(
+                "-p|--preamble <PREAMBLE>",
+                "Text to display before the list of commits",
+                CommandOptionType.SingleValue);
 
             changelogCmd.OnExecute(() =>
             {
                 var (workingCopy, options) = GetWorkingCopy(cliConfig);
-                workingCopy.GenerateChanglog(options, versionOption.Value());
+                workingCopy.GenerateChanglog(options, versionOption.Value(), preambleOption.Value());
             });
         });
 

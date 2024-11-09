@@ -56,7 +56,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.2.0");
 
             // Act
-            workingCopy.GenerateChanglog(versionizeOptions, versionStr);
+            workingCopy.GenerateChanglog(versionizeOptions, versionStr, null);
 
             // Assert
             _cliAbstraction.Messages.Count.ShouldBe(1);
@@ -103,7 +103,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.1.0");
 
             // Act
-            workingCopy.GenerateChanglog(versionizeOptions, null);
+            workingCopy.GenerateChanglog(versionizeOptions, null, null);
 
             // Assert
             _cliAbstraction.Messages.Count.ShouldBe(1);
@@ -148,7 +148,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.1.0");
 
             // Act
-            workingCopy.GenerateChanglog(versionizeOptions, null);
+            workingCopy.GenerateChanglog(versionizeOptions, null, null);
 
             // Assert
             _cliAbstraction.Messages.Count.ShouldBe(1);

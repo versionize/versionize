@@ -324,12 +324,12 @@ public class ProgramTests : IDisposable
         tags.ShouldContain("v1.2.0");
 
         // Act
-        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "changelog", "--version 1.1.0" });
+        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "changelog", "--version 1.1.0", "--preamble # What's Changed?\n\n" });
         exitCode.ShouldBe(0);
 
         // Assert
         _testPlatformAbstractions.Messages.Count.ShouldBe(1);
-        _testPlatformAbstractions.Messages[0].ShouldContain("### Features\n\n* commit 2");
+        _testPlatformAbstractions.Messages[0].ShouldContain("# What's Changed?\n\n### Features\n\n* commit 2");
     }
 
     public void Dispose()
