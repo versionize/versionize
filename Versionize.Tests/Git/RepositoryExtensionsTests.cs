@@ -11,6 +11,7 @@ namespace Versionize.Git;
 
 public class RepositoryExtensionsTests : IDisposable
 {
+    private static int CommitTimestampCounter;
     private readonly TestSetup _testSetup;
     private readonly TestPlatformAbstractions _testPlatformAbstractions;
 
@@ -38,7 +39,7 @@ public class RepositoryExtensionsTests : IDisposable
     public void GetCurrentVersion_ReturnsCorrectVersionWhenTagOnlyIsTrueAndPrereleaseTagsExist()
     {
         var fileCommitter = new FileCommitter(_testSetup);
-        
+
         var commit1 = fileCommitter.CommitChange("feat: commit 1");
         _testSetup.Repository.Tags.Add("v2.0.0", commit1);
         var commit2 = fileCommitter.CommitChange("feat: commit 2");
@@ -58,13 +59,12 @@ public class RepositoryExtensionsTests : IDisposable
         _testSetup.Dispose();
     }
 
-    private static int Counter = 0;
     // TODO: Consider moving to a helper class
     private static Commit CommitAll(IRepository repository, string message = "feat: Initial commit")
     {
         var user = repository.Config.Get<string>("user.name").Value;
         var email = repository.Config.Get<string>("user.email").Value;
-        var author = new Signature(user, email, DateTime.Now.AddMinutes(Counter++));
+        var author = new Signature(user, email, DateTime.Now.AddMinutes(CommitTimestampCounter++));
         var committer = author;
         Commands.Stage(repository, "*");
         return repository.Commit(message, author, committer);
