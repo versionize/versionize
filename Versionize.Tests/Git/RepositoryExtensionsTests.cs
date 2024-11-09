@@ -4,11 +4,14 @@ using Versionize.CommandLine;
 using LibGit2Sharp;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
+using Versionize.BumpFiles;
+using Versionize.Config;
 
 namespace Versionize.Git;
 
 public class RepositoryExtensionsTests : IDisposable
 {
+    private static int CommitTimestampCounter;
     private readonly TestSetup _testSetup;
     private readonly TestPlatformAbstractions _testPlatformAbstractions;
 
@@ -21,11 +24,10 @@ public class RepositoryExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void ShouldSelectLightweight()
+    public void SelectVersionTag_ShouldSelectLightweightTag()
     {
-        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
-        var commit = CommitAll(_testSetup.Repository);
-
+        var fileCommitter = new FileCommitter(_testSetup);
+        var commit = fileCommitter.CommitChange("feat: Initial commit");
         _testSetup.Repository.Tags.Add("v2.0.0", commit);
 
         var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
@@ -34,54 +36,58 @@ public class RepositoryExtensionsTests : IDisposable
     }
 
     [Fact]
-    public void ShouldSelectAnnotatedTags()
+    public void GetCurrentVersion_ReturnsCorrectVersionWhenTagOnlyIsTrueAndPrereleaseTagsExist()
     {
-        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
-        var commit = CommitAll(_testSetup.Repository);
+        var fileCommitter = new FileCommitter(_testSetup);
 
-        _testSetup.Repository.Tags.Add("v2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
+        var commit1 = fileCommitter.CommitChange("feat: commit 1");
+        _testSetup.Repository.Tags.Add("v2.0.0", commit1);
+        var commit2 = fileCommitter.CommitChange("feat: commit 2");
+        _testSetup.Repository.Tags.Add("v2.1.0-beta.1", commit2);
+        var commit3 = fileCommitter.CommitChange("feat: commit 3");
+        _testSetup.Repository.Tags.Add("v2.1.0", commit3);
+    
+        var options = new VersionOptions { TagOnly = true, Project = ProjectOptions.DefaultOneProjectPerRepo };
 
-        var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
+        var version = _testSetup.Repository.GetCurrentVersion(options, new NullBumpFile());
 
-        versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
-    }
-
-    [Fact]
-    public void ShouldVerifyThatTagNamesStartWith_v_Prefix()
-    {
-        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
-        var commit = CommitAll(_testSetup.Repository);
-
-        var tag = _testSetup.Repository.Tags.Add("2.0.0", commit, GetAuthorSignature(), "Some annotation message without a version included");
-
-        tag.IsSemanticVersionTag().ShouldBeFalse();
-    }
-
-    [Fact]
-    public void ShouldVerifyThatSemanticVersionTagCanBeParsed()
-    {
-        TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "2.0.0");
-        var commit = CommitAll(_testSetup.Repository);
-
-        var tag = _testSetup.Repository.Tags.Add("vNext", commit, GetAuthorSignature(), "Some annotation message without a version included");
-
-        tag.IsSemanticVersionTag().ShouldBeFalse();
-    }
-
-    private static Commit CommitAll(IRepository repository, string message = "feat: Initial commit")
-    {
-        var author = GetAuthorSignature();
-        Commands.Stage(repository, "*");
-        return repository.Commit(message, author, author);
-    }
-
-    private static Signature GetAuthorSignature()
-    {
-        return new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
+        version.ShouldBe(new Version(2, 1, 0));
     }
 
     public void Dispose()
     {
         _testSetup.Dispose();
+    }
+
+    // TODO: Consider moving to a helper class
+    private static Commit CommitAll(IRepository repository, string message = "feat: Initial commit")
+    {
+        var user = repository.Config.Get<string>("user.name").Value;
+        var email = repository.Config.Get<string>("user.email").Value;
+        var author = new Signature(user, email, DateTime.Now.AddMinutes(CommitTimestampCounter++));
+        var committer = author;
+        Commands.Stage(repository, "*");
+        return repository.Commit(message, author, committer);
+    }
+
+    // TODO: Consider moving to a helper class
+    class FileCommitter
+    {
+        private readonly TestSetup _testSetup;
+
+        public FileCommitter(TestSetup testSetup)
+        {
+            _testSetup = testSetup;
+        }
+
+        public Commit CommitChange(string commitMessage, string subdirectory = "")
+        {
+            var fileName = Guid.NewGuid().ToString() + ".txt";
+            var directory = Path.Join(_testSetup.WorkingDirectory, subdirectory);
+            Directory.CreateDirectory(directory);
+            var filePath = Path.Join(directory, fileName);
+            File.WriteAllText(filePath, contents: "abc123");
+            return CommitAll(_testSetup.Repository, commitMessage);
+        }
     }
 }

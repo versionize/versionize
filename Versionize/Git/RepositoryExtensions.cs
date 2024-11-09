@@ -101,11 +101,8 @@ public static class RepositoryExtensions
         {
             version = repository.Tags
                 .Select(options.Project.ExtractTagVersion)
-                .Where(x => x != null)
-                .OrderByDescending(x => x!.Major)
-                .ThenByDescending(x => x!.Minor)
-                .ThenByDescending(x => x!.Patch)
-                .ThenByDescending(x => x!.Release)
+                .Where(x => x is not null)
+                .OrderByDescending(x => x)
                 .FirstOrDefault();
         }
         else
