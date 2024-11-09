@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.3.0"></a>
+## [2.3.0](https://www.github.com/versionize/versionize/releases/tag/v2.3.0) (2024-11-09)
+
+### Features
+
+* add changelog command ([#153](https://www.github.com/versionize/versionize/issues/153)) ([4aac257](https://www.github.com/versionize/versionize/commit/4aac2576da839bb9e13f2f52a5d6ff070fe35478))
+
+### Bug Fixes
+
+* version bump fails when tag-only and a prerelease exists ([#152](https://www.github.com/versionize/versionize/issues/152)) ([61adb8f](https://www.github.com/versionize/versionize/commit/61adb8feedaec5e5281e339fa6f3c254e8d4c926))
+
 <a name="2.2.0"></a>
 ## [2.2.0](https://www.github.com/versionize/versionize/releases/tag/v2.2.0) (2024-11-02)
 
