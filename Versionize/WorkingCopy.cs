@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.Changelog;
 using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
@@ -30,6 +31,25 @@ public class WorkingCopy
         CommandLineUI.Verbosity = CommandLine.LogLevel.All;
         Information(bumpFile.Version.ToNormalizedString());
         return bumpFile.Version;
+    }
+
+    public void GenerateChanglog(VersionizeOptions options, string? versionStr, string? preamble)
+    {
+        options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+
+        CommandLineUI.Verbosity = CommandLine.LogLevel.Error;
+        using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
+        var (FromRef, ToRef) = repo.GetCommitRange(versionStr, options);
+        var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
+        var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
+        string markdown = ChangelogBuilder.GenerateCommitList(
+            linkBuilder,
+            conventionalCommits,
+            options.Project.Changelog);
+        CommandLineUI.Verbosity = CommandLine.LogLevel.All;
+        var changelog = preamble + markdown.TrimEnd();
+
+        Information(changelog);
     }
 
     public void Versionize(VersionizeOptions options)

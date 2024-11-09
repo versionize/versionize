@@ -293,6 +293,45 @@ public class ProgramTests : IDisposable
         changelog.ShouldContain("azure-case");
     }
 
+    [Fact]
+    public void ChangelogCmd_OnlyIncludesChangesForSpecifiedVersion()
+    {
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        // 1.0.0
+        fileCommitter.CommitChange("feat: commit 1");
+        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory });
+        exitCode.ShouldBe(0);
+
+        // 1.1.0
+        fileCommitter.CommitChange("feat: commit 2");
+        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--tag-only" });
+        exitCode.ShouldBe(0);
+
+        // 1.2.0
+        fileCommitter.CommitChange("feat: commit 3");
+        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--tag-only" });
+        exitCode.ShouldBe(0);
+
+        // extra commit
+        fileCommitter.CommitChange("feat: commit 4");
+        _testPlatformAbstractions.Messages.Clear();
+
+        var tags = _testSetup.Repository.Tags.Select(x => x.FriendlyName).ToList();
+        tags.Count.ShouldBe(3);
+        tags.ShouldContain("v1.0.0");
+        tags.ShouldContain("v1.1.0");
+        tags.ShouldContain("v1.2.0");
+
+        // Act
+        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "changelog", "--version 1.1.0", "--preamble # What's Changed?\n\n" });
+        exitCode.ShouldBe(0);
+
+        // Assert
+        _testPlatformAbstractions.Messages.Count.ShouldBe(1);
+        _testPlatformAbstractions.Messages[0].ShouldContain("# What's Changed?\n\n### Features\n\n* commit 2");
+    }
+
     public void Dispose()
     {
         _testSetup.Dispose();
