@@ -19,8 +19,8 @@ jobs:
 
       - name: Versionize Release
         id: versionize
-        run: versionize
-        continue-on-error: true
+        run: versionize --exit-insignificant-commits
+        continue-on-error: false
 
       - name: No release required
         if: steps.versionize.outcome != 'success'
