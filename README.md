@@ -88,6 +88,33 @@ Breaking changes **must** contain a line prefixed with `BREAKING CHANGE:` to all
 git commit -m "chore: update dependencies" -m "BREAKING CHANGE: this will likely break the interface"
 ```
 
+## Custom Commit Header Patterns
+
+`versionize` supports custom commit header patterns for parsing commit messages. This is particularly useful when your team uses commit messages that differ from the conventional commits format.
+
+To configure custom header patterns, create a `.versionize` file in your working directory with the following structure:
+
+```json
+{
+  "CommitParser": {
+    "HeaderPatterns": [
+      "^Merged PR \\\\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
+      "^Pull Request \\\\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
+    ]
+  }
+}
+```
+
+### Example
+
+If your team commits include messages like the following:
+
+- `Merged PR 123: fix(squash-azure-case): subject text #64`
+- `Pull Request 11792: feat(azure-case): subject text`
+
+You can use the above configuration to ensure these commit messages are parsed correctly. `versionize` will extract the relevant type, scope, and subject information to include them in the changelog and determine version increments.
+
+
 ## The happy versioning walkthrough
 
 ### Preparation
