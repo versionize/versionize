@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.3.1"></a>
+## [2.3.1](https://www.github.com/versionize/versionize/releases/tag/v2.3.1) (2025-01-28)
+
 <a name="2.3.0"></a>
 ## [2.3.0](https://www.github.com/versionize/versionize/releases/tag/v2.3.0) (2024-11-09)
 
