@@ -25,6 +25,11 @@ jobs:
       - name: No release required
         if: steps.versionize.outcome != 'success'
         run: echo "Skipping publishing. No release required."
+        
+      - name: Setup .NET Core 9.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
       - name: Build Package
         if: steps.versionize.outcome == 'success'
