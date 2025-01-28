@@ -19,7 +19,7 @@ jobs:
 
       - name: Versionize Release
         id: versionize
-        run: versionize --exit-insignificant-commits
+        run: versionize
         continue-on-error: true
 
       - name: No release required
