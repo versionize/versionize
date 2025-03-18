@@ -52,17 +52,17 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
 
     public string BuildVersionTagLink(Version version)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_project}/_git/{_repository}?version=GTv{version}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}?version=GTv{version}";
     }
 
     public string BuildIssueLink(string issueId)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_project}/_workitems/edit/{issueId}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_workitems/edit/{issueId}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_project}/_git/{_repository}/commit/{commit.Sha}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}/commit/{commit.Sha}";
     }
 
     [GeneratedRegex("^git@ssh.dev.azure.com(?<version>.*?)/(?<organization>.*?)/(?<project>.*?)/(?<repository>.*?)(?:\\.git)?$")]
