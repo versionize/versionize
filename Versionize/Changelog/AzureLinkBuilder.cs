@@ -65,7 +65,7 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
         return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}/commit/{commit.Sha}";
     }
 
-    [GeneratedRegex("^git@ssh.dev.azure.com(?<version>.*?)/(?<organization>.*?)/(?<project>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    [GeneratedRegex("^git@ssh.dev.azure.com:(?<version>.*?)/(?<organization>.*?)/(?<project>.*?)/(?<repository>.*?)(?:\\.git)?$")]
     private static partial Regex SshRegex();
 
     [GeneratedRegex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<project>.*?)/_git/(?<repository>.*?)(?:\\.git)?$")]
