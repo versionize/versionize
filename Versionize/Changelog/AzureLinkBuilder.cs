@@ -8,6 +8,7 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
 {
     private readonly string _organization;
     private readonly string _repository;
+    private readonly string _project;
 
     public AzureLinkBuilder(string pushUrl)
     {
@@ -23,6 +24,7 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
 
             _organization = matches.Groups["organization"].Value;
             _repository = matches.Groups["repository"].Value;
+            _project = matches.Groups["project"].Value;
         }
         else if (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"))
         {
@@ -35,6 +37,7 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
             }
             _organization = matches.Groups["organization"].Value;
             _repository = matches.Groups["repository"].Value;
+            _project = matches.Groups["project"].Value;
         }
         else
         {
@@ -49,22 +52,22 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
 
     public string BuildVersionTagLink(Version version)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}?version=GTv{version}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}?version=GTv{version}";
     }
 
     public string BuildIssueLink(string issueId)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/_workitems/edit/{issueId}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_workitems/edit/{issueId}";
     }
 
     public string BuildCommitLink(ConventionalCommit commit)
     {
-        return $"https://{_organization}@dev.azure.com/{_organization}/{_repository}/commit/{commit.Sha}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}/commit/{commit.Sha}";
     }
 
-    [GeneratedRegex("^git@ssh.dev.azure.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    [GeneratedRegex("^git@ssh.dev.azure.com:(?<version>.*?)/(?<organization>.*?)/(?<project>.*?)/(?<repository>.*?)(?:\\.git)?$")]
     private static partial Regex SshRegex();
 
-    [GeneratedRegex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]
+    [GeneratedRegex("^https://(?<organization>.*?)@dev.azure.com/(?<organization>.*?)/(?<project>.*?)/_git/(?<repository>.*?)(?:\\.git)?$")]
     private static partial Regex HttpsRegex();
 }
