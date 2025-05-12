@@ -54,6 +54,11 @@ public static class ConventionalCommitParser
             DefaultHeaderPattern
         };
 
+        var issuesPatterns = new List<string>(options?.IssuesPatterns ?? [])
+        {
+            DefaultIssuesPattern
+        };
+
         Match? headerMatch = null;
         foreach (var headerPattern in headerPatterns)
         {
@@ -79,15 +84,18 @@ public static class ConventionalCommitParser
                 });
             }
 
-            var issuesMatch = Regex.Matches(conventionalCommit.Subject, DefaultIssuesPattern, RegexOptions);
-            foreach (var issueMatch in issuesMatch.Cast<Match>())
+            foreach (var issuesPattern in issuesPatterns)
             {
-                conventionalCommit.Issues.Add(
-                    new ConventionalCommitIssue
-                    {
-                        Token = issueMatch.Groups["issueToken"].Value,
-                        Id = issueMatch.Groups["issueId"].Value,
-                    });
+                var issuesMatch = Regex.Matches(conventionalCommit.Subject, issuesPattern, RegexOptions);
+                foreach (var issueMatch in issuesMatch.Cast<Match>())
+                {
+                    conventionalCommit.Issues.Add(
+                        new ConventionalCommitIssue
+                        {
+                            Token = issueMatch.Groups["issueToken"].Value,
+                            Id = issueMatch.Groups["issueId"].Value,
+                        });
+                }
             }
         }
         else
