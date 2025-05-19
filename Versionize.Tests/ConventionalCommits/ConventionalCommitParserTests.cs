@@ -98,6 +98,37 @@ public class ConventionalCommitParserTests
     }
 
     [Theory]
+    [InlineData("fix: subject text NC-64", new[] { "NC-64" })]
+    [InlineData("fix: subject NC-64 text", new[] { "NC-64" })]
+    [InlineData("fix: NC-64 subject text", new[] { "NC-64" })]
+    [InlineData("fix: subject text. NC-64 NC-65", new[] { "NC-64", "NC-65" })]
+    [InlineData("fix: subject text. (NC-64) (NC-65)", new[] { "NC-64", "NC-65" })]
+    [InlineData("fix: subject text. NC-64NC-65", new[] { "NC-64", "NC-65" })]
+    [InlineData("fix: NC-64 subject NC-65 text. (NC-66)", new[] { "NC-64", "NC-65", "NC-66" })]
+    public void ShouldExtractCommitIssuesWithExtraIssuePatterns(string commitMessage, string[] expectedIssues)
+    {
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+        var conventionalCommit = ConventionalCommitParser.Parse(
+            testCommit,
+            new CommitParserOptions
+            {
+                IssuesPatterns = new []
+                {
+                    "(?<issueToken>(?<issueId>[A-Z]+\\-\\d+))"
+                }
+            });
+
+        Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
+
+        foreach (var expectedIssue in expectedIssues)
+        {
+            var issue = conventionalCommit.Issues.SingleOrDefault(x => x.Id == expectedIssue);
+            Assert.NotNull(issue);
+            Assert.Equal(issue.Token, expectedIssue);
+        }
+    }
+
+    [Theory]
     [InlineData("fix: subject text #64", "", "fix", "subject text #64")]
     [InlineData("feat(scope): subject text", "scope", "feat", "subject text")]
     [InlineData("Merged PR 123: fix: subject text #64", "", "fix", "subject text #64")]
