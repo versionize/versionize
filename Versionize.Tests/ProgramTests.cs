@@ -13,6 +13,12 @@ public class ProgramTests : IDisposable
 {
     private readonly TestSetup _testSetup;
     private readonly TestPlatformAbstractions _testPlatformAbstractions;
+    private static readonly string[] sourceArray =
+            [
+                "feat(git-case): subject text",
+                "Merged PR 123: fix(squash-azure-case): subject text #64",
+                "Pull Request 11792: feat(azure-case): subject text"
+            ];
 
     public ProgramTests()
     {
@@ -27,7 +33,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
-        var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty" });
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.1.0 to 1.1.0 in projects");
@@ -38,7 +44,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
-        var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0" });
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.1.0 to 2.0.0 in projects");
@@ -49,7 +55,7 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
-        var exitCode = Program.Main(new[] { "--workingDir", _testSetup.WorkingDirectory, "inspect" });
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "inspect"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
@@ -74,7 +80,7 @@ public class ProgramTests : IDisposable
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), json);
 
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory });
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
 
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
@@ -101,7 +107,7 @@ public class ProgramTests : IDisposable
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "..", ".versionize"), json);
 
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--skip-dirty" });
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--skip-dirty"]);
 
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
@@ -132,7 +138,7 @@ public class ProgramTests : IDisposable
 
         var config = new FileConfig
         {
-            Projects = projects.Select(x => x.Item1).ToArray()
+            Projects = [.. projects.Select(x => x.Item1)]
         };
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"),
@@ -151,12 +157,11 @@ public class ProgramTests : IDisposable
             CommandLineUI.Platform = output;
 
             var exitCode = Program.Main(
-                new[]
-                {
+                [
                     "--workingDir", _testSetup.WorkingDirectory,
                     "--proj-name", project.Name,
                     "inspect"
-                });
+                ]);
 
             exitCode.ShouldBe(0);
             output.Messages.ShouldHaveSingleItem();
@@ -197,7 +202,7 @@ public class ProgramTests : IDisposable
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"),
             JsonConvert.SerializeObject(config));
-        
+
         var fileCommitter = new FileCommitter(_testSetup);
 
         foreach (var project in projects)
@@ -216,7 +221,7 @@ public class ProgramTests : IDisposable
 
         foreach (var project in projects)
         {
-            var exitCode = Program.Main(new[] {"-w", _testSetup.WorkingDirectory, "--proj-name", project.Name});
+            var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name]);
             exitCode.ShouldBe(0);
 
             var changelogFile = Path.Join(_testSetup.WorkingDirectory, project.Path, "CHANGELOG.md");
@@ -225,7 +230,7 @@ public class ProgramTests : IDisposable
             var changelog = File.ReadAllText(changelogFile, Encoding.UTF8);
 
             changelog.ShouldStartWith(project.Changelog.Header ??
-                                      config.Changelog?.Header ?? 
+                                      config.Changelog?.Header ??
                                       ChangelogOptions.Default.Header);
 
             foreach (var checkPName in projects.Select(x => x.Name))
@@ -247,7 +252,7 @@ public class ProgramTests : IDisposable
             }
         }
     }
-    
+
 
     [Fact]
     public void ShouldExtraCommitHeaderPatternOptionsFromConfigFile()
@@ -265,21 +270,15 @@ public class ProgramTests : IDisposable
   }
 }
 ");
-        
-        _ = new[]
-            {
-                "feat(git-case): subject text",
-                "Merged PR 123: fix(squash-azure-case): subject text #64",
-                "Pull Request 11792: feat(azure-case): subject text"
-            }
-            .Select(
+
+        _ = sourceArray.Select(
                 x => _testSetup.Repository.Commit(x,
                     new Signature("versionize", "test@versionize.com", DateTimeOffset.Now),
                     new Signature("versionize", "test@versionize.com", DateTimeOffset.Now),
                     new CommitOptions { AllowEmptyCommit = true }))
             .ToArray();
-        
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--skip-dirty" });
+
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--skip-dirty"]);
 
         exitCode.ShouldBe(0);
         _testSetup.Repository.Commits.Count().ShouldBe(4);
@@ -300,17 +299,17 @@ public class ProgramTests : IDisposable
 
         // 1.0.0
         fileCommitter.CommitChange("feat: commit 1");
-        var exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory });
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
         exitCode.ShouldBe(0);
 
         // 1.1.0
         fileCommitter.CommitChange("feat: commit 2");
-        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--tag-only" });
+        exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--tag-only"]);
         exitCode.ShouldBe(0);
 
         // 1.2.0
         fileCommitter.CommitChange("feat: commit 3");
-        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "--tag-only" });
+        exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--tag-only"]);
         exitCode.ShouldBe(0);
 
         // extra commit
@@ -324,7 +323,7 @@ public class ProgramTests : IDisposable
         tags.ShouldContain("v1.2.0");
 
         // Act
-        exitCode = Program.Main(new[] { "-w", _testSetup.WorkingDirectory, "changelog", "--version 1.1.0", "--preamble # What's Changed?\n\n" });
+        exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "changelog", "--version 1.1.0", "--preamble # What's Changed?\n\n"]);
         exitCode.ShouldBe(0);
 
         // Assert
@@ -344,14 +343,9 @@ public class ProgramTests : IDisposable
         repository.Commit(message, author, author);
     }
 
-    class FileCommitter
+    private class FileCommitter(TestSetup testSetup)
     {
-        private readonly TestSetup _testSetup;
-
-        public FileCommitter(TestSetup testSetup)
-        {
-            _testSetup = testSetup;
-        }
+        private readonly TestSetup _testSetup = testSetup;
 
         public void CommitChange(string commitMessage, string changeOnDirectory = "")
         {

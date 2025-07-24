@@ -57,7 +57,7 @@ public sealed class ConventionalCommitProvider
             ExcludeReachableFrom = fromRef,
         };
 
-        List<Commit> commitsInVersion = repo.GetCommits(options.Project, commitFilter).ToList();
+        List<Commit> commitsInVersion = [.. repo.GetCommits(options.Project, commitFilter)];
         var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
 
         return conventionalCommits;

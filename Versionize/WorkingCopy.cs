@@ -1,7 +1,6 @@
 ﻿using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.Changelog;
-using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
 using Versionize.Lifecycle;
@@ -26,9 +25,9 @@ public class WorkingCopy
     {
         // TODO: Implement "--tag-only" variation
         options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
-        CommandLineUI.Verbosity = CommandLine.LogLevel.Error;
+        Verbosity = CommandLine.LogLevel.Error;
         var bumpFile = BumpFileProvider.GetBumpFile(options);
-        CommandLineUI.Verbosity = CommandLine.LogLevel.All;
+        Verbosity = CommandLine.LogLevel.All;
         Information(bumpFile.Version.ToNormalizedString());
         return bumpFile.Version;
     }
@@ -37,7 +36,7 @@ public class WorkingCopy
     {
         options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
 
-        CommandLineUI.Verbosity = CommandLine.LogLevel.Error;
+        Verbosity = CommandLine.LogLevel.Error;
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
         var (FromRef, ToRef) = repo.GetCommitRange(versionStr, options);
         var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
@@ -46,7 +45,7 @@ public class WorkingCopy
             linkBuilder,
             conventionalCommits,
             options.Project.Changelog);
-        CommandLineUI.Verbosity = CommandLine.LogLevel.All;
+        Verbosity = CommandLine.LogLevel.All;
         var changelog = preamble + markdown.TrimEnd();
 
         Information(changelog);

@@ -4,8 +4,8 @@ namespace Versionize.BumpFiles;
 
 public interface IBumpFile
 {
-    public SemanticVersion Version { get; }
-    
+    SemanticVersion Version { get; }
+
     void WriteVersion(SemanticVersion nextVersion);
 
     IEnumerable<string> GetFilePaths();

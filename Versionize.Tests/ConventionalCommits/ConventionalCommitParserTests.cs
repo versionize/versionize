@@ -73,7 +73,7 @@ public class ConventionalCommitParserTests
         conventionalCommit.Notes[0].Title.ShouldBe("BREAKING CHANGE");
         conventionalCommit.Notes[0].Text.ShouldBe(string.Empty);
     }
-    
+
     [Theory]
     [InlineData("fix: subject text #64", new[] { "64" })]
     [InlineData("fix: subject #64 text", new[] { "64" })]
@@ -112,10 +112,10 @@ public class ConventionalCommitParserTests
             testCommit,
             new CommitParserOptions
             {
-                IssuesPatterns = new []
-                {
+                IssuesPatterns =
+                [
                     "(?<issueToken>(?<issueId>[A-Z]+\\-\\d+))"
-                }
+                ]
             });
 
         Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
@@ -143,11 +143,11 @@ public class ConventionalCommitParserTests
             testCommit,
             new CommitParserOptions
             {
-                HeaderPatterns = new []
-                {
+                HeaderPatterns =
+                [
                     "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
                     "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
-                }
+                ]
             });
 
         Assert.Equal(conventionalCommit.Scope, scope);
@@ -156,18 +156,12 @@ public class ConventionalCommitParserTests
     }
 }
 
-public class TestCommit : Commit
+public class TestCommit(string sha, string message) : Commit
 {
-    private readonly string _sha;
-    private readonly string _message;
+    private readonly string _sha = sha;
+    private readonly string _message = message;
 
-    public TestCommit(string sha, string message)
-    {
-        _sha = sha;
-        _message = message;
-    }
+    public override string Message => _message;
 
-    public override string Message { get => _message; }
-
-    public override string Sha { get => _sha; }
+    public override string Sha => _sha;
 }

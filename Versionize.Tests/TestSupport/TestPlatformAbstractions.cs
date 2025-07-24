@@ -5,7 +5,7 @@ namespace Versionize.Tests.TestSupport;
 public class TestPlatformAbstractions : IPlatformAbstractions
 {
     public LogLevel Verbosity { get; set; } = LogLevel.All;
-    public List<string> Messages { get; } = new List<string>();
+    public List<string> Messages { get; } = [];
 
     public void Exit(int exitCode)
     {

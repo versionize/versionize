@@ -17,9 +17,7 @@ public static class ConventionalCommitParser
 
     public static List<ConventionalCommit> Parse(List<Commit> commits, CommitParserOptions? options = null)
     {
-        return commits
-            .Select(x => Parse(x, options))
-            .ToList();
+        return [.. commits.Select(x => Parse(x, options))];
     }
 
     public static ConventionalCommit Parse(Commit commit)
@@ -35,7 +33,7 @@ public static class ConventionalCommitParser
         };
 
         var commitMessageLines = commit.Message.Split(
-                new[] { "\r\n", "\r", "\n" },
+                ["\r\n", "\r", "\n"],
                 StringSplitOptions.None
             )
             .Select(line => line.Trim())

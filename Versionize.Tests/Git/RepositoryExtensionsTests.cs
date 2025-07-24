@@ -46,7 +46,7 @@ public class RepositoryExtensionsTests : IDisposable
         _testSetup.Repository.Tags.Add("v2.1.0-beta.1", commit2);
         var commit3 = fileCommitter.CommitChange("feat: commit 3");
         _testSetup.Repository.Tags.Add("v2.1.0", commit3);
-    
+
         var options = new VersionOptions { TagOnly = true, Project = ProjectOptions.DefaultOneProjectPerRepo };
 
         var version = _testSetup.Repository.GetCurrentVersion(options, new NullBumpFile());
@@ -71,14 +71,9 @@ public class RepositoryExtensionsTests : IDisposable
     }
 
     // TODO: Consider moving to a helper class
-    class FileCommitter
+    private class FileCommitter(TestSetup testSetup)
     {
-        private readonly TestSetup _testSetup;
-
-        public FileCommitter(TestSetup testSetup)
-        {
-            _testSetup = testSetup;
-        }
+        private readonly TestSetup _testSetup = testSetup;
 
         public Commit CommitChange(string commitMessage, string subdirectory = "")
         {

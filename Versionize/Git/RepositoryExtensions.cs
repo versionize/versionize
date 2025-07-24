@@ -63,13 +63,13 @@ public static class RepositoryExtensions
     {
         if (versionTag == null)
         {
-            return repository.GetCommits(project, filter).ToList();
+            return [.. repository.GetCommits(project, filter)];
         }
 
         filter ??= new CommitFilter();
         filter.ExcludeReachableFrom = versionTag;
 
-        return repository.GetCommits(project, filter).ToList();
+        return [.. repository.GetCommits(project, filter)];
     }
 
     public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
@@ -79,13 +79,13 @@ public static class RepositoryExtensions
             .FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
         if (lastReleaseCommit == null)
         {
-            return repository.Commits.ToList();
+            return [.. repository.Commits];
         }
 
         filter ??= new CommitFilter();
         filter.ExcludeReachableFrom = lastReleaseCommit;
 
-        return repository.GetCommits(project, filter).ToList();
+        return [.. repository.GetCommits(project, filter)];
     }
 
     public static bool IsConfiguredForCommits(this Repository repository)
@@ -129,12 +129,7 @@ public static class RepositoryExtensions
             .ToArray();
 
         var versionIndex = Array.IndexOf(versions, version);
-        if (versionIndex == -1 || versionIndex == versions.Length - 1)
-        {
-            return null;
-        }
-
-        return versions[versionIndex + 1];
+        return versionIndex == -1 || versionIndex == versions.Length - 1 ? null : versions[versionIndex + 1];
     }
 
     public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, VersionizeOptions options)

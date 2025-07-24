@@ -1,6 +1,4 @@
-﻿using Versionize.Lifecycle;
-
-namespace Versionize.Config;
+﻿namespace Versionize.Config;
 
 public sealed class VersionizeOptions
 {

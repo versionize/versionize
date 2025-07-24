@@ -6,7 +6,7 @@ public static class SemanticVersionExtensions
 {
     public static SemanticVersion AsPrerelease(this SemanticVersion version, string prereleaseLabel, int prereleaseNumber)
     {
-        return new SemanticVersion(version.Major, version.Minor, version.Patch, new[] { prereleaseLabel, prereleaseNumber.ToString() }, null);
+        return new SemanticVersion(version.Major, version.Minor, version.Patch, [prereleaseLabel, prereleaseNumber.ToString()], null);
     }
 
     public static SemanticVersion AsRelease(this SemanticVersion version)

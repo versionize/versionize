@@ -175,7 +175,7 @@ public partial class WorkingCopyTests : IDisposable
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
 
-        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(new[] { "v2.0.0" });
+        _testSetup.Repository.Tags.Select(t => t.FriendlyName).ShouldBe(["v2.0.0"]);
     }
 
     [Fact]
@@ -293,8 +293,7 @@ public partial class WorkingCopyTests : IDisposable
         File.WriteAllText(workingFilePath, "First line of text");
         CommitAll(_testSetup.Repository);
 
-        var configurationValues = new[] { "user.name", "user.email" }
-            .SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
+        var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
             .Cast<ConfigurationLevel>()
             .Select(level => _testSetup.Repository.Config.Get<string>(key, level)))
             .Where(c => c != null)
@@ -620,7 +619,7 @@ public partial class WorkingCopyTests : IDisposable
             TempProject.CreateCsharpProject(
                 Path.Join(_testSetup.WorkingDirectory, project.Path));
 
-            if (!project.Changelog.Path.Equals(String.Empty))
+            if (!project.Changelog.Path.Equals(string.Empty))
             {
                 var changelogDir = Path.GetFullPath(Path.Combine(_testSetup.WorkingDirectory, project.Path, project.Changelog.Path));
                 if (!Directory.Exists(changelogDir))
@@ -808,13 +807,12 @@ public partial class WorkingCopyTests : IDisposable
         workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", AggregatePrereleases = true });
 
         var versionTagNames = VersionTagNames.ToList();
-        versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2" });
+        versionTagNames.ShouldBe(expected);
     }
 
-    private IEnumerable<string> VersionTagNames
-    {
-        get { return _testSetup.Repository.Tags.Select(t => t.FriendlyName); }
-    }
+    private IEnumerable<string> VersionTagNames => _testSetup.Repository.Tags.Select(t => t.FriendlyName);
+    private static readonly string[] expected = ["v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2"];
+    private static readonly string[] sourceArray = ["user.name", "user.email"];
 
     public void Dispose()
     {
@@ -833,14 +831,9 @@ public partial class WorkingCopyTests : IDisposable
         return new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
     }
 
-    class FileCommitter
+    private class FileCommitter(TestSetup testSetup)
     {
-        private readonly TestSetup _testSetup;
-
-        public FileCommitter(TestSetup testSetup)
-        {
-            _testSetup = testSetup;
-        }
+        private readonly TestSetup _testSetup = testSetup;
 
         public void CommitChange(string commitMessage, string changeOnDirectory = "")
         {

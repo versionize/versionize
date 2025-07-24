@@ -49,7 +49,7 @@ public sealed class VersionCalculator
 
         return nextVersion!;
     }
-    
+
     public sealed class Options
     {
         public bool IgnoreInsignificantCommits { get; init; }

@@ -10,17 +10,17 @@ public class VersionIncrementStrategyTests
     [Fact]
     public void ShouldNotIncrementPatchVersionForEmptyCommitsIfIgnoreInsignificantIsGiven()
     {
-        var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>());
+        var strategy = new VersionIncrementStrategy([]);
         strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 1, 1));
     }
 
     [Fact]
     public void ShouldNotIncrementPatchVersionForInsignificantCommitsIfIgnoreInsignificantIsGiven()
     {
-        var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>
-        {
-            new ConventionalCommit { Type = "chore" }
-        });
+        var strategy = new VersionIncrementStrategy(
+        [
+            new() { Type = "chore" }
+        ]);
 
         strategy.NextVersion(new SemanticVersion(1, 1, 1), null, false).ShouldBe(new SemanticVersion(1, 1, 1));
     }
@@ -28,10 +28,10 @@ public class VersionIncrementStrategyTests
     [Fact]
     public void ShouldIncrementPatchVersionForFixCommitsIfIgnoreInsignificantIsGiven()
     {
-        var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>
-        {
-            new ConventionalCommit { Type = "fix" }
-        });
+        var strategy = new VersionIncrementStrategy(
+        [
+            new() { Type = "fix" }
+        ]);
 
         strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 1, 2));
     }
@@ -39,10 +39,10 @@ public class VersionIncrementStrategyTests
     [Fact]
     public void ShouldIncrementMinorVersionForFeatures()
     {
-        var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>
-        {
-            new ConventionalCommit { Type = "feat" }
-        });
+        var strategy = new VersionIncrementStrategy(
+        [
+            new() { Type = "feat" }
+        ]);
 
         strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 2, 0));
     }
@@ -50,17 +50,16 @@ public class VersionIncrementStrategyTests
     [Fact]
     public void ShouldIncrementMajorVersionForBreakingChanges()
     {
-        var strategy = new VersionIncrementStrategy(new List<ConventionalCommit>
-        {
-            new ConventionalCommit
-            {
+        var strategy = new VersionIncrementStrategy(
+        [
+            new() {
                 Type = "chore",
-                Notes = new List<ConventionalCommitNote>
-                {
+                Notes =
+                [
                     new ConventionalCommitNote { Title = "BREAKING CHANGE"}
-                }
+                ]
             }
-        });
+        ]);
 
         strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(2, 0, 0));
     }
@@ -206,7 +205,7 @@ public class VersionIncrementStrategyTests
 
     public class TestScenarioBuilder
     {
-        private readonly List<ConventionalCommit> _commits = new();
+        private readonly List<ConventionalCommit> _commits = [];
         private SemanticVersion _expectedVersion;
         private string _prereleaseLabel;
         private SemanticVersion _fromVersion;
@@ -230,10 +229,10 @@ public class VersionIncrementStrategyTests
             _commits.Add(new ConventionalCommit
             {
                 Type = type,
-                Notes = string.IsNullOrWhiteSpace(note) ? new List<ConventionalCommitNote>() : new List<ConventionalCommitNote>
-                        {
+                Notes = string.IsNullOrWhiteSpace(note) ? [] :
+                        [
                             new ConventionalCommitNote { Title = note }
-                        }
+                        ]
             });
 
             return this;
@@ -266,7 +265,7 @@ public class VersionIncrementStrategyTests
 
         public object[] Build()
         {
-            return new object[] {
+            return [
                 new TestScenario
                 {
                     Commits = _commits,
@@ -276,7 +275,7 @@ public class VersionIncrementStrategyTests
                     Description = _description,
                     IgnoreInsignificantCommits = _ignoreInsignificantCommits,
                 }
-            };
+            ];
         }
     }
 

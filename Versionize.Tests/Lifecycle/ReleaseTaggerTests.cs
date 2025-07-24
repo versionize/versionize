@@ -138,14 +138,9 @@ public class ReleaseTaggerTests : IDisposable
     }
 
     // TODO: Consider moving to a helper class
-    class FileCommitter
+    private class FileCommitter(TestSetup testSetup)
     {
-        private readonly TestSetup _testSetup;
-
-        public FileCommitter(TestSetup testSetup)
-        {
-            _testSetup = testSetup;
-        }
+        private readonly TestSetup _testSetup = testSetup;
 
         public void CommitChange(string commitMessage, string subdirectory = "")
         {
