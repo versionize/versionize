@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp;
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Versioning;
@@ -60,15 +59,15 @@ public static class Program
             return 0;
         }
 
-        app.OnExecute(() => Versionize());
+        app.OnExecute(Versionize);
 
         try
         {
             return app.Execute(args);
         }
         catch (Exception ex) when (
-            ex is UnrecognizedCommandParsingException ||
-            ex is InvalidPrereleaseIdentifierException)
+            ex is UnrecognizedCommandParsingException or
+            InvalidPrereleaseIdentifierException)
         {
             return CommandLineUI.Exit(ex.Message, 1);
         }
@@ -98,6 +97,6 @@ Exception detail:
 
         return (workingCopy, mergedOptions);
     }
-    
+
     private static string GetVersion() => typeof(Program).Assembly.GetName().Version?.ToString() ?? "";
 }

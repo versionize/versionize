@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using System.Xml;
 using Xunit;
 
 namespace Versionize.Tests.TestSupport;

@@ -36,7 +36,7 @@ public sealed class ChangeCommitter
         var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = false });
         if (!status.Staged.Any() && !status.Added.Any())
         {
-           return;
+            return;
         }
 
         var author = repo.Config.BuildSignature(DateTimeOffset.Now);
@@ -55,14 +55,14 @@ public sealed class ChangeCommitter
         // TODO: Make this message dynamic
         Step("committed changes in projects and CHANGELOG.md");
     }
-    
+
     public sealed class Options
     {
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }
         public bool Sign { get; init; }
         public string? CommitSuffix { get; init; }
-        public  required string WorkingDirectory { get; init; }
+        public required string WorkingDirectory { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {

@@ -3,14 +3,9 @@ using Versionize.ConventionalCommits;
 
 namespace Versionize.Versioning;
 
-public sealed class VersionIncrementStrategy
+public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> conventionalCommits)
 {
-    private readonly IEnumerable<ConventionalCommit> _conventionalCommits;
-
-    public VersionIncrementStrategy(IEnumerable<ConventionalCommit> conventionalCommits)
-    {
-        _conventionalCommits = conventionalCommits;
-    }
+    private readonly IEnumerable<ConventionalCommit> _conventionalCommits = conventionalCommits;
 
     public SemanticVersion NextVersion(
         SemanticVersion version,

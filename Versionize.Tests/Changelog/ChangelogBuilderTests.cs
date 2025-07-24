@@ -25,7 +25,7 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>(),
+            [],
             ChangelogOptions.Default);
 
         var wasChangelogWritten = File.Exists(Path.Join(_testDirectory, "CHANGELOG.md"));
@@ -41,10 +41,9 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var contents = File.ReadAllText(Path.Join(_testDirectory, "CHANGELOG.md"));
@@ -60,13 +59,12 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             DateTimeOffset.Parse("2021-5-2"),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
                 ConventionalCommitParser.Parse(
                     new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -95,13 +93,12 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             DateTimeOffset.Parse("2023-10-31"),
             githubLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix #107")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature (#75)")),
                 ConventionalCommitParser.Parse(
                     new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -129,18 +126,17 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
-            },
+            ],
             ChangelogOptions.Default with
             {
-                Sections = new[]
-                {
+                Sections =
+                [
                     new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
                     new ChangelogSection { Type = "fix", Hidden = true, Section = "Bug Fixes" },
-                }
+                ]
             });
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -157,17 +153,16 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
-            },
+            ],
             ChangelogOptions.Default with
             {
-                Sections = new[]
-                {
+                Sections =
+                [
                     new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
-                }
+                ]
             });
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -184,18 +179,17 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
-            },
+            ],
             ChangelogOptions.Default with
             {
-                Sections = new[]
-                {
+                Sections =
+                [
                     new ChangelogSection { Type = "feat", Hidden = false, Section = "Features" },
                     new ChangelogSection { Type = "fix", Section = "Bug Fixes" },
-                }
+                ]
             });
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -212,19 +206,18 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
-            },
+            ],
             ChangelogOptions.Default with
             {
                 IncludeAllCommits = true,
-                Sections = new[]
-                {
+                Sections =
+                [
                     new ChangelogSection { Type = "feat", Hidden = true, Section = "Features" },
                     new ChangelogSection { Type = "fix", Hidden = true, Section = "Bug Fixes" },
-                }
+                ]
             });
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -244,10 +237,9 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
-            },
+            ],
             ChangelogOptions.Default with
             {
                 Header = "My custom changelog",
@@ -268,10 +260,9 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 0, 0),
             DateTimeOffset.Parse("2021-5-2"),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -286,10 +277,10 @@ public class ChangelogBuilderTests : IDisposable
         changelog.Write(
             new Version(1, 0, 0),
             new DateTimeOffset(),
-            linkBuilder, new List<ConventionalCommit>
-            {
+            linkBuilder,
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -305,10 +296,9 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 0, 0),
             new DateTimeOffset(),
             linkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -324,10 +314,9 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 0, 0),
             new DateTimeOffset(),
             linkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -342,10 +331,10 @@ public class ChangelogBuilderTests : IDisposable
         changelog.Write(
             new Version(1, 0, 0),
             new DateTimeOffset(),
-            linkBuilder, new List<ConventionalCommit>
-            {
+            linkBuilder,
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -361,20 +350,18 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 0, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.0.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         changelog.Write(
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix in version 1.1.0")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -403,11 +390,10 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             new DateTimeOffset(),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "chore: nothing important")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "chore: some foo bar")),
-            },
+            ],
             ChangelogOptions.Default with { IncludeAllCommits = true });
 
         var changelogContents = File.ReadAllText(changelog.FilePath);
@@ -424,13 +410,12 @@ public class ChangelogBuilderTests : IDisposable
             new Version(1, 1, 0),
             DateTimeOffset.Parse("2021-5-2"),
             plainLinkBuilder,
-            new List<ConventionalCommit>
-            {
+            [
                 ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix")),
                 ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
                 ConventionalCommitParser.Parse(
                      new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a breaking change feature\nBREAKING CHANGE: this will break everything")),
-            },
+            ],
             ChangelogOptions.Default);
 
         var sb = new ChangelogStringBuilder();

@@ -3,18 +3,12 @@ using NuGet.Versioning;
 
 namespace Versionize.BumpFiles;
 
-public sealed class UnityBumpFile : IBumpFile
+public sealed class UnityBumpFile(string projectSettingsPath, SemanticVersion version) : IBumpFile
 {
     private static readonly string versionPattern = @"bundleVersion:\s*([^\r\n]+)";
-    
-    private readonly string _projectSettingsPath;
-    private readonly SemanticVersion _version;
 
-    public UnityBumpFile(string projectSettingsPath, SemanticVersion version)
-    {
-        _projectSettingsPath = projectSettingsPath;
-        _version = version;
-    }
+    private readonly string _projectSettingsPath = projectSettingsPath;
+    private readonly SemanticVersion _version = version;
 
     public SemanticVersion Version => _version;
 

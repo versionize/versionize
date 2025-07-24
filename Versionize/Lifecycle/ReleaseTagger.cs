@@ -36,7 +36,7 @@ public sealed class ReleaseTagger
 
         Step($"tagged release as {tagName} against commit with sha {repo.Head.Tip.Sha}");
     }
-    
+
     public sealed class Options
     {
         public bool SkipTag { get; init; }

@@ -2,16 +2,10 @@ using LibGit2Sharp;
 
 namespace Versionize.Tests.TestSupport;
 
-public class TestSetup : IDisposable
+public class TestSetup(Repository repository, string workingDirectory) : IDisposable
 {
-    public Repository Repository { get; }
-    public string WorkingDirectory { get; }
-
-    public TestSetup(Repository repository, string workingDirectory)
-    {
-        Repository = repository;
-        WorkingDirectory = workingDirectory;
-    }
+    public Repository Repository { get; } = repository;
+    public string WorkingDirectory { get; } = workingDirectory;
 
     public void Dispose()
     {

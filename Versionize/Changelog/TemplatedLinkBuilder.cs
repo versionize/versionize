@@ -4,16 +4,10 @@ using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
-public sealed class TemplatedLinkBuilder : IChangelogLinkBuilder
+public sealed class TemplatedLinkBuilder(ChangelogLinkTemplates templates, IChangelogLinkBuilder fallbackBuilder) : IChangelogLinkBuilder
 {
-    private readonly ChangelogLinkTemplates _templates;
-    private readonly IChangelogLinkBuilder _fallbackBuilder;
-
-    public TemplatedLinkBuilder(ChangelogLinkTemplates templates, IChangelogLinkBuilder fallbackBuilder)
-    {
-        _templates = templates;
-        _fallbackBuilder = fallbackBuilder;
-    }
+    private readonly ChangelogLinkTemplates _templates = templates;
+    private readonly IChangelogLinkBuilder _fallbackBuilder = fallbackBuilder;
 
     public string BuildIssueLink(string issueId)
     {
