@@ -315,6 +315,116 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void ShouldNotWarnAboutMissingGitConfigurationWhenSkippingCommitAndTag()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+        // Create and commit a test file
+        File.WriteAllText(workingFilePath, "First line of text");
+        CommitAll(_testSetup.Repository);
+
+        var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
+            .Cast<ConfigurationLevel>()
+            .Select(level => _testSetup.Repository.Config.Get<string>(key, level)))
+            .Where(c => c != null)
+            .ToList();
+
+        try
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Unset(c.Key, c.Level));
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            // Should not throw when both SkipCommit and SkipTag are enabled, even with missing Git config
+            Should.NotThrow(() => workingCopy.Versionize(new VersionizeOptions
+            {
+                SkipCommit = true,
+                SkipTag = true
+            }));
+        }
+        finally
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Set(c.Key, c.Value, c.Level));
+        }
+    }
+
+    [Fact]
+    public void ShouldWarnAboutMissingGitConfigurationWhenOnlySkippingCommit()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+        // Create and commit a test file
+        File.WriteAllText(workingFilePath, "First line of text");
+        CommitAll(_testSetup.Repository);
+
+        var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
+            .Cast<ConfigurationLevel>()
+            .Select(level => _testSetup.Repository.Config.Get<string>(key, level)))
+            .Where(c => c != null)
+            .ToList();
+
+        try
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Unset(c.Key, c.Level));
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            // Should still throw when only SkipCommit is enabled (tag creation needs Git config)
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions
+            {
+                SkipCommit = true,
+                SkipTag = false
+            }));
+            _testPlatformAbstractions.Messages.Last().ShouldStartWith("Warning: Git configuration is missing");
+        }
+        finally
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Set(c.Key, c.Value, c.Level));
+        }
+    }
+
+    [Fact]
+    public void ShouldWarnAboutMissingGitConfigurationWhenOnlySkippingTag()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var workingFilePath = Path.Join(_testSetup.WorkingDirectory, "hello.txt");
+
+        // Create and commit a test file
+        File.WriteAllText(workingFilePath, "First line of text");
+        CommitAll(_testSetup.Repository);
+
+        var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
+            .Cast<ConfigurationLevel>()
+            .Select(level => _testSetup.Repository.Config.Get<string>(key, level)))
+            .Where(c => c != null)
+            .ToList();
+
+        try
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Unset(c.Key, c.Level));
+
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+
+            // Should still throw when only SkipTag is enabled (commit creation needs Git config)
+            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions
+            {
+                SkipCommit = false,
+                SkipTag = true
+            }));
+            _testPlatformAbstractions.Messages.Last().ShouldStartWith("Warning: Git configuration is missing");
+        }
+        finally
+        {
+            configurationValues.ForEach(c => _testSetup.Repository.Config.Set(c.Key, c.Value, c.Level));
+        }
+    }
+
+    [Fact]
     public void ShouldPrereleaseToCurrentMaximumPrereleaseVersion()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);

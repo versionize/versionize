@@ -71,7 +71,8 @@ public class WorkingCopy
         var gitDirectory = _gitDirectory.FullName;
         var repo = new Repository(gitDirectory);
 
-        if (!repo.IsConfiguredForCommits())
+        // Only check Git configuration if we will perform Git operations (commit or tag)
+        if (options.IsCommitConfigurationRequired() && !repo.IsConfiguredForCommits())
         {
             Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
 git config --global user.name ""John Doe""
