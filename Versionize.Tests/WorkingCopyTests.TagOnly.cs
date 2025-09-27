@@ -166,4 +166,52 @@ public partial class WorkingCopyTests
             .Count()
             .ShouldBe(3);
     }
+
+    [Fact]
+    public void ShouldTagVersionAfterEachVersionizeCommandUsingTagOnlyWithAndWithoutVersionPrefix()
+    {
+        // Arrange
+        CommitAll(_testSetup.Repository);
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag v1.0.0 with one commit
+
+        new FileCommitter(_testSetup).CommitChange("fix: first commit");
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag v1.0.1 with one commit
+        new FileCommitter(_testSetup).CommitChange("fix: second commit");
+
+        // Act
+        _defaultTagOnlyOptions.Project.OmitTagVersionPrefix = true;
+        _defaultTagOnlyOptions.Prerelease = "alpha";
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag 1.0.2-alpha.0 with one commit
+        new FileCommitter(_testSetup).CommitChange("fix: third commit");
+        _defaultTagOnlyOptions.Prerelease = null;
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag 1.0.2 with one commit
+        new FileCommitter(_testSetup).CommitChange("fix: fourth commit");
+        new FileCommitter(_testSetup).CommitChange("fix!: fifth commit");
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag 2.0.0 with two commits
+        new FileCommitter(_testSetup).CommitChange("fix: sixth commit");
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag 2.0.1 with one commit
+        _defaultTagOnlyOptions.Project.OmitTagVersionPrefix = false;
+        new FileCommitter(_testSetup).CommitChange("feat: seventh commit");
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag v2.1.0 with one commit
+        new FileCommitter(_testSetup).CommitChange("fix: eight commit");
+        _defaultTagOnlyOptions.Prerelease = "alpha";
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag v2.1.1-alpha.0 with one commit
+        new FileCommitter(_testSetup).CommitChange("fix: ninth commit");
+        _defaultTagOnlyOptions.Prerelease = null;
+        workingCopy.Versionize(_defaultTagOnlyOptions); // will create tag v2.1.1 with one commit
+
+        // Assert
+        _testSetup
+            .Repository
+            .Tags
+            .Select(tag => tag.FriendlyName)
+            .ShouldBe(["1.0.2", "1.0.2-alpha.0", "2.0.0", "2.0.1", "v1.0.0", "v1.0.1", "v2.1.0", "v2.1.1", "v2.1.1-alpha.0"]);
+
+        _testSetup
+            .Repository
+            .Commits
+            .Count()
+            .ShouldBe(10);
+    }
 }

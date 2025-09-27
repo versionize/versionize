@@ -10,6 +10,7 @@ public sealed class CliConfig
     public required CommandOption SkipDirty { get; init; }
     public required CommandOption SkipCommit { get; init; }
     public required CommandOption SkipTag { get; init; }
+    public required CommandOption OmitTagVersionPrefix { get; init; }
     public required CommandOption SkipChangelog { get; set; }
     public required CommandOption TagOnly { get; init; }
     public required CommandOption IgnoreInsignificant { get; init; }
@@ -70,6 +71,11 @@ public sealed class CliConfig
             SkipTag = app.Option(
                 "--skip-tag",
                 "Skip git tag after making release commit",
+                CommandOptionType.NoValue),
+
+            OmitTagVersionPrefix = app.Option(
+                "--omit-tag-version-prefix",
+                "Omit the 'v' prefix in git tags",
                 CommandOptionType.NoValue),
 
             SkipChangelog = app.Option(

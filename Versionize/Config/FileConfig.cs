@@ -11,6 +11,7 @@ public sealed class FileConfig
     public bool? SkipDirty { get; set; }
     public bool? SkipCommit { get; set; }
     public bool? SkipTag { get; set; }
+    public bool? OmitTagVersionPrefix { get; set; }
     public bool? SkipChangelog { get; set; }
     public bool? TagOnly { get; set; }
     public bool? IgnoreInsignificantCommits { get; set; }

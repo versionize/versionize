@@ -46,6 +46,8 @@ public static class ConfigProvider
                 ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default);
         }
 
+        project.OmitTagVersionPrefix = MergeBool(cliConfig.OmitTagVersionPrefix.HasValue(), fileConfig?.OmitTagVersionPrefix);
+
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
         var tagOnly = MergeBool(cliConfig.TagOnly.HasValue(), fileConfig?.TagOnly);
         var projectPath = Path.Combine(baseWorkingDirectory, project.Path);

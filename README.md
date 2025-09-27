@@ -47,6 +47,7 @@ Options:
   --silent                             Suppress output to console
   --skip-commit                        Don't commit changes to the git repository
   --skip-tag                           Don't tag the release commit
+  --omit-tag-version-prefix            Omit the 'v' prefix in git tags
   --skip-changelog                     Don't update the changelog
   -i|--ignore-insignificant-commits    Don't bump the version if no significant commits (fix, feat or BREAKING)
                                        are found

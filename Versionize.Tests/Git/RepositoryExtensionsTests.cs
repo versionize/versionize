@@ -36,6 +36,18 @@ public class RepositoryExtensionsTests : IDisposable
     }
 
     [Fact]
+    public void SelectVersionTagWithoutVersionPrefix_ShouldSelectLightweightTagWithoutVersionPrefix()
+    {
+        var fileCommitter = new FileCommitter(_testSetup);
+        var commit = fileCommitter.CommitChange("feat: Initial commit");
+        _testSetup.Repository.Tags.Add("2.0.0", commit);
+
+        var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0), true);
+
+        versionTag.ToString().ShouldBe("refs/tags/2.0.0");
+    }
+
+    [Fact]
     public void GetCurrentVersion_ReturnsCorrectVersionWhenTagOnlyIsTrueAndPrereleaseTagsExist()
     {
         var fileCommitter = new FileCommitter(_testSetup);
@@ -56,6 +68,9 @@ public class RepositoryExtensionsTests : IDisposable
 
     public void Dispose()
     {
+        // Since ProjectOptions.DefaultOneProjectPerRepo is static, it implicitly affects other tests.
+        // To avoid side effects, we reset the property to its default value after the test.
+        ProjectOptions.DefaultOneProjectPerRepo.OmitTagVersionPrefix = false;
         _testSetup.Dispose();
     }
 

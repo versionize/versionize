@@ -9,9 +9,11 @@ namespace Versionize.Git;
 
 public static class RepositoryExtensions
 {
-    public static Tag? SelectVersionTag(this Repository repository, SemanticVersion version)
+    public static Tag? SelectVersionTag(this Repository repository, SemanticVersion version, bool omitTagVersionPrefix = false)
     {
-        return SelectVersionTag(repository, version, ProjectOptions.DefaultOneProjectPerRepo);
+        ProjectOptions projectOptions = ProjectOptions.DefaultOneProjectPerRepo;
+        projectOptions.OmitTagVersionPrefix = omitTagVersionPrefix;
+        return SelectVersionTag(repository, version, projectOptions);
     }
 
     public static Tag? SelectVersionTag(this Repository repository, SemanticVersion? version, ProjectOptions project)
@@ -21,7 +23,7 @@ public static class RepositoryExtensions
             return null;
         }
 
-        return repository.Tags.SingleOrDefault(t => t.FriendlyName.Equals(project.GetTagName(version)));
+        return repository.Tags.SingleOrDefault(t => project.HasMatchingTag(version, t.FriendlyName));
     }
 
     public static bool VersionTagsExists(this Repository repository, SemanticVersion version, ProjectOptions project)
@@ -30,9 +32,11 @@ public static class RepositoryExtensions
         return repository.Tags.Any(tag => tag.FriendlyName.Equals(tagName));
     }
 
-    public static bool IsSemanticVersionTag(this Tag tag)
+    public static bool IsSemanticVersionTag(this Tag tag, bool omitTagVersionPrefix = false)
     {
-        return IsSemanticVersionTag(tag, ProjectOptions.DefaultOneProjectPerRepo);
+        ProjectOptions projectOptions = ProjectOptions.DefaultOneProjectPerRepo;
+        projectOptions.OmitTagVersionPrefix = omitTagVersionPrefix;
+        return IsSemanticVersionTag(tag, projectOptions);
     }
 
     public static bool IsSemanticVersionTag(this Tag tag, ProjectOptions project)

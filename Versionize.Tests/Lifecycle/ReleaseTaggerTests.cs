@@ -89,6 +89,37 @@ public class ReleaseTaggerTests : IDisposable
     }
 
     [Fact]
+    public void CreatesATagWithoutVersionPrefix_When_DryRunIsFalseAndSkipTagIsFalse()
+    {
+        ProjectOptions projectOptions = ProjectOptions.DefaultOneProjectPerRepo;
+        projectOptions.OmitTagVersionPrefix = true;
+        var options = new ReleaseTagger.Options
+        {
+            DryRun = false,
+            SkipTag = false,
+            Sign = false,
+            Project = projectOptions,
+            WorkingDirectory = _testSetup.WorkingDirectory,
+        };
+
+        var fileCommitter = new FileCommitter(_testSetup);
+        fileCommitter.CommitChange("feat: initial commit");
+
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+
+        ReleaseTagger.CreateTag(
+            _testSetup.Repository,
+            options,
+            new Version(1, 2, 3));
+
+        _testSetup.Repository.Tags.Count().ShouldBe(1);
+        var tag = _testSetup.Repository.Tags.Single();
+        tag.FriendlyName.ShouldBe("1.2.3");
+
+        GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeFalse();
+    }
+
+    [Fact]
     public void CreatesASignedTag_When_DryRunIsFalseAndSkipTagIsFalseAndSignIsTrue()
     {
         var gpgFilePath = "./TestKeyForGpgSigning.pgp";
@@ -121,8 +152,46 @@ public class ReleaseTaggerTests : IDisposable
         GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeTrue();
     }
 
+    [Fact]
+    public void CreatesASignedTagWithoutVersionPrefix_When_DryRunIsFalseAndSkipTagIsFalseAndSignIsTrue()
+    {
+        var gpgFilePath = "./TestKeyForGpgSigning.pgp";
+        GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
+        _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
+
+        ProjectOptions projectOptions = ProjectOptions.DefaultOneProjectPerRepo;
+        projectOptions.OmitTagVersionPrefix = true;
+        var options = new ReleaseTagger.Options
+        {
+            DryRun = false,
+            SkipTag = false,
+            Sign = true,
+            Project = projectOptions,
+            WorkingDirectory = _testSetup.WorkingDirectory,
+        };
+
+        var fileCommitter = new FileCommitter(_testSetup);
+        fileCommitter.CommitChange("feat: initial commit");
+
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+
+        ReleaseTagger.CreateTag(
+            _testSetup.Repository,
+            options,
+            new Version(1, 2, 3));
+
+        _testSetup.Repository.Tags.Count().ShouldBe(1);
+        var tag = _testSetup.Repository.Tags.Single();
+        tag.FriendlyName.ShouldBe("1.2.3");
+
+        GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeTrue();
+    }
+
     public void Dispose()
     {
+        // Since ProjectOptions.DefaultOneProjectPerRepo is static, it implicitly affects other tests.
+        // To avoid side effects, we reset the property to its default value after the test.
+        ProjectOptions.DefaultOneProjectPerRepo.OmitTagVersionPrefix = false;
         _testSetup.Dispose();
     }
 

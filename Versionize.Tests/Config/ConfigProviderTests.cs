@@ -58,6 +58,29 @@ public class ConfigProviderTests : IDisposable
         _testPlatformAbstractions.Messages[0].ShouldBe("Two or more projects have changelog paths pointing to the same location.");
     }
 
+    [Fact]
+    public void OmitsTagVersionPrefixWhenOmitTagVersionPrefixIsSetInCli()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { OmitTagVersionPrefix = false };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse("--omit-tag-version-prefix");
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.Project.OmitTagVersionPrefix.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void OmitsTagVersionPrefixWhenOmitTagVersionPrefixIsSetInFile()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { OmitTagVersionPrefix = true };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.Project.OmitTagVersionPrefix.ShouldBeTrue();
+    }
+
     [Theory]
     [InlineData(new[] { "--tag-only" }, false, BumpFileType.None)]
     [InlineData(new[] { "--tag-only" }, true, BumpFileType.None)]

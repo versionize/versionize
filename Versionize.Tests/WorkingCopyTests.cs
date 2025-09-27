@@ -926,6 +926,9 @@ public partial class WorkingCopyTests : IDisposable
 
     public void Dispose()
     {
+        // Since ProjectOptions.DefaultOneProjectPerRepo is static, it implicitly affects other tests.
+        // To avoid side effects, we reset the property to its default value after the test.
+        ProjectOptions.DefaultOneProjectPerRepo.OmitTagVersionPrefix = false;
         _testSetup.Dispose();
     }
 
