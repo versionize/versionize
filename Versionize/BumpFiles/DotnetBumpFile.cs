@@ -9,10 +9,12 @@ namespace Versionize.BumpFiles;
 public sealed class DotnetBumpFile : IBumpFile
 {
     private readonly IEnumerable<DotnetBumpFileProject> _projects;
+    public bool BumpOnlyFileVersion { get; }
 
-    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects)
+    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects, bool bumpOnlyFileVersion = false)
     {
         _projects = projects;
+        BumpOnlyFileVersion = bumpOnlyFileVersion;
     }
 
     public SemanticVersion Version => _projects.First().Version;
@@ -34,18 +36,19 @@ public sealed class DotnetBumpFile : IBumpFile
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 
-    public static DotnetBumpFile Create(string workingDirectory)
+    public static DotnetBumpFile Create(string workingDirectory, bool bumpOnlyFileVersion = false)
     {
-        var projectGroup = DotnetBumpFile.Discover(workingDirectory);
+        var projectGroup = DotnetBumpFile.Discover(workingDirectory, bumpOnlyFileVersion);
+        var elementName = bumpOnlyFileVersion ? "FileVersion" : "Version";
 
         if (projectGroup.IsEmpty())
         {
-            Exit($"Could not find any projects files in {workingDirectory} that have a <Version> defined in their csproj file.", 1);
+            Exit($"Could not find any projects files in {workingDirectory} that have a <{elementName}> defined in their csproj file.", 1);
         }
 
         if (projectGroup.HasInconsistentVersioning())
         {
-            Exit($"Some projects in {workingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned", 1);
+            Exit($"Some projects in {workingDirectory} have an inconsistent <{elementName}> defined in their csproj file. Please update all versions to be consistent or remove the <{elementName}> elements from projects that should not be versioned", 1);
         }
 
         Information($"Discovered {projectGroup.GetFilePaths().Count()} versionable projects");
@@ -57,7 +60,7 @@ public sealed class DotnetBumpFile : IBumpFile
         return projectGroup;
     }
 
-    public static DotnetBumpFile Discover(string workingDirectory)
+    public static DotnetBumpFile Discover(string workingDirectory, bool bumpOnlyFileVersion = false)
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
 
@@ -69,12 +72,12 @@ public sealed class DotnetBumpFile : IBumpFile
 
         var projects = filters.SelectMany(filter => Directory
             .GetFiles(workingDirectory, filter, options)
-            .Where(DotnetBumpFileProject.IsVersionable)
-            .Select(DotnetBumpFileProject.Create)
+            .Where(file => DotnetBumpFileProject.IsVersionable(file, bumpOnlyFileVersion))
+            .Select(file => DotnetBumpFileProject.Create(file, bumpOnlyFileVersion))
             .ToList()
         );
 
-        return new DotnetBumpFile(projects);
+        return new DotnetBumpFile(projects, bumpOnlyFileVersion);
     }
 
     public void WriteVersion(SemanticVersion nextVersion)
