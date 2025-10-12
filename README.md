@@ -180,6 +180,39 @@ versionize
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
 
+### Bumping FileVersion instead of Version
+
+In some scenarios, you may want to bump only the `<FileVersion>` element instead of the `<Version>` element in your project files. This can be useful when you want to track file versions independently from package versions, or when working with subprojects that shouldn't create their own git tags.
+
+To use this feature, ensure your project file contains a `<FileVersion>` element:
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+</Project>
+```
+
+Then run versionize with the `--bump-only-file-version` flag:
+
+```bash
+versionize --bump-only-file-version
+```
+
+Alternatively, configure this in your `.versionize` file:
+
+```json
+{
+  "bumpOnlyFileVersion": true
+}
+```
+
+When this option is enabled, versionize will:
+- Look for and bump the `<FileVersion>` element instead of `<Version>`
+- Still create git tags and update the changelog as normal
+- Use the FileVersion for determining the current and next version
+
 ### Pre-releases
 
 Versionize supports creating pre-release versions by using the `--pre-release` flag with a pre-release label, for example `alpha`.
