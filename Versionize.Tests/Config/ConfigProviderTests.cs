@@ -133,6 +133,41 @@ public class ConfigProviderTests : IDisposable
         options.BumpFileType.ShouldBe(expectedBumpFileType);
     }
 
+    [Theory]
+    [InlineData("--skip-tag=true", true, true)]
+    [InlineData("--skip-tag=false", true, false)]
+    [InlineData("--skip-tag", true, true)]
+    [InlineData("--skip-tag=true", false, true)]
+    [InlineData("--skip-tag=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void CliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { SkipTag = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.SkipTag.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--skip-commit=true --skip-tag=false", true, false, true, false)]
+    [InlineData("--skip-commit=false --skip-tag=true", false, true, false, true)]
+    [InlineData("--skip-commit --skip-tag", true, false, true, true)]
+    public void MultipleCliOptionsTakePriorityOverFileConfig(string cliInput, bool fileSkipCommit, bool fileSkipTag, bool expectedSkipCommit, bool expectedSkipTag)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { SkipCommit = fileSkipCommit, SkipTag = fileSkipTag };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(cliInput.Split(' '));
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.SkipCommit.ShouldBe(expectedSkipCommit);
+        options.SkipTag.ShouldBe(expectedSkipTag);
+    }
+
     public void Dispose()
     {
         _testSetup.Dispose();
