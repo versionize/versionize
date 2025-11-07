@@ -141,7 +141,7 @@ public class ConfigProviderTests : IDisposable
     [InlineData("--skip-tag=false", false, false)]
     [InlineData("", true, true)]
     [InlineData("", false, false)]
-    public void CliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    public void SkipTagCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { SkipTag = fileConfigValue };
@@ -153,19 +153,174 @@ public class ConfigProviderTests : IDisposable
     }
 
     [Theory]
-    [InlineData("--skip-commit=true --skip-tag=false", true, false, true, false)]
-    [InlineData("--skip-commit=false --skip-tag=true", false, true, false, true)]
-    [InlineData("--skip-commit --skip-tag", true, false, true, true)]
-    public void MultipleCliOptionsTakePriorityOverFileConfig(string cliInput, bool fileSkipCommit, bool fileSkipTag, bool expectedSkipCommit, bool expectedSkipTag)
+    [InlineData("--skip-commit=true", true, true)]
+    [InlineData("--skip-commit=false", true, false)]
+    [InlineData("--skip-commit", true, true)]
+    [InlineData("--skip-commit=true", false, true)]
+    [InlineData("--skip-commit=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void SkipCommitCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
-        var fileConfig = new FileConfig { SkipCommit = fileSkipCommit, SkipTag = fileSkipTag };
+        var fileConfig = new FileConfig { SkipCommit = fileConfigValue };
         var cliApp = new CommandLineApplication();
         var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(cliInput.Split(' '));
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
-        options.SkipCommit.ShouldBe(expectedSkipCommit);
-        options.SkipTag.ShouldBe(expectedSkipTag);
+        options.SkipCommit.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--dry-run=true", true, true)]
+    [InlineData("--dry-run=false", true, false)]
+    [InlineData("--dry-run", true, true)]
+    [InlineData("--dry-run=true", false, true)]
+    [InlineData("--dry-run=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void DryRunCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { DryRun = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.DryRun.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--skip-dirty=true", true, true)]
+    [InlineData("--skip-dirty=false", true, false)]
+    [InlineData("--skip-dirty", true, true)]
+    [InlineData("--skip-dirty=true", false, true)]
+    [InlineData("--skip-dirty=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void SkipDirtyCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { SkipDirty = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.SkipDirty.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--skip-changelog=true", true, true)]
+    [InlineData("--skip-changelog=false", true, false)]
+    [InlineData("--skip-changelog", true, true)]
+    [InlineData("--skip-changelog=true", false, true)]
+    [InlineData("--skip-changelog=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void SkipChangelogCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { SkipChangelog = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.SkipChangelog.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("-i=true", true, true)]
+    [InlineData("-i=false", true, false)]
+    [InlineData("-i", true, true)]
+    [InlineData("-i=true", false, true)]
+    [InlineData("-i=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void IgnoreInsignificantCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { IgnoreInsignificantCommits = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.IgnoreInsignificantCommits.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--exit-insignificant-commits=true", true, true)]
+    [InlineData("--exit-insignificant-commits=false", true, false)]
+    [InlineData("--exit-insignificant-commits", true, true)]
+    [InlineData("--exit-insignificant-commits=true", false, true)]
+    [InlineData("--exit-insignificant-commits=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void ExitInsignificantCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { ExitInsignificantCommits = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.ExitInsignificantCommits.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("-a=true", true, true)]
+    [InlineData("-a=false", true, false)]
+    [InlineData("-a", true, true)]
+    [InlineData("-a=true", false, true)]
+    [InlineData("-a=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void AggregatePrereleasesCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { AggregatePrereleases = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.AggregatePrereleases.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--first-parent-only-commits=true", true, true)]
+    [InlineData("--first-parent-only-commits=false", true, false)]
+    [InlineData("--first-parent-only-commits", true, true)]
+    [InlineData("--first-parent-only-commits=true", false, true)]
+    [InlineData("--first-parent-only-commits=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void FirstParentOnlyCommitsCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { FirstParentOnlyCommits = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.FirstParentOnlyCommits.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("-s=true", true, true)]
+    [InlineData("-s=false", true, false)]
+    [InlineData("-s", true, true)]
+    [InlineData("-s=true", false, true)]
+    [InlineData("-s=false", false, false)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    public void SignCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { Sign = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.Sign.ShouldBe(expectedValue);
     }
 
     public void Dispose()
