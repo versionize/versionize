@@ -1,4 +1,5 @@
-﻿using Versionize.BumpFiles;
+﻿using McMaster.Extensions.CommandLineUtils;
+using Versionize.BumpFiles;
 using Versionize.CommandLine;
 
 namespace Versionize.Config;
@@ -17,7 +18,7 @@ public static class ConfigProvider
 
         ValidateChangelogPaths(fileConfig, options.WorkingDirectory);
 
-        CommandLineUI.Verbosity = MergeBool(cliConfig.Silent.HasValue(), fileConfig?.Silent)
+        CommandLineUI.Verbosity = MergeBool(cliConfig.Silent, fileConfig?.Silent)
             ? LogLevel.Silent
             : LogLevel.All;
 
@@ -47,36 +48,58 @@ public static class ConfigProvider
         }
 
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
-        var tagOnly = MergeBool(cliConfig.TagOnly.HasValue(), fileConfig?.TagOnly);
+        var tagOnly = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly);
         var projectPath = Path.Combine(baseWorkingDirectory, project.Path);
         var bumpFileType = BumpFileTypeDetector.GetType(projectPath, tagOnly);
 
         return new VersionizeOptions
         {
             WorkingDirectory = projectPath,
-            DryRun = MergeBool(cliConfig.DryRun.HasValue(), fileConfig?.DryRun),
+            DryRun = MergeBool(cliConfig.DryRun, fileConfig?.DryRun),
             ReleaseAs = cliConfig.ReleaseAs.Value() ?? fileConfig?.ReleaseAs,
-            SkipDirty = MergeBool(cliConfig.SkipDirty.HasValue(), fileConfig?.SkipDirty),
-            SkipCommit = MergeBool(cliConfig.SkipCommit.HasValue(), fileConfig?.SkipCommit),
-            SkipTag = MergeBool(cliConfig.SkipTag.HasValue(), fileConfig?.SkipTag),
-            SkipChangelog = MergeBool(cliConfig.SkipChangelog.HasValue(), fileConfig?.SkipChangelog),
-            IgnoreInsignificantCommits = MergeBool(cliConfig.IgnoreInsignificant.HasValue(), fileConfig?.IgnoreInsignificantCommits),
-            ExitInsignificantCommits = MergeBool(cliConfig.ExitInsignificant.HasValue(), fileConfig?.ExitInsignificantCommits),
+            SkipDirty = MergeBool(cliConfig.SkipDirty, fileConfig?.SkipDirty),
+            SkipCommit = MergeBool(cliConfig.SkipCommit, fileConfig?.SkipCommit),
+            SkipTag = MergeBool(cliConfig.SkipTag, fileConfig?.SkipTag),
+            SkipChangelog = MergeBool(cliConfig.SkipChangelog, fileConfig?.SkipChangelog),
+            IgnoreInsignificantCommits = MergeBool(cliConfig.IgnoreInsignificant, fileConfig?.IgnoreInsignificantCommits),
+            ExitInsignificantCommits = MergeBool(cliConfig.ExitInsignificant, fileConfig?.ExitInsignificantCommits),
             CommitSuffix = cliConfig.CommitSuffix.Value() ?? fileConfig?.CommitSuffix,
             Prerelease = cliConfig.Prerelease.Value() ?? fileConfig?.Prerelease,
-            AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases.HasValue(), fileConfig?.AggregatePrereleases),
-            FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits.HasValue(), fileConfig?.FirstParentOnlyCommits),
-            Sign = MergeBool(cliConfig.Sign.HasValue(), fileConfig?.Sign),
+            AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases, fileConfig?.AggregatePrereleases),
+            FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits, fileConfig?.FirstParentOnlyCommits),
+            Sign = MergeBool(cliConfig.Sign, fileConfig?.Sign),
             BumpFileType = bumpFileType,
             CommitParser = commitParser,
             Project = project,
-            UseCommitMessageInsteadOfTagToFindLastReleaseCommit = cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit.HasValue(),
+            UseCommitMessageInsteadOfTagToFindLastReleaseCommit = MergeBool(cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit, false),
         };
     }
 
-    private static bool MergeBool(bool overridingValue, bool? optionalValue)
+    private static bool MergeBool(CommandOption cliOption, bool? fileValue)
     {
-        return overridingValue ? overridingValue : (optionalValue ?? false);
+        // If CLI option has a value, parse it
+        if (cliOption.HasValue())
+        {
+            var optionValue = cliOption.Value();
+            
+            // If no explicit value provided (flag without value), treat as true
+            if (string.IsNullOrEmpty(optionValue))
+            {
+                return true;
+            }
+            
+            // Try to parse the explicit value
+            if (bool.TryParse(optionValue, out var boolValue))
+            {
+                return boolValue;
+            }
+            
+            // If parsing fails, treat flag presence as true
+            return true;
+        }
+        
+        // Fall back to file config or default false
+        return fileValue ?? false;
     }
 
     private static void ValidateChangelogPaths(FileConfig? fileConfig, string cwd)

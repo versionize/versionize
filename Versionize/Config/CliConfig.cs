@@ -45,12 +45,12 @@ public sealed class CliConfig
             Silent = app.Option(
                 "--silent",
                 "Suppress output to console",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             DryRun = app.Option(
                 "-d|--dry-run",
                 "Skip changing versions in projects, changelog generation and git commit",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             ReleaseAs = app.Option(
                 "-r|--release-as <VERSION>",
@@ -60,37 +60,37 @@ public sealed class CliConfig
             SkipDirty = app.Option(
                 "--skip-dirty",
                 "Skip git dirty check",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             SkipCommit = app.Option(
                 "--skip-commit",
                 "Skip commit and git tag after updating changelog and incrementing the version",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             SkipTag = app.Option(
                 "--skip-tag",
                 "Skip git tag after making release commit",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             SkipChangelog = app.Option(
                 "--skip-changelog",
                 "Skip changelog generation",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             TagOnly = app.Option(
                 "--tag-only",
                 "Only works with git tags, does not commit or modify the csproj file.",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             IgnoreInsignificant = app.Option(
                 "-i|--ignore-insignificant-commits",
                 "Do not bump the version if no significant commits (fix, feat or BREAKING) are found",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             ExitInsignificant = app.Option(
                 "--exit-insignificant-commits",
                 "Exits with a non zero exit code if no significant commits (fix, feat or BREAKING) are found",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             CommitSuffix = app.Option(
                 "--commit-suffix",
@@ -105,17 +105,17 @@ public sealed class CliConfig
             AggregatePrereleases = app.Option(
                 "-a|--aggregate-pre-releases",
                 "Include all pre-release commits in the changelog since the last full version.",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             FirstParentOnlyCommits = app.Option(
                 "--first-parent-only-commits",
                 "Ignore commits beyond the first parent.",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             Sign = app.Option(
                 "-s|--sign",
                 "Sign the git commit and tag.",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
 
             ProjectName = app.Option(
                 "--proj-name",
@@ -125,7 +125,7 @@ public sealed class CliConfig
             UseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option(
                 "--find-release-commit-via-message",
                 "Use commit message instead of tag to find last release commit",
-                CommandOptionType.NoValue),
+                CommandOptionType.SingleOrNoValue),
         };
     }
 }
