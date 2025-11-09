@@ -6,7 +6,6 @@ namespace Versionize;
 
 public partial class WorkingCopyTests
 {
-
     private readonly VersionizeOptions _defaultTagOnlyOptions = new()
     {
         SkipDirty = true,

@@ -94,12 +94,68 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
+    public void InspectShouldPrintProjVersion()
+    {
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>1.0.0</Version>
+                </PropertyGroup>
+            </Project>
+            """);
+        CommitAll(_testSetup.Repository);
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        var options = new VersionizeOptions
+        {
+            BumpFileType = BumpFileType.Dotnet,
+        };
+
+        _testSetup.Repository.Tags.Add("v1.2.3", _testSetup.Repository.Head.Tip);
+
+        var version = workingCopy.Inspect(options);
+
+        version.ToNormalizedString().ShouldBe("1.0.0");
+        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+        _testPlatformAbstractions.Messages[0].ShouldBe("1.0.0");
+    }
+
+    [Fact]
+    public void InspectWithTagOnlyShouldPrintTagVersion()
+    {
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>1.0.0</Version>
+                </PropertyGroup>
+            </Project>
+            """);
+        CommitAll(_testSetup.Repository);
+
+        var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+        var options = new VersionizeOptions
+        {
+            BumpFileType = BumpFileType.None,
+        };
+
+        _testSetup.Repository.Tags.Add("v1.2.3", _testSetup.Repository.Head.Tip);
+
+        var version = workingCopy.Inspect(options);
+
+        version.ToNormalizedString().ShouldBe("1.2.3");
+        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+        _testPlatformAbstractions.Messages[0].ShouldBe("1.2.3");
+    }
+
+    [Fact]
     public void InspectShouldExitIfNoProjectWithVersionIsFound()
     {
-        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory, "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-    </PropertyGroup>
-</Project>");
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory, "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                </PropertyGroup>
+            </Project>
+            """);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
@@ -112,17 +168,21 @@ public partial class WorkingCopyTests : IDisposable
     [Fact]
     public void InspectShouldExitForProjectsInconsistentVersion()
     {
-        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <Version>1.0.0</Version>
-    </PropertyGroup>
-</Project>");
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>1.0.0</Version>
+                </PropertyGroup>
+            </Project>
+            """);
 
-        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <Version>2.0.0</Version>
-    </PropertyGroup>
-</Project>");
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>2.0.0</Version>
+                </PropertyGroup>
+            </Project>
+            """);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
@@ -765,11 +825,10 @@ public partial class WorkingCopyTests : IDisposable
             var project = projectOptions.Project;
 
             var versionTagNames = VersionTagNames.ToList();
-            foreach (var expectedTag in new[]
-                         {
-                             "1.0.0", "1.0.1-alpha.0", "1.1.0", "1.1.0-alpha.0", "1.2.0"
-                         }
-                         .Select(project.GetTagName))
+            var expectedTagNames = new[] { "1.0.0", "1.0.1-alpha.0", "1.1.0", "1.1.0-alpha.0", "1.2.0" }
+                .Select(project.GetTagName);
+
+            foreach (var expectedTag in expectedTagNames)
             {
                 versionTagNames.ShouldContain(expectedTag);
             }

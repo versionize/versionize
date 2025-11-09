@@ -23,13 +23,16 @@ public class WorkingCopy
 
     public SemanticVersion Inspect(VersionizeOptions options)
     {
-        // TODO: Implement "--tag-only" variation
         options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+
         Verbosity = CommandLine.LogLevel.Error;
         var bumpFile = BumpFileProvider.GetBumpFile(options);
+        using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
+        var version = repo.GetCurrentVersion(options, bumpFile) ?? new SemanticVersion(1, 0, 0);
         Verbosity = CommandLine.LogLevel.All;
-        Information(bumpFile.Version.ToNormalizedString());
-        return bumpFile.Version;
+        Information(version.ToNormalizedString());
+
+        return version;
     }
 
     public void GenerateChanglog(VersionizeOptions options, string? versionStr, string? preamble)
