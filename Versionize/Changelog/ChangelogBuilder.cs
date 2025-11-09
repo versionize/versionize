@@ -99,7 +99,7 @@ public sealed class ChangelogBuilder
         if (changelogOptions.IncludeAllCommits.GetValueOrDefault())
         {
             var other = BuildBlock(
-                "Other",
+                changelogOptions.OtherSection ?? "Other",
                 linkBuilder,
                 commits.Where(commit => !visibleChangelogSections.Any(x => x.Type == commit.Type) && !commit.IsBreakingChange));
 

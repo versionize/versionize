@@ -8,6 +8,7 @@ public sealed record class ChangelogOptions
         Header = Preamble,
         Path = string.Empty,
         IncludeAllCommits = false,
+        OtherSection = "Other",
         Sections =
         [
             new ChangelogSection { Type = "feat", Section = "Features", Hidden = false },
@@ -18,6 +19,7 @@ public sealed record class ChangelogOptions
     public string? Header { get; set; }
     public string? Path { get; set; }
     public bool? IncludeAllCommits { get; set; }
+    public string? OtherSection { get; set; }
     public IEnumerable<ChangelogSection>? Sections { get; set; }
     public ChangelogLinkTemplates? LinkTemplates { get; set; }
 
@@ -31,10 +33,11 @@ public sealed record class ChangelogOptions
         return new ChangelogOptions
         {
             Header = customOptions.Header ?? defaultOptions.Header,
+            Path = customOptions.Path ?? defaultOptions.Path,
             IncludeAllCommits = customOptions.IncludeAllCommits ?? defaultOptions.IncludeAllCommits,
+            OtherSection = customOptions.OtherSection ?? defaultOptions.OtherSection,
             Sections = customOptions.Sections ?? defaultOptions.Sections,
             LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates,
-            Path = customOptions.Path ?? defaultOptions.Path,
         };
     }
 }

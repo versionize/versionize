@@ -229,6 +229,32 @@ public class ChangelogBuilderTests : IDisposable
     }
 
     [Fact]
+    public void ShouldUseCustomOtherSectionNameWhenSpecified()
+    {
+        var plainLinkBuilder = new PlainLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        changelog.Write(
+            new Version(1, 1, 0),
+            new DateTimeOffset(),
+            plainLinkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "chore: a chore")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "docs: documentation update")),
+            ],
+            ChangelogOptions.Default with
+            {
+                IncludeAllCommits = true,
+                OtherSection = "Miscellaneous",
+            });
+
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldNotContain("### Other", Case.Sensitive);
+        changelogContents.ShouldContain("### Miscellaneous", Case.Sensitive);
+        changelogContents.ShouldContain("a chore");
+        changelogContents.ShouldContain("documentation update");
+    }
+
+    [Fact]
     public void ShouldUseCustomHeaderWhenSpecified()
     {
         var plainLinkBuilder = new PlainLinkBuilder();

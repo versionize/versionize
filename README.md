@@ -286,12 +286,13 @@ Changelog customization can only be done via a `.versionize` file. The following
         "section": "🚀 Performance",
         "hidden": false
       }
-    ]
+    ],
+    "otherSection": "Miscellaneous"
   }
 }
 ```
 
-Because `IncludeAllCommits` is true and the _fix_ section is hidden, fix commits will appear in the a section titled "Other".
+Because `includeAllCommits` is true and the _fix_ section is hidden, fix commits will appear in a section titled "Miscellaneous" (as specified by `otherSection`). If `otherSection` is not specified, it defaults to "Other".
 
 ## Developing
 
