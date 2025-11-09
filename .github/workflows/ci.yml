@@ -7,10 +7,21 @@ on:
       - 'spike/**'
   pull_request:
     branches: [ master ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - 'Versionize/**'
+      - 'Versionize.Tests/**'
+      - 'Versionize.sln'
+      - '.github/workflows/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
     steps:
     - uses: actions/checkout@v4
       with:
