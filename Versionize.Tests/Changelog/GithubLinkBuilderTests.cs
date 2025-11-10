@@ -1,5 +1,4 @@
 ﻿using LibGit2Sharp;
-using NuGet.Versioning;
 using Shouldly;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
@@ -82,8 +81,7 @@ public class GithubLinkBuilderTests
                     Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
                 })
             .ShouldBe("https://www.github.com/versionize/versionize/commit/734713bc047d87bf7eac9674765ae793478c50d3");
-        linkBuilder.BuildVersionTagLink(
-                new SemanticVersion(1, 2, 3))
+        linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2")
             .ShouldBe("https://www.github.com/versionize/versionize/releases/tag/v1.2.3");
     }
 
@@ -100,8 +98,7 @@ public class GithubLinkBuilderTests
                     Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
                 })
             .ShouldBe("https://www.github.com/versionize/versionize/commit/734713bc047d87bf7eac9674765ae793478c50d3");
-        linkBuilder.BuildVersionTagLink(
-                new SemanticVersion(1, 2, 3))
+        linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2")
             .ShouldBe("https://www.github.com/versionize/versionize/releases/tag/v1.2.3");
     }
 

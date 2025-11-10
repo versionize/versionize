@@ -6,6 +6,7 @@ using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Git;
+using Versionize.Config;
 
 namespace Versionize.Lifecycle;
 
@@ -83,14 +84,14 @@ public class ChangeCommitterTests : IDisposable
         };
         var bumpFile = new NullBumpFile();
 
-        var changelogOptions = Versionize.Config.ChangelogOptions.Default;
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
+            Version.Parse("2.0.0"),
             Version.Parse("2.0.0"),
             DateTimeOffset.Now,
             new PlainLinkBuilder(),
             [],
-            changelogOptions);
+            ProjectOptions.DefaultOneProjectPerRepo);
 
         ChangeCommitter.CreateCommit(
             _testSetup.Repository,
@@ -127,14 +128,14 @@ public class ChangeCommitterTests : IDisposable
         };
         var bumpFile = new NullBumpFile();
 
-        var changelogOptions = Versionize.Config.ChangelogOptions.Default;
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
+            Version.Parse("2.0.0"),
             Version.Parse("2.0.0"),
             DateTimeOffset.Now,
             new PlainLinkBuilder(),
             [],
-            changelogOptions);
+            ProjectOptions.DefaultOneProjectPerRepo);
 
         ChangeCommitter.CreateCommit(
             _testSetup.Repository,

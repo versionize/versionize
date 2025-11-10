@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
-using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
@@ -54,9 +53,9 @@ public sealed partial class BitbucketLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith(ComSshPrefix) || pushUrl.StartsWith(OrgSshPrefix) || IsHttpsPushUrl(pushUrl);
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(string currentTag, string previousTag)
     {
-        return $"https://bitbucket.{_domain}/{_organization}/{_repository}/src/v{version}";
+        return $"https://bitbucket.{_domain}/{_organization}/{_repository}/src/{currentTag}";
     }
 
     public string BuildIssueLink(string issueId)

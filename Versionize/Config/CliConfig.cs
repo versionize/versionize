@@ -22,6 +22,7 @@ public sealed class CliConfig
     /// </summary>
     public required CommandOption FirstParentOnlyCommits { get; init; }
     public required CommandOption Sign { get; init; }
+    public required CommandOption TagTemplate { get; init; }
 
     public required CommandOption WorkingDirectory { get; init; }
     public required CommandOption ConfigurationDirectory { get; init; }
@@ -116,6 +117,11 @@ public sealed class CliConfig
                 "-s|--sign",
                 "Sign the git commit and tag.",
                 CommandOptionType.SingleOrNoValue),
+
+            TagTemplate = app.Option(
+                "-tt|--tag-template <TAG_TEMPLATE>",
+                "Template for git tags, e.g. {name}/v{version}",
+                CommandOptionType.SingleValue),
 
             ProjectName = app.Option(
                 "--proj-name",

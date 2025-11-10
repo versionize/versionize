@@ -14,8 +14,7 @@ public sealed class ConventionalCommitProvider
 
         if (options.AggregatePrereleases)
         {
-            versionToUseForCommitDiff = repo
-                .Tags
+            versionToUseForCommitDiff = repo.Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x != null && !x.IsPrerelease)
                 .OrderByDescending(x => x!.Major)

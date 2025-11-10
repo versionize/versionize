@@ -1,5 +1,4 @@
 ﻿using LibGit2Sharp;
-using NuGet.Versioning;
 using Shouldly;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
@@ -82,10 +81,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldBuildAHTTPSVersionTagLink()
     {
-        var semVer = SemanticVersion.Parse("1.2.3");
-
         var linkBuilder = new AzureLinkBuilder("https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP.git");
-        var link = linkBuilder.BuildVersionTagLink(semVer);
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
         link.ShouldBe("https://dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP?version=GTv1.2.3");
     }

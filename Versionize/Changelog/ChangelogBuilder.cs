@@ -1,7 +1,7 @@
-﻿using System.Text;
-using Versionize.Config;
+using System.Text;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
+using Versionize.Config;
 
 namespace Versionize.Changelog;
 
@@ -15,13 +15,14 @@ public sealed class ChangelogBuilder
     public string FilePath { get; }
 
     public void Write(
-        Version version,
+        Version newVersion,
+        Version previousVersion,
         DateTimeOffset versionTime,
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
-        ChangelogOptions changelogOptions)
+        ProjectOptions projectOptions)
     {
-        string markdown = GenerateMarkdown(version, versionTime, linkBuilder, commits, changelogOptions);
+        string markdown = GenerateMarkdown(newVersion, previousVersion, versionTime, linkBuilder, commits, projectOptions);
 
         if (File.Exists(FilePath))
         {
@@ -42,28 +43,32 @@ public sealed class ChangelogBuilder
         }
         else
         {
-            File.WriteAllText(FilePath, changelogOptions.Header + "\n" + markdown);
+            File.WriteAllText(FilePath, projectOptions.Changelog.Header + "\n" + markdown);
         }
     }
 
     public static string GenerateMarkdown(
-        Version version,
+        Version newVersion,
+        Version previousVersion,
         DateTimeOffset versionTime,
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
-        ChangelogOptions changelogOptions)
+        ProjectOptions projectOptions)
     {
-        var versionTagLink = string.IsNullOrWhiteSpace(linkBuilder.BuildVersionTagLink(version))
-            ? version.ToString()
-            : $"[{version}]({linkBuilder.BuildVersionTagLink(version)})";
+        var currentTag = projectOptions.GetTagName(newVersion);
+        var previousTag = projectOptions.GetTagName(previousVersion);
+        var compareUrl = linkBuilder.BuildVersionTagLink(currentTag, previousTag);
+        var versionTagLink = string.IsNullOrWhiteSpace(compareUrl)
+            ? newVersion.ToString()
+            : $"[{newVersion}]({compareUrl})";
 
-        var markdown = $"<a name=\"{version}\"></a>";
+        var markdown = $"<a name=\"{newVersion}\"></a>";
         markdown += "\n";
         markdown += $"## {versionTagLink} ({versionTime:yyyy-MM-dd})";
         markdown += "\n";
         markdown += "\n";
 
-        return markdown + GenerateCommitList(linkBuilder, commits, changelogOptions);
+        return markdown + GenerateCommitList(linkBuilder, commits, projectOptions.Changelog);
     }
 
     public static string GenerateCommitList(

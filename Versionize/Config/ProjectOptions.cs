@@ -22,13 +22,7 @@ public sealed record ProjectOptions
 
     public ChangelogOptions Changelog { get; set; } = new();
 
-    public string GetTagPrefix()
-    {
-        return TagTemplate
-            .Replace("{name}", Name, StringComparison.OrdinalIgnoreCase)
-            .Replace("{version}", "", StringComparison.OrdinalIgnoreCase);
-    }
-
+    // TODO: Remove. Only used by a test.
     public string GetTagName(string version)
     {
         return GetTagName(SemanticVersion.Parse(version));
@@ -38,21 +32,54 @@ public sealed record ProjectOptions
     {
         return TagTemplate
             .Replace("{name}", Name, StringComparison.OrdinalIgnoreCase)
-            .Replace("{version}", version.ToString(), StringComparison.OrdinalIgnoreCase);
+            .Replace("{version}", version.ToFullString(), StringComparison.OrdinalIgnoreCase);
     }
 
     public SemanticVersion? ExtractTagVersion(Tag tag)
     {
-        if (tag.FriendlyName != null)
+        if (string.IsNullOrEmpty(tag.FriendlyName))
         {
-            var prefix = GetTagPrefix();
+            return null;
+        }
 
-            if (tag.FriendlyName != null &&
-                tag.FriendlyName.StartsWith(prefix) &&
-                SemanticVersion.TryParse(tag.FriendlyName[prefix.Length..], out var version))
-            {
-                return version;
-            }
+        // Split the template into prefix and suffix around {version}
+        var versionPlaceholder = "{version}";
+        var templateWithName = TagTemplate.Replace("{name}", Name, StringComparison.OrdinalIgnoreCase);
+        var versionIndex = templateWithName.IndexOf(versionPlaceholder, StringComparison.OrdinalIgnoreCase);
+
+        if (versionIndex == -1)
+        {
+            return null;
+        }
+
+        var prefix = templateWithName[..versionIndex];
+        var suffix = templateWithName[(versionIndex + versionPlaceholder.Length)..];
+
+        // Check if tag matches the prefix and suffix pattern
+        if (!tag.FriendlyName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        if (!tag.FriendlyName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        // Extract the version string between prefix and suffix
+        var versionStartIndex = prefix.Length;
+        var versionLength = tag.FriendlyName.Length - prefix.Length - suffix.Length;
+
+        if (versionLength <= 0)
+        {
+            return null;
+        }
+
+        var versionString = tag.FriendlyName.Substring(versionStartIndex, versionLength);
+
+        if (SemanticVersion.TryParse(versionString, out var version))
+        {
+            return version;
         }
 
         return null;

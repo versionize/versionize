@@ -43,8 +43,19 @@ public static class ConfigProvider
         else
         {
             project = ProjectOptions.DefaultOneProjectPerRepo;
-            project.Changelog =
-                ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default);
+            if (fileConfig?.Changelog != null)
+            {
+                project = project with
+                {
+                    Changelog = ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default)
+                };
+            }
+
+            var tagTemplate = cliConfig.TagTemplate.Value() ?? fileConfig?.TagTemplate;
+            if (tagTemplate != null)
+            {
+                project = project with { TagTemplate = tagTemplate };
+            }
         }
 
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
@@ -81,23 +92,23 @@ public static class ConfigProvider
         if (cliOption.HasValue())
         {
             var optionValue = cliOption.Value();
-            
+
             // If no explicit value provided (flag without value), treat as true
             if (string.IsNullOrEmpty(optionValue))
             {
                 return true;
             }
-            
+
             // Try to parse the explicit value
             if (bool.TryParse(optionValue, out var boolValue))
             {
                 return boolValue;
             }
-            
+
             // If parsing fails, treat flag presence as true
             return true;
         }
-        
+
         // Fall back to file config or default false
         return fileValue ?? false;
     }

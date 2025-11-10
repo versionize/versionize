@@ -323,6 +323,22 @@ public class ConfigProviderTests : IDisposable
         options.Sign.ShouldBe(expectedValue);
     }
 
+    [Theory]
+    [InlineData("", null, "v{version}")]
+    [InlineData("--tag-template {version}", null, "{version}")]
+    [InlineData("", "release-{version}", "release-{version}")]
+    [InlineData("--tag-template A{version}", "B{version}", "A{version}")]
+    public void ReturnsExpectedTagTemplateForNonMonorepo(string cliInput, string fileConfigValue, string expectedTagTemplate)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig { TagTemplate = fileConfigValue };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+        options.Project.TagTemplate.ShouldBe(expectedTagTemplate);
+    }
+
     public void Dispose()
     {
         _testSetup.Dispose();
