@@ -37,9 +37,6 @@ public sealed class ProjectOptionsTests
         // Act
         var version = projectOptions.ExtractTagVersion(tag);
 
-        var v1 = version.ToString();
-        var v2 = version.ToFullString();
-
         // Assert
         version.ShouldNotBeNull();
         version.ToFullString().ShouldBe(expectedVersion);
