@@ -36,7 +36,7 @@ public sealed class TemplatedLinkBuilder(ChangelogLinkTemplates templates, IChan
         if (_templates.VersionTagLink is { } template)
         {
             // NOTE: Backward compatibility - only extract version if template contains {version}
-            var version = template.Contains("{version}")
+            var version = template.Contains("{version}", StringComparison.OrdinalIgnoreCase)
                 ? ReleaseTagParser.ExtractVersion(currentTag)
                 : "";
 
