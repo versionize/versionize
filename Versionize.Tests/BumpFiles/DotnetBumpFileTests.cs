@@ -81,7 +81,7 @@ $@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schema
     }
 
     [Fact]
-    public void ShouldDiscoverFileVersionWhenBumpOnlyFileVersionIsTrue()
+    public void ShouldDiscoverFileVersionWhenVersionElementIsFileVersion()
     {
         var projectFileContents =
 @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -92,12 +92,12 @@ $@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schema
 
         TempProject.CreateFromProjectContents(Path.Join(_tempDir, "project1"), "csproj", projectFileContents);
 
-        var projects = DotnetBumpFile.Discover(_tempDir, bumpOnlyFileVersion: true);
+        var projects = DotnetBumpFile.Discover(_tempDir, versionElement: "FileVersion");
         projects.Version.ShouldBe(SemanticVersion.Parse("1.2.3"));
     }
 
     [Fact]
-    public void ShouldWriteFileVersionToProjectFilesWhenBumpOnlyFileVersionIsTrue()
+    public void ShouldWriteFileVersionToProjectFilesWhenVersionElementIsFileVersion()
     {
         var projectFileContents =
 @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -109,10 +109,10 @@ $@"<Project ToolsVersion=""12.0"" DefaultTargets=""Build"" xmlns=""http://schema
         TempProject.CreateFromProjectContents(Path.Join(_tempDir, "project1"), "csproj", projectFileContents);
         TempProject.CreateFromProjectContents(Path.Join(_tempDir, "project2"), "csproj", projectFileContents);
 
-        var projects = DotnetBumpFile.Discover(_tempDir, bumpOnlyFileVersion: true);
+        var projects = DotnetBumpFile.Discover(_tempDir, versionElement: "FileVersion");
         projects.WriteVersion(new SemanticVersion(2, 0, 0));
 
-        var updated = DotnetBumpFile.Discover(_tempDir, bumpOnlyFileVersion: true);
+        var updated = DotnetBumpFile.Discover(_tempDir, versionElement: "FileVersion");
         updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
     }
 

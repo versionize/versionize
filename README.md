@@ -180,11 +180,11 @@ versionize
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
 
-### Bumping FileVersion instead of Version
+### Bumping Alternative Version Elements
 
-In some scenarios, you may want to bump only the `<FileVersion>` element instead of the `<Version>` element in your project files. This can be useful when you want to track file versions independently from package versions, or when working with subprojects that shouldn't create their own git tags.
+In some scenarios, you may want to bump a different version element instead of the standard `<Version>` element in your project files. This can be useful when you want to track file versions independently from package versions, or when working with specific version properties.
 
-To use this feature, ensure your project file contains a `<FileVersion>` element:
+To use this feature, ensure your project file contains the desired version element (e.g., `<FileVersion>` or `<AssemblyVersion>`):
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -194,24 +194,26 @@ To use this feature, ensure your project file contains a `<FileVersion>` element
 </Project>
 ```
 
-Then run versionize with the `--bump-only-file-version` flag:
+Then run versionize with the `--version-element` flag:
 
 ```bash
-versionize --bump-only-file-version
+versionize --version-element FileVersion
 ```
 
 Alternatively, configure this in your `.versionize` file:
 
 ```json
 {
-  "bumpOnlyFileVersion": true
+  "versionElement": "FileVersion"
 }
 ```
 
-When this option is enabled, versionize will:
-- Look for and bump the `<FileVersion>` element instead of `<Version>`
+When this option is specified, versionize will:
+- Look for and bump the specified element (e.g., `<FileVersion>`) instead of `<Version>`
 - Still create git tags and update the changelog as normal
-- Use the FileVersion for determining the current and next version
+- Use the specified element for determining the current and next version
+
+Supported values include `Version` (default), `FileVersion`, `AssemblyVersion`, or any custom property name.
 
 ### Pre-releases
 

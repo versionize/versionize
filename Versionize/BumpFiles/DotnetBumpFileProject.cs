@@ -7,32 +7,32 @@ public sealed class DotnetBumpFileProject
 {
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }
-    public bool BumpOnlyFileVersion { get; }
+    public string? VersionElement { get; }
 
-    private DotnetBumpFileProject(string projectFile, SemanticVersion version, bool bumpOnlyFileVersion = false)
+    private DotnetBumpFileProject(string projectFile, SemanticVersion version, string? versionElement = null)
     {
         ProjectFile = projectFile;
         Version = version;
-        BumpOnlyFileVersion = bumpOnlyFileVersion;
+        VersionElement = versionElement;
     }
 
-    public static DotnetBumpFileProject Create(string projectFile, bool bumpOnlyFileVersion = false)
+    public static DotnetBumpFileProject Create(string projectFile, string? versionElement = null)
     {
-        var (success, version, error) = ReadVersion(projectFile, bumpOnlyFileVersion);
+        var (success, version, error) = ReadVersion(projectFile, versionElement);
 
         if (!success)
         {
             throw new InvalidOperationException(error);
         }
 
-        return new DotnetBumpFileProject(projectFile, version!, bumpOnlyFileVersion);
+        return new DotnetBumpFileProject(projectFile, version!, versionElement);
     }
 
-    public static bool IsVersionable(string projectFile, bool bumpOnlyFileVersion = false)
+    public static bool IsVersionable(string projectFile, string? versionElement = null)
     {
         try
         {
-            var (success, _, _) = ReadVersion(projectFile, bumpOnlyFileVersion);
+            var (success, _, _) = ReadVersion(projectFile, versionElement);
             return success;
         }
         catch (Exception)
@@ -41,12 +41,12 @@ public sealed class DotnetBumpFileProject
         }
     }
 
-    private static (bool Success, SemanticVersion? Version, string? Error) ReadVersion(string projectFile, bool bumpOnlyFileVersion = false)
+    private static (bool Success, SemanticVersion? Version, string? Error) ReadVersion(string projectFile, string? versionElement = null)
     {
         var doc = ReadProject(projectFile);
-        var elementName = bumpOnlyFileVersion ? "FileVersion" : "Version";
+        var elementName = string.IsNullOrEmpty(versionElement) || versionElement == "Version" ? "Version" : versionElement;
 
-        var versionString = SelectVersionNode(doc, bumpOnlyFileVersion)?.InnerText;
+        var versionString = SelectVersionNode(doc, versionElement)?.InnerText;
 
         if (string.IsNullOrWhiteSpace(versionString))
         {
@@ -72,17 +72,17 @@ public sealed class DotnetBumpFileProject
     public void WriteVersion(SemanticVersion nextVersion)
     {
         var doc = ReadProject(ProjectFile);
-        var elementName = BumpOnlyFileVersion ? "FileVersion" : "Version";
-        var versionElement = SelectVersionNode(doc, BumpOnlyFileVersion) ??
+        var elementName = string.IsNullOrEmpty(VersionElement) || VersionElement == "Version" ? "Version" : VersionElement;
+        var versionElement = SelectVersionNode(doc, VersionElement) ??
             throw new InvalidOperationException($"Project {ProjectFile} does not contain a <{elementName}> XML Element. Please add one if you want to version this project - for example use <{elementName}>1.0.0</{elementName}>");
         versionElement.InnerText = nextVersion.ToString();
 
         doc.Save(ProjectFile);
     }
 
-    private static XmlNode? SelectVersionNode(XmlDocument doc, bool bumpOnlyFileVersion = false)
+    private static XmlNode? SelectVersionNode(XmlDocument doc, string? versionElement = null)
     {
-        var elementName = bumpOnlyFileVersion ? "FileVersion" : "Version";
+        var elementName = string.IsNullOrEmpty(versionElement) || versionElement == "Version" ? "Version" : versionElement;
         return doc.SelectSingleNode($"/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='{elementName}']");
     }
 

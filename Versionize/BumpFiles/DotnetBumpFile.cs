@@ -9,12 +9,12 @@ namespace Versionize.BumpFiles;
 public sealed class DotnetBumpFile : IBumpFile
 {
     private readonly IEnumerable<DotnetBumpFileProject> _projects;
-    public bool BumpOnlyFileVersion { get; }
+    public string? VersionElement { get; }
 
-    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects, bool bumpOnlyFileVersion = false)
+    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects, string? versionElement = null)
     {
         _projects = projects;
-        BumpOnlyFileVersion = bumpOnlyFileVersion;
+        VersionElement = versionElement;
     }
 
     public SemanticVersion Version => _projects.First().Version;
@@ -36,10 +36,10 @@ public sealed class DotnetBumpFile : IBumpFile
         return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 
-    public static DotnetBumpFile Create(string workingDirectory, bool bumpOnlyFileVersion = false)
+    public static DotnetBumpFile Create(string workingDirectory, string? versionElement = null)
     {
-        var projectGroup = DotnetBumpFile.Discover(workingDirectory, bumpOnlyFileVersion);
-        var elementName = bumpOnlyFileVersion ? "FileVersion" : "Version";
+        var projectGroup = DotnetBumpFile.Discover(workingDirectory, versionElement);
+        var elementName = string.IsNullOrEmpty(versionElement) || versionElement == "Version" ? "Version" : versionElement;
 
         if (projectGroup.IsEmpty())
         {
@@ -60,7 +60,7 @@ public sealed class DotnetBumpFile : IBumpFile
         return projectGroup;
     }
 
-    public static DotnetBumpFile Discover(string workingDirectory, bool bumpOnlyFileVersion = false)
+    public static DotnetBumpFile Discover(string workingDirectory, string? versionElement = null)
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
 
@@ -72,12 +72,12 @@ public sealed class DotnetBumpFile : IBumpFile
 
         var projects = filters.SelectMany(filter => Directory
             .GetFiles(workingDirectory, filter, options)
-            .Where(file => DotnetBumpFileProject.IsVersionable(file, bumpOnlyFileVersion))
-            .Select(file => DotnetBumpFileProject.Create(file, bumpOnlyFileVersion))
+            .Where(file => DotnetBumpFileProject.IsVersionable(file, versionElement))
+            .Select(file => DotnetBumpFileProject.Create(file, versionElement))
             .ToList()
         );
 
-        return new DotnetBumpFile(projects, bumpOnlyFileVersion);
+        return new DotnetBumpFile(projects, versionElement);
     }
 
     public void WriteVersion(SemanticVersion nextVersion)

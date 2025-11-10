@@ -23,6 +23,7 @@ public sealed class CliConfig
     public required CommandOption FirstParentOnlyCommits { get; init; }
     public required CommandOption Sign { get; init; }
     public required CommandOption TagTemplate { get; init; }
+    public required CommandOption VersionElement { get; init; }
 
     public required CommandOption WorkingDirectory { get; init; }
     public required CommandOption ConfigurationDirectory { get; init; }
@@ -121,6 +122,11 @@ public sealed class CliConfig
             TagTemplate = app.Option(
                 "--tag-template <TAG_TEMPLATE>",
                 "Template for git tags, e.g. {name}/v{version}",
+                CommandOptionType.SingleValue),
+
+            VersionElement = app.Option(
+                "--version-element <VERSION_ELEMENT>",
+                "Specify which version element to bump (e.g., Version, FileVersion, AssemblyVersion). Default is 'Version'.",
                 CommandOptionType.SingleValue),
 
             ProjectName = app.Option(

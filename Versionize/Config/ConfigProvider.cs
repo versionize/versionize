@@ -79,6 +79,7 @@ public static class ConfigProvider
             AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases, fileConfig?.AggregatePrereleases),
             FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits, fileConfig?.FirstParentOnlyCommits),
             Sign = MergeBool(cliConfig.Sign, fileConfig?.Sign),
+            VersionElement = cliConfig.VersionElement.Value() ?? fileConfig?.VersionElement,
             BumpFileType = bumpFileType,
             CommitParser = commitParser,
             Project = project,

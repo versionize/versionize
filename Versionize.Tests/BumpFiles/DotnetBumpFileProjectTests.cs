@@ -91,7 +91,7 @@ public class DotnetBumpFileProjectTests : IDisposable
     }
 
     [Fact]
-    public void ShouldUpdateTheFileVersionElementWhenBumpOnlyFileVersionIsTrue()
+    public void ShouldUpdateTheFileVersionElementWhenVersionElementIsFileVersion()
     {
         var projectFileContents =
             @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -101,7 +101,7 @@ public class DotnetBumpFileProjectTests : IDisposable
 </Project>";
         var projectFilePath = WriteProjectFile(_tempDir, projectFileContents);
 
-        var project = DotnetBumpFileProject.Create(projectFilePath, bumpOnlyFileVersion: true);
+        var project = DotnetBumpFileProject.Create(projectFilePath, versionElement: "FileVersion");
         project.WriteVersion(new Version(2, 0, 0));
 
         var versionedProjectContents = File.ReadAllText(projectFilePath);
@@ -110,7 +110,7 @@ public class DotnetBumpFileProjectTests : IDisposable
     }
 
     [Fact]
-    public void ShouldNotBeVersionableIfNoFileVersionIsContainedInProjectFileWhenBumpOnlyFileVersionIsTrue()
+    public void ShouldNotBeVersionableIfNoFileVersionIsContainedInProjectFileWhenVersionElementIsFileVersion()
     {
         var projectFilePath = WriteProjectFile(_tempDir,
 @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -119,12 +119,12 @@ public class DotnetBumpFileProjectTests : IDisposable
     </PropertyGroup>
 </Project>");
 
-        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath, bumpOnlyFileVersion: true);
+        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath, versionElement: "FileVersion");
         isVersionable.ShouldBeFalse();
     }
 
     [Fact]
-    public void ShouldBeVersionableIfFileVersionIsContainedInProjectFileWhenBumpOnlyFileVersionIsTrue()
+    public void ShouldBeVersionableIfFileVersionIsContainedInProjectFileWhenVersionElementIsFileVersion()
     {
         var projectFilePath = WriteProjectFile(_tempDir,
 @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -133,12 +133,12 @@ public class DotnetBumpFileProjectTests : IDisposable
     </PropertyGroup>
 </Project>");
 
-        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath, bumpOnlyFileVersion: true);
+        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath, versionElement: "FileVersion");
         isVersionable.ShouldBeTrue();
     }
 
     [Fact]
-    public void ShouldReadFileVersionWhenBumpOnlyFileVersionIsTrue()
+    public void ShouldReadFileVersionWhenVersionElementIsFileVersion()
     {
         var projectFilePath = WriteProjectFile(_tempDir,
 @"<Project Sdk=""Microsoft.NET.Sdk"">
@@ -147,7 +147,7 @@ public class DotnetBumpFileProjectTests : IDisposable
     </PropertyGroup>
 </Project>");
 
-        var project = DotnetBumpFileProject.Create(projectFilePath, bumpOnlyFileVersion: true);
+        var project = DotnetBumpFileProject.Create(projectFilePath, versionElement: "FileVersion");
         project.Version.ShouldBe(new Version(2, 3, 4));
     }
 
