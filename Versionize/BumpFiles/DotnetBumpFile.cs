@@ -9,12 +9,10 @@ namespace Versionize.BumpFiles;
 public sealed class DotnetBumpFile : IBumpFile
 {
     private readonly IEnumerable<DotnetBumpFileProject> _projects;
-    public string? VersionElement { get; }
 
-    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects, string? versionElement = null)
+    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects)
     {
         _projects = projects;
-        VersionElement = versionElement;
     }
 
     public SemanticVersion Version => _projects.First().Version;
@@ -38,7 +36,7 @@ public sealed class DotnetBumpFile : IBumpFile
 
     public static DotnetBumpFile Create(string workingDirectory, string? versionElement = null)
     {
-        var projectGroup = DotnetBumpFile.Discover(workingDirectory, versionElement);
+        var projectGroup = Discover(workingDirectory, versionElement);
         versionElement = string.IsNullOrEmpty(versionElement) ? "Version" : versionElement;
 
         if (projectGroup.IsEmpty())
@@ -77,7 +75,7 @@ public sealed class DotnetBumpFile : IBumpFile
             .ToList()
         );
 
-        return new DotnetBumpFile(projects, versionElement);
+        return new DotnetBumpFile(projects);
     }
 
     public void WriteVersion(SemanticVersion nextVersion)
