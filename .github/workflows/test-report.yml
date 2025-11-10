@@ -9,6 +9,7 @@ on:
 jobs:
   report:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'skipped' && github.event.workflow_run.conclusion != 'cancelled' }}
     steps:
     - name: Run git init to work around test reporter bug
       run: git init

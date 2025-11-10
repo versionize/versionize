@@ -9,6 +9,7 @@ namespace Versionize.Git;
 
 public static class RepositoryExtensions
 {
+    // TODO: Remove. Only used by a test.
     public static Tag? SelectVersionTag(this Repository repository, SemanticVersion version)
     {
         return SelectVersionTag(repository, version, ProjectOptions.DefaultOneProjectPerRepo);
@@ -28,16 +29,6 @@ public static class RepositoryExtensions
     {
         var tagName = project.GetTagName(version);
         return repository.Tags.Any(tag => tag.FriendlyName.Equals(tagName));
-    }
-
-    public static bool IsSemanticVersionTag(this Tag tag)
-    {
-        return IsSemanticVersionTag(tag, ProjectOptions.DefaultOneProjectPerRepo);
-    }
-
-    public static bool IsSemanticVersionTag(this Tag tag, ProjectOptions project)
-    {
-        return project.ExtractTagVersion(tag) != null;
     }
 
     public static IEnumerable<Commit> GetCommits(this Repository repository, ProjectOptions project, CommitFilter? filter = null)

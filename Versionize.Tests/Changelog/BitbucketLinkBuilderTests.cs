@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using LibGit2Sharp;
-using NuGet.Versioning;
 using Shouldly;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
@@ -165,36 +164,36 @@ public class BitBucketLinkBuilderTests
     public void ShouldBuildAnOrgSSHTagLink()
     {
         var linkBuilder = new BitbucketLinkBuilder(sshOrgPushUrl);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
-        link.ShouldBe("https://bitbucket.org/mobiloitteinc/dotnet-codebase/src/v1.0.0");
+        link.ShouldBe("https://bitbucket.org/mobiloitteinc/dotnet-codebase/src/v1.2.3");
     }
 
     [Fact]
     public void ShouldBuildAComSSHTagLink()
     {
         var linkBuilder = new BitbucketLinkBuilder(sshComPushUrl);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
-        link.ShouldBe("https://bitbucket.com/mobiloitteinc/dotnet-codebase/src/v1.0.0");
+        link.ShouldBe("https://bitbucket.com/mobiloitteinc/dotnet-codebase/src/v1.2.3");
     }
 
     [Fact]
     public void ShouldBuildAnOrgHTTPSTagLink()
     {
         var linkBuilder = new BitbucketLinkBuilder(httpsOrgPushUrl);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
-        link.ShouldBe("https://bitbucket.org/mobiloitteinc/dotnet-codebase/src/v1.0.0");
+        link.ShouldBe("https://bitbucket.org/mobiloitteinc/dotnet-codebase/src/v1.2.3");
     }
 
     [Fact]
     public void ShouldBuildAComHTTPSTagLink()
     {
         var linkBuilder = new BitbucketLinkBuilder(httpsComPushUrl);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
-        link.ShouldBe("https://bitbucket.com/mobiloitteinc/dotnet-codebase/src/v1.0.0");
+        link.ShouldBe("https://bitbucket.com/mobiloitteinc/dotnet-codebase/src/v1.2.3");
     }
 
     private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)

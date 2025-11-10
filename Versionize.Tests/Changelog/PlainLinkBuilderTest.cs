@@ -1,5 +1,4 @@
 ﻿using LibGit2Sharp;
-using NuGet.Versioning;
 using Shouldly;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
@@ -26,8 +25,7 @@ public class PlainLinkBuilderTest
                     Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
                 })
             .ShouldBeEmpty();
-        linkBuilder.BuildVersionTagLink(
-                new SemanticVersion(1, 2, 3))
+        linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2")
             .ShouldBeEmpty();
     }
 
@@ -54,8 +52,7 @@ public class PlainLinkBuilderTest
                     Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
                 })
             .ShouldBe("https://my-repo/commits/734713bc047d87bf7eac9674765ae793478c50d3");
-        linkBuilder.BuildVersionTagLink(
-                new SemanticVersion(1, 2, 3))
+        linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2")
             .ShouldBe("https://my-repo/tags/v1.2.3");
     }
 
@@ -82,9 +79,25 @@ public class PlainLinkBuilderTest
                     Sha = "734713bc047d87bf7eac9674765ae793478c50d3"
                 })
             .ShouldBe("https://my-repo/commits/734713bc047d87bf7eac9674765ae793478c50d3");
-        linkBuilder.BuildVersionTagLink(
-                new SemanticVersion(1, 2, 3))
+        linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2")
             .ShouldBe("https://my-repo/tags/v1.2.3");
+    }
+
+    [Fact]
+    public void ShouldBuildVersionTagLinkThatUsesPreviousTag()
+    {
+        var repo = SetupRepositoryWithRemote("origin", "https://github.com/versionize/versionize.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(
+            repo,
+            new ChangelogLinkTemplates
+            {
+                VersionTagLink = "https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}",
+            });
+
+        linkBuilder.ShouldBeAssignableTo<TemplatedLinkBuilder>();
+
+        linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2")
+            .ShouldBe("https://github.com/versionize/versionize/compare/v1.2.2...v1.2.3");
     }
 
     private static Repository SetupRepositoryWithRemote(string remoteName, string pushUrl)

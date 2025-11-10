@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using LibGit2Sharp;
-using NuGet.Versioning;
 using Shouldly;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
@@ -117,18 +116,18 @@ public class GitlabLinkBuilderTests
     public void ShouldBuildASSHTagLink()
     {
         var linkBuilder = new GitlabLinkBuilder(inkscapeSSH);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
-        link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.0.0");
+        link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.2.3");
     }
 
     [Fact]
     public void ShouldBuildAnHTTPSTagLink()
     {
         var linkBuilder = new GitlabLinkBuilder(inkscapeHTTPS);
-        var link = linkBuilder.BuildVersionTagLink(new SemanticVersion(1, 0, 0));
+        var link = linkBuilder.BuildVersionTagLink("v1.2.3", "v1.2.2");
 
-        link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.0.0");
+        link.ShouldBe("https://gitlab.com/inkscape/inkscape/-/tags/v1.2.3");
     }
 
 

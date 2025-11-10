@@ -1,5 +1,4 @@
-﻿using Versionize.ConventionalCommits;
-using Version = NuGet.Versioning.SemanticVersion;
+using Versionize.ConventionalCommits;
 
 namespace Versionize.Changelog;
 
@@ -9,5 +8,5 @@ public interface IChangelogLinkBuilder
 
     string BuildCommitLink(ConventionalCommit commit);
 
-    string BuildVersionTagLink(Version version);
+    string BuildVersionTagLink(string currentTag, string previousTag);
 }

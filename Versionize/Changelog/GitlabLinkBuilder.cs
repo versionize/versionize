@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
-using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
@@ -47,9 +46,9 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith("git@gitlab.com:") || pushUrl.StartsWith("https://gitlab.com/");
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(string currentTag, string previousTag)
     {
-        return $"https://gitlab.com/{_organization}/{_repository}/-/tags/v{version}";
+        return $"https://gitlab.com/{_organization}/{_repository}/-/tags/{currentTag}";
     }
 
     public string BuildIssueLink(string issueId)

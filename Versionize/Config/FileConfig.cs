@@ -23,6 +23,7 @@ public sealed class FileConfig
     /// </summary>
     public bool? FirstParentOnlyCommits { get; set; }
     public bool? Sign { get; set; }
+    public string? TagTemplate { get; set; }
 
     public CommitParserOptions? CommitParser { get; set; }
     public ProjectOptions[] Projects { get; set; } = [];

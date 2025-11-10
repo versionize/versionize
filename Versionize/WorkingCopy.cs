@@ -61,7 +61,7 @@ public class WorkingCopy
         var (isInitialRelease, conventionalCommits) = ConventionalCommitProvider.GetCommits(repo, options, version);
         var newVersion = VersionCalculator.Bump(options, version, isInitialRelease, conventionalCommits);
         BumpFileUpdater.Update(options, newVersion, bumpFile);
-        var changelog = ChangelogUpdater.Update(repo, options, newVersion, conventionalCommits);
+        var changelog = ChangelogUpdater.Update(repo, options, newVersion, version, conventionalCommits);
         ChangeCommitter.CreateCommit(repo, options, newVersion, bumpFile, changelog);
         ReleaseTagger.CreateTag(repo, options, newVersion);
     }

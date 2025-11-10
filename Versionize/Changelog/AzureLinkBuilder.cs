@@ -1,6 +1,5 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
-using Version = NuGet.Versioning.SemanticVersion;
 
 namespace Versionize.Changelog;
 
@@ -50,9 +49,9 @@ public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
         return pushUrl.StartsWith("git@ssh.dev.azure.com:") || (pushUrl.StartsWith("https://") && pushUrl.Contains("@dev.azure.com/"));
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(string currentTag, string previousTag)
     {
-        return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}?version=GTv{version}";
+        return $"https://dev.azure.com/{_organization}/{_project}/_git/{_repository}?version=GT{currentTag}";
     }
 
     public string BuildIssueLink(string issueId)

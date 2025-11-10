@@ -61,6 +61,7 @@ Options:
   --proj-name                          Name of a project defined in the configuration file (for monorepos)
   --first-parent-only-commits          Ignore commits beyond the first parent
   -s|--sign                            Sign the git commit and tag
+  --tag-template <TAG_TEMPLATE>    Template for git tags, e.g. {name}/v{version}
 
 Commands:
   inspect                              Prints the current version to stdout
@@ -287,12 +288,40 @@ Changelog customization can only be done via a `.versionize` file. The following
         "hidden": false
       }
     ],
-    "otherSection": "Miscellaneous"
+    "otherSection": "Miscellaneous",
+    "linkTemplates": {
+      "issueLink": "https://github.com/myorg/myrepo/issues/{issue}",
+      "commitLink": "https://github.com/myorg/myrepo/commit/{commitSha}",
+      "versionTagLink": "https://github.com/myorg/myrepo/compare/{previousTag}...{currentTag}"
+    }
   }
 }
 ```
 
 Because `includeAllCommits` is true and the _fix_ section is hidden, fix commits will appear in a section titled "Miscellaneous" (as specified by `otherSection`). If `otherSection` is not specified, it defaults to "Other".
+
+### Customizing Changelog Links
+
+You can customize the links generated in the changelog using the `linkTemplates` configuration. The following placeholders are supported:
+
+- **`{issue}`** - Issue number (e.g., `123`)
+- **`{commitSha}`** - Full commit SHA
+- **`{currentTag}`** - Current version tag (e.g., `v1.2.3`)
+- **`{previousTag}`** - Previous version tag (e.g., `v1.2.2`)
+
+The `{currentTag}` and `{previousTag}` placeholders are particularly useful for creating compare links that show all changes between releases:
+
+```json
+{
+  "changelog": {
+    "linkTemplates": {
+      "versionTagLink": "https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}"
+    }
+  }
+}
+```
+
+This will generate links like: https://github.com/versionize/versionize/compare/v1.9.0...v1.10.0
 
 ## Developing
 
@@ -305,11 +334,3 @@ To get prettier test outputs run `dotnet test` with prettier test logger
 ```bash
 dotnet test --logger prettier
 ```
-
-## Roadmap
-
-* [] Signed release commits
-* [] Command to print out changelog entry since last release (as opposed to writing to a file)
-* [] Tag prefix config (for non mono-repos)
-* [] Add support for bumping a Unity project version
-* [] Improve documentation

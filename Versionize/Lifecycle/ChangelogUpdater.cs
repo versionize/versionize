@@ -13,6 +13,7 @@ public sealed class ChangelogUpdater
         Repository repo,
         Options options,
         SemanticVersion nextVersion,
+        SemanticVersion? previousVersion,
         IReadOnlyList<ConventionalCommit> conventionalCommits)
     {
         if (options.SkipChangelog)
@@ -23,25 +24,28 @@ public sealed class ChangelogUpdater
         var versionTime = DateTimeOffset.Now;
         var changelog = ChangelogBuilder.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? "")));
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
+        previousVersion ??= nextVersion;
 
         if (options.DryRun)
         {
             string markdown = ChangelogBuilder.GenerateMarkdown(
                 nextVersion,
+                previousVersion,
                 versionTime,
                 changelogLinkBuilder,
                 conventionalCommits,
-                options.Project.Changelog);
+                options.Project);
             DryRun(markdown.TrimEnd('\n'));
         }
         else
         {
             changelog.Write(
                 nextVersion,
+                previousVersion,
                 versionTime,
                 changelogLinkBuilder,
                 conventionalCommits,
-                options.Project.Changelog);
+                options.Project);
         }
         Step("updated CHANGELOG.md");
 

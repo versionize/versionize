@@ -1,6 +1,6 @@
 ﻿using Versionize.Config;
 using Versionize.ConventionalCommits;
-using Version = NuGet.Versioning.SemanticVersion;
+using Versionize.Git;
 
 namespace Versionize.Changelog;
 
@@ -31,14 +31,21 @@ public sealed class TemplatedLinkBuilder(ChangelogLinkTemplates templates, IChan
         return _fallbackBuilder.BuildCommitLink(commit);
     }
 
-    public string BuildVersionTagLink(Version version)
+    public string BuildVersionTagLink(string currentTag, string previousTag)
     {
         if (_templates.VersionTagLink is { } template)
         {
-            return template.Replace(
-                "{version}", version.ToString(), StringComparison.OrdinalIgnoreCase);
+            // NOTE: Backward compatibility - only extract version if template contains {version}
+            var version = template.Contains("{version}", StringComparison.OrdinalIgnoreCase)
+                ? ReleaseTagParser.ExtractVersion(currentTag)
+                : "";
+
+            return template
+                .Replace("{version}", version, StringComparison.OrdinalIgnoreCase)
+                .Replace("{currentTag}", currentTag, StringComparison.OrdinalIgnoreCase)
+                .Replace("{previousTag}", previousTag, StringComparison.OrdinalIgnoreCase);
         }
 
-        return _fallbackBuilder.BuildVersionTagLink(version);
+        return _fallbackBuilder.BuildVersionTagLink(currentTag, previousTag);
     }
 }
