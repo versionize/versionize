@@ -7,13 +7,13 @@ public sealed class DotnetBumpFileProject
 {
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }
-    public string? VersionElement { get; }
+    public string VersionElement { get; }
 
     private DotnetBumpFileProject(string projectFile, SemanticVersion version, string? versionElement = null)
     {
         ProjectFile = projectFile;
         Version = version;
-        VersionElement = versionElement;
+        VersionElement = string.IsNullOrEmpty(versionElement) ? "Version" : versionElement;
     }
 
     public static DotnetBumpFileProject Create(string projectFile, string? versionElement = null)
@@ -44,7 +44,7 @@ public sealed class DotnetBumpFileProject
     private static (bool Success, SemanticVersion? Version, string? Error) ReadVersion(string projectFile, string? versionElement = null)
     {
         var doc = ReadProject(projectFile);
-        var elementName = string.IsNullOrEmpty(versionElement) || versionElement == "Version" ? "Version" : versionElement;
+        versionElement = string.IsNullOrEmpty(versionElement) ? "Version" : versionElement;
 
         var versionString = SelectVersionNode(doc, versionElement)?.InnerText;
 
@@ -53,7 +53,7 @@ public sealed class DotnetBumpFileProject
             return (
                 false,
                 null,
-                $"Project {projectFile} contains no or an empty <{elementName}> XML Element. Please add one if you want to version this project - for example use <{elementName}>1.0.0</{elementName}>");
+                $"Project {projectFile} contains no or an empty <{versionElement}> XML Element. Please add one if you want to version this project - for example use <{versionElement}>1.0.0</{versionElement}>");
         }
 
         try
@@ -65,25 +65,23 @@ public sealed class DotnetBumpFileProject
             return (
                 false,
                 null,
-                $"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <{elementName}>1.0.0</{elementName}>");
+                $"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <{versionElement}>1.0.0</{versionElement}>");
         }
     }
 
     public void WriteVersion(SemanticVersion nextVersion)
     {
         var doc = ReadProject(ProjectFile);
-        var elementName = string.IsNullOrEmpty(VersionElement) || VersionElement == "Version" ? "Version" : VersionElement;
         var versionElement = SelectVersionNode(doc, VersionElement) ??
-            throw new InvalidOperationException($"Project {ProjectFile} does not contain a <{elementName}> XML Element. Please add one if you want to version this project - for example use <{elementName}>1.0.0</{elementName}>");
+            throw new InvalidOperationException($"Project {ProjectFile} does not contain a <{VersionElement}> XML Element. Please add one if you want to version this project - for example use <{VersionElement}>1.0.0</{VersionElement}>");
         versionElement.InnerText = nextVersion.ToString();
 
         doc.Save(ProjectFile);
     }
 
-    private static XmlNode? SelectVersionNode(XmlDocument doc, string? versionElement = null)
+    private static XmlNode? SelectVersionNode(XmlDocument doc, string versionElement)
     {
-        var elementName = string.IsNullOrEmpty(versionElement) || versionElement == "Version" ? "Version" : versionElement;
-        return doc.SelectSingleNode($"/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='{elementName}']");
+        return doc.SelectSingleNode($"/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='{versionElement}']");
     }
 
     private static XmlDocument ReadProject(string projectFile)

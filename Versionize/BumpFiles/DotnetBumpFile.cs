@@ -39,16 +39,16 @@ public sealed class DotnetBumpFile : IBumpFile
     public static DotnetBumpFile Create(string workingDirectory, string? versionElement = null)
     {
         var projectGroup = DotnetBumpFile.Discover(workingDirectory, versionElement);
-        var elementName = string.IsNullOrEmpty(versionElement) || versionElement == "Version" ? "Version" : versionElement;
+        versionElement = string.IsNullOrEmpty(versionElement) ? "Version" : versionElement;
 
         if (projectGroup.IsEmpty())
         {
-            Exit($"Could not find any projects files in {workingDirectory} that have a <{elementName}> defined in their csproj file.", 1);
+            Exit($"Could not find any projects files in {workingDirectory} that have a <{versionElement}> defined in their csproj file.", 1);
         }
 
         if (projectGroup.HasInconsistentVersioning())
         {
-            Exit($"Some projects in {workingDirectory} have an inconsistent <{elementName}> defined in their csproj file. Please update all versions to be consistent or remove the <{elementName}> elements from projects that should not be versioned", 1);
+            Exit($"Some projects in {workingDirectory} have an inconsistent <{versionElement}> defined in their csproj file. Please update all versions to be consistent or remove the <{versionElement}> elements from projects that should not be versioned", 1);
         }
 
         Information($"Discovered {projectGroup.GetFilePaths().Count()} versionable projects");
