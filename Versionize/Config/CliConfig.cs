@@ -119,7 +119,7 @@ public sealed class CliConfig
                 CommandOptionType.SingleOrNoValue),
 
             TagTemplate = app.Option(
-                "-tt|--tag-template <TAG_TEMPLATE>",
+                "--tag-template <TAG_TEMPLATE>",
                 "Template for git tags, e.g. {name}/v{version}",
                 CommandOptionType.SingleValue),
 
