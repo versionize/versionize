@@ -1,5 +1,6 @@
 ﻿using System.Xml;
 using NuGet.Versioning;
+using Versionize.CommandLine;
 
 namespace Versionize.BumpFiles;
 
@@ -22,7 +23,7 @@ public sealed class DotnetBumpFileProject
 
         if (!success)
         {
-            throw new InvalidOperationException(error);
+            throw new VersionizeException(error ?? ErrorMessages.ProjectInvalidXmlFile(projectFile), 1);
         }
 
         return new DotnetBumpFileProject(projectFile, version!, versionElement);
@@ -53,7 +54,7 @@ public sealed class DotnetBumpFileProject
             return (
                 false,
                 null,
-                $"Project {projectFile} contains no or an empty <{versionElement}> XML Element. Please add one if you want to version this project - for example use <{versionElement}>1.0.0</{versionElement}>");
+                ErrorMessages.ProjectMissingOrEmptyVersionElement(projectFile, versionElement));
         }
 
         try
@@ -65,7 +66,7 @@ public sealed class DotnetBumpFileProject
             return (
                 false,
                 null,
-                $"Project {projectFile} contains an invalid version {versionString}. Please fix the currently contained version - for example use <{versionElement}>1.0.0</{versionElement}>");
+                ErrorMessages.ProjectInvalidVersionValue(projectFile, versionString, versionElement));
         }
     }
 
@@ -73,7 +74,7 @@ public sealed class DotnetBumpFileProject
     {
         var doc = ReadProject(ProjectFile);
         var versionElement = SelectVersionNode(doc, VersionElement) ??
-            throw new InvalidOperationException($"Project {ProjectFile} does not contain a <{VersionElement}> XML Element. Please add one if you want to version this project - for example use <{VersionElement}>1.0.0</{VersionElement}>");
+            throw new VersionizeException(ErrorMessages.ProjectMissingVersionElement(ProjectFile, VersionElement), 1);
         versionElement.InnerText = nextVersion.ToString();
 
         doc.Save(ProjectFile);
@@ -94,7 +95,7 @@ public sealed class DotnetBumpFileProject
         }
         catch (Exception)
         {
-            throw new InvalidOperationException($"Project {projectFile} is not a valid xml project file. Please make sure that you have a valid project file in place!");
+            throw new VersionizeException(ErrorMessages.ProjectInvalidXmlFile(projectFile), 1);
         }
 
         return doc;

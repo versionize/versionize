@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
+using Versionize.CommandLine;
 
 namespace Versionize.Changelog;
 
@@ -17,7 +18,7 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
 
             if (!matches.Success)
             {
-                throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as valid GitLab SSH pattern");
+                throw new VersionizeException(ErrorMessages.RemoteUrlInvalidSshPattern("GitLab", pushUrl), 1);
             }
 
             _organization = matches.Groups["organization"].Value;
@@ -30,14 +31,14 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
 
             if (!matches.Success)
             {
-                throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as valid GitLab HTTPS pattern");
+                throw new VersionizeException(ErrorMessages.RemoteUrlInvalidHttpsPattern("GitLab", pushUrl), 1);
             }
             _organization = matches.Groups["organization"].Value;
             _repository = matches.Groups["repository"].Value;
         }
         else
         {
-            throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as GitLab SSH or HTTPS url");
+            throw new VersionizeException(ErrorMessages.RemoteUrlNotRecognized("GitLab", pushUrl), 1);
         }
     }
 

@@ -858,7 +858,7 @@ public partial class WorkingCopyTests : IDisposable
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0" });
 
-        var projects = DotnetBumpFile.Discover(_testSetup.WorkingDirectory);
+        var projects = DotnetBumpFile.Create(_testSetup.WorkingDirectory);
         projects.Version.ToNormalizedString().ShouldBe("1.0.1-alpha.1");
 
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.1-alpha.0 to 1.0.1-alpha.1 in projects");

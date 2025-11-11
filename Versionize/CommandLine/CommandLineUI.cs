@@ -10,6 +10,7 @@ public static class CommandLineUI
         {
             Platform.WriteLine(message, ConsoleColor.Red);
         }
+
         Platform.Exit(code);
 
         return code;
@@ -21,6 +22,7 @@ public static class CommandLineUI
         {
             return;
         }
+
         Platform.WriteLine(message, ConsoleColor.Gray);
     }
 
@@ -30,6 +32,7 @@ public static class CommandLineUI
         {
             return;
         }
+
         Platform.WriteLine(
             ("√", ConsoleColor.Green),
             (" ", ConsoleColor.White),
@@ -42,6 +45,7 @@ public static class CommandLineUI
         {
             return;
         }
+
         Platform.WriteLine("\n---", ConsoleColor.Gray);
         Platform.WriteLine(message, ConsoleColor.DarkGray);
         Platform.WriteLine("---\n", ConsoleColor.Gray);

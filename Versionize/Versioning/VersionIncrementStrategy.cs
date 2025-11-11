@@ -1,4 +1,5 @@
 ﻿using NuGet.Versioning;
+using Versionize.CommandLine;
 using Versionize.ConventionalCommits;
 
 namespace Versionize.Versioning;
@@ -21,7 +22,7 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
             VersionImpact.Minor => new SemanticVersion(version.Major, version.Minor + 1, 0),
             VersionImpact.Major => new SemanticVersion(version.Major + 1, 0, 0),
             VersionImpact.None => version,
-            _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
+            _ => throw new VersionizeException(ErrorMessages.VersionImpactCannotBeHandled(versionImpact.ToString()), 1),
         };
 
         if (version.IsPrerelease && isPrerelease)
@@ -57,7 +58,7 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
             VersionImpact.Patch => true,
             VersionImpact.Minor => version.Patch == 0,
             VersionImpact.Major => version.Patch == 0 && version.Minor == 0,
-            _ => throw new InvalidOperationException($"Version impact of {versionImpact} cannot be handled"),
+            _ => throw new VersionizeException(ErrorMessages.VersionImpactCannotBeHandled(versionImpact.ToString()), 1),
         };
     }
 

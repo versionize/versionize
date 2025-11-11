@@ -19,44 +19,6 @@ public static class BumpFileTypeDetector
             return BumpFileType.None;
         }
 
-        static bool IsDotnetProject(string directoryPath)
-        {
-            var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
-
-            var options = new EnumerationOptions
-            {
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = true,
-            };
-
-            return filters
-                .SelectMany(filter => Directory.EnumerateFiles(directoryPath, filter, options))
-                .Any();
-        }
-
-        static bool IsUnityProject(string directoryPath)
-        {
-            return Directory.Exists(Path.Combine(directoryPath, "Assets")) &&
-                Directory.Exists(Path.Combine(directoryPath, "ProjectSettings")) &&
-                File.Exists(Path.Combine(directoryPath, "ProjectSettings", "ProjectSettings.asset"));
-        }
-
-        static bool IsUnityProjectRecursive(string directoryPath)
-        {
-            if (IsUnityProject(directoryPath))
-            {
-                return true;
-            }
-            var options = new EnumerationOptions
-            {
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = true,
-            };
-            return Directory
-                .EnumerateDirectories(directoryPath, "*", options)
-                .Any(IsUnityProject);
-        }
-
         if (IsUnityProjectRecursive(cwd))
         {
             return BumpFileType.Unity;
@@ -68,5 +30,43 @@ public static class BumpFileTypeDetector
         }
 
         return BumpFileType.None;
+    }
+
+    private static bool IsDotnetProject(string directoryPath)
+    {
+        var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
+
+        var options = new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = true,
+        };
+
+        return filters
+            .SelectMany(filter => Directory.EnumerateFiles(directoryPath, filter, options))
+            .Any();
+    }
+
+    private static bool IsUnityProject(string directoryPath)
+    {
+        return Directory.Exists(Path.Combine(directoryPath, "Assets")) &&
+            Directory.Exists(Path.Combine(directoryPath, "ProjectSettings")) &&
+            File.Exists(Path.Combine(directoryPath, "ProjectSettings", "ProjectSettings.asset"));
+    }
+
+    private static bool IsUnityProjectRecursive(string directoryPath)
+    {
+        if (IsUnityProject(directoryPath))
+        {
+            return true;
+        }
+        var options = new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = true,
+        };
+        return Directory
+            .EnumerateDirectories(directoryPath, "*", options)
+            .Any(IsUnityProject);
     }
 }

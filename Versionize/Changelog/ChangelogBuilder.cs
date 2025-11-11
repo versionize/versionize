@@ -14,6 +14,13 @@ public sealed class ChangelogBuilder
 
     public string FilePath { get; }
 
+    public static ChangelogBuilder CreateForPath(string directory)
+    {
+        var changelogFile = Path.Combine(directory, "CHANGELOG.md");
+
+        return new ChangelogBuilder(changelogFile);
+    }
+
     public void Write(
         Version newVersion,
         Version previousVersion,
@@ -118,7 +125,7 @@ public sealed class ChangelogBuilder
         return markdown;
     }
 
-    public static string? BuildBlock(string? header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)
+    private static string? BuildBlock(string? header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)
     {
         if (!commits.Any())
         {
@@ -135,7 +142,7 @@ public sealed class ChangelogBuilder
             .Aggregate(block, (current, commit) => current + BuildCommit(commit, linkBuilder) + "\n");
     }
 
-    public static string BuildCommit(ConventionalCommit commit, IChangelogLinkBuilder linkBuilder)
+    private static string BuildCommit(ConventionalCommit commit, IChangelogLinkBuilder linkBuilder)
     {
         var sb = new StringBuilder("* ");
 
@@ -159,6 +166,7 @@ public sealed class ChangelogBuilder
             {
                 continue;
             }
+
             var issueLink = linkBuilder.BuildIssueLink(issue.Id);
             if (!string.IsNullOrEmpty(issueLink))
             {
@@ -177,12 +185,5 @@ public sealed class ChangelogBuilder
         }
 
         return sb.ToString();
-    }
-
-    public static ChangelogBuilder CreateForPath(string directory)
-    {
-        var changelogFile = Path.Combine(directory, "CHANGELOG.md");
-
-        return new ChangelogBuilder(changelogFile);
     }
 }
