@@ -16,12 +16,12 @@ public sealed record class ChangelogOptions
         ],
     };
 
-    public string? Header { get; set; }
-    public string? Path { get; set; }
-    public bool? IncludeAllCommits { get; set; }
-    public string? OtherSection { get; set; }
-    public IEnumerable<ChangelogSection>? Sections { get; set; }
-    public ChangelogLinkTemplates? LinkTemplates { get; set; }
+    public string? Header { get; init; }
+    public string? Path { get; init; }
+    public bool? IncludeAllCommits { get; init; }
+    public string? OtherSection { get; init; }
+    public IEnumerable<ChangelogSection>? Sections { get; init; }
+    public ChangelogLinkTemplates? LinkTemplates { get; init; }
 
     public static ChangelogOptions Merge(ChangelogOptions? customOptions, ChangelogOptions defaultOptions)
     {
@@ -44,9 +44,9 @@ public sealed record class ChangelogOptions
 
 public record ChangelogLinkTemplates
 {
-    public string? IssueLink { get; set; }
+    public string? IssueLink { get; init; }
 
-    public string? CommitLink { get; set; }
+    public string? CommitLink { get; init; }
 
-    public string? VersionTagLink { get; set; }
+    public string? VersionTagLink { get; init; }
 }

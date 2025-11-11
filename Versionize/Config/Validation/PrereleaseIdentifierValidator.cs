@@ -4,7 +4,7 @@ using McMaster.Extensions.CommandLineUtils.Validation;
 
 namespace Versionize.Config.Validation;
 
-internal class PrereleaseIdentifierValidator : IOptionValidator
+internal sealed class PrereleaseIdentifierValidator : IOptionValidator
 {
     public static readonly PrereleaseIdentifierValidator Default = new();
 

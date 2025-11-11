@@ -14,11 +14,11 @@ public sealed record ProjectOptions
             Changelog = ChangelogOptions.Default
         };
 
-    public string Name { get; set; } = "";
+    public string Name { get; init; } = "";
 
-    public string Path { get; set; } = "";
+    public string Path { get; init; } = "";
 
-    public string TagTemplate { get; set; } = "{name}/v{version}";
+    public string TagTemplate { get; init; } = "{name}/v{version}";
 
     /// <summary>
     /// Specifies the .NET XML property to use when reading or writing the project version.
@@ -30,15 +30,9 @@ public sealed record ProjectOptions
     ///   <FileVersion>1.0.0</FileVersion>
     /// </PropertyGroup>
     /// </example>
-    public string? VersionElement { get; set; }
+    public string? VersionElement { get; init; }
 
-    public ChangelogOptions Changelog { get; set; } = new();
-
-    // TODO: Remove. Only used by a test.
-    public string GetTagName(string version)
-    {
-        return GetTagName(SemanticVersion.Parse(version));
-    }
+    public ChangelogOptions Changelog { get; init; } = new();
 
     public string GetTagName(SemanticVersion version)
     {

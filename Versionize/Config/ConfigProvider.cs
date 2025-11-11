@@ -30,33 +30,7 @@ public static class ConfigProvider
         FileConfig? fileConfig,
         CliConfig cliConfig)
     {
-        string? projectName = cliConfig.ProjectName.Value();
-        var project =
-            fileConfig?.Projects.FirstOrDefault(x =>
-                x.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase));
-        if (project != null)
-        {
-            project.Changelog =
-                ChangelogOptions.Merge(project.Changelog,
-                    ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default));
-        }
-        else
-        {
-            project = ProjectOptions.DefaultOneProjectPerRepo;
-            if (fileConfig?.Changelog != null)
-            {
-                project = project with
-                {
-                    Changelog = ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default)
-                };
-            }
-
-            var tagTemplate = cliConfig.TagTemplate.Value() ?? fileConfig?.TagTemplate;
-            if (tagTemplate != null)
-            {
-                project = project with { TagTemplate = tagTemplate };
-            }
-        }
+        ProjectOptions? project = GetProjectOptions(fileConfig, cliConfig);
 
         // Validate custom version element early to avoid invalid XPath usage later
         ValidateVersionElement(project.VersionElement);
@@ -87,6 +61,41 @@ public static class ConfigProvider
             Project = project,
             FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
         };
+    }
+
+    private static ProjectOptions GetProjectOptions(FileConfig? fileConfig, CliConfig cliConfig)
+    {
+        string? projectName = cliConfig.ProjectName.Value();
+        var project =
+            fileConfig?.Projects.FirstOrDefault(x =>
+                x.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase));
+        if (project != null)
+        {
+            project = project with
+            {
+                Changelog = ChangelogOptions.Merge(project.Changelog,
+                    ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default))
+            };
+        }
+        else
+        {
+            project = ProjectOptions.DefaultOneProjectPerRepo;
+            if (fileConfig?.Changelog != null)
+            {
+                project = project with
+                {
+                    Changelog = ChangelogOptions.Merge(fileConfig?.Changelog, ChangelogOptions.Default)
+                };
+            }
+
+            var tagTemplate = cliConfig.TagTemplate.Value() ?? fileConfig?.TagTemplate;
+            if (tagTemplate != null)
+            {
+                project = project with { TagTemplate = tagTemplate };
+            }
+        }
+
+        return project;
     }
 
     private static bool MergeBool(CommandOption<bool> cliOption, bool? fileValue)

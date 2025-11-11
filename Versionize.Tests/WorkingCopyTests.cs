@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using NuGet.Versioning;
 using Shouldly;
 using Versionize.BumpFiles;
 using Versionize.CommandLine;
@@ -743,14 +744,13 @@ public partial class WorkingCopyTests : IDisposable
             workingCopy.Versionize(projectOptions);
 
             // Prerelease as patch alpha
-            projectOptions.Prerelease = "alpha";
+            var prereleaseOptions = projectOptions with { Prerelease = "alpha" };
             fileCommitter.CommitChange($"fix: a fix at {project.Name}", project.Path);
-            workingCopy.Versionize(projectOptions);
+            workingCopy.Versionize(prereleaseOptions);
 
             // Prerelease as minor alpha
             fileCommitter.CommitChange($"feat: a feature at {project.Name}", project.Path);
-            workingCopy.Versionize(projectOptions);
-            projectOptions.Prerelease = null;
+            workingCopy.Versionize(prereleaseOptions);
 
             // Full release
             workingCopy.Versionize(projectOptions);
@@ -765,11 +765,11 @@ public partial class WorkingCopyTests : IDisposable
             var project = projectOptions.Project;
 
             var versionTagNames = VersionTagNames.ToList();
-            foreach (var expectedTag in new[]
-                         {
-                             "1.0.0", "1.0.1-alpha.0", "1.1.0", "1.1.0-alpha.0", "1.2.0"
-                         }
-                         .Select(project.GetTagName))
+            var expectedTagNames = new[] { "1.0.0", "1.0.1-alpha.0", "1.1.0", "1.1.0-alpha.0", "1.2.0" }
+                .Select(SemanticVersion.Parse)
+                .Select(project.GetTagName);
+
+            foreach (var expectedTag in expectedTagNames)
             {
                 versionTagNames.ShouldContain(expectedTag);
             }

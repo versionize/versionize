@@ -9,12 +9,6 @@ namespace Versionize.Git;
 
 public static class RepositoryExtensions
 {
-    // TODO: Remove. Only used by a test.
-    public static Tag? SelectVersionTag(this Repository repository, SemanticVersion version)
-    {
-        return SelectVersionTag(repository, version, ProjectOptions.DefaultOneProjectPerRepo);
-    }
-
     public static Tag? SelectVersionTag(this Repository repository, SemanticVersion? version, ProjectOptions project)
     {
         if (version == null)
@@ -68,6 +62,7 @@ public static class RepositoryExtensions
         var lastReleaseCommit = repository
             .GetCommits(project, filter)
             .FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+
         if (lastReleaseCommit == null)
         {
             return [.. repository.Commits];
@@ -111,10 +106,12 @@ public static class RepositoryExtensions
         var versionsEnumerable = repository.Tags
             .Select(options.Project.ExtractTagVersion)
             .Where(x => x is not null);
+
         if (options.AggregatePrereleases)
         {
             versionsEnumerable = versionsEnumerable.Where(x => x == version || !x!.IsPrerelease);
         }
+
         var versions = versionsEnumerable
             .OrderByDescending(x => x)
             .ToArray();
@@ -134,6 +131,7 @@ public static class RepositoryExtensions
                 throw new InvalidOperationException("No version found");
             }
         }
+
         if (SemanticVersion.TryParse(versionStr, out var version))
         {
             var toRef = repo.SelectVersionTag(version, options.Project)?.Target;

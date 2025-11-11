@@ -47,6 +47,7 @@ public sealed class ConventionalCommitProvider
 
         return (isInitialRelease, conventionalCommits);
     }
+
     public static IReadOnlyList<ConventionalCommit> GetCommits(Repository repo, Options options, GitObject? fromRef, GitObject toRef)
     {
         var commitFilter = new CommitFilter

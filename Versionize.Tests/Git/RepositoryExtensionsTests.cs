@@ -30,7 +30,9 @@ public class RepositoryExtensionsTests : IDisposable
         var commit = fileCommitter.CommitChange("feat: Initial commit");
         _testSetup.Repository.Tags.Add("v2.0.0", commit);
 
-        var versionTag = _testSetup.Repository.SelectVersionTag(new Version(2, 0, 0));
+        var versionTag = _testSetup.Repository.SelectVersionTag(
+            new Version(2, 0, 0),
+            ProjectOptions.DefaultOneProjectPerRepo);
 
         versionTag.ToString().ShouldBe("refs/tags/v2.0.0");
     }

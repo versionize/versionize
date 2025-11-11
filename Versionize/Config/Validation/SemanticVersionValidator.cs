@@ -5,7 +5,7 @@ using NuGet.Versioning;
 
 namespace Versionize.Config.Validation;
 
-internal class SemanticVersionValidator : IOptionValidator
+internal sealed class SemanticVersionValidator : IOptionValidator
 {
     public static readonly SemanticVersionValidator Default = new();
 

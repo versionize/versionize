@@ -32,10 +32,8 @@ public static class ConventionalCommitParser
             Sha = commit.Sha
         };
 
-        var commitMessageLines = commit.Message.Split(
-                ["\r\n", "\r", "\n"],
-                StringSplitOptions.None
-            )
+        var commitMessageLines = commit.Message
+            .Split(["\r\n", "\r", "\n"], StringSplitOptions.None)
             .Select(line => line.Trim())
             .Where(line => !string.IsNullOrWhiteSpace(line))
             .ToList();
@@ -69,9 +67,12 @@ public static class ConventionalCommitParser
 
         if (headerMatch is { Success: true } match)
         {
-            conventionalCommit.Scope = match.Groups["scope"].Value;
-            conventionalCommit.Type = match.Groups["type"].Value;
-            conventionalCommit.Subject = match.Groups["subject"].Value;
+            conventionalCommit = conventionalCommit with
+            {
+                Type = match.Groups["type"].Value,
+                Scope = match.Groups["scope"].Value,
+                Subject = match.Groups["subject"].Value
+            };
 
             if (match.Groups["breakingChangeMarker"].Success)
             {
@@ -98,7 +99,10 @@ public static class ConventionalCommitParser
         }
         else
         {
-            conventionalCommit.Subject = header;
+            conventionalCommit = conventionalCommit with
+            {
+                Subject = header
+            };
         }
 
         for (var i = 1; i < commitMessageLines.Count; i++)
