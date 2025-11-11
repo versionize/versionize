@@ -155,6 +155,46 @@ public partial class WorkingCopyTests
             _cliAbstraction.Messages[0].ShouldBeEquivalentTo("### Features\n\n* commit 3");
         }
 
+        [Fact]
+        public void GeneratesChangelogForPrerelease_When_AggregatePrereleases()
+        {
+            var fileCommitter = new FileCommitter(_testSetup);
+            var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
+            var versionizeOptions = new VersionizeOptions
+            {
+                BumpFileType = BumpFileType.None,
+                AggregatePrereleases = true,
+            };
+            var prereleaseOptions = new VersionizeOptions
+            {
+                BumpFileType = BumpFileType.None,
+                AggregatePrereleases = true,
+                Prerelease = "alpha",
+            };
+
+            // 1.0.0
+            fileCommitter.CommitChange("feat: commit 1");
+            workingCopy.Versionize(versionizeOptions);
+
+            // 1.1.0-alpha.0
+            fileCommitter.CommitChange("feat: commit 2");
+            workingCopy.Versionize(prereleaseOptions);
+
+            _cliAbstraction.Messages.Clear();
+
+            var tags = _testSetup.Repository.Tags.Select(x => x.FriendlyName).ToList();
+            tags.Count.ShouldBe(2);
+            tags.ShouldContain("v1.0.0");
+            tags.ShouldContain("v1.1.0-alpha.0");
+
+            // Act - Generate changelog for the prerelease version
+            workingCopy.GenerateChanglog(prereleaseOptions, "1.1.0-alpha.0", null);
+
+            // Assert - Should include changes since last full release (1.0.0), not return entire history
+            _cliAbstraction.Messages.Count.ShouldBe(1);
+            _cliAbstraction.Messages[0].ShouldBeEquivalentTo("### Features\n\n* commit 2");
+        }
+
         public void Dispose()
         {
             _testSetup.Dispose();

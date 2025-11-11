@@ -113,7 +113,7 @@ public static class RepositoryExtensions
             .Where(x => x is not null);
         if (options.AggregatePrereleases)
         {
-            versionsEnumerable = versionsEnumerable.Where(x => !x!.IsPrerelease);
+            versionsEnumerable = versionsEnumerable.Where(x => x == version || !x!.IsPrerelease);
         }
         var versions = versionsEnumerable
             .OrderByDescending(x => x)
