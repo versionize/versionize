@@ -339,6 +339,37 @@ public class ConfigProviderTests : IDisposable
         options.Project.TagTemplate.ShouldBe(expectedTagTemplate);
     }
 
+    [Fact]
+    public void ShouldExitWhenProjectVersionElementContainsInvalidCharacters()
+    {
+        // Arrange: create a mono-repo style config with an invalid VersionElement
+        var projects = new[]
+        {
+            new ProjectOptions
+            {
+                Name = "Project1",
+                Path = "project1",
+                VersionElement = "File-Version", // hyphen is invalid per validation rule
+                Changelog = ChangelogOptions.Default
+            }
+        };
+
+        var dotnetProjectPath = Path.Combine(_testSetup.WorkingDirectory, "project1");
+        TempProject.CreateCsharpProject(dotnetProjectPath);
+
+        var fileConfig = new FileConfig { Projects = projects };
+        var cliApp = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(cliApp);
+        cliApp.Parse("--proj-name Project1");
+
+        // Act + Assert: ConfigProvider should exit with an error
+        Should.Throw<CommandLineExitException>(() =>
+            ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig));
+
+        _testPlatformAbstractions.Messages[0]
+            .ShouldBe("Version element 'File-Version' is invalid. Only alphanumeric and underscore characters are allowed.");
+    }
+
     public void Dispose()
     {
         _testSetup.Dispose();

@@ -90,6 +90,67 @@ public class DotnetBumpFileProjectTests : IDisposable
         isVersionable.ShouldBeFalse();
     }
 
+    [Fact]
+    public void ShouldUpdateTheFileVersionElementWhenVersionElementIsFileVersion()
+    {
+        var projectFileContents =
+            @"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <FileVersion>1.0.0</FileVersion>
+    </PropertyGroup>
+</Project>";
+        var projectFilePath = WriteProjectFile(_tempDir, projectFileContents);
+
+        var project = DotnetBumpFileProject.Create(projectFilePath, versionElement: "FileVersion");
+        project.WriteVersion(new Version(2, 0, 0));
+
+        var versionedProjectContents = File.ReadAllText(projectFilePath);
+
+        versionedProjectContents.ShouldBe(projectFileContents.Replace("1.0.0", "2.0.0"));
+    }
+
+    [Fact]
+    public void ShouldNotBeVersionableIfNoFileVersionIsContainedInProjectFileWhenVersionElementIsFileVersion()
+    {
+        var projectFilePath = WriteProjectFile(_tempDir,
+@"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <Version>1.0.0</Version>
+    </PropertyGroup>
+</Project>");
+
+        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath, versionElement: "FileVersion");
+        isVersionable.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ShouldBeVersionableIfFileVersionIsContainedInProjectFileWhenVersionElementIsFileVersion()
+    {
+        var projectFilePath = WriteProjectFile(_tempDir,
+@"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <FileVersion>1.0.0</FileVersion>
+    </PropertyGroup>
+</Project>");
+
+        var isVersionable = DotnetBumpFileProject.IsVersionable(projectFilePath, versionElement: "FileVersion");
+        isVersionable.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ShouldReadFileVersionWhenVersionElementIsFileVersion()
+    {
+        var projectFilePath = WriteProjectFile(_tempDir,
+@"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <FileVersion>2.3.4</FileVersion>
+    </PropertyGroup>
+</Project>");
+
+        var project = DotnetBumpFileProject.Create(projectFilePath, versionElement: "FileVersion");
+        project.Version.ShouldBe(new Version(2, 3, 4));
+    }
+
     private static string WriteProjectFile(string dir, string projectFileContents)
     {
         var projectFilePath = Path.Join(dir, "test.csproj");

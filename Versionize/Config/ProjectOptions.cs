@@ -20,6 +20,18 @@ public sealed record ProjectOptions
 
     public string TagTemplate { get; set; } = "{name}/v{version}";
 
+    /// <summary>
+    /// Specifies the .NET XML property to use when reading or writing the project version.
+    /// 'Version' by default.<br />
+    /// Only alphanumeric and underscore characters are allowed.
+    /// </summary>
+    /// <example>
+    /// <PropertyGroup>
+    ///   <FileVersion>1.0.0</FileVersion>
+    /// </PropertyGroup>
+    /// </example>
+    public string? VersionElement { get; set; }
+
     public ChangelogOptions Changelog { get; set; } = new();
 
     // TODO: Remove. Only used by a test.

@@ -180,6 +180,54 @@ versionize
 Will update CHANGELOG.md, add git tags and commit everything. Note that the version in `SomeProject.csproj` is now `2.0.0` since
 versionize detected a breaking change since the commit note `BREAKING CHANGE` was used above.
 
+### Bumping Alternative Version Elements
+
+In some scenarios, you may want to bump a different version element instead of the standard `<Version>` element in your project files. This can be useful when you want to track file versions independently from package versions, or when working with specific version properties.
+
+To use this feature, ensure your project file contains the desired version element (e.g., `<FileVersion>` or `<AssemblyVersion>`):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+</Project>
+```
+
+Configure this in your `.versionize` file as part of the project configuration:
+
+```json
+{
+  "projects": [
+    {
+      "name": "MyProject",
+      "path": ".",
+      "versionElement": "FileVersion"
+    }
+  ]
+}
+```
+
+For single-project repositories (non-monorepos), you can also configure it at the root level:
+
+```json
+{
+  "projects": [
+    {
+      "path": ".",
+      "versionElement": "FileVersion"
+    }
+  ]
+}
+```
+
+When this option is specified, versionize will:
+- Look for and bump the specified element (e.g., `<FileVersion>`) instead of `<Version>`
+- Still create git tags and update the changelog as normal
+- Use the specified element for determining the current and next version
+
+Supported values include `Version` (default), `FileVersion`, `AssemblyVersion`, or any custom property name. Only alphanumeric and underscore characters are allowed.
+
 ### Pre-releases
 
 Versionize supports creating pre-release versions by using the `--pre-release` flag with a pre-release label, for example `alpha`.

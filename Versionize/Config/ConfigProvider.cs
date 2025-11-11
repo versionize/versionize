@@ -58,6 +58,9 @@ public static class ConfigProvider
             }
         }
 
+        // Validate custom version element early to avoid invalid XPath usage later
+        ValidateVersionElement(project.VersionElement);
+
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
         var tagOnly = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly);
         var projectPath = Path.Combine(baseWorkingDirectory, project.Path);
@@ -130,6 +133,22 @@ public static class ConfigProvider
             if (!changelogPaths.Add(fullChangelogPath))
             {
                 CommandLineUI.Exit("Two or more projects have changelog paths pointing to the same location.", 1);
+            }
+        }
+    }
+
+    private static void ValidateVersionElement(string? versionElement)
+    {
+        if (string.IsNullOrEmpty(versionElement))
+        {
+            return; // default will be used downstream
+        }
+
+        foreach (var ch in versionElement)
+        {
+            if (!(char.IsLetterOrDigit(ch) || ch == '_'))
+            {
+                CommandLineUI.Exit($"Version element '{versionElement}' is invalid. Only alphanumeric and underscore characters are allowed.", 1);
             }
         }
     }
