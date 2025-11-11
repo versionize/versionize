@@ -1,0 +1,71 @@
+{
+  "tagTemplate": "v{version}",
+  "aggregatePrereleases": true,
+  "changelog": {
+    "header": "Versionize Changelog",
+    "includeAllCommits": true,
+    "otherSection": "🧩 Other",
+    "linkTemplates": {
+      "issueLink": "https://github.com/versionize/versionize/issues/{issue}",
+      "commitLink": "https://github.com/versionize/versionize/commit/{commitSha}",
+      "versionTagLink": "https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}"
+    },
+    "sections": [
+      {
+        "type": "feat",
+        "section": "✨ Features",
+        "hidden": false
+      },
+      {
+        "type": "fix",
+        "section": "🐛 Bug Fixes",
+        "hidden": false
+      },
+      {
+        "type": "perf",
+        "section": "🚀 Performance",
+        "hidden": false
+      },
+      {
+        "type": "refactor",
+        "section": "📦 Refactor",
+        "hidden": false
+      },
+      {
+        "type": "test",
+        "section": "🧪 Tests",
+        "hidden": false
+      },
+      {
+        "type": "revert",
+        "section": "🗑 Reverts",
+        "hidden": false
+      },
+      {
+        "type": "build",
+        "section": "🔨 Build",
+        "hidden": false
+      },
+      {
+        "type": "ci",
+        "section": "⚙️ Continuous Integrations",
+        "hidden": false
+      },
+      {
+        "type": "style",
+        "section": "💎 Style",
+        "hidden": false
+      },
+      {
+        "type": "docs",
+        "section": "📚 Docs",
+        "hidden": false
+      },
+      {
+        "type": "chore",
+        "section": "♻️ Chores",
+        "hidden": false
+      }
+    ]
+  }
+}

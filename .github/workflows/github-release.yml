@@ -1,0 +1,50 @@
+name: 'GitHub Release'
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Publish to Nuget']
+    types:
+      - completed
+
+jobs:
+  create-release:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      - name: Install Versionize
+        run: dotnet tool install --global Versionize
+
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Get changelog
+        run: |
+          set -e
+          PREAMBLE="# What's changed?"
+          if ! CHANGELOG=$(versionize changelog 2>&1); then
+            echo "::error ::$CHANGELOG"
+            exit 1
+          fi
+          {
+            echo "CHANGELOG<<EOF"
+            printf "%s\n\n" "$PREAMBLE"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> $GITHUB_ENV
+
+      - name: Get latest tag
+        run: echo "VERSION_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
+      - name: Create a Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION_TAG }}
+          prerelease: ${{ contains(env.VERSION_TAG, '-') }}
+          body: ${{ env.CHANGELOG }}

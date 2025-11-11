@@ -2,6 +2,22 @@ name: 'Publish to Nuget'
 
 on:
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: Prerelease tag (optional)
+        required: false
+        type: string
+        default: ''
+      release-as:
+        required: true
+        type: choice
+        default: auto
+        description: If you want an automated or a manual version bump
+        options:
+          - auto
+          - major
+          - minor
+          - patch
 
 jobs:
   publish-new-version:
@@ -10,21 +26,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: '0'
+
       - name: Install Versionize
         run: dotnet tool install --global Versionize
+
       - name: Setup git
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: Versionize Release
-        id: versionize
-        run: versionize
-        continue-on-error: true
-
-      - name: No release required
-        if: steps.versionize.outcome != 'success'
-        run: echo "Skipping publishing. No release required."
+      - name: Version Bump
+        env:
+          PRERELEASE: ${{ github.event.inputs.prerelease }}
+          RELEASE_AS: ${{ github.event.inputs.release-as }}
+        run: >
+          versionize --exit-insignificant-commits 
+          ${{ env.PRERELEASE != '' && format('--pre-release {0}', env.PRERELEASE) || '' }}
+          ${{ env.RELEASE_AS != 'auto' && format('--release-as {0}', env.RELEASE_AS) || '' }}
         
       - name: Setup .NET Core 9.0
         uses: actions/setup-dotnet@v4
@@ -32,13 +50,12 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Build Package
-        if: steps.versionize.outcome == 'success'
         run: dotnet pack --output nupkgs --include-source --configuration Release --include-symbols
+
       - name: Push to Nuget
-        if: steps.versionize.outcome == 'success'
         run: dotnet nuget push "nupkgs/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}}
+
       - name: Push changes to GitHub
-        if: steps.versionize.outcome == 'success'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
