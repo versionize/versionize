@@ -56,7 +56,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.2.0");
 
             // Act
-            workingCopy.GenerateChanglog(versionizeOptions, versionStr, null);
+            workingCopy.GenerateChangelog(versionizeOptions, versionStr, null);
 
             // Assert
             _cliAbstraction.Messages.Count.ShouldBe(1);
@@ -103,7 +103,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.1.0");
 
             // Act
-            workingCopy.GenerateChanglog(versionizeOptions, null, null);
+            workingCopy.GenerateChangelog(versionizeOptions, null, null);
 
             // Assert
             _cliAbstraction.Messages.Count.ShouldBe(1);
@@ -148,7 +148,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.1.0");
 
             // Act
-            workingCopy.GenerateChanglog(versionizeOptions, null, null);
+            workingCopy.GenerateChangelog(versionizeOptions, null, null);
 
             // Assert
             _cliAbstraction.Messages.Count.ShouldBe(1);
@@ -188,7 +188,7 @@ public partial class WorkingCopyTests
             tags.ShouldContain("v1.1.0-alpha.0");
 
             // Act - Generate changelog for the prerelease version
-            workingCopy.GenerateChanglog(prereleaseOptions, "1.1.0-alpha.0", null);
+            workingCopy.GenerateChangelog(prereleaseOptions, "1.1.0-alpha.0", null);
 
             // Assert - Should include changes since last full release (1.0.0), not return entire history
             _cliAbstraction.Messages.Count.ShouldBe(1);

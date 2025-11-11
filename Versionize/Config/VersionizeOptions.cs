@@ -32,7 +32,7 @@ public sealed class VersionizeOptions
     /// Use case: user doesn't tag pre-releases (skip-tag), so the only way to get the
     /// commit of the last release is to look for the last commit that contains a release message.
     /// </remarks>
-    public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; set; }
+    public bool FindReleaseCommitViaMessage { get; set; }
 
     public bool IsCommitConfigurationRequired()
     {

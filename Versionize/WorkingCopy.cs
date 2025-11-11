@@ -13,9 +13,7 @@ public class WorkingCopy
     private readonly DirectoryInfo _workingDirectory;
     private readonly DirectoryInfo _gitDirectory;
 
-    private WorkingCopy(
-        DirectoryInfo workingDirectory,
-        DirectoryInfo gitDirectory)
+    private WorkingCopy(DirectoryInfo workingDirectory, DirectoryInfo gitDirectory)
     {
         _workingDirectory = workingDirectory;
         _gitDirectory = gitDirectory;
@@ -35,7 +33,7 @@ public class WorkingCopy
         return version;
     }
 
-    public void GenerateChanglog(VersionizeOptions options, string? versionStr, string? preamble)
+    public void GenerateChangelog(VersionizeOptions options, string? versionStr, string? preamble)
     {
         options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
 
@@ -118,7 +116,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             currentDirectory = currentDirectory.Parent;
         }
-        while (currentDirectory is not null && currentDirectory.Parent != null);
+        while (currentDirectory is { Parent: not null });
 
         Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
 

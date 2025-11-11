@@ -27,7 +27,7 @@ public sealed class CliConfig
     public required CommandOption WorkingDirectory { get; init; }
     public required CommandOption ConfigurationDirectory { get; init; }
     public required CommandOption ProjectName { get; init; }
-    public required CommandOption UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
+    public required CommandOption FindReleaseCommitViaMessage { get; init; }
 
     public static CliConfig Create(CommandLineApplication app)
     {
@@ -128,7 +128,7 @@ public sealed class CliConfig
                 "Name of a project defined in the configuration file (for monorepos)",
                 CommandOptionType.SingleValue),
 
-            UseCommitMessageInsteadOfTagToFindLastReleaseCommit = app.Option(
+            FindReleaseCommitViaMessage = app.Option(
                 "--find-release-commit-via-message",
                 "Use commit message instead of tag to find last release commit",
                 CommandOptionType.SingleOrNoValue),

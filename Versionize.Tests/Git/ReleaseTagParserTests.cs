@@ -13,7 +13,10 @@ public class ReleaseTagParserTests
     [InlineData("no version here", "")]
     public void ShouldExtractSemanticVersion(string input, string expected)
     {
+        // Act
         var result = ReleaseTagParser.ExtractVersion(input);
+
+        // Assert
         result.ShouldBe(expected);
     }
 }

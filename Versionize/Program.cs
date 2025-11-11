@@ -48,7 +48,7 @@ public static class Program
             changelogCmd.OnExecute(() =>
             {
                 var (workingCopy, options) = GetWorkingCopy(cliConfig);
-                workingCopy.GenerateChanglog(options, versionOption.Value(), preambleOption.Value());
+                workingCopy.GenerateChangelog(options, versionOption.Value(), preambleOption.Value());
             });
         });
 

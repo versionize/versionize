@@ -7,49 +7,95 @@ namespace Versionize.Versioning;
 
 public class VersionIncrementStrategyTests
 {
-    [Fact]
-    public void ShouldNotIncrementPatchVersionForEmptyCommitsIfIgnoreInsignificantIsGiven()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ShouldNotIncrementVersionForEmptyCommits(bool insignificantCommitsAffectVersion)
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy([]);
-        strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 1, 1));
+
+        // Act
+        var actual = strategy.NextVersion(new SemanticVersion(1, 1, 1), prereleaseLabel: null, insignificantCommitsAffectVersion);
+
+        // Assert
+        actual.ShouldBe(new SemanticVersion(1, 1, 1));
     }
 
     [Fact]
-    public void ShouldNotIncrementPatchVersionForInsignificantCommitsIfIgnoreInsignificantIsGiven()
+    public void ShouldIncrementPatchVersionForInsignificantCommit_When_InsignificantCommitsAffectVersion()
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy(
         [
             new() { Type = "chore" }
         ]);
 
-        strategy.NextVersion(new SemanticVersion(1, 1, 1), null, false).ShouldBe(new SemanticVersion(1, 1, 1));
+        // Act
+        var actual = strategy.NextVersion(new SemanticVersion(1, 1, 1), prereleaseLabel: null, insignificantCommitsAffectVersion: true);
+
+        // Assert
+        actual.ShouldBe(new SemanticVersion(1, 1, 2));
     }
 
     [Fact]
-    public void ShouldIncrementPatchVersionForFixCommitsIfIgnoreInsignificantIsGiven()
+    public void ShouldNotIncrementVersionForInsignificantCommit_When_InsignificantCommitsDontAffectVersion()
     {
+        // Arrange
+        var strategy = new VersionIncrementStrategy(
+        [
+            new() { Type = "chore" }
+        ]);
+
+        // Act
+        var actual = strategy.NextVersion(new SemanticVersion(1, 1, 1), prereleaseLabel: null, insignificantCommitsAffectVersion: false);
+
+        // Assert
+        actual.ShouldBe(new SemanticVersion(1, 1, 1));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ShouldIncrementPatchVersionForFixCommits(bool insignificantCommitsAffectVersion)
+    {
+        // Arrange
         var strategy = new VersionIncrementStrategy(
         [
             new() { Type = "fix" }
         ]);
 
-        strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 1, 2));
+        // Act
+        var actual = strategy.NextVersion(new SemanticVersion(1, 1, 1), prereleaseLabel: null, insignificantCommitsAffectVersion);
+
+        // Assert
+        actual.ShouldBe(new SemanticVersion(1, 1, 2));
     }
 
-    [Fact]
-    public void ShouldIncrementMinorVersionForFeatures()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ShouldIncrementMinorVersionForFeatures(bool insignificantCommitsAffectVersion)
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy(
         [
             new() { Type = "feat" }
         ]);
 
-        strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(1, 2, 0));
+        // Act
+        var actual = strategy.NextVersion(new SemanticVersion(1, 1, 1), prereleaseLabel: null, insignificantCommitsAffectVersion);
+
+        // Assert
+        actual.ShouldBe(new SemanticVersion(1, 2, 0));
     }
 
-    [Fact]
-    public void ShouldIncrementMajorVersionForBreakingChanges()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ShouldIncrementMajorVersionForBreakingChanges(bool insignificantCommitsAffectVersion)
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy(
         [
             new() {
@@ -61,17 +107,24 @@ public class VersionIncrementStrategyTests
             }
         ]);
 
-        strategy.NextVersion(new SemanticVersion(1, 1, 1)).ShouldBe(new SemanticVersion(2, 0, 0));
+        // Act
+        var actual = strategy.NextVersion(new SemanticVersion(1, 1, 1), prereleaseLabel: null, insignificantCommitsAffectVersion);
+
+        // Assert
+        actual.ShouldBe(new SemanticVersion(2, 0, 0));
     }
 
     [Theory]
     [MemberData(nameof(StableToPrerelease))]
     public void ShouldIncrementVersionFromStableToPrerelease(TestScenario testScenario)
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
+        // Act
         var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel);
 
+        // Assert
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
 
@@ -80,10 +133,13 @@ public class VersionIncrementStrategyTests
     [MemberData(nameof(PrereleaseToPrerelease))]
     public void ShouldIncrementVersionFromPrereleaseToPrerelease(TestScenario testScenario)
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
+        // Act
         var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel, !testScenario.IgnoreInsignificantCommits);
 
+        // Assert
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
 
@@ -91,10 +147,13 @@ public class VersionIncrementStrategyTests
     [MemberData(nameof(PrereleaseToStable))]
     public void ShouldIncrementVersionFromPrereleaseToStable(TestScenario testScenario)
     {
+        // Arrange
         var strategy = new VersionIncrementStrategy(testScenario.Commits);
 
+        // Act
         var nextVersion = strategy.NextVersion(testScenario.FromVersion, testScenario.PrereleaseLabel);
 
+        // Assert
         nextVersion.ShouldBe(testScenario.ExpectedVersion);
     }
 

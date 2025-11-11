@@ -5,39 +5,40 @@ namespace Versionize.Tests.TestSupport;
 
 public static class TempProject
 {
-    public static string CreateFsharpProject(string tempDir, string version = "1.0.0")
+    public static void CreateFsharpProject(string tempDir, string version = "1.0.0")
     {
-        return Create(tempDir, "fsproj", version);
+        Create(tempDir, "fsproj", version);
     }
 
-    public static string CreateCsharpProject(string tempDir, string version = "1.0.0")
+    public static void CreateCsharpProject(string tempDir, string version = "1.0.0")
     {
-        return Create(tempDir, "csproj", version);
+        Create(tempDir, "csproj", version);
     }
 
-    public static string CreateVBProject(string tempDir, string version = "1.0.0")
+    public static void CreateVBProject(string tempDir, string version = "1.0.0")
     {
-        return Create(tempDir, "vbproj", version);
+        Create(tempDir, "vbproj", version);
     }
 
-    public static string CreateProps(string tempDir, string version = "1.0.0")
+    public static void CreateProps(string tempDir, string version = "1.0.0")
     {
-        return Create(tempDir, "props", version);
+        Create(tempDir, "props", version);
     }
 
-    public static string Create(string tempDir, string extension, string version = "1.0.0")
+    public static void Create(string tempDir, string extension, string version = "1.0.0")
     {
-        var projectFileContents =
-$@"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <Version>{version}</Version>
-    </PropertyGroup>
-</Project>";
+        var projectFileContents = $"""
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>{version}</Version>
+                </PropertyGroup>
+            </Project>
+            """;
 
-        return CreateFromProjectContents(tempDir, extension, projectFileContents);
+        CreateFromProjectContents(tempDir, extension, projectFileContents);
     }
 
-    public static string CreateFromProjectContents(string tempDir, string extension, string projectFileContents)
+    public static void CreateFromProjectContents(string tempDir, string extension, string projectFileContents)
     {
         Directory.CreateDirectory(tempDir);
 
@@ -45,12 +46,10 @@ $@"<Project Sdk=""Microsoft.NET.Sdk"">
         var csProjFile = $"{tempDir}/{projectDirName}.{extension}";
 
         File.WriteAllText(csProjFile, projectFileContents);
-
-        return csProjFile;
     }
 
     private static readonly string versionPattern = @"bundleVersion:\s*([^\r\n]+)";
-    public static string CreateUnityProject(string tempDir, string version = "1.0.0")
+    public static void CreateUnityProject(string tempDir, string version = "1.0.0")
     {
         Directory.CreateDirectory(tempDir);
         Directory.CreateDirectory($"{tempDir}/Assets");
@@ -63,7 +62,5 @@ $@"<Project Sdk=""Microsoft.NET.Sdk"">
         var fileContents = File.ReadAllText(targetFilePath);
         fileContents = Regex.Replace(fileContents, versionPattern, $"bundleVersion: {version}");
         File.WriteAllText(targetFilePath, fileContents);
-
-        return tempDir;
     }
 }

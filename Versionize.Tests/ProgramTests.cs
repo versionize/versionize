@@ -335,26 +335,4 @@ public class ProgramTests : IDisposable
     {
         _testSetup.Dispose();
     }
-
-    private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
-    {
-        var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-        Commands.Stage(repository, "*");
-        repository.Commit(message, author, author);
-    }
-
-    private class FileCommitter(TestSetup testSetup)
-    {
-        private readonly TestSetup _testSetup = testSetup;
-
-        public void CommitChange(string commitMessage, string changeOnDirectory = "")
-        {
-            var directory = Path.Join(_testSetup.WorkingDirectory, changeOnDirectory);
-            Directory.CreateDirectory(directory);
-
-            var workingFilePath = Path.Join(directory, "hello.txt");
-            File.WriteAllText(workingFilePath, Guid.NewGuid().ToString());
-            CommitAll(_testSetup.Repository, commitMessage);
-        }
-    }
 }

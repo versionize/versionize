@@ -17,8 +17,9 @@ public static class SemanticVersionExtensions
     public static SemanticVersion IncrementPrerelease(this SemanticVersion version, string newPrereleaseLabel)
     {
         var prereleaseIdentifier = PrereleaseIdentifier.Parse(version);
+        var prereleaseLabels = prereleaseIdentifier.ApplyLabel(newPrereleaseLabel).BuildPrereleaseLabels();
 
-        return new SemanticVersion(version.Major, version.Minor, version.Patch, prereleaseIdentifier.ApplyLabel(newPrereleaseLabel).BuildPrereleaseLabels(), null);
+        return new SemanticVersion(version.Major, version.Minor, version.Patch, prereleaseLabels, null);
     }
 
     public static SemanticVersion IncrementPatchVersion(this SemanticVersion version)

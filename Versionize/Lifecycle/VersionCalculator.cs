@@ -16,10 +16,10 @@ public sealed class VersionCalculator
     {
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
-        var allowInsignificantCommits = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
+        var insignificantCommitsAffectVersion = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
         SemanticVersion nextVersion = isInitialRelease || version is null
             ? version ?? new SemanticVersion(1, 0, 0)
-            : versionIncrement.NextVersion(version, options.Prerelease, allowInsignificantCommits);
+            : versionIncrement.NextVersion(version, options.Prerelease, insignificantCommitsAffectVersion);
 
         if (!isInitialRelease && nextVersion == version)
         {

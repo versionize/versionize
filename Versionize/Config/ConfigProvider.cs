@@ -85,7 +85,7 @@ public static class ConfigProvider
             BumpFileType = bumpFileType,
             CommitParser = commitParser,
             Project = project,
-            UseCommitMessageInsteadOfTagToFindLastReleaseCommit = MergeBool(cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit, false),
+            FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
         };
     }
 
