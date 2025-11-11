@@ -16,7 +16,7 @@ jobs:
 
     - name: Test Report
       uses: dorny/test-reporter@v1
-      if: success()
+      if: success() || failure()
       with:
         artifact: test-results
         name: XUnit Tests

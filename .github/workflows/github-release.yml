@@ -8,6 +8,7 @@ on:
 
 jobs:
   create-release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,10 +22,26 @@ jobs:
           git config --local user.name "github-actions[bot]"
 
       - name: Get changelog
-        id: get-changelog
-        run: echo "CHANGELOG=$(versionize --tag-only changelog --preamble '# What's changed?')" >> $GITHUB_ENV
+        run: |
+          set -e
+          PREAMBLE="# What's changed?"
+          if ! CHANGELOG=$(versionize changelog 2>&1); then
+            echo "::error ::$CHANGELOG"
+            exit 1
+          fi
+          {
+            echo "CHANGELOG<<EOF"
+            printf "%s\n\n" "$PREAMBLE"
+            echo "$CHANGELOG"
+            echo "EOF"
+          } >> $GITHUB_ENV
+
+      - name: Get latest tag
+        run: echo "VERSION_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: Create a Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.VERSION_TAG }}
+          prerelease: ${{ contains(env.VERSION_TAG, '-') }}
           body: ${{ env.CHANGELOG }}

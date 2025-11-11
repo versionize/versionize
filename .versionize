@@ -1,7 +1,15 @@
 {
+  "tagTemplate": "v{version}",
+  "aggregatePrereleases": true,
   "changelog": {
-    "header": "My Changelog",
+    "header": "Versionize Changelog",
     "includeAllCommits": true,
+    "otherSection": "🧩 Other",
+    "linkTemplates": {
+      "issueLink": "https://github.com/versionize/versionize/issues/{issue}",
+      "commitLink": "https://github.com/versionize/versionize/commit/{commitSha}",
+      "versionTagLink": "https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}"
+    },
     "sections": [
       {
         "type": "feat",
