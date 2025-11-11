@@ -19,7 +19,6 @@ public sealed class VersionizeOptions
     public bool FirstParentOnlyCommits { get; set; }
     public bool Sign { get; set; }
     public BumpFileType BumpFileType { get; set; } = BumpFileType.Dotnet;
-    public string? VersionElement { get; set; }
 
     public string WorkingDirectory { get; set; } = "";
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;

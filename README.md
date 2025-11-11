@@ -194,17 +194,30 @@ To use this feature, ensure your project file contains the desired version eleme
 </Project>
 ```
 
-Then run versionize with the `--version-element` flag:
-
-```bash
-versionize --version-element FileVersion
-```
-
-Alternatively, configure this in your `.versionize` file:
+Configure this in your `.versionize` file as part of the project configuration:
 
 ```json
 {
-  "versionElement": "FileVersion"
+  "projects": [
+    {
+      "name": "MyProject",
+      "path": ".",
+      "versionElement": "FileVersion"
+    }
+  ]
+}
+```
+
+For single-project repositories (non-monorepos), you can also configure it at the root level:
+
+```json
+{
+  "projects": [
+    {
+      "path": ".",
+      "versionElement": "FileVersion"
+    }
+  ]
 }
 ```
 
@@ -213,7 +226,7 @@ When this option is specified, versionize will:
 - Still create git tags and update the changelog as normal
 - Use the specified element for determining the current and next version
 
-Supported values include `Version` (default), `FileVersion`, `AssemblyVersion`, or any custom property name.
+Supported values include `Version` (default), `FileVersion`, `AssemblyVersion`, or any custom property name. Only alphanumeric and underscore characters are allowed.
 
 ### Pre-releases
 

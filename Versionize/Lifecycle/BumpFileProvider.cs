@@ -27,7 +27,7 @@ public sealed class BumpFileProvider
             return new Options
             {
                 BumpFileType = versionizeOptions.BumpFileType,
-                VersionElement = versionizeOptions.VersionElement,
+                VersionElement = versionizeOptions.Project.VersionElement,
                 WorkingDirectory = versionizeOptions.WorkingDirectory ??
                     throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
             };

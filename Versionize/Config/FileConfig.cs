@@ -24,7 +24,6 @@ public sealed class FileConfig
     public bool? FirstParentOnlyCommits { get; set; }
     public bool? Sign { get; set; }
     public string? TagTemplate { get; set; }
-    public string? VersionElement { get; set; }
 
     public CommitParserOptions? CommitParser { get; set; }
     public ProjectOptions[] Projects { get; set; } = [];
