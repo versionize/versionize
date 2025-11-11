@@ -2,7 +2,7 @@
 using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Versioning;
-using static Versionize.CommandLine.CommandLineUI;
+using Versionize.CommandLine;
 
 namespace Versionize.Lifecycle;
 
@@ -26,7 +26,7 @@ public sealed class VersionCalculator
             if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
             {
                 var exitCode = options.ExitInsignificantCommits ? 1 : 0;
-                Exit($"Version was not affected by commits since last release ({version})", exitCode);
+                throw new VersionizeException(ErrorMessages.VersionUnaffected(version.ToNormalizedString()), exitCode);
             }
             else
             {
@@ -38,13 +38,13 @@ public sealed class VersionCalculator
         {
             if (!SemanticVersion.TryParse(options.ReleaseAs, out nextVersion!))
             {
-                Exit($"Could not parse the specified release version {options.ReleaseAs} as valid version", 1);
+                throw new VersionizeException(ErrorMessages.CouldNotParseReleaseVersion(options.ReleaseAs), 1);
             }
         }
 
         if (version is not null && nextVersion! < version)
         {
-            Exit($"Semantic versioning conflict: the next version {nextVersion} would be lower than the current version {version}. This can be caused by using a wrong pre-release label or release as version", 1);
+            throw new VersionizeException(ErrorMessages.SemanticVersionConflict(nextVersion.ToNormalizedString(), version.ToNormalizedString()), 1);
         }
 
         return nextVersion!;

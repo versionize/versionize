@@ -4,6 +4,7 @@ using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Config;
 using Versionize.Git;
+using Versionize.CommandLine;
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.Lifecycle;
@@ -53,7 +54,7 @@ public sealed class ChangeCommitter
         }
 
         // TODO: Make this message dynamic
-        Step("committed changes in projects and CHANGELOG.md");
+        Step(InfoMessages.CommittedChanges(changelog?.FilePath ?? "CHANGELOG.md"));
     }
 
     public sealed class Options

@@ -2,6 +2,7 @@
 using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.Git;
+using Versionize.CommandLine;
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.Lifecycle;
@@ -20,7 +21,7 @@ public sealed class ReleaseTagger
 
         if (repo.VersionTagsExists(nextVersion, options.Project))
         {
-            Exit($"Version {nextVersion} already exists. Please use a different version.", 1);
+            throw new VersionizeException(ErrorMessages.VersionAlreadyExists(nextVersion.ToNormalizedString()), 1);
         }
 
         var tagName = options.Project.GetTagName(nextVersion);
@@ -34,7 +35,7 @@ public sealed class ReleaseTagger
             repo.ApplyTag(tagName, tagger, $"{nextVersion}");
         }
 
-        Step($"tagged release as {tagName} against commit with sha {repo.Head.Tip.Sha}");
+        Step(InfoMessages.TaggedRelease(tagName, repo.Head.Tip.Sha));
     }
 
     public sealed class Options

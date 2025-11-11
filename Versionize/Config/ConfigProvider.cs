@@ -132,7 +132,7 @@ public static class ConfigProvider
 
             if (!changelogPaths.Add(fullChangelogPath))
             {
-                CommandLineUI.Exit("Two or more projects have changelog paths pointing to the same location.", 1);
+                throw new VersionizeException(ErrorMessages.DuplicateChangelogPaths(), 1);
             }
         }
     }
@@ -148,7 +148,7 @@ public static class ConfigProvider
         {
             if (!(char.IsLetterOrDigit(ch) || ch == '_'))
             {
-                CommandLineUI.Exit($"Version element '{versionElement}' is invalid. Only alphanumeric and underscore characters are allowed.", 1);
+                throw new VersionizeException(ErrorMessages.InvalidVersionElement(versionElement), 1);
             }
         }
     }

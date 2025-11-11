@@ -1,6 +1,6 @@
 ﻿using LibGit2Sharp;
 using System.Diagnostics;
-using static Versionize.CommandLine.CommandLineUI;
+using Versionize.CommandLine;
 
 namespace Versionize.Git;
 
@@ -68,7 +68,7 @@ public static class GitProcessUtil
 
         if (process.ExitCode != 0 && throwIfFail)
         {
-            Exit($"Command '{command} {args}' failed with error '{error}' (exit code {process.ExitCode})", 1);
+            throw new VersionizeException(ErrorMessages.CommandFailed(command, args, error, process.ExitCode), 1);
         }
 
         return process.ExitCode;

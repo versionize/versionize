@@ -1,4 +1,5 @@
 ﻿using NuGet.Versioning;
+using Versionize.CommandLine;
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.BumpFiles;
@@ -41,18 +42,18 @@ public sealed class DotnetBumpFile : IBumpFile
 
         if (projectGroup.IsEmpty())
         {
-            Exit($"Could not find any projects files in {workingDirectory} that have a <{versionElement}> defined in their csproj file.", 1);
+            throw new VersionizeException(ErrorMessages.NoVersionableProjects(workingDirectory, versionElement), 1);
         }
 
         if (projectGroup.HasInconsistentVersioning())
         {
-            Exit($"Some projects in {workingDirectory} have an inconsistent <{versionElement}> defined in their csproj file. Please update all versions to be consistent or remove the <{versionElement}> elements from projects that should not be versioned", 1);
+            throw new VersionizeException(ErrorMessages.InconsistentProjectVersions(workingDirectory, versionElement), 1);
         }
 
-        Information($"Discovered {projectGroup.GetFilePaths().Count()} versionable projects");
+        Information(InfoMessages.DiscoveredVersionableProjects(projectGroup.GetFilePaths().Count()));
         foreach (var project in projectGroup.GetFilePaths())
         {
-            Information($"  * {project}");
+            Information(InfoMessages.ProjectFile(project));
         }
 
         return projectGroup;

@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
+using Versionize.CommandLine;
 
 namespace Versionize.Changelog;
 
@@ -17,7 +18,7 @@ public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder
 
             if (!matches.Success)
             {
-                throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as valid GitHub SSH pattern");
+                throw new VersionizeException(ErrorMessages.RemoteUrlInvalidSshPattern("GitHub", pushUrl), 1);
             }
 
             _organization = matches.Groups["organization"].Value;
@@ -30,14 +31,14 @@ public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder
 
             if (!matches.Success)
             {
-                throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as valid GitHub HTTPS pattern");
+                throw new VersionizeException(ErrorMessages.RemoteUrlInvalidHttpsPattern("GitHub", pushUrl), 1);
             }
             _organization = matches.Groups["organization"].Value;
             _repository = matches.Groups["repository"].Value;
         }
         else
         {
-            throw new InvalidOperationException($"Remote url {pushUrl} is not recognized as GitHub SSH or HTTPS url");
+            throw new VersionizeException(ErrorMessages.RemoteUrlNotRecognized("GitHub", pushUrl), 1);
         }
     }
 

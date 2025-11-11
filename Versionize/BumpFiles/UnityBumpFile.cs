@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using NuGet.Versioning;
+using Versionize.CommandLine;
 
 namespace Versionize.BumpFiles;
 
@@ -22,7 +23,7 @@ public sealed class UnityBumpFile(string projectSettingsPath, SemanticVersion ve
     {
         if (!File.Exists(_projectSettingsPath))
         {
-            throw new FileNotFoundException("ProjectSettings.asset not found.");
+            throw new VersionizeException(ErrorMessages.UnityProjectSettingsNotFound(), 1);
         }
 
         string projectSettings = File.ReadAllText(_projectSettingsPath);
@@ -39,7 +40,7 @@ public sealed class UnityBumpFile(string projectSettingsPath, SemanticVersion ve
     {
         if (!File.Exists(projectSettingsPath))
         {
-            throw new FileNotFoundException("ProjectSettings.asset not found");
+            throw new VersionizeException(ErrorMessages.UnityProjectSettingsNotFound(), 1);
         }
 
         string projectSettings = File.ReadAllText(projectSettingsPath);
@@ -50,6 +51,6 @@ public sealed class UnityBumpFile(string projectSettingsPath, SemanticVersion ve
             return SemanticVersion.Parse(versionString);
         }
 
-        throw new FileNotFoundException("Version could not be parsed from ProjectSettings.asset");
+        throw new VersionizeException(ErrorMessages.UnityVersionParseFailed(), 1);
     }
 }

@@ -2,6 +2,7 @@
 using Versionize.BumpFiles;
 using Versionize.Config;
 using static Versionize.CommandLine.CommandLineUI;
+using Versionize.CommandLine;
 
 namespace Versionize.Lifecycle;
 
@@ -14,7 +15,7 @@ public sealed class BumpFileUpdater
     {
         if (bumpFile.Version != new SemanticVersion(0, 0, 0))
         {
-            Step($"bumping version from {bumpFile.Version} to {nextVersion} in projects");
+            Step(InfoMessages.BumpingVersion(bumpFile.Version.ToNormalizedString(), nextVersion.ToNormalizedString()));
         }
 
         if (options.DryRun)
