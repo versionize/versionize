@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.4.0-beta.0"></a>
+## [2.4.0-beta.0](https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}) (2025-11-11)
+
+### ✨ Features
+
+* add ability to override boolean file config via cli ([#173](https://github.com/versionize/versionize/issues/173)) ([bd263c4](https://github.com/versionize/versionize/commit/bd263c427ef5bd59478d0bfc06c24d97ca5f6ec3))
+* add Git configuration checks for versioning operations ([#168](https://github.com/versionize/versionize/issues/168)) ([41ee0aa](https://github.com/versionize/versionize/commit/41ee0aaf6c70a85022ec42a84f912b05ae0763ca))
+* add support for configurable version element bumping in project files ([#171](https://github.com/versionize/versionize/issues/171)) ([04714f0](https://github.com/versionize/versionize/commit/04714f03a22645e5e4699fa24809cf5c595eee3f))
+* add support for JIRA issues ([#162](https://github.com/versionize/versionize/issues/162)) ([3410b39](https://github.com/versionize/versionize/commit/3410b390b7d8536604118f1f3610a1df826c237c))
+* make changelog "Other" header customizable ([#174](https://github.com/versionize/versionize/issues/174)) ([c7f2be9](https://github.com/versionize/versionize/commit/c7f2be996902867c7ae7a14f6c263b83cdb2ef41))
+* support customizing tag template and changelog tag link ([#96](https://github.com/versionize/versionize/issues/96)) ([cfede54](https://github.com/versionize/versionize/commit/cfede54ea541a4f7e463cfbda5380379b626a133))
+
+### 🐛 Bug Fixes
+
+* change regex for azure commits and issues to be in line with the current azure environment ([#160](https://github.com/versionize/versionize/issues/160)) ([9f1f973](https://github.com/versionize/versionize/commit/9f1f973411c437dff41f20048e933386884ed9ee))
+
+### ⚙️ Continuous Integrations
+
+* add GitHub Release workflow ([#175](https://github.com/versionize/versionize/issues/175)) ([83ff188](https://github.com/versionize/versionize/commit/83ff18887377fa1401f51bf51340840ae0b63e61))
+* only run ci for non-draft PRs and code changes ([#149](https://github.com/versionize/versionize/issues/149)) ([cfe1c72](https://github.com/versionize/versionize/commit/cfe1c72576861f8ce9823fe080af93f65f0874c9))
+
+### 📚 Docs
+
+* add copilot-instructions.md for better AI agent guidance ([#164](https://github.com/versionize/versionize/issues/164)) ([024907f](https://github.com/versionize/versionize/commit/024907f0fda2a358e9938f3dab649a2ef9984b91))
+
+### ♻️ Chores
+
+* implement style rules in editorconfig and simplify code ([#165](https://github.com/versionize/versionize/issues/165)) ([e3ac0a5](https://github.com/versionize/versionize/commit/e3ac0a5acc58555ab3be823ca0bb7d42c5ce5587))
+
 <a name="2.3.1"></a>
 ## [2.3.1](https://www.github.com/versionize/versionize/releases/tag/v2.3.1) (2025-01-28)
 
