@@ -44,10 +44,10 @@ jobs:
           ${{ env.PRERELEASE != '' && format('--pre-release {0}', env.PRERELEASE) || '' }}
           ${{ env.RELEASE_AS != 'auto' && format('--release-as {0}', env.RELEASE_AS) || '' }}
         
-      - name: Setup .NET Core 9.0
+      - name: Setup .NET 10.0
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Build Package
         run: dotnet pack --output nupkgs --include-source --configuration Release --include-symbols

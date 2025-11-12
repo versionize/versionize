@@ -12,23 +12,25 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ master ]
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-    paths:
-      - 'Versionize/**'
-      - 'Versionize.Tests/**'
-      - 'Versionize.sln'
-      - '.github/workflows/**'
-  schedule:
-    - cron: '31 6 * * 1'
+  workflow_dispatch:
+  # NOTE: disable until codeql supports net10
+  # push:
+  #   branches: [ master ]
+  # pull_request:
+  #   # The branches below must be a subset of the branches above
+  #   branches: [ master ]
+  #   types:
+  #     - opened
+  #     - synchronize
+  #     - reopened
+  #     - ready_for_review
+  #   paths:
+  #     - 'Versionize/**'
+  #     - 'Versionize.Tests/**'
+  #     - 'Versionize.sln'
+  #     - '.github/workflows/**'
+  # schedule:
+  #   - cron: '31 6 * * 1'
 
 jobs:
   analyze:
@@ -51,9 +53,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -61,22 +62,23 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
-    # Build
-    - name: Setup .NET Core 7.0
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '7.0.x'
-    - name: Setup .NET Core 8.0
+    - name: Setup .NET 8.0
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-    - name: Setup .NET Core 9.0
+
+    - name: Setup .NET 9.0
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
+
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
     - name: Build Release
       run: dotnet build --configuration Release
 
-
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4

@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
 <a name="2.4.0-beta.0"></a>
-## [2.4.0-beta.0](https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}) (2025-11-11)
+## [2.4.0-beta.0](https://github.com/versionize/versionize/compare/v2.3.1...v2.4.0-beta.0) (2025-11-11)
 
 ### ✨ Features
 
