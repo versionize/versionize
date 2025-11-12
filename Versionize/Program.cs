@@ -1,7 +1,6 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 using Versionize.Config;
-using Versionize.Versioning;
 
 namespace Versionize;
 
@@ -36,10 +35,12 @@ public static class Program
         app.Command("changelog", changelogCmd =>
         {
             changelogCmd.Description = "Prints a given version's changelog to stdout";
+
             var versionOption = changelogCmd.Option(
                 "-v|--version <VERSION>",
                 "The version to include in the changelog",
                 CommandOptionType.SingleValue);
+
             var preambleOption = changelogCmd.Option(
                 "-p|--preamble <PREAMBLE>",
                 "Text to display before the list of commits",
@@ -67,7 +68,6 @@ public static class Program
         }
         catch (VersionizeException vex)
         {
-            // Unified error handling for domain-specific errors
             CommandLineUI.Platform.WriteLine(vex.Message, ConsoleColor.Red);
             return vex.ExitCode;
         }

@@ -18,23 +18,6 @@ public sealed class DotnetBumpFile : IBumpFile
 
     public SemanticVersion Version => _projects.First().Version;
 
-    public bool IsEmpty()
-    {
-        return !_projects.Any();
-    }
-
-    public bool HasInconsistentVersioning()
-    {
-        var firstProjectVersion = _projects.FirstOrDefault()?.Version;
-
-        if (firstProjectVersion == null)
-        {
-            return true;
-        }
-
-        return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
-    }
-
     public static DotnetBumpFile Create(string workingDirectory, string? versionElement = null)
     {
         var projectGroup = Discover(workingDirectory, versionElement);
@@ -59,7 +42,20 @@ public sealed class DotnetBumpFile : IBumpFile
         return projectGroup;
     }
 
-    public static DotnetBumpFile Discover(string workingDirectory, string? versionElement = null)
+    public void WriteVersion(SemanticVersion nextVersion)
+    {
+        foreach (var project in _projects)
+        {
+            project.WriteVersion(nextVersion);
+        }
+    }
+
+    public IEnumerable<string> GetFilePaths()
+    {
+        return _projects.Select(project => project.ProjectFile);
+    }
+
+    private static DotnetBumpFile Discover(string workingDirectory, string? versionElement = null)
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
 
@@ -79,16 +75,17 @@ public sealed class DotnetBumpFile : IBumpFile
         return new DotnetBumpFile(projects);
     }
 
-    public void WriteVersion(SemanticVersion nextVersion)
-    {
-        foreach (var project in _projects)
-        {
-            project.WriteVersion(nextVersion);
-        }
-    }
+    private bool IsEmpty() => !_projects.Any();
 
-    public IEnumerable<string> GetFilePaths()
+    private bool HasInconsistentVersioning()
     {
-        return _projects.Select(project => project.ProjectFile);
+        var firstProjectVersion = _projects.FirstOrDefault()?.Version;
+
+        if (firstProjectVersion == null)
+        {
+            return true;
+        }
+
+        return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 }
