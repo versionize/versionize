@@ -51,7 +51,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
@@ -61,22 +60,23 @@ jobs:
         # Prefix the list here with "+" to use these queries and those in the config file.
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
-    # Build
-    - name: Setup .NET Core 7.0
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '7.0.x'
-    - name: Setup .NET Core 8.0
+    - name: Setup .NET 8.0
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-    - name: Setup .NET Core 9.0
+
+    - name: Setup .NET 9.0
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
+
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
     - name: Build Release
       run: dotnet build --configuration Release
-
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
