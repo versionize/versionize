@@ -2,38 +2,70 @@
 
 public sealed class VersionizeOptions
 {
+    /// <inheritdoc cref="FileConfig.DryRun"/>
     public bool DryRun { get; set; }
+
+    /// <inheritdoc cref="FileConfig.ReleaseAs"/>
     public string? ReleaseAs { get; set; }
+
+    /// <inheritdoc cref="FileConfig.SkipDirty"/>
     public bool SkipDirty { get; set; }
+
+    /// <inheritdoc cref="FileConfig.SkipCommit"/>
     public bool SkipCommit { get; set; }
+
+    /// <inheritdoc cref="FileConfig.SkipTag"/>
     public bool SkipTag { get; set; }
+
+    /// <inheritdoc cref="FileConfig.SkipChangelog"/>
     public bool SkipChangelog { get; set; }
+
+    /// <inheritdoc cref="FileConfig.IgnoreInsignificantCommits"/>
     public bool IgnoreInsignificantCommits { get; set; }
+
+    /// <inheritdoc cref="FileConfig.ExitInsignificantCommits"/>
     public bool ExitInsignificantCommits { get; set; }
+
+    /// <inheritdoc cref="FileConfig.CommitSuffix"/>
     public string? CommitSuffix { get; set; }
+
+    /// <inheritdoc cref="FileConfig.Prerelease"/>
     public string? Prerelease { get; set; }
+
+    /// <inheritdoc cref="FileConfig.AggregatePrereleases"/>
     public bool AggregatePrereleases { get; set; }
-    /// <summary>
-    /// Ignore commits beyond the first parent.
-    /// </summary>
+
+    /// <inheritdoc cref="FileConfig.FirstParentOnlyCommits"/>
     public bool FirstParentOnlyCommits { get; set; }
+
+    /// <inheritdoc cref="FileConfig.Sign"/>
     public bool Sign { get; set; }
+
+    /// <summary>
+    /// Identifies the type of file where version should be read from and written to.
+    /// Determined automatically by <see cref="BumpFiles.BumpFileTypeDetector"/>.
+    /// </summary>
     public BumpFileType BumpFileType { get; set; } = BumpFileType.Dotnet;
 
+    /// <inheritdoc cref="CliConfig.WorkingDirectory"/>
     public string WorkingDirectory { get; set; } = "";
+
+    /// <inheritdoc cref="FileConfig.CommitParser"/>
     public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
-    public ProjectOptions Project { get; set; } = ProjectOptions.DefaultOneProjectPerRepo;
 
     /// <summary>
-    /// Instead of looking for a version tag, look for the last commit
-    /// that starts with "chore(release):"
+    /// Settings for selecting and organizing projects in this repository, useful for monorepos.
+    /// This controls whether you version a single project or multiple projects and how they are identified.
     /// </summary>
-    /// <remarks>
-    /// Use case: user doesn't tag pre-releases (skip-tag), so the only way to get the
-    /// commit of the last release is to look for the last commit that contains a release message.
-    /// </remarks>
-    public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; set; }
+    public ProjectOptions Project { get; set; } = ProjectOptions.DefaultOneProjectPerRepo;
 
+    /// <inheritdoc cref="CliConfig.FindReleaseCommitViaMessage"/>
+    public bool FindReleaseCommitViaMessage { get; set; }
+
+    /// <summary>
+    /// Indicates whether git user configuration is required for this run.
+    /// For example, if commits or tags need to be created then this returns true.
+    /// </summary>
     public bool IsCommitConfigurationRequired()
     {
         return (!SkipCommit || !SkipTag) && !DryRun;

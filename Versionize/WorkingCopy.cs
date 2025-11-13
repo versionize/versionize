@@ -32,7 +32,7 @@ public class WorkingCopy
         return bumpFile.Version;
     }
 
-    public void GenerateChanglog(VersionizeOptions options, string? versionStr, string? preamble)
+    public void GenerateChangelog(VersionizeOptions options, string? versionStr, string? preamble)
     {
         options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
 
