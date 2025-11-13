@@ -7,7 +7,7 @@ namespace Versionize.Config.Validation;
 
 internal class SemanticVersionValidator : IOptionValidator
 {
-    public static SemanticVersionValidator Default = new();
+    public static readonly SemanticVersionValidator Default = new();
 
     public ValidationResult? GetValidationResult(CommandOption option, ValidationContext context)
     {

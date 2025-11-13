@@ -6,7 +6,7 @@ namespace Versionize.Config.Validation;
 
 internal class PrereleaseIdentifierValidator : IOptionValidator
 {
-    public static PrereleaseIdentifierValidator Default = new();
+    public static readonly PrereleaseIdentifierValidator Default = new();
 
     public ValidationResult? GetValidationResult(CommandOption option, ValidationContext context)
     {
