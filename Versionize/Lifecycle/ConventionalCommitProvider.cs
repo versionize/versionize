@@ -30,7 +30,7 @@ public sealed class ConventionalCommitProvider
             FirstParentOnly = options.FirstParentOnlyCommits
         };
 
-        if (options.UseCommitMessageInsteadOfTagToFindLastReleaseCommit)
+        if (options.FindReleaseCommitViaMessage)
         {
             var lastReleaseCommit = repo.GetCommits(options.Project, commitFilter).FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
             isInitialRelease = lastReleaseCommit is null;
@@ -66,7 +66,7 @@ public sealed class ConventionalCommitProvider
     {
         public required ProjectOptions Project { get; init; }
         public bool AggregatePrereleases { get; init; }
-        public bool UseCommitMessageInsteadOfTagToFindLastReleaseCommit { get; init; }
+        public bool FindReleaseCommitViaMessage { get; init; }
         public bool FirstParentOnlyCommits { get; init; }
         public required CommitParserOptions CommitParser { get; init; }
 
@@ -77,7 +77,7 @@ public sealed class ConventionalCommitProvider
                 AggregatePrereleases = versionizeOptions.AggregatePrereleases,
                 CommitParser = versionizeOptions.CommitParser,
                 Project = versionizeOptions.Project,
-                UseCommitMessageInsteadOfTagToFindLastReleaseCommit = versionizeOptions.UseCommitMessageInsteadOfTagToFindLastReleaseCommit,
+                FindReleaseCommitViaMessage = versionizeOptions.FindReleaseCommitViaMessage,
                 FirstParentOnlyCommits = versionizeOptions.FirstParentOnlyCommits,
             };
         }

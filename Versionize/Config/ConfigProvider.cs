@@ -85,34 +85,17 @@ public static class ConfigProvider
             BumpFileType = bumpFileType,
             CommitParser = commitParser,
             Project = project,
-            UseCommitMessageInsteadOfTagToFindLastReleaseCommit = MergeBool(cliConfig.UseCommitMessageInsteadOfTagToFindLastReleaseCommit, false),
+            FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
         };
     }
 
-    private static bool MergeBool(CommandOption cliOption, bool? fileValue)
+    private static bool MergeBool(CommandOption<bool> cliOption, bool? fileValue)
     {
-        // If CLI option has a value, parse it
         if (cliOption.HasValue())
         {
-            var optionValue = cliOption.Value();
-
-            // If no explicit value provided (flag without value), treat as true
-            if (string.IsNullOrEmpty(optionValue))
-            {
-                return true;
-            }
-
-            // Try to parse the explicit value
-            if (bool.TryParse(optionValue, out var boolValue))
-            {
-                return boolValue;
-            }
-
-            // If parsing fails, treat flag presence as true
-            return true;
+            return cliOption.ParsedValue;
         }
 
-        // Fall back to file config or default false
         return fileValue ?? false;
     }
 
@@ -141,7 +124,7 @@ public static class ConfigProvider
     {
         if (string.IsNullOrEmpty(versionElement))
         {
-            return; // default will be used downstream
+            return;
         }
 
         foreach (var ch in versionElement)

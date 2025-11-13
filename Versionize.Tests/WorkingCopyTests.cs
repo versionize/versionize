@@ -836,7 +836,7 @@ public partial class WorkingCopyTests : IDisposable
     }
 
     [Fact]
-    public void ShouldUseCommitMessageInsteadOfTagToFindLastReleaseCommit()
+    public void ShouldFindReleaseCommitViaMessage()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
@@ -853,7 +853,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Prerelease as patch alpha
         fileCommitter.CommitChange("fix: another fix");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipTag = true, UseCommitMessageInsteadOfTagToFindLastReleaseCommit = true });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipTag = true, FindReleaseCommitViaMessage = true });
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0" });

@@ -1,6 +1,7 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using Versionize.CommandLine;
 using Versionize.Config;
+using Versionize.Config.Validation;
 using Versionize.Versioning;
 
 namespace Versionize;
@@ -36,10 +37,13 @@ public static class Program
         app.Command("changelog", changelogCmd =>
         {
             changelogCmd.Description = "Prints a given version's changelog to stdout";
+
             var versionOption = changelogCmd.Option(
                 "-v|--version <VERSION>",
                 "The version to include in the changelog",
-                CommandOptionType.SingleValue);
+                CommandOptionType.SingleValue)
+                .Accepts(v => v.Use(SemanticVersionValidator.Default));
+
             var preambleOption = changelogCmd.Option(
                 "-p|--preamble <PREAMBLE>",
                 "Text to display before the list of commits",
@@ -48,7 +52,7 @@ public static class Program
             changelogCmd.OnExecute(() =>
             {
                 var (workingCopy, options) = GetWorkingCopy(cliConfig);
-                workingCopy.GenerateChanglog(options, versionOption.Value(), preambleOption.Value());
+                workingCopy.GenerateChangelog(options, versionOption.Value(), preambleOption.Value());
             });
         });
 

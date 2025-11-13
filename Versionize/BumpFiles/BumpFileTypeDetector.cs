@@ -4,6 +4,14 @@ namespace Versionize.BumpFiles;
 
 public static class BumpFileTypeDetector
 {
+    /// <summary>
+    /// Detects the type of bump file based on the project structure in the specified directory.
+    /// </summary>
+    /// <remarks>
+    /// This class provides functionality to automatically detect whether a project is a .NET project,
+    /// Unity project, or neither by examining the directory structure and file patterns.
+    /// Returns <see cref="BumpFileType.None"/> if <paramref name="tagOnly"/> is true.
+    /// </remarks>
     public static BumpFileType GetType(string cwd, bool tagOnly)
     {
         if (tagOnly)
