@@ -8,14 +8,12 @@ using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize;
 
-public class WorkingCopy
+public sealed class WorkingCopy
 {
     private readonly DirectoryInfo _workingDirectory;
     private readonly DirectoryInfo _gitDirectory;
 
-    private WorkingCopy(
-        DirectoryInfo workingDirectory,
-        DirectoryInfo gitDirectory)
+    private WorkingCopy(DirectoryInfo workingDirectory, DirectoryInfo gitDirectory)
     {
         _workingDirectory = workingDirectory;
         _gitDirectory = gitDirectory;
@@ -23,8 +21,9 @@ public class WorkingCopy
 
     public SemanticVersion Inspect(VersionizeOptions options)
     {
-        // TODO: Implement "--tag-only" variation
-        options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+        // TODO: Consider implementing "--tag-only" variation
+        options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
+
         Verbosity = CommandLine.LogLevel.Error;
         var bumpFile = BumpFileProvider.GetBumpFile(options);
         Verbosity = CommandLine.LogLevel.All;
@@ -34,7 +33,7 @@ public class WorkingCopy
 
     public void GenerateChangelog(VersionizeOptions options, string? versionStr, string? preamble)
     {
-        options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+        options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         Verbosity = CommandLine.LogLevel.Error;
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
@@ -53,7 +52,7 @@ public class WorkingCopy
 
     public void Versionize(VersionizeOptions options)
     {
-        options.WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path);
+        options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
         var bumpFile = BumpFileProvider.GetBumpFile(options);
@@ -115,7 +114,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
             currentDirectory = currentDirectory.Parent;
         }
-        while (currentDirectory is not null && currentDirectory.Parent != null);
+        while (currentDirectory is { Parent: not null });
 
         Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
 

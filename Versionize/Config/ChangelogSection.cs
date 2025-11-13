@@ -2,7 +2,7 @@
 
 public sealed class ChangelogSection
 {
-    public string? Type { get; set; }
-    public string? Section { get; set; }
-    public bool Hidden { get; set; }
+    public string? Type { get; init; }
+    public string? Section { get; init; }
+    public bool Hidden { get; init; }
 }

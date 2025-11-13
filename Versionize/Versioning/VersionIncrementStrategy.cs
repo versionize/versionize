@@ -10,9 +10,9 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
     public SemanticVersion NextVersion(
         SemanticVersion version,
         string? prereleaseLabel = null,
-        bool allowInsignificantCommits = true)
+        bool insignificantCommitsAffectVersion = true)
     {
-        var versionImpact = CalculateVersionImpact(allowInsignificantCommits);
+        var versionImpact = CalculateVersionImpact(insignificantCommitsAffectVersion);
         var isPrerelease = !string.IsNullOrEmpty(prereleaseLabel);
 
         var nextVersion = versionImpact switch
@@ -61,7 +61,7 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
         };
     }
 
-    private VersionImpact CalculateVersionImpact(bool allowInsignificantCommits)
+    private VersionImpact CalculateVersionImpact(bool insignificantCommitsAffectVersion)
     {
         var versionImpact = VersionImpact.None;
 
@@ -77,7 +77,7 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
                 {
                     versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
                 }
-                else if (allowInsignificantCommits)
+                else if (insignificantCommitsAffectVersion)
                 {
                     versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
                 }

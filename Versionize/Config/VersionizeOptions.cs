@@ -1,66 +1,66 @@
 ﻿namespace Versionize.Config;
 
-public sealed class VersionizeOptions
+public sealed record VersionizeOptions
 {
     /// <inheritdoc cref="FileConfig.DryRun"/>
-    public bool DryRun { get; set; }
+    public bool DryRun { get; init; }
 
     /// <inheritdoc cref="FileConfig.ReleaseAs"/>
-    public string? ReleaseAs { get; set; }
+    public string? ReleaseAs { get; init; }
 
     /// <inheritdoc cref="FileConfig.SkipDirty"/>
-    public bool SkipDirty { get; set; }
+    public bool SkipDirty { get; init; }
 
     /// <inheritdoc cref="FileConfig.SkipCommit"/>
-    public bool SkipCommit { get; set; }
+    public bool SkipCommit { get; init; }
 
     /// <inheritdoc cref="FileConfig.SkipTag"/>
-    public bool SkipTag { get; set; }
+    public bool SkipTag { get; init; }
 
     /// <inheritdoc cref="FileConfig.SkipChangelog"/>
-    public bool SkipChangelog { get; set; }
+    public bool SkipChangelog { get; init; }
 
     /// <inheritdoc cref="FileConfig.IgnoreInsignificantCommits"/>
-    public bool IgnoreInsignificantCommits { get; set; }
+    public bool IgnoreInsignificantCommits { get; init; }
 
     /// <inheritdoc cref="FileConfig.ExitInsignificantCommits"/>
-    public bool ExitInsignificantCommits { get; set; }
+    public bool ExitInsignificantCommits { get; init; }
 
     /// <inheritdoc cref="FileConfig.CommitSuffix"/>
-    public string? CommitSuffix { get; set; }
+    public string? CommitSuffix { get; init; }
 
     /// <inheritdoc cref="FileConfig.Prerelease"/>
-    public string? Prerelease { get; set; }
+    public string? Prerelease { get; init; }
 
     /// <inheritdoc cref="FileConfig.AggregatePrereleases"/>
-    public bool AggregatePrereleases { get; set; }
+    public bool AggregatePrereleases { get; init; }
 
     /// <inheritdoc cref="FileConfig.FirstParentOnlyCommits"/>
-    public bool FirstParentOnlyCommits { get; set; }
+    public bool FirstParentOnlyCommits { get; init; }
 
     /// <inheritdoc cref="FileConfig.Sign"/>
-    public bool Sign { get; set; }
+    public bool Sign { get; init; }
 
     /// <summary>
     /// Identifies the type of file where version should be read from and written to.
     /// Determined automatically by <see cref="BumpFiles.BumpFileTypeDetector"/>.
     /// </summary>
-    public BumpFileType BumpFileType { get; set; } = BumpFileType.Dotnet;
+    public BumpFileType BumpFileType { get; init; } = BumpFileType.Dotnet;
 
     /// <inheritdoc cref="CliConfig.WorkingDirectory"/>
-    public string WorkingDirectory { get; set; } = "";
+    public string WorkingDirectory { get; init; } = "";
 
     /// <inheritdoc cref="FileConfig.CommitParser"/>
-    public CommitParserOptions CommitParser { get; set; } = CommitParserOptions.Default;
+    public CommitParserOptions CommitParser { get; init; } = CommitParserOptions.Default;
 
     /// <summary>
     /// Settings for selecting and organizing projects in this repository, useful for monorepos.
     /// This controls whether you version a single project or multiple projects and how they are identified.
     /// </summary>
-    public ProjectOptions Project { get; set; } = ProjectOptions.DefaultOneProjectPerRepo;
+    public ProjectOptions Project { get; init; } = ProjectOptions.DefaultOneProjectPerRepo;
 
     /// <inheritdoc cref="CliConfig.FindReleaseCommitViaMessage"/>
-    public bool FindReleaseCommitViaMessage { get; set; }
+    public bool FindReleaseCommitViaMessage { get; init; }
 
     /// <summary>
     /// Indicates whether git user configuration is required for this run.

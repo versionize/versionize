@@ -4,9 +4,9 @@ public sealed class CommitParserOptions
 {
     public static readonly CommitParserOptions Default = new();
 
-    public string[] HeaderPatterns { get; set; } = [];
+    public string[] HeaderPatterns { get; init; } = [];
 
-    public string[] IssuesPatterns { get; set; } = [];
+    public string[] IssuesPatterns { get; init; } = [];
 
     public static CommitParserOptions Merge(CommitParserOptions? customOptions, CommitParserOptions defaultOptions)
     {
