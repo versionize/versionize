@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/versionize/versionize/main/schemas/versionize.schema.json",
+  "title": "Versionize Configuration",
+  "description": "Configuration schema for versionize - automatic versioning and changelog generation",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "silent": {
+      "type": "boolean",
+      "description": "Suppresses all console output when enabled.",
+      "default": false
+    },
+    "dryRun": {
+      "type": "boolean",
+      "description": "Performs a trial run without making any actual changes to files, commits, or tags. Useful for previewing what versionize would do without modifying the repository.",
+      "default": false
+    },
+    "releaseAs": {
+      "type": "string",
+      "description": "Manually specifies the version to release instead of calculating it from conventional commits. Must be a valid semantic version (e.g., '1.2.3', '2.0.0-beta.1').",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$",
+      "examples": ["1.2.3", "2.0.0-beta.1", "1.0.0-rc.1+build.123"]
+    },
+    "skipDirty": {
+      "type": "boolean",
+      "description": "Allows versionize to run even when there are uncommitted changes in the working directory. By default, versionize requires a clean working directory.",
+      "default": false
+    },
+    "skipCommit": {
+      "type": "boolean",
+      "description": "Prevents creating a git commit after updating the changelog and version files. The changes will remain staged but uncommitted.",
+      "default": false
+    },
+    "skipTag": {
+      "type": "boolean",
+      "description": "Prevents creating a git tag after making the release commit. Useful when you want to create commits but defer tagging until later.",
+      "default": false
+    },
+    "skipChangelog": {
+      "type": "boolean",
+      "description": "Skips updating the CHANGELOG.md file during the release process. Version bumping and commits will still occur unless also disabled.",
+      "default": false
+    },
+    "tagOnly": {
+      "type": "boolean",
+      "description": "Read version information from git tags instead of project files, and don't update project files.",
+      "default": false
+    },
+    "ignoreInsignificantCommits": {
+      "type": "boolean",
+      "description": "Prevents version bumping when no significant commits (fix, feat, or BREAKING CHANGE) are found. Without this option, insignificant commits would still trigger a patch version bump.",
+      "default": false
+    },
+    "exitInsignificantCommits": {
+      "type": "boolean",
+      "description": "Causes versionize to exit with a non-zero exit code when no significant commits are found. Useful in CI/CD pipelines to bail out when no release is needed.",
+      "default": false
+    },
+    "commitSuffix": {
+      "type": "string",
+      "description": "Appends text to the end of the release commit message. Commonly used to add CI skip directives like '[skip ci]' or '[ci skip]'.",
+      "examples": ["[skip ci]", "[ci skip]", "[no ci]"]
+    },
+    "prerelease": {
+      "type": "string",
+      "description": "Creates a prerelease version with the specified identifier (e.g., 'alpha', 'beta', 'rc'). The version will be formatted as 'major.minor.patch-identifier.number'.",
+      "pattern": "^[0-9A-Za-z-]+$",
+      "examples": ["alpha", "beta", "rc", "preview"]
+    },
+    "aggregatePrereleases": {
+      "type": "boolean",
+      "description": "When updating the changelog, include all commits since the last full version. If false, only includes commits since the last pre-release version.",
+      "default": false
+    },
+    "firstParentOnlyCommits": {
+      "type": "boolean",
+      "description": "Only considers commits on the main branch line, ignoring commits from merged branches. When enabled, merge commits are included but the individual commits within merged branches are excluded. Useful for keeping changelogs focused on direct branch commits and avoiding duplicate entries from feature branches.",
+      "default": false
+    },
+    "sign": {
+      "type": "boolean",
+      "description": "Cryptographically signs the release commit and tag using GPG. Requires Git to be configured with a signing key.",
+      "default": false
+    },
+    "tagTemplate": {
+      "type": "string",
+      "description": "Defines the format for git tags using placeholders {name} and {version}. Examples: 'v{version}' produces 'v1.2.3', '{name}/v{version}' produces 'myproject/v1.2.3'. Essential for monorepo scenarios where multiple projects need distinct tag patterns.",
+      "default": "v{version}",
+      "examples": ["v{version}", "{name}/v{version}", "release/{version}"]
+    },
+    "commitParser": {
+      "type": "object",
+      "description": "Configuration for parsing conventional commit messages, including custom header patterns and note keywords.",
+      "properties": {
+        "headerPatterns": {
+          "type": "array",
+          "description": "Custom regex patterns for parsing commit message headers.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            ["^(?<type>\\w+)(?:\\((?<scope>[\\w\\$\\.\\-\\*\\s]*)\\))?:\\s+(?<subject>.*)"]
+          ]
+        },
+        "issuesPatterns": {
+          "type": "array",
+          "description": "Custom regex patterns for extracting issue references from commit messages.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            ["#(\\d+)", "(?:fixes|closes)\\s+#(\\d+)"]
+          ]
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "description": "Defines multiple projects for monorepo support, each with its own versioning configuration. Each project can have a unique name, path, tag template, and changelog options.",
+      "items": {
+        "type": "object",
+        "required": ["name", "path"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the project."
+          },
+          "path": {
+            "type": "string",
+            "description": "The relative path to the project directory."
+          },
+          "tagTemplate": {
+            "type": "string",
+            "description": "Custom tag template for this project. Defaults to '{name}/v{version}'.",
+            "default": "{name}/v{version}",
+            "examples": ["{name}/v{version}", "{name}-{version}", "releases/{name}/{version}"]
+          },
+          "versionElement": {
+            "type": "string",
+            "description": "Specifies the .NET XML property to use when reading or writing the project version. 'Version' by default. Only alphanumeric and underscore characters are allowed.",
+            "pattern": "^[A-Za-z0-9_]+$",
+            "default": "Version",
+            "examples": ["Version", "FileVersion", "AssemblyVersion"]
+          },
+          "changelog": {
+            "$ref": "#/definitions/changelogOptions"
+          }
+        }
+      }
+    },
+    "changelog": {
+      "$ref": "#/definitions/changelogOptions"
+    }
+  },
+  "definitions": {
+    "changelogOptions": {
+      "type": "object",
+      "description": "Configuration for changelog generation, including sections, link builders, and templates.",
+      "properties": {
+        "header": {
+          "type": "string",
+          "description": "The header text to include at the top of the changelog file.",
+          "default": "# Change Log\n\nAll notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.\n"
+        },
+        "path": {
+          "type": "string",
+          "description": "Custom path for the changelog file relative to the project root.",
+          "default": "CHANGELOG.md",
+          "examples": ["CHANGELOG.md", "docs/CHANGELOG.md", "HISTORY.md"]
+        },
+        "includeAllCommits": {
+          "type": "boolean",
+          "description": "Include all commits in the changelog, not just those matching configured sections.",
+          "default": false
+        },
+        "otherSection": {
+          "type": "string",
+          "description": "The section name for commits that don't match any configured section type.",
+          "default": "Other"
+        },
+        "sections": {
+          "type": "array",
+          "description": "Defines which commit types to include in the changelog and how to display them.",
+          "items": {
+            "type": "object",
+            "required": ["type", "section"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "The conventional commit type (e.g., 'feat', 'fix', 'docs').",
+                "examples": ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
+              },
+              "section": {
+                "type": "string",
+                "description": "The display name for this section in the changelog.",
+                "examples": ["Features", "Bug Fixes", "Documentation", "Performance Improvements"]
+              },
+              "hidden": {
+                "type": "boolean",
+                "description": "Whether to hide this section from the changelog.",
+                "default": false
+              }
+            }
+          },
+          "default": [
+            { "type": "feat", "section": "Features", "hidden": false },
+            { "type": "fix", "section": "Bug Fixes", "hidden": false }
+          ]
+        },
+        "linkTemplates": {
+          "type": "object",
+          "description": "Templates for generating links in the changelog.",
+          "properties": {
+            "issueLink": {
+              "type": "string",
+              "description": "Template for issue links. Use {issue} as placeholder.",
+              "examples": [
+                "https://github.com/owner/repo/issues/{issue}",
+                "https://gitlab.com/owner/repo/-/issues/{issue}",
+                "https://dev.azure.com/org/project/_workitems/edit/{issue}"
+              ]
+            },
+            "commitLink": {
+              "type": "string",
+              "description": "Template for commit links. Use {commitSha} as placeholder.",
+              "examples": [
+                "https://github.com/owner/repo/commit/{commitSha}",
+                "https://gitlab.com/owner/repo/-/commit/{commitSha}",
+                "https://dev.azure.com/org/project/_git/repo/commit/{commitSha}"
+              ]
+            },
+            "versionTagLink": {
+              "type": "string",
+              "description": "Template for version comparison links. Use {previousTag} and {currentTag} as placeholders.",
+              "examples": [
+                "https://github.com/owner/repo/compare/{previousTag}...{currentTag}",
+                "https://gitlab.com/owner/repo/-/compare/{previousTag}...{currentTag}",
+                "https://dev.azure.com/org/project/_git/repo/branchCompare?baseVersion=GT{previousTag}&targetVersion=GT{currentTag}"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
