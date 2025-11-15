@@ -10,7 +10,7 @@ public class TemplatedLinkBuilderTests
     [Fact]
     public void ShouldBuildCustomLinks()
     {
-        var fallbackLinkBuilder = new PlainLinkBuilder();
+        var fallbackLinkBuilder = new NullLinkBuilder();
         var linkBuilder = new TemplatedLinkBuilder(
             new ChangelogLinkTemplates
             {
@@ -58,7 +58,7 @@ public class TemplatedLinkBuilderTests
     [Fact]
     public void ShouldBuildVersionTagLinkThatUsesPreviousTag()
     {
-        var fallbackLinkBuilder = new PlainLinkBuilder();
+        var fallbackLinkBuilder = new NullLinkBuilder();
         var linkBuilder = new TemplatedLinkBuilder(
             new ChangelogLinkTemplates
             {

@@ -2,7 +2,7 @@ using Versionize.ConventionalCommits;
 
 namespace Versionize.Changelog;
 
-public sealed class PlainLinkBuilder : IChangelogLinkBuilder
+public sealed class NullLinkBuilder : IChangelogLinkBuilder
 {
     public string BuildIssueLink(string issueId) => string.Empty;
 

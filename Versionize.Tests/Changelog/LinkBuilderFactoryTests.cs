@@ -9,7 +9,7 @@ namespace Versionize.Changelog;
 public class LinkBuilderFactoryTests
 {
     [Fact]
-    public void ShouldCreatePlainLinkBuilder()
+    public void ShouldCreateNullLinkBuilder()
     {
         // Arrange
         var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
@@ -18,7 +18,7 @@ public class LinkBuilderFactoryTests
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
         // Assert
-        linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
+        linkBuilder.ShouldBeAssignableTo<NullLinkBuilder>();
     }
 
     [Fact]

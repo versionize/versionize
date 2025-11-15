@@ -48,7 +48,7 @@ public class AzureLinkBuilderTests
         var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
-        linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
+        linkBuilder.ShouldBeAssignableTo<NullLinkBuilder>();
     }
 
     [Fact]
