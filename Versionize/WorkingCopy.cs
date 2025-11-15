@@ -5,6 +5,7 @@ using Versionize.Config;
 using Versionize.Git;
 using Versionize.Lifecycle;
 using static Versionize.CommandLine.CommandLineUI;
+using Versionize.CommandLine;
 
 namespace Versionize;
 
@@ -73,9 +74,7 @@ public sealed class WorkingCopy
         // Only check Git configuration if we will perform Git operations (commit or tag)
         if (options.IsCommitConfigurationRequired() && !repo.IsConfiguredForCommits())
         {
-            Exit(@"Warning: Git configuration is missing. Please configure git before running versionize:
-git config --global user.name ""John Doe""
-$ git config --global user.email johndoe@example.com", 1);
+            throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
         }
 
         if (options.SkipCommit)
@@ -88,7 +87,7 @@ $ git config --global user.email johndoe@example.com", 1);
         {
             var dirtyFiles = status.Where(x => x.State != FileStatus.Ignored).Select(x => $"{x.State}: {x.FilePath}");
             var dirtyFilesString = string.Join(Environment.NewLine, dirtyFiles);
-            Exit($"Repository {workingDirectory} is dirty. Please commit your changes:\n{dirtyFilesString}", 1);
+            throw new VersionizeException(ErrorMessages.RepositoryDirty(workingDirectory, dirtyFilesString), 1);
         }
 
         return repo;
@@ -100,7 +99,7 @@ $ git config --global user.email johndoe@example.com", 1);
 
         if (!workingDirectory.Exists)
         {
-            Exit($"Directory {workingDirectory} does not exist", 2);
+            throw new VersionizeException(ErrorMessages.RepositoryDoesNotExist(workingDirectory.FullName), 2);
         }
 
         var currentDirectory = workingDirectory;
@@ -113,11 +112,8 @@ $ git config --global user.email johndoe@example.com", 1);
             }
 
             currentDirectory = currentDirectory.Parent;
-        }
-        while (currentDirectory is { Parent: not null });
+        } while (currentDirectory is { Parent: not null });
 
-        Exit($"Directory {workingDirectory} or any parent directory do not contain a git working copy", 3);
-
-        return null;
+        throw new VersionizeException(ErrorMessages.RepositoryNotGit(workingDirectory.FullName), 3);
     }
 }

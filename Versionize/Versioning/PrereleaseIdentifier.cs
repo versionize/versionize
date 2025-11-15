@@ -1,4 +1,5 @@
 ﻿using NuGet.Versioning;
+using Versionize.CommandLine;
 
 namespace Versionize.Versioning;
 
@@ -30,18 +31,18 @@ public sealed class PrereleaseIdentifier
 
     public static PrereleaseIdentifier Parse(SemanticVersion version)
     {
-        try
+        var releaseLabels = version.ReleaseLabels.ToArray();
+        if (releaseLabels.Length != 2)
         {
-            var releaseLabels = version.ReleaseLabels.ToArray();
-
-            var prereleaseLabel = releaseLabels[0];
-            var prereleaseNumber = int.Parse(releaseLabels[1]);
-
-            return new PrereleaseIdentifier(prereleaseLabel, prereleaseNumber);
+            throw new VersionizeException(ErrorMessages.PrereleaseNumberParseError(version.ToNormalizedString()), 1);
         }
-        catch (Exception e)
+
+        var prereleaseLabel = releaseLabels[0];
+        if (!int.TryParse(releaseLabels[1], out var prereleaseNumber))
         {
-            throw new InvalidPrereleaseIdentifierException($"Could not parse prerelease labels of version {version}. Expected format: <label>.<number>", e);
+            throw new VersionizeException(ErrorMessages.PrereleaseNumberParseError(version.ToNormalizedString()), 1);
         }
+
+        return new PrereleaseIdentifier(prereleaseLabel, prereleaseNumber);
     }
 }

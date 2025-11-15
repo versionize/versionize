@@ -3,7 +3,7 @@ using NuGet.Versioning;
 using Versionize.BumpFiles;
 using Versionize.Config;
 using Versionize.Lifecycle;
-using static Versionize.CommandLine.CommandLineUI;
+using Versionize.CommandLine;
 
 namespace Versionize.Git;
 
@@ -127,8 +127,7 @@ public static class RepositoryExtensions
             versionStr = repo.GetCurrentVersion(options, BumpFileProvider.GetBumpFile(options))?.ToNormalizedString();
             if (string.IsNullOrEmpty(versionStr))
             {
-                Exit("No version found", 1);
-                throw new InvalidOperationException("No version found");
+                throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
             }
         }
 
@@ -137,8 +136,8 @@ public static class RepositoryExtensions
             var toRef = repo.SelectVersionTag(version, options.Project)?.Target;
             if (toRef is null)
             {
-                Exit($"Tag for version '{version}' not found", 1);
-                throw new InvalidOperationException($"Tag for version '{version}' not found");
+                var versionText = version.ToNormalizedString();
+                throw new VersionizeException(ErrorMessages.TagForVersionNotFound(versionText), 1);
             }
 
             var fromVersion = repo.GetPreviousVersion(version, options);
@@ -147,8 +146,7 @@ public static class RepositoryExtensions
             return (fromRef, toRef);
         }
 
-        Exit($"Invalid version format '{versionStr}'", 1);
-        throw new InvalidOperationException($"Invalid version format '{versionStr}'");
+        throw new VersionizeException(ErrorMessages.InvalidVersionFormat(versionStr), 1);
     }
 }
 

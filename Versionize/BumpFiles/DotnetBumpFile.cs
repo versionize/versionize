@@ -1,4 +1,6 @@
 ﻿using NuGet.Versioning;
+using Versionize.CommandLine;
+
 using static Versionize.CommandLine.CommandLineUI;
 
 namespace Versionize.BumpFiles;
@@ -17,23 +19,6 @@ public sealed class DotnetBumpFile : IBumpFile
 
     public SemanticVersion Version => _projects.First().Version;
 
-    public bool IsEmpty()
-    {
-        return !_projects.Any();
-    }
-
-    public bool HasInconsistentVersioning()
-    {
-        var firstProjectVersion = _projects.FirstOrDefault()?.Version;
-
-        if (firstProjectVersion == null)
-        {
-            return true;
-        }
-
-        return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
-    }
-
     public static DotnetBumpFile Create(string workingDirectory, string? versionElement = null)
     {
         var projectGroup = Discover(workingDirectory, versionElement);
@@ -41,24 +26,37 @@ public sealed class DotnetBumpFile : IBumpFile
 
         if (projectGroup.IsEmpty())
         {
-            Exit($"Could not find any projects files in {workingDirectory} that have a <{versionElement}> defined in their csproj file.", 1);
+            throw new VersionizeException(ErrorMessages.NoVersionableProjects(workingDirectory, versionElement), 1);
         }
 
         if (projectGroup.HasInconsistentVersioning())
         {
-            Exit($"Some projects in {workingDirectory} have an inconsistent <{versionElement}> defined in their csproj file. Please update all versions to be consistent or remove the <{versionElement}> elements from projects that should not be versioned", 1);
+            throw new VersionizeException(ErrorMessages.InconsistentProjectVersions(workingDirectory, versionElement), 1);
         }
 
-        Information($"Discovered {projectGroup.GetFilePaths().Count()} versionable projects");
+        Information(InfoMessages.DiscoveredVersionableProjects(projectGroup.GetFilePaths().Count()));
         foreach (var project in projectGroup.GetFilePaths())
         {
-            Information($"  * {project}");
+            Information(InfoMessages.ProjectFile(project));
         }
 
         return projectGroup;
     }
 
-    public static DotnetBumpFile Discover(string workingDirectory, string? versionElement = null)
+    public void WriteVersion(SemanticVersion nextVersion)
+    {
+        foreach (var project in _projects)
+        {
+            project.WriteVersion(nextVersion);
+        }
+    }
+
+    public IEnumerable<string> GetFilePaths()
+    {
+        return _projects.Select(project => project.ProjectFile);
+    }
+
+    private static DotnetBumpFile Discover(string workingDirectory, string? versionElement = null)
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
 
@@ -78,16 +76,17 @@ public sealed class DotnetBumpFile : IBumpFile
         return new DotnetBumpFile(projects);
     }
 
-    public void WriteVersion(SemanticVersion nextVersion)
-    {
-        foreach (var project in _projects)
-        {
-            project.WriteVersion(nextVersion);
-        }
-    }
+    private bool IsEmpty() => !_projects.Any();
 
-    public IEnumerable<string> GetFilePaths()
+    private bool HasInconsistentVersioning()
     {
-        return _projects.Select(project => project.ProjectFile);
+        var firstProjectVersion = _projects.FirstOrDefault()?.Version;
+
+        if (firstProjectVersion == null)
+        {
+            return true;
+        }
+
+        return _projects.Any(p => !p.Version.Equals(firstProjectVersion));
     }
 }

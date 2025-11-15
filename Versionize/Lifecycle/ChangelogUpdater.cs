@@ -4,6 +4,7 @@ using Versionize.Changelog;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
 using static Versionize.CommandLine.CommandLineUI;
+using Versionize.CommandLine;
 
 namespace Versionize.Lifecycle;
 
@@ -47,7 +48,7 @@ public sealed class ChangelogUpdater
                 conventionalCommits,
                 options.Project);
         }
-        Step("updated CHANGELOG.md");
+        Step(InfoMessages.UpdatedChangelog());
 
         return changelog;
     }
@@ -67,7 +68,7 @@ public sealed class ChangelogUpdater
                 SkipChangelog = versionizeOptions.SkipChangelog,
                 Project = versionizeOptions.Project,
                 WorkingDirectory = versionizeOptions.WorkingDirectory ??
-                    throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
+                    throw new VersionizeException(nameof(versionizeOptions.WorkingDirectory), 1),
             };
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Versionize.BumpFiles;
 using Versionize.Config;
+using Versionize.CommandLine;
 
 namespace Versionize.Lifecycle;
 
@@ -12,7 +13,7 @@ public sealed class BumpFileProvider
             BumpFileType.Dotnet => DotnetBumpFile.Create(options.WorkingDirectory, options.VersionElement),
             BumpFileType.Unity => UnityBumpFile.Create(options.WorkingDirectory),
             BumpFileType.None => new NullBumpFile(),
-            _ => throw new NotImplementedException($"Bump file type {options.BumpFileType} is not implemented")
+            _ => throw new VersionizeException(ErrorMessages.BumpFileTypeNotImplemented(options.BumpFileType.ToString()), 1)
         };
     }
 
@@ -29,7 +30,7 @@ public sealed class BumpFileProvider
                 BumpFileType = versionizeOptions.BumpFileType,
                 VersionElement = versionizeOptions.Project.VersionElement,
                 WorkingDirectory = versionizeOptions.WorkingDirectory ??
-                    throw new InvalidOperationException(nameof(versionizeOptions.WorkingDirectory)),
+                    throw new VersionizeException(nameof(versionizeOptions.WorkingDirectory), 1),
             };
         }
     }

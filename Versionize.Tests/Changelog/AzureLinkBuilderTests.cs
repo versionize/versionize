@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using Shouldly;
+using Versionize.CommandLine;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -11,7 +12,7 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new AzureLinkBuilder("azure.com"));
+        Should.Throw<VersionizeException>(() => new AzureLinkBuilder("azure.com"));
     }
 
     [Fact]

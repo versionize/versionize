@@ -37,7 +37,7 @@ public partial class WorkingCopyTests : IDisposable
             Path.Combine(Path.GetTempPath(), "ShouldExitIfNoWorkingCopyCouldBeDiscovered");
         Directory.CreateDirectory(directoryWithoutWorkingCopy);
 
-        Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
+        Should.Throw<VersionizeException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public partial class WorkingCopyTests : IDisposable
     {
         var directoryWithoutWorkingCopy = Path.Combine(Path.GetTempPath(), "ShouldExitIfWorkingCopyDoesNotExist");
 
-        Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
+        Should.Throw<VersionizeException>(() => WorkingCopy.Discover(directoryWithoutWorkingCopy));
     }
 
     [Fact]
@@ -88,10 +88,8 @@ public partial class WorkingCopyTests : IDisposable
         Commands.Stage(_testSetup.Repository, "*");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-
-        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-        _testPlatformAbstractions.Messages[0].ShouldBe($"Repository {_testSetup.WorkingDirectory} is dirty. Please commit your changes:\nNewInIndex: hello.txt");
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions()))
+            .Message.ShouldBe(ErrorMessages.RepositoryDirty(_testSetup.WorkingDirectory, "NewInIndex: hello.txt"));
     }
 
     [Fact]
@@ -104,10 +102,8 @@ public partial class WorkingCopyTests : IDisposable
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
-        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect(options));
-
-        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-        _testPlatformAbstractions.Messages[0].ShouldEndWith(" that have a <Version> defined in their csproj file.");
+        Should.Throw<VersionizeException>(() => workingCopy.Inspect(options))
+            .Message.ShouldBe(ErrorMessages.NoVersionableProjects(_testSetup.WorkingDirectory, "Version"));
     }
 
     [Fact]
@@ -127,19 +123,16 @@ public partial class WorkingCopyTests : IDisposable
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
-        Should.Throw<CommandLineExitException>(() => workingCopy.Inspect(options));
-
-        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
-        _testPlatformAbstractions.Messages[0].ShouldContain("have an inconsistent <Version> defined in their csproj file");
+        Should.Throw<VersionizeException>(() => workingCopy.Inspect(options))
+            .Message.ShouldBe(ErrorMessages.InconsistentProjectVersions(_testSetup.WorkingDirectory, "Version"));
     }
 
     [Fact]
     public void ShouldExitGracefullyIfNoGitInitialized()
     {
         var workingDirectory = TempDir.Create();
-        Should.Throw<CommandLineExitException>(() => WorkingCopy.Discover(workingDirectory));
-
-        _testPlatformAbstractions.Messages[0].ShouldBe($"Directory {workingDirectory} or any parent directory do not contain a git working copy");
+        Should.Throw<VersionizeException>(() => WorkingCopy.Discover(workingDirectory))
+            .Message.ShouldBe(ErrorMessages.RepositoryNotGit(workingDirectory));
 
         Cleanup.DeleteDirectory(workingDirectory);
     }
@@ -148,9 +141,8 @@ public partial class WorkingCopyTests : IDisposable
     public void ShouldExitIfWorkingCopyContainsNoProjects()
     {
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-
-        _testPlatformAbstractions.Messages[0].ShouldBe($"Could not find any projects files in {_testSetup.WorkingDirectory} that have a <Version> defined in their csproj file.");
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions()))
+            .Message.ShouldBe(ErrorMessages.NoVersionableProjects(_testSetup.WorkingDirectory, "Version"));
     }
 
     [Fact]
@@ -162,8 +154,8 @@ public partial class WorkingCopyTests : IDisposable
         CommitAll(_testSetup.Repository);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-        _testPlatformAbstractions.Messages[0].ShouldBe($"Some projects in {_testSetup.WorkingDirectory} have an inconsistent <Version> defined in their csproj file. Please update all versions to be consistent or remove the <Version> elements from projects that should not be versioned");
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions()))
+            .Message.ShouldBe(ErrorMessages.InconsistentProjectVersions(_testSetup.WorkingDirectory, "Version"));
     }
 
     [Fact]
@@ -189,9 +181,8 @@ public partial class WorkingCopyTests : IDisposable
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
 
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" }));
-
-        _testPlatformAbstractions.Messages.Last().ShouldBe("Version 2.0.0 already exists. Please use a different version.");
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" }))
+            .Message.ShouldBe(ErrorMessages.VersionAlreadyExists("2.0.0"));
     }
 
     [Fact]
@@ -202,7 +193,7 @@ public partial class WorkingCopyTests : IDisposable
         CommitAll(_testSetup.Repository);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "kanguru" }));
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "kanguru" }));
     }
 
     [Fact]
@@ -234,7 +225,7 @@ public partial class WorkingCopyTests : IDisposable
 
             throw new InvalidOperationException("Expected to throw in Versionize call");
         }
-        catch (CommandLineExitException ex)
+        catch (VersionizeException ex)
         {
             ex.ExitCode.ShouldBe(0);
         }
@@ -256,9 +247,8 @@ public partial class WorkingCopyTests : IDisposable
 
         // Insignificant change release
         fileCommitter.CommitChange("chore: insignificant change");
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ExitInsignificantCommits = true }));
-
-        _testPlatformAbstractions.Messages.Last().ShouldStartWith("Version was not affected by commits since last release");
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions { ExitInsignificantCommits = true }))
+            .Message.ShouldBe(ErrorMessages.VersionUnaffected("1.0.0"));
     }
 
     [Fact]
@@ -306,8 +296,8 @@ public partial class WorkingCopyTests : IDisposable
 
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions()));
-            _testPlatformAbstractions.Messages.Last().ShouldStartWith("Warning: Git configuration is missing");
+            Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions()))
+                .Message.ShouldBe(ErrorMessages.GitConfigMissing());
         }
         finally
         {
@@ -375,12 +365,13 @@ public partial class WorkingCopyTests : IDisposable
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
             // Should still throw when only SkipCommit is enabled (tag creation needs Git config)
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions
+            var options = new VersionizeOptions
             {
                 SkipCommit = true,
                 SkipTag = false
-            }));
-            _testPlatformAbstractions.Messages.Last().ShouldStartWith("Warning: Git configuration is missing");
+            };
+            Should.Throw<VersionizeException>(() => workingCopy.Versionize(options))
+                .Message.ShouldBe(ErrorMessages.GitConfigMissing());
         }
         finally
         {
@@ -412,12 +403,13 @@ public partial class WorkingCopyTests : IDisposable
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
             // Should still throw when only SkipTag is enabled (commit creation needs Git config)
-            Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions
+            var options = new VersionizeOptions
             {
                 SkipCommit = false,
                 SkipTag = true
-            }));
-            _testPlatformAbstractions.Messages.Last().ShouldStartWith("Warning: Git configuration is missing");
+            };
+            Should.Throw<VersionizeException>(() => workingCopy.Versionize(options))
+                .Message.ShouldBe(ErrorMessages.GitConfigMissing());
         }
         finally
         {
@@ -467,7 +459,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Try Prerelease a minor alpha
         fileCommitter.CommitChange("feat: feature pre-release");
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha" }));
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha" }));
     }
 
     [Fact]
@@ -484,7 +476,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Release as lower than current version
         fileCommitter.CommitChange("feat: some feature");
-        Should.Throw<CommandLineExitException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "0.9.0" }));
+        Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "0.9.0" }));
     }
 
     [Fact]
@@ -858,7 +850,7 @@ public partial class WorkingCopyTests : IDisposable
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0" });
 
-        var projects = DotnetBumpFile.Discover(_testSetup.WorkingDirectory);
+        var projects = DotnetBumpFile.Create(_testSetup.WorkingDirectory);
         projects.Version.ToNormalizedString().ShouldBe("1.0.1-alpha.1");
 
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.0.1-alpha.0 to 1.0.1-alpha.1 in projects");

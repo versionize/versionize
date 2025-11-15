@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using LibGit2Sharp;
 using Shouldly;
+using Versionize.CommandLine;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -17,19 +18,19 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("bitbucket.org"));
+        Should.Throw<VersionizeException>(() => new BitbucketLinkBuilder("bitbucket.org"));
     }
 
     [Fact]
     public void ShouldThrowIfUrlIsNoValidHttpsCloneUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("https://versionize@bitbucket.org/"));
+        Should.Throw<VersionizeException>(() => new BitbucketLinkBuilder("https://versionize@bitbucket.org/"));
     }
 
     [Fact]
     public void ShouldThrowIfUrlIsNoValidSshCloneUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new BitbucketLinkBuilder("git@bitbucket.org:mobiloitteinc"));
+        Should.Throw<VersionizeException>(() => new BitbucketLinkBuilder("git@bitbucket.org:mobiloitteinc"));
     }
 
     [Fact]

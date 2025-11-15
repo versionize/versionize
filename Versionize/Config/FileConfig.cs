@@ -131,8 +131,7 @@ public sealed class FileConfig
         }
         catch (Exception e)
         {
-            CommandLineUI.Exit($"Failed to parse .versionize file: {e.Message}", 1);
-            return null;
+            throw new VersionizeException(ErrorMessages.FailedToParseVersionizeFile(e.Message), 1);
         }
     }
 }

@@ -69,24 +69,20 @@ public static class Program
         {
             return app.Execute(args);
         }
-        catch (Exception ex) when (
-            ex is UnrecognizedCommandParsingException or
-            InvalidPrereleaseIdentifierException)
+        catch (VersionizeException ex)
         {
-            return CommandLineUI.Exit(ex.Message, 1);
+            CommandLineUI.Platform.WriteLine(ex.Message, ConsoleColor.Red);
+            return ex.ExitCode;
         }
-        catch (LibGit2Sharp.NotFoundException e)
+        catch (UnrecognizedCommandParsingException ex)
         {
-            return CommandLineUI.Exit($@"
-Error: LibGit2Sharp.NotFoundException
-
-This is most likely caused by running versionize against a git repository cloned with depth --1.
-In case you're using the actions/checkout@v2 in github actions you could specify fetch-depth: '1'.
-For more detail see  https://github.com/actions/checkout
-
-Exception detail:
-
-{e}", 1);
+            CommandLineUI.Platform.WriteLine(ex.Message, ConsoleColor.Red);
+            return 1;
+        }
+        catch (LibGit2Sharp.NotFoundException ex)
+        {
+            CommandLineUI.Platform.WriteLine(ErrorMessages.LibGitNotFound(ex), ConsoleColor.Red);
+            return 1;
         }
     }
 
