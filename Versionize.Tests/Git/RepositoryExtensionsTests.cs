@@ -148,8 +148,10 @@ public class RepositoryExtensionsTests : IDisposable
         // Assert
         commitsFirstParent.Count().ShouldBe(3);
         commitsFirstParent.ShouldContain(merge.Commit);
-        commitsFirstParent.ShouldContain(commit4);
         commitsFirstParent.ShouldContain(commit1);
+        commitsFirstParent.ShouldNotContain(commit2);
+        commitsFirstParent.ShouldNotContain(commit3);
+        commitsFirstParent.ShouldContain(commit4);
     }
 
     [Fact]
