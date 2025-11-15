@@ -4,6 +4,7 @@ using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.ConventionalCommits;
 using Versionize.Config;
+using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize.Changelog;
 

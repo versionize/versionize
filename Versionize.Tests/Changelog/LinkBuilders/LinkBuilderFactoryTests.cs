@@ -4,7 +4,7 @@ using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public class LinkBuilderFactoryTests
 {

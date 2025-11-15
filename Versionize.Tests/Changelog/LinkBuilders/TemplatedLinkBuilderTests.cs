@@ -3,7 +3,7 @@ using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Xunit;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public class TemplatedLinkBuilderTests
 {

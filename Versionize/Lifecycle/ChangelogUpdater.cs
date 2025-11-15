@@ -5,6 +5,7 @@ using Versionize.Config;
 using Versionize.ConventionalCommits;
 using static Versionize.CommandLine.CommandLineUI;
 using Versionize.CommandLine;
+using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize.Lifecycle;
 

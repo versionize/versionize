@@ -2,7 +2,7 @@
 using Versionize.ConventionalCommits;
 using Versionize.Git;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public sealed class TemplatedLinkBuilder(ChangelogLinkTemplates templates, IChangelogLinkBuilder fallbackBuilder) : IChangelogLinkBuilder
 {

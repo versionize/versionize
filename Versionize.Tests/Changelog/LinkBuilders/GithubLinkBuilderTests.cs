@@ -5,7 +5,7 @@ using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public class GithubLinkBuilderTests
 {

@@ -7,6 +7,7 @@ using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Git;
 using Versionize.Config;
+using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize.Lifecycle;
 

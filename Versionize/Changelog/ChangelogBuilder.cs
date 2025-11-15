@@ -2,6 +2,7 @@ using System.Text;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.Config;
+using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize.Changelog;
 
