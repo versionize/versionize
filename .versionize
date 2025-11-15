@@ -1,4 +1,5 @@
 {
+  "$schema": "./schemas/versionize.schema.json",
   "tagTemplate": "v{version}",
   "aggregatePrereleases": true,
   "changelog": {
