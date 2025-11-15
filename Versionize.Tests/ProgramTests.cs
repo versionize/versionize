@@ -14,11 +14,11 @@ public class ProgramTests : IDisposable
     private readonly TestSetup _testSetup;
     private readonly TestPlatformAbstractions _testPlatformAbstractions;
     private static readonly string[] sourceArray =
-            [
-                "feat(git-case): subject text",
-                "Merged PR 123: fix(squash-azure-case): subject text #64",
-                "Pull Request 11792: feat(azure-case): subject text"
-            ];
+        [
+            "feat(git-case): subject text",
+            "Merged PR 123: fix(squash-azure-case): subject text #64",
+            "Pull Request 11792: feat(azure-case): subject text"
+        ];
 
     public ProgramTests()
     {
@@ -31,10 +31,13 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldRunVersionizeWithDryRunOption()
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
+        // Act
         var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty"]);
 
+        // Assert
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.1.0 to 1.1.0 in projects");
     }
@@ -42,10 +45,13 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldVersionizeDesiredReleaseVersion()
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
+        // Act
         var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--dry-run", "--skip-dirty", "--release-as", "2.0.0"]);
 
+        // Assert
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldContain("√ bumping version from 1.1.0 to 2.0.0 in projects");
     }
@@ -53,10 +59,13 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldPrintTheCurrentVersionWithInspectCommand()
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
 
+        // Act
         var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "inspect"]);
 
+        // Assert
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
         _testPlatformAbstractions.Messages[0].ShouldBe("1.1.0");
@@ -65,6 +74,7 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldReadConfigurationFromConfigFile()
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var config = new FileConfig
@@ -75,13 +85,16 @@ public class ProgramTests : IDisposable
                 Header = "My Custom header"
             }
         };
+
         var json = JsonConvert.SerializeObject(config);
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"), json);
 
+        // Act
         var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
 
+        // Assert
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
         File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldContain("My Custom header");
@@ -91,6 +104,7 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldReadConfigurationFromConfigFileInCustomDirectory()
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var config = new FileConfig
@@ -101,14 +115,17 @@ public class ProgramTests : IDisposable
                 Header = "My Custom header"
             }
         };
+
         var json = JsonConvert.SerializeObject(config);
         var configDir = Path.Join(_testSetup.WorkingDirectory, "..");
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "..", ".versionize"), json);
 
+        // Act
         var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--skip-dirty"]);
 
+        // Assert
         exitCode.ShouldBe(0);
         File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
         File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldContain("My Custom header");
@@ -141,7 +158,8 @@ public class ProgramTests : IDisposable
             Projects = [.. projects.Select(x => x.Item1)]
         };
 
-        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"),
+        File.WriteAllText(
+            Path.Join(_testSetup.WorkingDirectory, ".versionize"),
             JsonConvert.SerializeObject(config));
 
         foreach (var (project, version) in projects)
@@ -156,6 +174,7 @@ public class ProgramTests : IDisposable
             var output = new TestPlatformAbstractions();
             CommandLineUI.Platform = output;
 
+            // Act
             var exitCode = Program.Main(
                 [
                     "--workingDir", _testSetup.WorkingDirectory,
@@ -163,6 +182,7 @@ public class ProgramTests : IDisposable
                     "inspect"
                 ]);
 
+            // Assert
             exitCode.ShouldBe(0);
             output.Messages.ShouldHaveSingleItem();
             output.Messages[0].ShouldBe(version);
@@ -200,7 +220,8 @@ public class ProgramTests : IDisposable
             }
         };
 
-        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"),
+        File.WriteAllText(
+            Path.Join(_testSetup.WorkingDirectory, ".versionize"),
             JsonConvert.SerializeObject(config));
 
         var fileCommitter = new FileCommitter(_testSetup);
@@ -210,10 +231,9 @@ public class ProgramTests : IDisposable
             TempProject.CreateCsharpProject(
                 Path.Combine(_testSetup.WorkingDirectory, project.Path));
 
-            foreach (var commitMessage in new[]
-                     {
-                         $"feat: new feature at {project.Name}"
-                     })
+
+            var commitMessages = new[] { $"feat: new feature at {project.Name}" };
+            foreach (var commitMessage in commitMessages)
             {
                 fileCommitter.CommitChange(commitMessage, project.Path);
             }
@@ -235,10 +255,8 @@ public class ProgramTests : IDisposable
 
             foreach (var checkPName in projects.Select(x => x.Name))
             {
-                foreach (var commitMessage in new[]
-                         {
-                             $"new feature at {checkPName}"
-                         })
+                var commitMessages = new[] { $"new feature at {checkPName}" };
+                foreach (var commitMessage in commitMessages)
                 {
                     if (checkPName == project.Name)
                     {
@@ -259,17 +277,17 @@ public class ProgramTests : IDisposable
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, ".versionize"),
-            @"
-{
-  ""CommitParser"":{
-    ""HeaderPatterns"":[
-      ""^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"",
-      ""^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$""
-    ]
-  }
-}
-");
+        File.WriteAllText(
+            Path.Join(_testSetup.WorkingDirectory, ".versionize"), """
+            {
+              "CommitParser":{
+                  "HeaderPatterns":[
+                  "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
+                  "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
+                  ]
+              }
+            }
+            """);
 
         _ = sourceArray.Select(
                 x => _testSetup.Repository.Commit(x,
@@ -334,27 +352,5 @@ public class ProgramTests : IDisposable
     public void Dispose()
     {
         _testSetup.Dispose();
-    }
-
-    private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
-    {
-        var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-        Commands.Stage(repository, "*");
-        repository.Commit(message, author, author);
-    }
-
-    private class FileCommitter(TestSetup testSetup)
-    {
-        private readonly TestSetup _testSetup = testSetup;
-
-        public void CommitChange(string commitMessage, string changeOnDirectory = "")
-        {
-            var directory = Path.Join(_testSetup.WorkingDirectory, changeOnDirectory);
-            Directory.CreateDirectory(directory);
-
-            var workingFilePath = Path.Join(directory, "hello.txt");
-            File.WriteAllText(workingFilePath, Guid.NewGuid().ToString());
-            CommitAll(_testSetup.Repository, commitMessage);
-        }
     }
 }

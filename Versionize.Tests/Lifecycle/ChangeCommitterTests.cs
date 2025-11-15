@@ -23,6 +23,7 @@ public class ChangeCommitterTests : IDisposable
     [Fact]
     public void DoesntCreateACommit_When_DryRunIsTrueAndSkipCommitIsFalse()
     {
+        // Arrange
         var options = new ChangeCommitter.Options
         {
             DryRun = true,
@@ -31,9 +32,11 @@ public class ChangeCommitterTests : IDisposable
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
+
         var bumpFile = new NullBumpFile();
         ChangelogBuilder changelog = null;
 
+        // Act
         ChangeCommitter.CreateCommit(
             _testSetup.Repository,
             options,
@@ -41,12 +44,14 @@ public class ChangeCommitterTests : IDisposable
             bumpFile,
             changelog);
 
+        // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(0);
     }
 
     [Fact]
     public void DoesntCreateACommit_When_DryRunIsFalseAndSkipCommitIsTrue()
     {
+        // Arrange
         var options = new ChangeCommitter.Options
         {
             DryRun = false,
@@ -55,9 +60,11 @@ public class ChangeCommitterTests : IDisposable
             SkipCommit = true,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
+
         var bumpFile = new NullBumpFile();
         ChangelogBuilder changelog = null;
 
+        // Act
         ChangeCommitter.CreateCommit(
             _testSetup.Repository,
             options,
@@ -65,6 +72,7 @@ public class ChangeCommitterTests : IDisposable
             bumpFile,
             changelog);
 
+        // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(0);
     }
 
@@ -74,6 +82,7 @@ public class ChangeCommitterTests : IDisposable
     [InlineData("[skip ci]", "chore(release): 2.0.0 [skip ci]")]
     public void CreatesACommit_When_DryRunIsFalseAndSkipCommitIsFalse(string commitSuffix, string expectedMessage)
     {
+        // Arrange
         var options = new ChangeCommitter.Options
         {
             DryRun = false,
@@ -82,6 +91,7 @@ public class ChangeCommitterTests : IDisposable
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
+
         var bumpFile = new NullBumpFile();
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -93,6 +103,7 @@ public class ChangeCommitterTests : IDisposable
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Act
         ChangeCommitter.CreateCommit(
             _testSetup.Repository,
             options,
@@ -100,11 +111,11 @@ public class ChangeCommitterTests : IDisposable
             bumpFile,
             changelog);
 
+        // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(1);
         var commit = _testSetup.Repository.Commits.First();
         var actualMessage = commit.Message.TrimEnd();
         actualMessage.ShouldBe(expectedMessage);
-
         GitProcessUtil.IsCommitSigned(_testSetup.WorkingDirectory, commit).ShouldBeFalse();
     }
 
@@ -114,6 +125,7 @@ public class ChangeCommitterTests : IDisposable
     [InlineData("[skip ci]", "chore(release): 2.0.0 [skip ci]")]
     public void CreatesASignedCommit_When_DryRunIsFalseAndSkipCommitIsFalseAndSignIsTrue(string commitSuffix, string expectedMessage)
     {
+        // Arrange
         var gpgFilePath = "./TestKeyForGpgSigning.pgp";
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
@@ -126,6 +138,7 @@ public class ChangeCommitterTests : IDisposable
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
+
         var bumpFile = new NullBumpFile();
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -137,6 +150,7 @@ public class ChangeCommitterTests : IDisposable
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Act
         ChangeCommitter.CreateCommit(
             _testSetup.Repository,
             options,
@@ -144,11 +158,11 @@ public class ChangeCommitterTests : IDisposable
             bumpFile,
             changelog);
 
+        // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(1);
         var commit = _testSetup.Repository.Commits.First();
         var actualMessage = commit.Message.TrimEnd();
         actualMessage.ShouldBe(expectedMessage);
-
         GitProcessUtil.IsCommitSigned(_testSetup.WorkingDirectory, commit).ShouldBeTrue();
     }
 

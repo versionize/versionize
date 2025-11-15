@@ -22,6 +22,7 @@ public class ConfigProviderTests : IDisposable
     [Fact]
     public void ShouldExitIfChangelogPathsPointingToSameLocation()
     {
+        // Arrange
         var projects = new[]
         {
             new ProjectOptions
@@ -54,43 +55,50 @@ public class ConfigProviderTests : IDisposable
 
         var cliConfig = CliConfig.Create(new CommandLineApplication());
 
+        // Act/Assert
         Should.Throw<VersionizeException>(() => ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig))
             .Message.ShouldBe(ErrorMessages.DuplicateChangelogPaths());
     }
 
     [Theory]
-    [InlineData(new[] { "--tag-only" }, false, BumpFileType.None)]
-    [InlineData(new[] { "--tag-only" }, true, BumpFileType.None)]
-    [InlineData(new[] { "--tag-only" }, null, BumpFileType.None)]
-    [InlineData(new string[] { }, true, BumpFileType.None)]
-    [InlineData(new string[] { }, false, BumpFileType.Unity)]
-    [InlineData(new string[] { }, null, BumpFileType.Unity)]
-    public void ReturnsUnityBumpFileTypeWhenTagOnlyIsFalse(string[] cliInput, bool? fileTagOnly, BumpFileType expectedBumpFileType)
+    [InlineData("--tag-only", false, BumpFileType.None)]
+    [InlineData("--tag-only", true, BumpFileType.None)]
+    [InlineData("--tag-only", null, BumpFileType.None)]
+    [InlineData("", true, BumpFileType.None)]
+    [InlineData("", false, BumpFileType.Unity)]
+    [InlineData("", null, BumpFileType.Unity)]
+    public void ReturnsUnityBumpFileTypeWhenTagOnlyIsFalse(string cliInput, bool? fileTagOnly, BumpFileType expectedBumpFileType)
     {
+        // Arrange
         TempProject.CreateUnityProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { TagOnly = fileTagOnly };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(cliInput);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.BumpFileType.ShouldBe(expectedBumpFileType);
     }
 
     [Theory]
-    [InlineData(new[] { "--tag-only" }, false, BumpFileType.None)]
-    [InlineData(new[] { "--tag-only" }, true, BumpFileType.None)]
-    [InlineData(new[] { "--tag-only" }, null, BumpFileType.None)]
-    [InlineData(new string[] { }, true, BumpFileType.None)]
-    [InlineData(new string[] { }, false, BumpFileType.Dotnet)]
-    [InlineData(new string[] { }, null, BumpFileType.Dotnet)]
-    public void ReturnsDotnetBumpFileTypeWhenTagOnlyIsFalse(string[] cliInput, bool? fileTagOnly, BumpFileType expectedBumpFileType)
+    [InlineData("--tag-only", false, BumpFileType.None)]
+    [InlineData("--tag-only", true, BumpFileType.None)]
+    [InlineData("--tag-only", null, BumpFileType.None)]
+    [InlineData("", true, BumpFileType.None)]
+    [InlineData("", false, BumpFileType.Dotnet)]
+    [InlineData("", null, BumpFileType.Dotnet)]
+    public void ReturnsDotnetBumpFileTypeWhenTagOnlyIsFalse(string cliInput, bool? fileTagOnly, BumpFileType expectedBumpFileType)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { TagOnly = fileTagOnly };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(cliInput);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.BumpFileType.ShouldBe(expectedBumpFileType);
     }
 
@@ -99,6 +107,7 @@ public class ConfigProviderTests : IDisposable
     [InlineData("--proj-name project2", BumpFileType.Unity)]
     public void ReturnsBumpFileTypeWhenMonoRepo(string cliInput, BumpFileType expectedBumpFileType)
     {
+        // Arrange
         var projects = new[]
         {
             new ProjectOptions
@@ -126,10 +135,12 @@ public class ConfigProviderTests : IDisposable
         TempProject.CreateCsharpProject(dotnetProjectPath);
         TempProject.CreateUnityProject(unityProjectPath);
         var fileConfig = new FileConfig { Projects = projects };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(cliInput);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.BumpFileType.ShouldBe(expectedBumpFileType);
     }
 
@@ -143,12 +154,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void SkipTagCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { SkipTag = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.SkipTag.ShouldBe(expectedValue);
     }
 
@@ -162,12 +176,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void SkipCommitCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { SkipCommit = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.SkipCommit.ShouldBe(expectedValue);
     }
 
@@ -181,12 +198,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void DryRunCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { DryRun = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.DryRun.ShouldBe(expectedValue);
     }
 
@@ -200,12 +220,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void SkipDirtyCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { SkipDirty = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.SkipDirty.ShouldBe(expectedValue);
     }
 
@@ -219,12 +242,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void SkipChangelogCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { SkipChangelog = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.SkipChangelog.ShouldBe(expectedValue);
     }
 
@@ -238,12 +264,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void IgnoreInsignificantCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { IgnoreInsignificantCommits = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.IgnoreInsignificantCommits.ShouldBe(expectedValue);
     }
 
@@ -257,12 +286,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void ExitInsignificantCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { ExitInsignificantCommits = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.ExitInsignificantCommits.ShouldBe(expectedValue);
     }
 
@@ -276,12 +308,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void AggregatePrereleasesCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { AggregatePrereleases = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.AggregatePrereleases.ShouldBe(expectedValue);
     }
 
@@ -295,12 +330,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void FirstParentOnlyCommitsCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { FirstParentOnlyCommits = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.FirstParentOnlyCommits.ShouldBe(expectedValue);
     }
 
@@ -314,12 +352,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("", false, false)]
     public void SignCliOptionTakesPriorityOverFileConfig(string cliInput, bool fileConfigValue, bool expectedValue)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { Sign = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.Sign.ShouldBe(expectedValue);
     }
 
@@ -330,12 +371,15 @@ public class ConfigProviderTests : IDisposable
     [InlineData("--tag-template A{version}", "B{version}", "A{version}")]
     public void ReturnsExpectedTagTemplateForNonMonorepo(string cliInput, string fileConfigValue, string expectedTagTemplate)
     {
+        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig { TagTemplate = fileConfigValue };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        var cliConfig = CreateCliConfig(cliInput);
+
+        // Act
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        // Assert
         options.Project.TagTemplate.ShouldBe(expectedTagTemplate);
     }
 
@@ -358,13 +402,19 @@ public class ConfigProviderTests : IDisposable
         TempProject.CreateCsharpProject(dotnetProjectPath);
 
         var fileConfig = new FileConfig { Projects = projects };
-        var cliApp = new CommandLineApplication();
-        var cliConfig = CliConfig.Create(cliApp);
-        cliApp.Parse("--proj-name Project1");
+        var cliConfig = CreateCliConfig("--proj-name Project1");
 
         // Act/Assert
         Should.Throw<VersionizeException>(() => ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig))
             .Message.ShouldBe(ErrorMessages.InvalidVersionElement("File-Version"));
+    }
+
+    private static CliConfig CreateCliConfig(string cliInput)
+    {
+        var app = new CommandLineApplication();
+        var cliConfig = CliConfig.Create(app);
+        app.Parse(string.IsNullOrEmpty(cliInput) ? [] : [cliInput]);
+        return cliConfig;
     }
 
     public void Dispose()

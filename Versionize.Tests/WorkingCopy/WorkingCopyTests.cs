@@ -54,7 +54,7 @@ public partial class WorkingCopyTests : IDisposable
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
-        CommitAll(_testSetup.Repository, "feat: first commit");
+        GitTestHelpers.CommitAll(_testSetup.Repository, "feat: first commit");
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(new VersionizeOptions { DryRun = true, SkipDirty = true });
@@ -82,7 +82,7 @@ public partial class WorkingCopyTests : IDisposable
     public void ShouldExitIfWorkingCopyIsDirty()
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
-        CommitAll(_testSetup.Repository, "feat: first commit");
+        GitTestHelpers.CommitAll(_testSetup.Repository, "feat: first commit");
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "hello world");
         Commands.Stage(_testSetup.Repository, "*");
@@ -95,10 +95,12 @@ public partial class WorkingCopyTests : IDisposable
     [Fact]
     public void InspectShouldExitIfNoProjectWithVersionIsFound()
     {
-        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory, "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-    </PropertyGroup>
-</Project>");
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory, "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                </PropertyGroup>
+            </Project>
+            """);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
@@ -109,17 +111,21 @@ public partial class WorkingCopyTests : IDisposable
     [Fact]
     public void InspectShouldExitForProjectsInconsistentVersion()
     {
-        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <Version>1.0.0</Version>
-    </PropertyGroup>
-</Project>");
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project1", "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>1.0.0</Version>
+                </PropertyGroup>
+            </Project>
+            """);
 
-        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", @"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <Version>2.0.0</Version>
-    </PropertyGroup>
-</Project>");
+        TempProject.CreateFromProjectContents(_testSetup.WorkingDirectory + "/project2", "csproj", """
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>2.0.0</Version>
+                </PropertyGroup>
+            </Project>
+            """);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         var options = new VersionizeOptions { Project = ProjectOptions.DefaultOneProjectPerRepo };
@@ -151,7 +157,7 @@ public partial class WorkingCopyTests : IDisposable
         TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
         TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project2"), "2.0.0");
 
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions()))
@@ -163,7 +169,7 @@ public partial class WorkingCopyTests : IDisposable
     {
         TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
 
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
@@ -176,7 +182,7 @@ public partial class WorkingCopyTests : IDisposable
     {
         TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
 
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "2.0.0" });
@@ -190,7 +196,7 @@ public partial class WorkingCopyTests : IDisposable
     {
         TempProject.CreateCsharpProject(Path.Join(_testSetup.WorkingDirectory, "project1"), "1.1.0");
 
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         Should.Throw<VersionizeException>(() => workingCopy.Versionize(new VersionizeOptions { ReleaseAs = "kanguru" }));
@@ -205,7 +211,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Create and commit a test file
         File.WriteAllText(workingFilePath, "First line of text");
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         // Run versionize
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
@@ -213,7 +219,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Add insignificant change
         File.AppendAllText(workingFilePath, "This is another line of text");
-        CommitAll(_testSetup.Repository, "chore: Added line of text");
+        GitTestHelpers.CommitAll(_testSetup.Repository, "chore: Added line of text");
 
         // Get last commit
         var lastCommit = _testSetup.Repository.Head.Tip;
@@ -260,7 +266,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Create and commit a test file
         File.WriteAllText(workingFilePath, "First line of text");
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         // Run versionize
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
@@ -282,7 +288,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Create and commit a test file
         File.WriteAllText(workingFilePath, "First line of text");
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
             .Cast<ConfigurationLevel>()
@@ -314,7 +320,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Create and commit a test file
         File.WriteAllText(workingFilePath, "First line of text");
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
             .Cast<ConfigurationLevel>()
@@ -350,7 +356,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Create and commit a test file
         File.WriteAllText(workingFilePath, "First line of text");
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
             .Cast<ConfigurationLevel>()
@@ -388,7 +394,7 @@ public partial class WorkingCopyTests : IDisposable
 
         // Create and commit a test file
         File.WriteAllText(workingFilePath, "First line of text");
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
         var configurationValues = sourceArray.SelectMany(key => Enum.GetValues(typeof(ConfigurationLevel))
             .Cast<ConfigurationLevel>()
@@ -517,7 +523,7 @@ public partial class WorkingCopyTests : IDisposable
         fileCommitter.CommitChange("feat: add something else on branch");
         fileCommitter.CommitChange("feat: last add on branch");
 
-        var author = GetAuthorSignature();
+        var author = new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
         Commands.Checkout(_testSetup.Repository, defaultBranch);
         workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommits = true });
         workingCopy.Versionize(new VersionizeOptions { FirstParentOnlyCommits = true });
@@ -919,32 +925,5 @@ public partial class WorkingCopyTests : IDisposable
     public void Dispose()
     {
         _testSetup.Dispose();
-    }
-
-    private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
-    {
-        var author = GetAuthorSignature();
-        Commands.Stage(repository, "*");
-        repository.Commit(message, author, author);
-    }
-
-    private static Signature GetAuthorSignature()
-    {
-        return new Signature("Gitty McGitface", "noreply@git.com", DateTime.Now);
-    }
-
-    private class FileCommitter(TestSetup testSetup)
-    {
-        private readonly TestSetup _testSetup = testSetup;
-
-        public void CommitChange(string commitMessage, string changeOnDirectory = "")
-        {
-            var directory = Path.Join(_testSetup.WorkingDirectory, changeOnDirectory);
-            Directory.CreateDirectory(directory);
-
-            var workingFilePath = Path.Join(directory, "hello.txt");
-            File.WriteAllText(workingFilePath, Guid.NewGuid().ToString());
-            CommitAll(_testSetup.Repository, commitMessage);
-        }
     }
 }

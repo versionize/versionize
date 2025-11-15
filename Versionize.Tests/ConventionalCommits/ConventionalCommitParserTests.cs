@@ -10,9 +10,13 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessage()
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy event on scope destruction");
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         Assert.Equal("feat", conventionalCommit.Type);
         Assert.Equal("scope", conventionalCommit.Scope);
         Assert.Equal("broadcast $destroy event on scope destruction", conventionalCommit.Subject);
@@ -21,27 +25,39 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGiven()
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event on scope destruction");
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         Assert.Equal(testCommit.Message, conventionalCommit.Subject);
     }
 
     [Fact]
     public void ShouldUseFullHeaderAsSubjectIfNoTypeWasGivenButSubjectUsesColon()
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "broadcast $destroy event: on scope destruction");
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         Assert.Equal(testCommit.Message, conventionalCommit.Subject);
     }
 
     [Fact]
     public void ShouldParseTypeScopeAndSubjectFromSingleLineCommitMessageIfSubjectUsesColon()
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction");
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         Assert.Equal("feat", conventionalCommit.Type);
         Assert.Equal("scope", conventionalCommit.Scope);
         Assert.Equal("broadcast $destroy: event on scope destruction", conventionalCommit.Subject);
@@ -50,13 +66,15 @@ public class ConventionalCommitParserTests
     [Fact]
     public void ShouldExtractCommitNotes()
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): broadcast $destroy: event on scope destruction\nBREAKING CHANGE: this will break rc1 compatibility");
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         Assert.Single(conventionalCommit.Notes);
-
         var breakingChangeNote = conventionalCommit.Notes.Single();
-
         Assert.Equal("BREAKING CHANGE", breakingChangeNote.Title);
         Assert.Equal("this will break rc1 compatibility", breakingChangeNote.Text);
     }
@@ -66,9 +84,13 @@ public class ConventionalCommitParserTests
     [InlineData("feat(scope)!: broadcast $destroy: event on scope destruction")]
     public void ShouldSupportExclamationMarkToSignifyingBreakingChanges(string commitMessage)
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         conventionalCommit.Notes.ShouldHaveSingleItem();
         conventionalCommit.Notes[0].Title.ShouldBe("BREAKING CHANGE");
         conventionalCommit.Notes[0].Text.ShouldBe(string.Empty);
@@ -84,9 +106,13 @@ public class ConventionalCommitParserTests
     [InlineData("fix: #64 subject #65 text. (#66)", new[] { "64", "65", "66" })]
     public void ShouldExtractCommitIssues(string commitMessage, string[] expectedIssues)
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(testCommit);
 
+        // Assert
         Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
 
         foreach (var expectedIssue in expectedIssues)
@@ -107,7 +133,10 @@ public class ConventionalCommitParserTests
     [InlineData("fix: NC-64 subject NC-65 text. (NC-66)", new[] { "NC-64", "NC-65", "NC-66" })]
     public void ShouldExtractCommitIssuesWithExtraIssuePatterns(string commitMessage, string[] expectedIssues)
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(
             testCommit,
             new CommitParserOptions
@@ -118,6 +147,7 @@ public class ConventionalCommitParserTests
                 ]
             });
 
+        // Assert
         Assert.Equal(conventionalCommit.Issues.Count, expectedIssues.Length);
 
         foreach (var expectedIssue in expectedIssues)
@@ -138,7 +168,10 @@ public class ConventionalCommitParserTests
     public void ShouldParseCommitWithExtraHeaderPatterns(string commitMessage,
         string scope, string type, string subject)
     {
+        // Arrange
         var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", commitMessage);
+
+        // Act
         var conventionalCommit = ConventionalCommitParser.Parse(
             testCommit,
             new CommitParserOptions
@@ -150,12 +183,14 @@ public class ConventionalCommitParserTests
                 ]
             });
 
+        // Assert
         Assert.Equal(conventionalCommit.Scope, scope);
         Assert.Equal(conventionalCommit.Type, type);
         Assert.Equal(conventionalCommit.Subject, subject);
     }
 }
 
+// TODO: Consider moving to the TestSupport folder
 public class TestCommit(string sha, string message) : Commit
 {
     private readonly string _sha = sha;

@@ -17,19 +17,17 @@ public class UnityBumpFileTests : IDisposable
     [Fact]
     public void ShouldUpdateTheVersionElementOnly()
     {
-        var sourceFilePath = "TestData/ProjectSettings.asset";
-        var targetFilePath = Path.Combine(_tempDir, "ProjectSettings", "ProjectSettings.asset");
-        Directory.CreateDirectory(Path.Combine(_tempDir, "ProjectSettings"));
-        File.Copy(sourceFilePath, targetFilePath);
-        Assert.True(File.Exists(targetFilePath));
-        var fileContents = File.ReadAllText(sourceFilePath);
+        // Arrange
+        UnityBumpFile bumpFile = TempProject.CreateUnityBumpFile(_tempDir, "0.1.2");
+        var filePath = bumpFile.GetFilePaths().Single();
+        var originalFileContents = File.ReadAllText(filePath);
 
-        IBumpFile bumpFile = UnityBumpFile.Create(_tempDir);
-        bumpFile.Version.ShouldBe(new Version(0, 1, 2));
+        // Act
         bumpFile.WriteVersion(new Version(2, 3, 4));
 
-        var versionedFileContents = File.ReadAllText(targetFilePath);
-        var expectedFileContents = fileContents.Replace("  bundleVersion: 0.1.2", "  bundleVersion: 2.3.4");
+        // Assert
+        var versionedFileContents = File.ReadAllText(filePath);
+        var expectedFileContents = originalFileContents.Replace("  bundleVersion: 0.1.2", "  bundleVersion: 2.3.4");
         versionedFileContents.ShouldBe(expectedFileContents);
     }
 
