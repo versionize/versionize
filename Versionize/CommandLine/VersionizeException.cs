@@ -10,11 +10,6 @@ public sealed class VersionizeException : Exception
         ExitCode = exitCode;
     }
 
-    public VersionizeException(string message)
-        : base(message)
-    {
-    }
-
     public VersionizeException(string message, Exception innerException)
         : base(message, innerException)
     {

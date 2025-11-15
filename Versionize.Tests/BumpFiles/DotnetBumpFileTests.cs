@@ -1,5 +1,6 @@
 ﻿using NuGet.Versioning;
 using Shouldly;
+using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
@@ -26,25 +27,15 @@ public class DotnetBumpFileTests : IDisposable
         projects.GetFilePaths().Count().ShouldBe(4);
     }
 
-    //[Fact]
-    //public void ShouldDetectInconsistentVersions()
-    //{
-    //    TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "2.0.0");
-    //    TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.1.1");
+    [Fact]
+    public void ShouldThrowForInconsistentVersions()
+    {
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "2.0.0");
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.1.1");
 
-    //    var projects = DotnetBumpFile.Discover(_tempDir);
-    //    projects.HasInconsistentVersioning().ShouldBeTrue();
-    //}
-
-    //[Fact]
-    //public void ShouldDetectConsistentVersions()
-    //{
-    //    TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"));
-    //    TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"));
-
-    //    var projects = DotnetBumpFile.Discover(_tempDir);
-    //    projects.HasInconsistentVersioning().ShouldBeFalse();
-    //}
+        Should.Throw<VersionizeException>(() => DotnetBumpFile.Create(_tempDir))
+            .Message.ShouldBe(ErrorMessages.InconsistentProjectVersions(_tempDir, "Version"));
+    }
 
     [Fact]
     public void ShouldWriteAllVersionsToProjectFiles()
