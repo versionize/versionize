@@ -1,6 +1,6 @@
 ﻿# Versionize
 
-[![Coverage Status](https://coveralls.io/repos/versionize/versionize/badge.svg?branch=)](https://coveralls.io/r/versionize/versionize?branch=master)
+[![Coverage Status](https://coveralls.io/repos/versionize/versionize/badge.svg?branch=)](https://coveralls.io/r/versionize/versionize?branch=main)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 > stop using weird build scripts to increment your nuget's version, use `versionize`!
