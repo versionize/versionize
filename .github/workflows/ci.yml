@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
       - 'spike/**'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     types:
       - opened
       - synchronize

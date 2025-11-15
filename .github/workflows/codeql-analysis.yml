@@ -15,10 +15,10 @@ on:
   workflow_dispatch:
   # NOTE: disable until codeql supports net10
   # push:
-  #   branches: [ master ]
+  #   branches: [ main ]
   # pull_request:
   #   # The branches below must be a subset of the branches above
-  #   branches: [ master ]
+  #   branches: [ main ]
   #   types:
   #     - opened
   #     - synchronize
