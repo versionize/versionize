@@ -5,7 +5,6 @@ using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.Git;
 using Versionize.Config;
-using LibGit2Sharp;
 
 namespace Versionize.Lifecycle;
 
@@ -22,6 +21,7 @@ public class ReleaseTaggerTests : IDisposable
     [Fact]
     public void DoesntCreateATag_When_DryRunIsTrueAndSkipTagIsFalse()
     {
+        // Arrange
         var options = new ReleaseTagger.Options
         {
             DryRun = true,
@@ -31,17 +31,20 @@ public class ReleaseTaggerTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        // Act
         ReleaseTagger.CreateTag(
             _testSetup.Repository,
             options,
             new Version(1, 2, 3));
 
+        // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(0);
     }
 
     [Fact]
     public void DoesntCreateATag_When_DryRunIsFalseAndSkipTagIsTrue()
     {
+        // Arrange
         var options = new ReleaseTagger.Options
         {
             DryRun = false,
@@ -51,17 +54,20 @@ public class ReleaseTaggerTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        // Act
         ReleaseTagger.CreateTag(
             _testSetup.Repository,
             options,
             new Version(1, 2, 3));
 
+        // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(0);
     }
 
     [Fact]
     public void CreatesATag_When_DryRunIsFalseAndSkipTagIsFalse()
     {
+        // Arrange
         var options = new ReleaseTagger.Options
         {
             DryRun = false,
@@ -76,21 +82,23 @@ public class ReleaseTaggerTests : IDisposable
 
         _testSetup.Repository.Commits.Count().ShouldBe(1);
 
+        // Act
         ReleaseTagger.CreateTag(
             _testSetup.Repository,
             options,
             new Version(1, 2, 3));
 
+        // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(1);
         var tag = _testSetup.Repository.Tags.Single();
         tag.FriendlyName.ShouldBe("v1.2.3");
-
         GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeFalse();
     }
 
     [Fact]
     public void CreatesASignedTag_When_DryRunIsFalseAndSkipTagIsFalseAndSignIsTrue()
     {
+        // Arrange
         var gpgFilePath = "./TestKeyForGpgSigning.pgp";
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
@@ -109,47 +117,21 @@ public class ReleaseTaggerTests : IDisposable
 
         _testSetup.Repository.Commits.Count().ShouldBe(1);
 
+        // Act
         ReleaseTagger.CreateTag(
             _testSetup.Repository,
             options,
             new Version(1, 2, 3));
 
+        // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(1);
         var tag = _testSetup.Repository.Tags.Single();
         tag.FriendlyName.ShouldBe("v1.2.3");
-
         GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeTrue();
     }
 
     public void Dispose()
     {
         _testSetup.Dispose();
-    }
-
-    // TODO: Consider moving to a helper class
-    private static void CommitAll(IRepository repository, string message = "feat: Initial commit")
-    {
-        var user = repository.Config.Get<string>("user.name").Value;
-        var email = repository.Config.Get<string>("user.email").Value;
-        var author = new Signature(user, email, DateTime.Now);
-        var committer = author;
-        Commands.Stage(repository, "*");
-        repository.Commit(message, author, committer);
-    }
-
-    // TODO: Consider moving to a helper class
-    private class FileCommitter(TestSetup testSetup)
-    {
-        private readonly TestSetup _testSetup = testSetup;
-
-        public void CommitChange(string commitMessage, string subdirectory = "")
-        {
-            var fileName = Guid.NewGuid().ToString() + ".txt";
-            var directory = Path.Join(_testSetup.WorkingDirectory, subdirectory);
-            Directory.CreateDirectory(directory);
-            var filePath = Path.Join(directory, fileName);
-            File.WriteAllText(filePath, contents: "abc123");
-            CommitAll(_testSetup.Repository, commitMessage);
-        }
     }
 }

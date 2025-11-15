@@ -19,8 +19,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldGenerateAChangelogEvenForEmptyCommits()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -29,6 +32,7 @@ public class ChangelogBuilderTests : IDisposable
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var wasChangelogWritten = File.Exists(Path.Join(_testDirectory, "CHANGELOG.md"));
         Assert.True(wasChangelogWritten);
     }
@@ -36,8 +40,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldGenerateWithoutLiteralLineBreakCharacters()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -48,6 +55,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var contents = File.ReadAllText(Path.Join(_testDirectory, "CHANGELOG.md"));
         contents.ShouldNotContain("\\n");
     }
@@ -55,8 +63,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldGenerateAChangelogForFixFeatAndBreakingCommits()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -70,6 +81,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
 
         var sb = new ChangelogStringBuilder();
@@ -89,9 +101,12 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldGenerateAChangelogForFixFeatAndIssueLink()
     {
+        // Arrange
         var githubLinkBuilder = new GithubLinkBuilder(
             "https://github.com/versionize/versionize.git");
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -105,6 +120,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
 
         var sb = new ChangelogStringBuilder();
@@ -124,6 +140,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldHideFixSectionWhenHideIsTrue()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -138,6 +155,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -149,6 +167,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             projectOptions);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("### Features", Case.Sensitive);
         changelogContents.ShouldNotContain("Bug Fixes");
@@ -157,6 +176,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldHideFixSectionWhenSectionIsNotSpecified()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -170,6 +190,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -181,6 +202,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             projectOptions);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("### Features", Case.Sensitive);
         changelogContents.ShouldNotContain("Bug Fixes");
@@ -189,6 +211,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldShowFixSectionWhenHideIsNotSpecified()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -203,6 +226,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -214,6 +238,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             projectOptions);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("### Features", Case.Sensitive);
         changelogContents.ShouldContain("### Bug Fixes", Case.Sensitive);
@@ -222,6 +247,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldIncludeFixAndFeatCommitsInOtherSectionWhenHiddenAndShowAllIsTrue()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -237,6 +263,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -259,6 +286,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldUseCustomOtherSectionNameWhenSpecified()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -275,6 +303,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -286,6 +315,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             projectOptions);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldNotContain("### Other", Case.Sensitive);
         changelogContents.ShouldContain("### Miscellaneous", Case.Sensitive);
@@ -296,6 +326,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldUseCustomHeaderWhenSpecified()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -306,6 +337,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -316,6 +348,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             projectOptions);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldStartWith("My custom changelog", Case.Sensitive);
     }
@@ -323,10 +356,13 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldAppendAtEndIfChangelogContainsExtraInformation()
     {
+        // Arrange
         File.WriteAllText(Path.Combine(_testDirectory, "CHANGELOG.md"), "# Should be kept by versionize\n\nSome information about the changelog");
 
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 0, 0),
             new Version(1, 0, 0),
@@ -337,6 +373,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldBe("# Should be kept by versionize\n\nSome information about the changelog\n\n<a name=\"1.0.0\"></a>\n## 1.0.0 (2021-05-02)\n\n### Bug Fixes\n\n* a fix in version 1.0.0\n\n");
     }
@@ -344,8 +381,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldBuildGithubHttpsCommitLinks()
     {
+        // Arrange
         var linkBuilder = new GithubLinkBuilder("https://github.com/organization/repository.git");
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 0, 0),
             new Version(1, 0, 0),
@@ -356,6 +396,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("* a fix in version 1.0.0 ([a360d6a](https://www.github.com/organization/repository/commit/a360d6a307909c6e571b29d4a329fd786c5d4543))");
     }
@@ -363,8 +404,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldBuildGithubSSHCommitLinks()
     {
+        // Arrange
         var linkBuilder = new GithubLinkBuilder("git@github.com:organization/repository.git");
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 0, 0),
             new Version(1, 0, 0),
@@ -375,6 +419,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("* a fix in version 1.0.0 ([a360d6a](https://www.github.com/organization/repository/commit/a360d6a307909c6e571b29d4a329fd786c5d4543))");
     }
@@ -382,8 +427,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldBuildGithubSSHVersionTagLinks()
     {
+        // Arrange
         var linkBuilder = new GithubLinkBuilder("https://github.com/organization/repository.git");
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 0, 0),
             new Version(1, 0, 0),
@@ -394,6 +442,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("## [1.0.0](https://www.github.com/organization/repository/releases/tag/v1.0.0)");
     }
@@ -401,8 +450,11 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldBuildGithubHTTPSVersionTagLinks()
     {
+        // Arrange
         var linkBuilder = new GithubLinkBuilder("git@github.com:organization/repository.git");
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
         changelog.Write(
             new Version(1, 0, 0),
             new Version(1, 0, 0),
@@ -413,6 +465,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
         changelogContents.ShouldContain("## [1.0.0](https://www.github.com/organization/repository/releases/tag/v1.0.0)");
     }
@@ -420,6 +473,7 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldAppendToExistingChangelog()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         changelog.Write(
@@ -432,6 +486,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -442,6 +497,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
 
         changelogContents.ShouldContain("<a name=\"1.0.0\"></a>");
@@ -454,14 +510,17 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void ShouldExposeFilePathProperty()
     {
+        // Act
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
 
+        // Assert
         Assert.Equal(Path.Combine(_testDirectory, "CHANGELOG.md"), changelog.FilePath);
     }
 
     [Fact]
     public void ShouldIncludeAllCommitsInChangelogWhenGiven()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
@@ -472,6 +531,7 @@ public class ChangelogBuilderTests : IDisposable
             }
         };
 
+        // Act
         changelog.Write(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -483,6 +543,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             projectOptions);
 
+        // Assert
         var changelogContents = File.ReadAllText(changelog.FilePath);
 
         changelogContents.ShouldContain("nothing important");
@@ -492,7 +553,10 @@ public class ChangelogBuilderTests : IDisposable
     [Fact]
     public void GenerateMarkdownShouldGenerateMarkdownForFixFeatAndBreakingCommits()
     {
+        // Arrange
         var plainLinkBuilder = new PlainLinkBuilder();
+
+        // Act
         string markdown = ChangelogBuilder.GenerateMarkdown(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -506,6 +570,7 @@ public class ChangelogBuilderTests : IDisposable
             ],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        // Assert
         var sb = new ChangelogStringBuilder();
         sb.Append("<a name=\"1.1.0\"></a>");
         sb.Append("## 1.1.0 (2021-05-02)", 2);
@@ -525,12 +590,14 @@ public class ChangelogBuilderTests : IDisposable
     [InlineData("{version}", "1.1.0")]
     public void GenerateMarkdownShouldUseTagTemplateForTagLinks(string tagTemplate, string tag)
     {
+        // Arrange
         var githubLinkBuilder = new GithubLinkBuilder("https://github.com/versionize/versionize");
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             TagTemplate = tagTemplate
         };
 
+        // Act
         string markdown = ChangelogBuilder.GenerateMarkdown(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
@@ -539,6 +606,7 @@ public class ChangelogBuilderTests : IDisposable
             [],
             projectOptions);
 
+        // Assert
         var expected = $"https://www.github.com/versionize/versionize/releases/tag/{tag}";
         Assert.Contains(expected, markdown);
     }

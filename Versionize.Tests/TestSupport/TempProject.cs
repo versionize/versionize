@@ -1,4 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using NuGet.Versioning;
+using Shouldly;
+using Versionize.BumpFiles;
 using Xunit;
 
 namespace Versionize.Tests.TestSupport;
@@ -27,12 +30,13 @@ public static class TempProject
 
     public static string Create(string tempDir, string extension, string version = "1.0.0")
     {
-        var projectFileContents =
-$@"<Project Sdk=""Microsoft.NET.Sdk"">
-    <PropertyGroup>
-        <Version>{version}</Version>
-    </PropertyGroup>
-</Project>";
+        var projectFileContents = $"""
+            <Project Sdk="Microsoft.NET.Sdk">
+                <PropertyGroup>
+                    <Version>{version}</Version>
+                </PropertyGroup>
+            </Project>
+            """;
 
         return CreateFromProjectContents(tempDir, extension, projectFileContents);
     }
@@ -64,6 +68,14 @@ $@"<Project Sdk=""Microsoft.NET.Sdk"">
         fileContents = Regex.Replace(fileContents, versionPattern, $"bundleVersion: {version}");
         File.WriteAllText(targetFilePath, fileContents);
 
-        return tempDir;
+        return targetFilePath;
+    }
+
+    public static UnityBumpFile CreateUnityBumpFile(string tempDir, string version = "1.0.0")
+    {
+        CreateUnityProject(tempDir, version);
+        UnityBumpFile bumpFile = UnityBumpFile.Create(tempDir);
+        bumpFile.Version.ShouldBe(SemanticVersion.Parse(version));
+        return bumpFile;
     }
 }

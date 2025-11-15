@@ -1,12 +1,12 @@
-﻿using Shouldly;
+using Shouldly;
 using Versionize.Config;
+using Versionize.Tests.TestSupport;
 using Xunit;
 
 namespace Versionize;
 
 public partial class WorkingCopyTests
 {
-
     private readonly VersionizeOptions _defaultTagOnlyOptions = new()
     {
         SkipDirty = true,
@@ -18,7 +18,7 @@ public partial class WorkingCopyTests
     public void ShouldTagInitialVersionUsingTagOnly()
     {
         // Arrange
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
 
         // Act
@@ -38,7 +38,7 @@ public partial class WorkingCopyTests
     public void ShouldTagInitialVersionUsingTagOnlyWithNonTrackedCommits()
     {
         // Arrange
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
         new FileCommitter(_testSetup).CommitChange("build: updated build pipeline");
         new FileCommitter(_testSetup).CommitChange("build: updated build pipeline2");
         new FileCommitter(_testSetup).CommitChange("build: updated build pipeline3");
@@ -58,7 +58,7 @@ public partial class WorkingCopyTests
     public void ShouldTagVersionAfterFeatUsingTagOnly()
     {
         // Arrange
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(_defaultTagOnlyOptions);
 
@@ -85,7 +85,7 @@ public partial class WorkingCopyTests
     public void ShouldTagVersionAfterFixUsingTagOnly()
     {
         // Arrange
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(_defaultTagOnlyOptions);
 
@@ -112,7 +112,7 @@ public partial class WorkingCopyTests
     public void ShouldTagVersionWhenMultipleCommitsInOneVersionUsingTagOnly()
     {
         // Arrange
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(_defaultTagOnlyOptions);
 
@@ -142,7 +142,7 @@ public partial class WorkingCopyTests
     public void ShouldTagVersionAfterEachVersionizeCommandUsingTagOnly()
     {
         // Arrange
-        CommitAll(_testSetup.Repository);
+        GitTestHelpers.CommitAll(_testSetup.Repository);
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
         workingCopy.Versionize(_defaultTagOnlyOptions);
 
