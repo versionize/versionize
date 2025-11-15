@@ -69,19 +69,19 @@ public static class Program
         {
             return app.Execute(args);
         }
-        catch (VersionizeException vex)
+        catch (VersionizeException ex)
         {
-            CommandLineUI.Platform.WriteLine(vex.Message, ConsoleColor.Red);
-            return vex.ExitCode;
+            CommandLineUI.Platform.WriteLine(ex.Message, ConsoleColor.Red);
+            return ex.ExitCode;
         }
-        catch (Exception ex) when (ex is UnrecognizedCommandParsingException)
+        catch (UnrecognizedCommandParsingException ex)
         {
             CommandLineUI.Platform.WriteLine(ex.Message, ConsoleColor.Red);
             return 1;
         }
-        catch (LibGit2Sharp.NotFoundException e)
+        catch (LibGit2Sharp.NotFoundException ex)
         {
-            CommandLineUI.Platform.WriteLine(ErrorMessages.LibGitNotFound(e), ConsoleColor.Red);
+            CommandLineUI.Platform.WriteLine(ErrorMessages.LibGitNotFound(ex), ConsoleColor.Red);
             return 1;
         }
     }

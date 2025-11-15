@@ -1,4 +1,5 @@
 ﻿using Shouldly;
+using Versionize.CommandLine;
 using Versionize.Tests.TestSupport;
 using Xunit;
 using Version = NuGet.Versioning.SemanticVersion;
@@ -26,7 +27,7 @@ public class DotnetBumpFileProjectTests : IDisposable
         var projectFilePath = Path.Join(_tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
-        Should.Throw<InvalidOperationException>(() => DotnetBumpFileProject.Create(projectFilePath));
+        Should.Throw<VersionizeException>(() => DotnetBumpFileProject.Create(projectFilePath));
     }
 
     [Fact]
@@ -41,7 +42,7 @@ public class DotnetBumpFileProjectTests : IDisposable
         var projectFilePath = Path.Join(_tempDir, "test.csproj");
         File.WriteAllText(projectFilePath, projectFileContents);
 
-        Should.Throw<InvalidOperationException>(() => DotnetBumpFileProject.Create(projectFilePath));
+        Should.Throw<VersionizeException>(() => DotnetBumpFileProject.Create(projectFilePath));
     }
 
     [Fact]

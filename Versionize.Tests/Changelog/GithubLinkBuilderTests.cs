@@ -1,5 +1,6 @@
 ﻿using LibGit2Sharp;
 using Shouldly;
+using Versionize.CommandLine;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -11,7 +12,7 @@ public class GithubLinkBuilderTests
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new GithubLinkBuilder("github.com"));
+        Should.Throw<VersionizeException>(() => new GithubLinkBuilder("github.com"));
     }
 
     [Fact]

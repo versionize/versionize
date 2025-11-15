@@ -3,7 +3,6 @@ using NuGet.Versioning;
 using Versionize.BumpFiles;
 using Versionize.Config;
 using Versionize.Lifecycle;
-// using static Versionize.CommandLine.CommandLineUI;
 using Versionize.CommandLine;
 
 namespace Versionize.Git;

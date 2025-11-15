@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using LibGit2Sharp;
 using Shouldly;
+using Versionize.CommandLine;
 using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
@@ -15,19 +16,19 @@ public class GitlabLinkBuilderTests
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new GitlabLinkBuilder("gitlab.com"));
+        Should.Throw<VersionizeException>(() => new GitlabLinkBuilder("gitlab.com"));
     }
 
     [Fact]
     public void ShouldThrowIfUrlIsNoValidHttpsCloneUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new GitlabLinkBuilder("https://gitlab.com/inkscape"));
+        Should.Throw<VersionizeException>(() => new GitlabLinkBuilder("https://gitlab.com/inkscape"));
     }
 
     [Fact]
     public void ShouldThrowIfUrlIsNoValidSshCloneUrl()
     {
-        Should.Throw<InvalidOperationException>(() => new GitlabLinkBuilder("git@gitlab.com:inkscape"));
+        Should.Throw<VersionizeException>(() => new GitlabLinkBuilder("git@gitlab.com:inkscape"));
     }
 
     [Fact]

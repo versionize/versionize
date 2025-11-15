@@ -32,6 +32,11 @@ public sealed class PrereleaseIdentifier
     public static PrereleaseIdentifier Parse(SemanticVersion version)
     {
         var releaseLabels = version.ReleaseLabels.ToArray();
+        if (releaseLabels.Length != 2)
+        {
+            throw new VersionizeException(ErrorMessages.PrereleaseNumberParseError(version.ToNormalizedString()), 1);
+        }
+
         var prereleaseLabel = releaseLabels[0];
         if (!int.TryParse(releaseLabels[1], out var prereleaseNumber))
         {

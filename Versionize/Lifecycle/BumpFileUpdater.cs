@@ -15,7 +15,7 @@ public sealed class BumpFileUpdater
     {
         if (bumpFile.Version != new SemanticVersion(0, 0, 0))
         {
-            Step(InfoMessages.BumpingVersion(bumpFile.Version.ToNormalizedString(), nextVersion.ToNormalizedString()));
+            Step(InfoMessages.BumpingVersion(bumpFile.Version.ToString(), nextVersion.ToString()));
         }
 
         if (options.DryRun)

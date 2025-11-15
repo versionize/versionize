@@ -54,8 +54,8 @@ public class ConfigProviderTests : IDisposable
 
         var cliConfig = CliConfig.Create(new CommandLineApplication());
 
-        Should.Throw<CommandLineExitException>(() => ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig));
-        _testPlatformAbstractions.Messages[0].ShouldBe("Two or more projects have changelog paths pointing to the same location.");
+        Should.Throw<VersionizeException>(() => ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig))
+            .Message.ShouldBe(ErrorMessages.DuplicateChangelogPaths());
     }
 
     [Theory]
@@ -342,7 +342,7 @@ public class ConfigProviderTests : IDisposable
     [Fact]
     public void ShouldExitWhenProjectVersionElementContainsInvalidCharacters()
     {
-        // Arrange: create a mono-repo style config with an invalid VersionElement
+        // Arrange
         var projects = new[]
         {
             new ProjectOptions
@@ -362,12 +362,9 @@ public class ConfigProviderTests : IDisposable
         var cliConfig = CliConfig.Create(cliApp);
         cliApp.Parse("--proj-name Project1");
 
-        // Act + Assert: ConfigProvider should exit with an error
-        Should.Throw<CommandLineExitException>(() =>
-            ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig));
-
-        _testPlatformAbstractions.Messages[0]
-            .ShouldBe("Version element 'File-Version' is invalid. Only alphanumeric and underscore characters are allowed.");
+        // Act/Assert
+        Should.Throw<VersionizeException>(() => ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig))
+            .Message.ShouldBe(ErrorMessages.InvalidVersionElement("File-Version"));
     }
 
     public void Dispose()
