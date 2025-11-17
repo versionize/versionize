@@ -1,15 +1,35 @@
-﻿using LibGit2Sharp;
+using LibGit2Sharp;
 using NuGet.Versioning;
+using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
-using Versionize.CommandLine;
+
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public sealed class ReleaseTagger
+public class CreateTagStep : IPipelineStep<CreateCommitResult, CreateTagStep.Options, CreateTagResult>
 {
-    public static void CreateTag(
+    public CreateTagResult Execute(CreateCommitResult input, Options options)
+    {
+        Repository repo = input.Repository;
+        SemanticVersion nextVersion = input.BumpedVersion;
+        CreateTag(repo, options, nextVersion);
+        return new CreateTagResult
+        {
+            Repository = input.Repository,
+            BumpFile = input.BumpFile,
+            Version = input.Version,
+            IsFirstRelease = input.IsFirstRelease,
+            Commits = input.Commits,
+            BumpedVersion = input.BumpedVersion,
+            ChangelogPath = input.ChangelogPath,
+            Commit = input.Commit,
+            Tag = repo.Tags[options.Project.GetTagName(nextVersion)],
+        };
+    }
+
+    private static void CreateTag(
         Repository repo,
         Options options,
         SemanticVersion nextVersion)
@@ -38,7 +58,7 @@ public sealed class ReleaseTagger
         Step(InfoMessages.TaggedRelease(tagName, repo.Head.Tip.Sha));
     }
 
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public bool SkipTag { get; init; }
         public bool DryRun { get; init; }

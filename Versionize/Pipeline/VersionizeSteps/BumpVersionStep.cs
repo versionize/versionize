@@ -1,14 +1,31 @@
-﻿using NuGet.Versioning;
+using NuGet.Versioning;
+using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Versioning;
-using Versionize.CommandLine;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public sealed class VersionCalculator
+public class BumpVersionStep : IPipelineStep<ParseCommitsSinceLastVersionResult, BumpVersionStep.Options, BumpVersionResult>
 {
-    public static SemanticVersion Bump(
+    public BumpVersionResult Execute(ParseCommitsSinceLastVersionResult input, Options options)
+    {
+        return new BumpVersionResult
+        {
+            Repository = input.Repository,
+            BumpFile = input.BumpFile,
+            Version = input.Version,
+            IsFirstRelease = input.IsFirstRelease,
+            Commits = input.Commits,
+            BumpedVersion = Bump(
+                options,
+                input.Version,
+                input.IsFirstRelease,
+                input.Commits),
+        };
+    }
+
+    private static SemanticVersion Bump(
         Options options,
         SemanticVersion? version,
         bool isInitialRelease,
@@ -50,7 +67,7 @@ public sealed class VersionCalculator
         return nextVersion!;
     }
 
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public bool IgnoreInsignificantCommits { get; init; }
         public bool ExitInsignificantCommits { get; init; }

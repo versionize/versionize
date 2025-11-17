@@ -155,12 +155,17 @@ public sealed class VersionOptions
     public bool TagOnly { get; init; }
     public required ProjectOptions Project { get; init; }
 
-    public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
+    public static VersionOptions FromVersionizeOptions(VersionizeOptions versionizeOptions)
     {
         return new VersionOptions
         {
             TagOnly = versionizeOptions.BumpFileType == BumpFileType.None,
             Project = versionizeOptions.Project,
         };
+    }
+
+    public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
+    {
+        return FromVersionizeOptions(versionizeOptions);
     }
 }

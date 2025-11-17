@@ -54,6 +54,9 @@ public sealed class WorkingCopy
 
     public void Versionize(VersionizeOptions options)
     {
+        var repo1 = new Repository(_workingDirectory.FullName);
+
+
         options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
@@ -65,6 +68,17 @@ public sealed class WorkingCopy
         var changelog = ChangelogUpdater.Update(repo, options, newVersion, version, conventionalCommits);
         ChangeCommitter.CreateCommit(repo, options, newVersion, bumpFile, changelog);
         ReleaseTagger.CreateTag(repo, options, newVersion);
+
+        // RUNTIME DATA TO PASS BETWEEN STEPS:
+        // repo + working directory
+        // bump file
+        // conventional commits
+        // is initial release
+        // old version
+        // new version
+        // changelog
+        // commit
+        // tag
     }
 
     private Repository ValidateRepoState(VersionizeOptions options, string workingDirectory)

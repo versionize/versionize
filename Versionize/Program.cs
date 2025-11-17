@@ -11,7 +11,7 @@ namespace Versionize;
     Description = "Automatic versioning and CHANGELOG generation, using conventional commit messages")]
 public static class Program
 {
-    public static int Main(string[] args)
+    public static int Main2(string[] args)
     {
         var app = new CommandLineApplication
         {

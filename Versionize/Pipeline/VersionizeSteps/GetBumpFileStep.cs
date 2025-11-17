@@ -1,12 +1,21 @@
-﻿using Versionize.BumpFiles;
-using Versionize.Config;
+using Versionize.BumpFiles;
 using Versionize.CommandLine;
+using Versionize.Config;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public sealed class BumpFileProvider
+public class GetBumpFileStep : IPipelineStep<InitWorkingCopyResult, GetBumpFileStep.Options, GetBumpFileResult>
 {
-    public static IBumpFile GetBumpFile(Options options)
+    public GetBumpFileResult Execute(InitWorkingCopyResult input, Options options)
+    {
+        return new GetBumpFileResult
+        {
+            Repository = input.Repository,
+            BumpFile = GetBumpFile(options),
+        };
+    }
+
+    private static IBumpFile GetBumpFile(Options options)
     {
         return options.BumpFileType switch
         {
@@ -17,7 +26,7 @@ public sealed class BumpFileProvider
         };
     }
 
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public BumpFileType BumpFileType { get; init; }
         public string? VersionElement { get; init; }
