@@ -38,8 +38,7 @@ public class GetBumpFileStep : IPipelineStep<InitWorkingCopyResult, GetBumpFileS
             {
                 BumpFileType = versionizeOptions.BumpFileType,
                 VersionElement = versionizeOptions.Project.VersionElement,
-                WorkingDirectory = versionizeOptions.WorkingDirectory ??
-                    throw new VersionizeException(nameof(versionizeOptions.WorkingDirectory), 1),
+                WorkingDirectory = versionizeOptions.WorkingDirectory,
             };
         }
 

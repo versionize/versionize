@@ -1,8 +1,6 @@
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using Versionize.Config;
-using Versionize.Git;
-using Versionize.Lifecycle;
 using Versionize.Pipeline.VersionizeSteps;
 
 namespace Versionize.Pipeline;
@@ -24,6 +22,7 @@ public class Pipeline2<TResult>
     {
         TOptions options = TOptions.FromVersionizeOptions(_versionizeOptions);
         TResultOut result = step.Execute(_result, options);
+        //TResultOut result = step.DoSomething(_result, _versionizeOptions);
         return new Pipeline2<TResultOut>(result, _versionizeOptions);
     }
 
@@ -123,8 +122,8 @@ public class VersionizeCommand(
 {
     public void OnExecute()
     {
-        Console.WriteLine("Starting Versionize Pipeline...");
-        return;
+        // Console.WriteLine("Starting Versionize Pipeline...");
+        // return;
         Pipeline.Begin(Options)
             .Then(InitWorkingCopy)
             .Then(GetBumpFile)
@@ -152,13 +151,13 @@ public static class Lifecycle
     public static Pipeline<InitWorkingCopyResult> Init(VersionizeOptions options)
     {
         var pipeline = default(Pipeline<InitWorkingCopyResult>)
-            .Then<GetBumpFileStep, BumpFileProvider.Options, GetBumpFileResult>()
-            .Then<ReadVersionStep, VersionOptions, ReadVersionResult>()
-            .Then<ParseCommitsSinceLastVersionStep, ConventionalCommitProvider.Options, ParseCommitsSinceLastVersionResult>()
-            .Then<BumpVersionStep, VersionCalculator.Options, BumpVersionResult>()
-            .Then<UpdateChangelogStep, ChangelogUpdater.Options, UpdateChangelogResult>()
-            .Then<CreateCommitStep, ChangeCommitter.Options, CreateCommitResult>()
-            .Then<CreateTagStep, ReleaseTagger.Options, CreateTagResult>();
+            .Then<GetBumpFileStep, GetBumpFileStep.Options, GetBumpFileResult>()
+            .Then<ReadVersionStep, ReadVersionStep.Options, ReadVersionResult>()
+            .Then<ParseCommitsSinceLastVersionStep, ParseCommitsSinceLastVersionStep.Options, ParseCommitsSinceLastVersionResult>()
+            .Then<BumpVersionStep, BumpVersionStep.Options, BumpVersionResult>()
+            .Then<UpdateChangelogStep, UpdateChangelogStep.Options, UpdateChangelogResult>()
+            .Then<CreateCommitStep, CreateCommitStep.Options, CreateCommitResult>()
+            .Then<CreateTagStep, CreateTagStep.Options, CreateTagResult>();
         // var pipeline2 = default(Pipeline<InitData>)
         //     .Then<ReadVersionStep>()
         //     .Then<GetCommitsStep>()
@@ -175,7 +174,7 @@ public static class Lifecycle
             .CreateTag();
         return new Pipeline<InitWorkingCopyResult>(
             default, //services,
-            new InitWorkingCopyResult { Options = options },
+            new InitWorkingCopyResult { Repository = null! }, // TODO: fix
             default
         );
     }

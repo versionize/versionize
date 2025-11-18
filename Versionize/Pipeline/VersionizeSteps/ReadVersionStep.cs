@@ -5,9 +5,9 @@ using Versionize.Config;
 
 namespace Versionize.Pipeline.VersionizeSteps;
 
-public class ReadVersionStep : IPipelineStep<GetBumpFileResult, ReadVersionStep.VersionOptions, ReadVersionResult>
+public class ReadVersionStep : IPipelineStep<GetBumpFileResult, ReadVersionStep.Options, ReadVersionResult>
 {
-    public ReadVersionResult Execute(GetBumpFileResult input, VersionOptions options)
+    public ReadVersionResult Execute(GetBumpFileResult input, Options options)
     {
         return new ReadVersionResult
         {
@@ -17,7 +17,7 @@ public class ReadVersionStep : IPipelineStep<GetBumpFileResult, ReadVersionStep.
         };
     }
 
-    private static SemanticVersion? GetCurrentVersion(Repository repository, VersionOptions options, IBumpFile bumpFile)
+    private static SemanticVersion? GetCurrentVersion(Repository repository, Options options, IBumpFile bumpFile)
     {
         SemanticVersion? version;
         if (options.TagOnly)
@@ -36,21 +36,21 @@ public class ReadVersionStep : IPipelineStep<GetBumpFileResult, ReadVersionStep.
         return version;
     }
 
-    public sealed class VersionOptions : IConvertibleFromVersionizeOptions<VersionOptions>
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public bool TagOnly { get; init; }
         public required ProjectOptions Project { get; init; }
 
-        public static VersionOptions FromVersionizeOptions(VersionizeOptions versionizeOptions)
+        public static Options FromVersionizeOptions(VersionizeOptions versionizeOptions)
         {
-            return new VersionOptions
+            return new Options
             {
                 TagOnly = versionizeOptions.BumpFileType == BumpFileType.None,
                 Project = versionizeOptions.Project,
             };
         }
 
-        public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
+        public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
             return FromVersionizeOptions(versionizeOptions);
         }

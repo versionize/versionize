@@ -13,6 +13,11 @@ public static class Pipeline
 
 public static class PipelineExtensions
 {
+    public static GetBumpFileResult DoSomething(this IPipelineStep<InitWorkingCopyResult, GetBumpFileStep.Options, GetBumpFileResult> @this, InitWorkingCopyResult input, VersionizeOptions options)
+    {
+        return @this.Execute(input, options);
+    }
+
     public static Pipeline<InitWorkingCopyResult> InitWorkingCopy(this Pipeline<EmptyResult> p)
         => p.Then<InitWorkingCopyStep, InitWorkingCopyStep.Options, InitWorkingCopyResult>();
 
@@ -20,7 +25,7 @@ public static class PipelineExtensions
         => p.Then<GetBumpFileStep, GetBumpFileStep.Options, GetBumpFileResult>();
 
     public static Pipeline<ReadVersionResult> ReadVersion(this Pipeline<GetBumpFileResult> p)
-        => p.Then<ReadVersionStep, ReadVersionStep.VersionOptions, ReadVersionResult>();
+        => p.Then<ReadVersionStep, ReadVersionStep.Options, ReadVersionResult>();
 
     public static Pipeline<ParseCommitsSinceLastVersionResult> ParseCommits(this Pipeline<ReadVersionResult> p)
         => p.Then<ParseCommitsSinceLastVersionStep, ParseCommitsSinceLastVersionStep.Options, ParseCommitsSinceLastVersionResult>();
