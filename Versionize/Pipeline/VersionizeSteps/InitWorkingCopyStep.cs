@@ -3,10 +3,12 @@ using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
 
+using Options = Versionize.Pipeline.VersionizeSteps.InitWorkingCopyStep.Options;
+
 namespace Versionize.Pipeline.VersionizeSteps;
 
 public class InitWorkingCopyStep :
-    IPipelineStep<EmptyResult, InitWorkingCopyStep.Options, InitWorkingCopyResult>
+    IPipelineStep<EmptyResult, Options, InitWorkingCopyResult>
 {
     public InitWorkingCopyResult Execute(EmptyResult input, Options options)
     {
@@ -67,5 +69,10 @@ public class InitWorkingCopyStep :
     public class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public static Options FromVersionizeOptions(VersionizeOptions options) => new();
+
+        public static implicit operator Options(VersionizeOptions options)
+        {
+            return FromVersionizeOptions(options);
+        }
     }
 }

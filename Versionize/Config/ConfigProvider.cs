@@ -11,10 +11,7 @@ public static class ConfigProvider
         CliConfig cliConfig,
         FileConfig? fileConfig)
     {
-        var options = MergeWithOptions(
-            cwd,
-            fileConfig,
-            cliConfig);
+        var options = MergeWithOptions(cwd, fileConfig, cliConfig);
 
         ValidateChangelogPaths(fileConfig, options.WorkingDirectory);
 
@@ -26,7 +23,7 @@ public static class ConfigProvider
     }
 
     private static VersionizeOptions MergeWithOptions(
-        string baseWorkingDirectory,
+        string cwd,
         FileConfig? fileConfig,
         CliConfig cliConfig)
     {
@@ -37,7 +34,7 @@ public static class ConfigProvider
 
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
         var tagOnly = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly);
-        var projectPath = Path.Combine(baseWorkingDirectory, project.Path);
+        var projectPath = Path.Combine(cwd, project.Path);
         var bumpFileType = BumpFileTypeDetector.GetType(projectPath, tagOnly);
 
         return new VersionizeOptions

@@ -11,7 +11,7 @@ namespace Versionize.Lifecycle;
 
 public sealed class ChangelogUpdater
 {
-    public static ChangelogBuilder? Update(
+    public static Changelog.Changelog? Update(
         Repository repo,
         Options options,
         SemanticVersion nextVersion,
@@ -24,13 +24,13 @@ public sealed class ChangelogUpdater
         }
 
         var versionTime = DateTimeOffset.Now;
-        var changelog = ChangelogBuilder.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? "")));
+        var changelog = Changelog.Changelog.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? "")));
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
         previousVersion ??= nextVersion;
 
         if (options.DryRun)
         {
-            string markdown = ChangelogBuilder.GenerateMarkdown(
+            string markdown = Changelog.Changelog.GenerateMarkdown(
                 nextVersion,
                 previousVersion,
                 versionTime,

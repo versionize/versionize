@@ -4,7 +4,8 @@ using Versionize.Config;
 
 namespace Versionize.Pipeline.VersionizeSteps;
 
-public class GetBumpFileStep : IPipelineStep<InitWorkingCopyResult, GetBumpFileStep.Options, GetBumpFileResult>
+public class GetBumpFileStep :
+    IPipelineStep<InitWorkingCopyResult, GetBumpFileStep.Options, GetBumpFileResult>
 {
     public GetBumpFileResult Execute(InitWorkingCopyResult input, Options options)
     {

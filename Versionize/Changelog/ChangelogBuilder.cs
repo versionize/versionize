@@ -6,20 +6,20 @@ using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize.Changelog;
 
-public sealed class ChangelogBuilder
+public sealed class Changelog
 {
-    private ChangelogBuilder(string file)
+    private Changelog(string file)
     {
         FilePath = file;
     }
 
     public string FilePath { get; }
 
-    public static ChangelogBuilder CreateForPath(string directory)
+    public static Changelog CreateForPath(string directory)
     {
         var changelogFile = Path.Combine(directory, "CHANGELOG.md");
 
-        return new ChangelogBuilder(changelogFile);
+        return new Changelog(changelogFile);
     }
 
     public void Write(

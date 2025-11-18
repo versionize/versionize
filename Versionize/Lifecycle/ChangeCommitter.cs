@@ -16,7 +16,7 @@ public sealed class ChangeCommitter
         Options options,
         SemanticVersion nextVersion,
         IBumpFile bumpFile,
-        ChangelogBuilder? changelog)
+        Changelog.Changelog? changelog)
     {
         if (options.SkipCommit || options.DryRun)
         {

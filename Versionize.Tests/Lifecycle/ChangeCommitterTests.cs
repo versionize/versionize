@@ -35,7 +35,7 @@ public class ChangeCommitterTests : IDisposable
         };
 
         var bumpFile = new NullBumpFile();
-        ChangelogBuilder changelog = null;
+        Changelog.Changelog changelog = null;
 
         // Act
         ChangeCommitter.CreateCommit(
@@ -63,7 +63,7 @@ public class ChangeCommitterTests : IDisposable
         };
 
         var bumpFile = new NullBumpFile();
-        ChangelogBuilder changelog = null;
+        Changelog.Changelog changelog = null;
 
         // Act
         ChangeCommitter.CreateCommit(
@@ -95,7 +95,7 @@ public class ChangeCommitterTests : IDisposable
 
         var bumpFile = new NullBumpFile();
 
-        ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
+        Changelog.Changelog changelog = Changelog.Changelog.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
             Version.Parse("2.0.0"),
             Version.Parse("2.0.0"),
@@ -142,7 +142,7 @@ public class ChangeCommitterTests : IDisposable
 
         var bumpFile = new NullBumpFile();
 
-        ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
+        Changelog.Changelog changelog = Changelog.Changelog.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
             Version.Parse("2.0.0"),
             Version.Parse("2.0.0"),

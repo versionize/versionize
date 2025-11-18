@@ -12,6 +12,9 @@ namespace Versionize.Pipeline.VersionizeSteps;
 
 public class CreateCommitStep : IPipelineStep<UpdateChangelogResult, CreateCommitStep.Options, CreateCommitResult>
 {
+    public CreateCommitResult Execute(UpdateChangelogResult input, VersionizeOptions options) =>
+        Execute(input, (Options)options);
+
     public CreateCommitResult Execute(UpdateChangelogResult input, Options options)
     {
         CreateCommit(
@@ -20,7 +23,7 @@ public class CreateCommitStep : IPipelineStep<UpdateChangelogResult, CreateCommi
             input.BumpedVersion,
             input.BumpFile,
             input.ChangelogPath is not null
-                ? ChangelogBuilder.CreateForPath(input.ChangelogPath)
+                ? Changelog.Changelog.CreateForPath(input.ChangelogPath)
                 : null);
 
         return new CreateCommitResult
@@ -41,7 +44,7 @@ public class CreateCommitStep : IPipelineStep<UpdateChangelogResult, CreateCommi
         Options options,
         SemanticVersion nextVersion,
         IBumpFile bumpFile,
-        ChangelogBuilder? changelog)
+        Changelog.Changelog? changelog)
     {
         if (options.SkipCommit || options.DryRun)
         {

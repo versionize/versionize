@@ -42,7 +42,7 @@ public sealed class WorkingCopy
         var (FromRef, ToRef) = repo.GetCommitRange(versionStr, options);
         var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
         var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
-        string markdown = ChangelogBuilder.GenerateCommitList(
+        string markdown = Changelog.Changelog.GenerateCommitList(
             linkBuilder,
             conventionalCommits,
             options.Project.Changelog);

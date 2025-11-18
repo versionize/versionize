@@ -5,6 +5,27 @@ using Versionize.Pipeline.VersionizeSteps;
 
 namespace Versionize.Pipeline;
 
+public class Pipeline1<TResult>
+{
+    private readonly TResult _result;
+    private readonly VersionizeOptions _versionizeOptions;
+
+    public Pipeline1(TResult result, VersionizeOptions versionizeOptions)
+    {
+        _result = result;
+        _versionizeOptions = versionizeOptions;
+    }
+
+    public Pipeline1<TResultOut> Then<TResultOut>(
+        IPipelineStep<TResult, TResultOut> step)
+    {
+        TResultOut result = step.Execute(_result, _versionizeOptions);
+        return new Pipeline1<TResultOut>(result, _versionizeOptions);
+    }
+
+    public TResult Result => _result;
+}
+
 public class Pipeline2<TResult>
 {
     private readonly TResult _result;
@@ -22,7 +43,6 @@ public class Pipeline2<TResult>
     {
         TOptions options = TOptions.FromVersionizeOptions(_versionizeOptions);
         TResultOut result = step.Execute(_result, options);
-        //TResultOut result = step.DoSomething(_result, _versionizeOptions);
         return new Pipeline2<TResultOut>(result, _versionizeOptions);
     }
 

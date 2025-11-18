@@ -22,7 +22,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -43,7 +43,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -66,7 +66,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -105,7 +105,7 @@ public class ChangelogBuilderTests : IDisposable
         // Arrange
         var githubLinkBuilder = new GithubLinkBuilder(
             "https://github.com/versionize/versionize.git");
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -143,7 +143,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -179,7 +179,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -214,7 +214,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -250,7 +250,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -289,7 +289,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -329,7 +329,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -361,7 +361,7 @@ public class ChangelogBuilderTests : IDisposable
         File.WriteAllText(Path.Combine(_testDirectory, "CHANGELOG.md"), "# Should be kept by versionize\n\nSome information about the changelog");
 
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -384,7 +384,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new GithubLinkBuilder("https://github.com/organization/repository.git");
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -407,7 +407,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new GithubLinkBuilder("git@github.com:organization/repository.git");
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -430,7 +430,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new GithubLinkBuilder("https://github.com/organization/repository.git");
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -453,7 +453,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new GithubLinkBuilder("git@github.com:organization/repository.git");
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Act
         changelog.Write(
@@ -476,7 +476,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         changelog.Write(
             new Version(1, 0, 0),
             new Version(1, 0, 0),
@@ -512,7 +512,7 @@ public class ChangelogBuilderTests : IDisposable
     public void ShouldExposeFilePathProperty()
     {
         // Act
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
 
         // Assert
         Assert.Equal(Path.Combine(_testDirectory, "CHANGELOG.md"), changelog.FilePath);
@@ -523,7 +523,7 @@ public class ChangelogBuilderTests : IDisposable
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
-        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var changelog = Changelog.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
             Changelog = ChangelogOptions.Default with
@@ -558,7 +558,7 @@ public class ChangelogBuilderTests : IDisposable
         var linkBuilder = new NullLinkBuilder();
 
         // Act
-        string markdown = ChangelogBuilder.GenerateMarkdown(
+        string markdown = Changelog.GenerateMarkdown(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
             DateTimeOffset.Parse("2021-5-2"),
@@ -599,7 +599,7 @@ public class ChangelogBuilderTests : IDisposable
         };
 
         // Act
-        string markdown = ChangelogBuilder.GenerateMarkdown(
+        string markdown = Changelog.GenerateMarkdown(
             new Version(1, 1, 0),
             new Version(1, 1, 0),
             DateTimeOffset.Parse("2023-10-31"),
