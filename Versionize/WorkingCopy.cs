@@ -24,7 +24,7 @@ public sealed class WorkingCopy
     public SemanticVersion Inspect(VersionizeOptions options)
     {
         // TODO: Consider implementing "--tag-only" variation
-        options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
+        //options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         Verbosity = CommandLine.LogLevel.Error;
         var bumpFile = BumpFileProvider.GetBumpFile(options);
@@ -35,7 +35,7 @@ public sealed class WorkingCopy
 
     public void GenerateChangelog(VersionizeOptions options, string? versionStr, string? preamble)
     {
-        options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
+        //options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         Verbosity = CommandLine.LogLevel.Error;
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
@@ -54,10 +54,7 @@ public sealed class WorkingCopy
 
     public void Versionize(VersionizeOptions options)
     {
-        var repo1 = new Repository(_workingDirectory.FullName);
-
-
-        options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
+        //options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
         var bumpFile = BumpFileProvider.GetBumpFile(options);
