@@ -2,8 +2,8 @@
   "profiles": {
     "Versionize": {
       "commandName": "Project",
-      "commandLineArgs": "--skip-dirty --skip-tag --dry-run --proj-name p1",
-      "workingDirectory": "D:\\OpenSource\\versionize"
+      "commandLineArgs": "--example Hello mysubcommand --example-option yo",
+      "workingDirectory": "C:\\Users\\colt45\\Desktop\\Dev\\versionize"
     }
   }
 }

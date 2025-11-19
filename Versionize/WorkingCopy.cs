@@ -83,7 +83,7 @@ public sealed class WorkingCopy
         var gitDirectory = _gitDirectory.FullName;
         var repo = new Repository(gitDirectory);
 
-        // Only check Git configuration if we will perform Git operations (commit or tag)
+        // Only check Git configuration if we will perform Git write operations (commit or tag)
         if (options.IsCommitConfigurationRequired() && !repo.IsConfiguredForCommits())
         {
             throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
