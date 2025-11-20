@@ -6,44 +6,30 @@ using Versionize.Versioning;
 
 namespace Versionize.Pipeline.VersionizeSteps;
 
-public class BumpVersionStep : IPipelineStep<ParseCommitsSinceLastVersionResult, BumpVersionStep.Options, BumpVersionResult>
+public class BumpVersionStep
 {
-    public BumpVersionResult Execute(ParseCommitsSinceLastVersionResult input, Options options)
+    private readonly VersionIncrementStrategy _incrementStrategy;
+    private readonly Options _options;
+
+    public BumpVersionStep(VersionIncrementStrategy incrementStrategy, Options options)
     {
-        return new BumpVersionResult
-        {
-            Repository = input.Repository,
-            BumpFile = input.BumpFile,
-            Version = input.Version,
-            IsFirstRelease = input.IsFirstRelease,
-            Commits = input.Commits,
-            BumpedVersion = Bump(
-                options,
-                input.Version,
-                input.IsFirstRelease,
-                input.Commits),
-        };
+        _incrementStrategy = incrementStrategy;
+        _options = options;
     }
 
-    private static SemanticVersion Bump(
-        Options options,
-        SemanticVersion? version,
-        bool isInitialRelease,
-        IReadOnlyList<ConventionalCommit> conventionalCommits)
+    public SemanticVersion Execute(SemanticVersion? currentVersion, IReadOnlyList<ConventionalCommit> commits)
     {
-        var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
+        var insignificantCommitsAffectVersion = !(_options.IgnoreInsignificantCommits || _options.ExitInsignificantCommits);
+        SemanticVersion nextVersion = currentVersion is null
+            ? currentVersion ?? new SemanticVersion(1, 0, 0)
+            : _incrementStrategy.NextVersion(commits, currentVersion, _options.Prerelease, insignificantCommitsAffectVersion);
 
-        var insignificantCommitsAffectVersion = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
-        SemanticVersion nextVersion = isInitialRelease || version is null
-            ? version ?? new SemanticVersion(1, 0, 0)
-            : versionIncrement.NextVersion(version, options.Prerelease, insignificantCommitsAffectVersion);
-
-        if (!isInitialRelease && nextVersion == version)
+        if (nextVersion == currentVersion)
         {
-            if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
+            if (_options.IgnoreInsignificantCommits || _options.ExitInsignificantCommits)
             {
-                var exitCode = options.ExitInsignificantCommits ? 1 : 0;
-                throw new VersionizeException(ErrorMessages.VersionUnaffected(version.ToNormalizedString()), exitCode);
+                var exitCode = _options.ExitInsignificantCommits ? 1 : 0;
+                throw new VersionizeException(ErrorMessages.VersionUnaffected(currentVersion.ToNormalizedString()), exitCode);
             }
             else
             {
@@ -51,20 +37,17 @@ public class BumpVersionStep : IPipelineStep<ParseCommitsSinceLastVersionResult,
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(options.ReleaseAs))
+        if (!string.IsNullOrWhiteSpace(_options.ReleaseAs))
         {
-            if (!SemanticVersion.TryParse(options.ReleaseAs, out nextVersion!))
+            if (!SemanticVersion.TryParse(_options.ReleaseAs, out var version))
             {
-                throw new VersionizeException(ErrorMessages.CouldNotParseReleaseVersion(options.ReleaseAs), 1);
+                throw new VersionizeException(ErrorMessages.CouldNotParseReleaseVersion(_options.ReleaseAs), 1);
             }
+
+            nextVersion = version;
         }
 
-        if (version is not null && nextVersion! < version)
-        {
-            throw new VersionizeException(ErrorMessages.SemanticVersionConflict(nextVersion.ToNormalizedString(), version.ToNormalizedString()), 1);
-        }
-
-        return nextVersion!;
+        return nextVersion;
     }
 
     public sealed class Options : IConvertibleFromVersionizeOptions<Options>

@@ -13,6 +13,7 @@ public sealed class BumpFileUpdater
         SemanticVersion nextVersion,
         IBumpFile bumpFile)
     {
+        // TODO: Consider checking TagOnly, instead.
         if (bumpFile.Version != new SemanticVersion(0, 0, 0))
         {
             Step(InfoMessages.BumpingVersion(bumpFile.Version.ToString(), nextVersion.ToString()));

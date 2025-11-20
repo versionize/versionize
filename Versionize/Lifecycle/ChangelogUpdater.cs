@@ -23,8 +23,12 @@ public sealed class ChangelogUpdater
             return null;
         }
 
+        // TODO: Consider using TimeProvider?
         var versionTime = DateTimeOffset.Now;
-        var changelog = Changelog.Changelog.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? "")));
+
+        // TODO: Consider constructing this path when creating options.
+        var changelogPath = Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? ""));
+        var changelog = Changelog.Changelog.CreateForPath(changelogPath);
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
         previousVersion ??= nextVersion;
 

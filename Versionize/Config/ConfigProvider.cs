@@ -34,7 +34,7 @@ public static class ConfigProvider
 
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
         var tagOnly = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly);
-        var projectPath = Path.Combine(cwd, project.Path);
+        var projectPath = cwd; // Path.Combine(cwd, project.Path);
         var bumpFileType = BumpFileTypeDetector.GetType(projectPath, tagOnly);
 
         return new VersionizeOptions

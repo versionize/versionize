@@ -1,5 +1,7 @@
-﻿using LibGit2Sharp;
+﻿using Jab;
+using LibGit2Sharp;
 using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NuGet.Versioning;
 using System.Diagnostics.CodeAnalysis;
@@ -490,7 +492,9 @@ public interface IVersionizePipeline
     void Begin(VersionizeOptions options);
 }
 
-public class Program2
+// [ServiceProvider]
+// [Singleton<BumpVersionStep>]
+public partial class Program2
 {
     public static int Main(string[] args)
     {
@@ -608,6 +612,35 @@ public interface IVersionizeOptionsProvider
 {
     VersionizeOptions GetOptions();
 }
+public class VersionizeOptionsProvider : IVersionizeOptionsProvider
+{
+    private readonly CliConfig _cliConfig;
+    private readonly FileConfigProvider _fileConfigProvider;
+    private readonly ConfigMerger _configMerger;
+    public VersionizeOptions GetOptions()
+    {
+        var cwd = _cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
+        var configDirectory = _cliConfig.ConfigurationDirectory.Value() ?? cwd;
+        var fileConfigPath = Path.Join(configDirectory, ".versionize");
+        var fileConfig = _fileConfigProvider.Load(fileConfigPath);
+        var mergedOptions = _configMerger.Merge(cwd, _cliConfig, fileConfig);
+        return mergedOptions;
+    }
+}
+public class FileConfigProvider
+{
+    public FileConfig Load(string path)
+    {
+        throw new NotImplementedException();
+    }
+}
+public class ConfigMerger
+{
+    public VersionizeOptions Merge(string workingDirectory, CliConfig cliConfig, FileConfig fileConfig)
+    {
+        throw new NotImplementedException();
+    }
+}
 
 public interface IRepositoryProvider
 {
@@ -635,8 +668,11 @@ public class MySubcommand2
 {
     [Option(Description = "An example option")]
     public string ExampleOption { get; } = "default value";
+{
+    [Option(Description = "An example option")]
+    public bool A { get; }
 
-    public MySubcommand2(IEnumerable<CommandOption<string>> options)
+    public MySubcommand2(IEnumerable<CommandOption> options)
     {
         Console.WriteLine(string.Join(", ", options.Select(o => $"{o.LongName}={o.Value()}")));
     }
