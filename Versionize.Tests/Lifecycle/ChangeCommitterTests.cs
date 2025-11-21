@@ -34,7 +34,7 @@ public class ChangeCommitterTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
-        var bumpFile = new NullBumpFile();
+        var bumpFile = NullBumpFile.Default;
         ChangelogBuilder changelog = null;
 
         // Act
@@ -62,7 +62,7 @@ public class ChangeCommitterTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
-        var bumpFile = new NullBumpFile();
+        var bumpFile = NullBumpFile.Default;
         ChangelogBuilder changelog = null;
 
         // Act
@@ -93,7 +93,7 @@ public class ChangeCommitterTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
-        var bumpFile = new NullBumpFile();
+        var bumpFile = NullBumpFile.Default;
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
@@ -140,7 +140,7 @@ public class ChangeCommitterTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
-        var bumpFile = new NullBumpFile();
+        var bumpFile = NullBumpFile.Default;
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(

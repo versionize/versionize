@@ -41,11 +41,8 @@ public sealed record VersionizeOptions
     /// <inheritdoc cref="FileConfig.Sign"/>
     public bool Sign { get; init; }
 
-    /// <summary>
-    /// Identifies the type of file where version should be read from and written to.
-    /// Determined automatically by <see cref="BumpFiles.BumpFileTypeDetector"/>.
-    /// </summary>
-    public BumpFileType BumpFileType { get; init; } = BumpFileType.Dotnet;
+    /// <inheritdoc cref="FileConfig.TagOnly"/>
+    public bool TagOnly { get; init; }
 
     /// <inheritdoc cref="CliConfig.WorkingDirectory"/>
     public string WorkingDirectory { get; init; } = "";

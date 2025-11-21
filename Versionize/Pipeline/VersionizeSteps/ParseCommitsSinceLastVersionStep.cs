@@ -4,11 +4,28 @@ using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Git;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public sealed class ConventionalCommitProvider
+// GetCommitsStep
+// ParseCommitMessages
+// ParseCommitsSinceLastVersion or ForNewVersion vs ParseCommitsForVersion
+public class ParseCommitsSinceLastVersionStep : IPipelineStep<ReadVersionResult, ParseCommitsSinceLastVersionStep.Options, ParseCommitsSinceLastVersionResult>
 {
-    public static (bool, IReadOnlyList<ConventionalCommit>) GetCommits(Repository repo, Options options, SemanticVersion? version)
+    public ParseCommitsSinceLastVersionResult Execute(ReadVersionResult input, Options options)
+    {
+        var (isFirstRelease, commits) = GetCommits(input.Repository, options, input.Version);
+
+        return new ParseCommitsSinceLastVersionResult
+        {
+            Repository = input.Repository,
+            BumpFile = input.BumpFile,
+            Version = input.Version,
+            IsFirstRelease = isFirstRelease,
+            Commits = commits,
+        };
+    }
+
+    private static (bool, IReadOnlyList<ConventionalCommit>) GetCommits(Repository repo, Options options, SemanticVersion? version)
     {
         var versionToUseForCommitDiff = version;
 
@@ -48,22 +65,7 @@ public sealed class ConventionalCommitProvider
         return (isInitialRelease, conventionalCommits);
     }
 
-    public static IReadOnlyList<ConventionalCommit> GetCommits(Repository repo, Options options, GitObject? fromRef, GitObject toRef)
-    {
-        var commitFilter = new CommitFilter
-        {
-            FirstParentOnly = options.FirstParentOnlyCommits,
-            IncludeReachableFrom = toRef,
-            ExcludeReachableFrom = fromRef,
-        };
-
-        List<Commit> commitsInVersion = [.. repo.GetCommits(options.Project, commitFilter)];
-        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
-
-        return conventionalCommits;
-    }
-
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public required ProjectOptions Project { get; init; }
         public bool AggregatePrereleases { get; init; }

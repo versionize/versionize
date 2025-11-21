@@ -9,6 +9,15 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
     private readonly IEnumerable<ConventionalCommit> _conventionalCommits = conventionalCommits;
 
     public SemanticVersion NextVersion(
+        IEnumerable<ConventionalCommit> conventionalCommits,
+        SemanticVersion version,
+        string? prereleaseLabel = null,
+        bool insignificantCommitsAffectVersion = true)
+    {
+        return NextVersion(version, prereleaseLabel, insignificantCommitsAffectVersion);
+    }
+
+    public SemanticVersion NextVersion(
         SemanticVersion version,
         string? prereleaseLabel = null,
         bool insignificantCommitsAffectVersion = true)

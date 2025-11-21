@@ -84,21 +84,16 @@ public static class RepositoryExtensions
 
     public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
     {
-        SemanticVersion? version;
         if (options.TagOnly)
         {
-            version = repository.Tags
+            return repository.Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x is not null)
                 .OrderByDescending(x => x)
                 .FirstOrDefault();
         }
-        else
-        {
-            version = bumpFile.Version;
-        }
 
-        return version;
+        return bumpFile.Version;
     }
 
     public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, VersionizeOptions options)
@@ -117,14 +112,18 @@ public static class RepositoryExtensions
             .ToArray();
 
         var versionIndex = Array.IndexOf(versions, version);
-        return versionIndex == -1 || versionIndex == versions.Length - 1 ? null : versions[versionIndex + 1];
+        return versionIndex == -1 || versionIndex == versions.Length - 1
+            ? null
+            : versions[versionIndex + 1];
     }
 
     public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, VersionizeOptions options)
     {
         if (string.IsNullOrEmpty(versionStr))
         {
-            versionStr = repo.GetCurrentVersion(options, BumpFileProvider.GetBumpFile(options))?.ToNormalizedString();
+            IBumpFile bumpFile = default;
+            //BumpFileProvider.GetBumpFile(options)
+            versionStr = repo.GetCurrentVersion(options, bumpFile)?.ToNormalizedString();
             if (string.IsNullOrEmpty(versionStr))
             {
                 throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
@@ -155,12 +154,17 @@ public sealed class VersionOptions
     public bool TagOnly { get; init; }
     public required ProjectOptions Project { get; init; }
 
-    public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
+    public static VersionOptions FromVersionizeOptions(VersionizeOptions versionizeOptions)
     {
         return new VersionOptions
         {
-            TagOnly = versionizeOptions.BumpFileType == BumpFileType.None,
+            TagOnly = versionizeOptions.TagOnly,
             Project = versionizeOptions.Project,
         };
+    }
+
+    public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
+    {
+        return FromVersionizeOptions(versionizeOptions);
     }
 }

@@ -22,3 +22,19 @@ internal sealed class SemanticVersionValidator : IOptionValidator
             : new ValidationResult($"The value '{option.Value()}' is not a valid semantic version.");
     }
 }
+
+internal sealed class SemanticVersionAttribute : ValidationAttribute
+{
+    protected override ValidationResult? IsValid(object? value, ValidationContext context)
+    {
+        var strValue = value as string;
+        if (string.IsNullOrEmpty(strValue))
+        {
+            return ValidationResult.Success;
+        }
+
+        return SemanticVersion.TryParse(strValue, out _)
+            ? ValidationResult.Success
+            : new ValidationResult($"The value '{strValue}' is not a valid semantic version.");
+    }
+}

@@ -1,32 +1,34 @@
-﻿using NuGet.Versioning;
-using Versionize.Config;
-using Versionize.ConventionalCommits;
-using Versionize.Versioning;
+using NuGet.Versioning;
 using Versionize.CommandLine;
+using Versionize.Config;
+using Versionize.Versioning;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public sealed class VersionCalculator
+public class BumpVersionStep : IBumpVersionStep
 {
-    public static SemanticVersion Bump(
-        Options options,
-        SemanticVersion? version,
-        bool isInitialRelease,
-        IReadOnlyList<ConventionalCommit> conventionalCommits)
+    private readonly VersionIncrementStrategy _incrementStrategy;
+
+    public BumpVersionStep(VersionIncrementStrategy incrementStrategy)
     {
-        var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
+        _incrementStrategy = incrementStrategy;
+    }
 
+    public SemanticVersion Execute(IBumpVersionStep.Input input, IBumpVersionStep.Options options)
+    {
+        var originalVersion = input.OriginalVersion;
+        var commits = input.ConventionalCommits;
         var insignificantCommitsAffectVersion = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
-        SemanticVersion nextVersion = isInitialRelease || version is null
-            ? version ?? new SemanticVersion(1, 0, 0)
-            : versionIncrement.NextVersion(version, options.Prerelease, insignificantCommitsAffectVersion);
+        SemanticVersion nextVersion = originalVersion is null
+            ? originalVersion ?? new SemanticVersion(1, 0, 0)
+            : _incrementStrategy.NextVersion(commits, originalVersion, options.Prerelease, insignificantCommitsAffectVersion);
 
-        if (!isInitialRelease && nextVersion == version)
+        if (nextVersion == originalVersion)
         {
             if (options.IgnoreInsignificantCommits || options.ExitInsignificantCommits)
             {
                 var exitCode = options.ExitInsignificantCommits ? 1 : 0;
-                throw new VersionizeException(ErrorMessages.VersionUnaffected(version.ToNormalizedString()), exitCode);
+                throw new VersionizeException(ErrorMessages.VersionUnaffected(originalVersion.ToNormalizedString()), exitCode);
             }
             else
             {
@@ -36,21 +38,18 @@ public sealed class VersionCalculator
 
         if (!string.IsNullOrWhiteSpace(options.ReleaseAs))
         {
-            if (!SemanticVersion.TryParse(options.ReleaseAs, out nextVersion!))
+            if (!SemanticVersion.TryParse(options.ReleaseAs, out var version))
             {
                 throw new VersionizeException(ErrorMessages.CouldNotParseReleaseVersion(options.ReleaseAs), 1);
             }
-        }
 
-        if (version is not null && nextVersion < version)
-        {
-            throw new VersionizeException(ErrorMessages.SemanticVersionConflict(nextVersion.ToNormalizedString(), version.ToNormalizedString()), 1);
+            nextVersion = version;
         }
 
         return nextVersion;
     }
 
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public bool IgnoreInsignificantCommits { get; init; }
         public bool ExitInsignificantCommits { get; init; }

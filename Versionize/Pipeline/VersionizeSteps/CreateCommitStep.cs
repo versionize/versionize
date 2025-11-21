@@ -1,17 +1,45 @@
-﻿using LibGit2Sharp;
+using LibGit2Sharp;
 using NuGet.Versioning;
 using Versionize.BumpFiles;
 using Versionize.Changelog;
+using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
-using Versionize.CommandLine;
+
 using static Versionize.CommandLine.CommandLineUI;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public sealed class ChangeCommitter
+public class CreateCommitStep : IPipelineStep<UpdateChangelogResult, CreateCommitStep.Options, CreateCommitResult>
 {
-    public static void CreateCommit(
+    public CreateCommitResult Execute(UpdateChangelogResult input, VersionizeOptions options) =>
+        Execute(input, (Options)options);
+
+    public CreateCommitResult Execute(UpdateChangelogResult input, Options options)
+    {
+        CreateCommit(
+            input.Repository,
+            options,
+            input.BumpedVersion,
+            input.BumpFile,
+            input.ChangelogPath is not null
+                ? ChangelogBuilder.CreateForPath(input.ChangelogPath)
+                : null);
+
+        return new CreateCommitResult
+        {
+            Repository = input.Repository,
+            BumpFile = input.BumpFile,
+            Version = input.Version,
+            IsFirstRelease = input.IsFirstRelease,
+            Commits = input.Commits,
+            BumpedVersion = input.BumpedVersion,
+            ChangelogPath = input.ChangelogPath,
+            Commit = input.Repository.Head.Tip,
+        };
+    }
+
+    private static void CreateCommit(
         Repository repo,
         Options options,
         SemanticVersion nextVersion,
@@ -57,7 +85,7 @@ public sealed class ChangeCommitter
         Step(InfoMessages.CommittedChanges(changelog?.FilePath ?? "CHANGELOG.md"));
     }
 
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }

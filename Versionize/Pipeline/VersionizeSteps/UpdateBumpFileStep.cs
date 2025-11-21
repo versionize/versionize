@@ -1,19 +1,29 @@
-﻿using NuGet.Versioning;
+using NuGet.Versioning;
 using Versionize.BumpFiles;
-using Versionize.Config;
-using static Versionize.CommandLine.CommandLineUI;
 using Versionize.CommandLine;
+using Versionize.Config;
 
-namespace Versionize.Lifecycle;
+using static Versionize.CommandLine.CommandLineUI;
 
-public sealed class BumpFileUpdater
+namespace Versionize.Pipeline.VersionizeSteps;
+
+public class UpdateBumpFileStep : IPipelineStep<BumpVersionResult, UpdateBumpFileStep.Options, BumpVersionResult>
 {
-    public static void Update(
-        Options options,
-        SemanticVersion nextVersion,
-        IBumpFile bumpFile)
+    public BumpVersionResult Execute(BumpVersionResult input, Options options)
     {
-        // TODO: Consider checking TagOnly, instead.
+        return new BumpVersionResult
+        {
+            Repository = input.Repository,
+            BumpFile = input.BumpFile,
+            Version = input.Version,
+            IsFirstRelease = input.IsFirstRelease,
+            Commits = input.Commits,
+            BumpedVersion = input.BumpedVersion,
+        };
+    }
+
+    public static void Update(Options options, SemanticVersion nextVersion, IBumpFile bumpFile)
+    {
         if (bumpFile.Version != new SemanticVersion(0, 0, 0))
         {
             Step(InfoMessages.BumpingVersion(bumpFile.Version.ToString(), nextVersion.ToString()));
@@ -27,7 +37,7 @@ public sealed class BumpFileUpdater
         bumpFile.WriteVersion(nextVersion);
     }
 
-    public sealed class Options
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
     {
         public bool DryRun { get; init; }
 

@@ -1,9 +1,20 @@
-﻿using Versionize.Config;
+using Versionize.BumpFiles;
+using Versionize.Config;
 
-namespace Versionize.BumpFiles;
+namespace Versionize.Pipeline.VersionizeSteps;
 
-public static class BumpFileTypeDetector
+public class GetBumpFileStep :
+    IPipelineStep<InitWorkingCopyResult, GetBumpFileStep.Options, GetBumpFileResult>
 {
+    public GetBumpFileResult Execute(InitWorkingCopyResult input, Options options)
+    {
+        return new GetBumpFileResult
+        {
+            Repository = input.Repository,
+            BumpFile = GetBumpFile(options),
+        };
+    }
+
     /// <summary>
     /// Detects the type of bump file based on the project structure in the specified directory.
     /// </summary>
@@ -12,24 +23,24 @@ public static class BumpFileTypeDetector
     /// Unity project, or neither by examining the directory structure and file patterns.
     /// Returns <see cref="BumpFileType.None"/> if <paramref name="tagOnly"/> is true.
     /// </remarks>
-    public static BumpFileType GetType(string cwd, bool tagOnly)
+    private static IBumpFile GetBumpFile(Options options)
     {
-        if (tagOnly)
+        if (options.TagOnly)
         {
-            return BumpFileType.None;
+            return NullBumpFile.Default;
         }
 
-        if (IsUnityProjectRecursive(cwd))
+        if (IsUnityProjectRecursive(options.WorkingDirectory))
         {
-            return BumpFileType.Unity;
+            return UnityBumpFile.Create(options.WorkingDirectory);
         }
 
-        if (IsDotnetProject(cwd))
+        if (IsDotnetProject(options.WorkingDirectory))
         {
-            return BumpFileType.Dotnet;
+            return DotnetBumpFile.Create(options.WorkingDirectory, options.VersionElement);
         }
 
-        return BumpFileType.None;
+        return NullBumpFile.Default;
     }
 
     private static bool IsDotnetProject(string directoryPath)
@@ -70,5 +81,27 @@ public static class BumpFileTypeDetector
         return Directory
             .EnumerateDirectories(directoryPath, "*", options)
             .Any(IsUnityProject);
+    }
+
+    public sealed class Options : IConvertibleFromVersionizeOptions<Options>
+    {
+        public bool TagOnly { get; init; }
+        public string? VersionElement { get; init; }
+        public required string WorkingDirectory { get; init; }
+
+        public static Options FromVersionizeOptions(VersionizeOptions versionizeOptions)
+        {
+            return new Options
+            {
+                TagOnly = versionizeOptions.TagOnly,
+                VersionElement = versionizeOptions.Project.VersionElement,
+                WorkingDirectory = versionizeOptions.WorkingDirectory,
+            };
+        }
+
+        public static implicit operator Options(VersionizeOptions versionizeOptions)
+        {
+            return FromVersionizeOptions(versionizeOptions);
+        }
     }
 }

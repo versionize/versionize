@@ -55,7 +55,7 @@ public class RepositoryExtensionsTests : IDisposable
         var options = new VersionOptions { TagOnly = true, Project = ProjectOptions.DefaultOneProjectPerRepo };
 
         // Act
-        var version = _testSetup.Repository.GetCurrentVersion(options, new NullBumpFile());
+        var version = _testSetup.Repository.GetCurrentVersion(options, NullBumpFile.Default);
 
         // Assert
         version.ShouldBe(new Version(2, 1, 0));

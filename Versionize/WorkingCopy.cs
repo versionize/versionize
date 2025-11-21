@@ -7,6 +7,7 @@ using Versionize.Lifecycle;
 using static Versionize.CommandLine.CommandLineUI;
 using Versionize.CommandLine;
 using Versionize.Changelog.LinkBuilders;
+using Versionize.BumpFiles;
 
 namespace Versionize;
 
@@ -27,7 +28,8 @@ public sealed class WorkingCopy
         options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         Verbosity = CommandLine.LogLevel.Error;
-        var bumpFile = BumpFileProvider.GetBumpFile(options);
+        //var bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = default;
         Verbosity = CommandLine.LogLevel.All;
         Information(bumpFile.Version.ToNormalizedString());
         return bumpFile.Version;
@@ -57,7 +59,8 @@ public sealed class WorkingCopy
         options = options with { WorkingDirectory = Path.Combine(_workingDirectory.FullName, options.Project.Path) };
 
         using Repository repo = ValidateRepoState(options, options.WorkingDirectory);
-        var bumpFile = BumpFileProvider.GetBumpFile(options);
+        //var bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = default;
         var version = repo.GetCurrentVersion(options, bumpFile);
         var (isInitialRelease, conventionalCommits) = ConventionalCommitProvider.GetCommits(repo, options, version);
         var newVersion = VersionCalculator.Bump(options, version, isInitialRelease, conventionalCommits);
@@ -65,6 +68,17 @@ public sealed class WorkingCopy
         var changelog = ChangelogUpdater.Update(repo, options, newVersion, version, conventionalCommits);
         ChangeCommitter.CreateCommit(repo, options, newVersion, bumpFile, changelog);
         ReleaseTagger.CreateTag(repo, options, newVersion);
+
+        // RUNTIME DATA TO PASS BETWEEN STEPS:
+        // repo + working directory
+        // bump file
+        // conventional commits
+        // is initial release
+        // old version
+        // new version
+        // changelog
+        // commit
+        // tag
     }
 
     private Repository ValidateRepoState(VersionizeOptions options, string workingDirectory)
@@ -72,7 +86,7 @@ public sealed class WorkingCopy
         var gitDirectory = _gitDirectory.FullName;
         var repo = new Repository(gitDirectory);
 
-        // Only check Git configuration if we will perform Git operations (commit or tag)
+        // Only check Git configuration if we will perform Git write operations (commit or tag)
         if (options.IsCommitConfigurationRequired() && !repo.IsConfiguredForCommits())
         {
             throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
