@@ -65,6 +65,11 @@ public sealed record VersionizeOptions
     /// </summary>
     public VersioningOptions? Versioning { get; init; }
 
+    /// <summary>
+    /// Commit type aliases mapping a canonical type to alternate type strings.
+    /// </summary>
+    public IReadOnlyDictionary<string, string[]>? Aliases { get; init; }
+
     /// <inheritdoc cref="CliConfig.FindReleaseCommitViaMessage"/>
     public bool FindReleaseCommitViaMessage { get; init; }
 

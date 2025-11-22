@@ -20,6 +20,7 @@ public static class ConventionalCommitParser
         return [.. commits.Select(x => Parse(x, options))];
     }
 
+    // TODO: Only used in tests, consider removing
     public static ConventionalCommit Parse(Commit commit)
     {
         return Parse(commit, null);

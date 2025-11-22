@@ -40,6 +40,15 @@ public static class ConfigProvider
         var projectPath = Path.Combine(baseWorkingDirectory, project.Path);
         var bumpFileType = BumpFileTypeDetector.GetType(projectPath, tagOnly);
 
+        var aliasMap = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+        foreach (var dict in fileConfig?.Aliases ?? [])
+        {
+            foreach (var kvp in dict)
+            {
+                aliasMap[kvp.Key] = kvp.Value;
+            }
+        }
+
         return new VersionizeOptions
         {
             WorkingDirectory = projectPath,
@@ -60,6 +69,7 @@ public static class ConfigProvider
             CommitParser = commitParser,
             Project = project,
             Versioning = fileConfig?.Versioning,
+            Aliases = aliasMap.Count == 0 ? null : aliasMap,
             FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
         };
     }

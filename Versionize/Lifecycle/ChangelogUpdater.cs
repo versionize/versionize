@@ -35,7 +35,8 @@ public sealed class ChangelogUpdater
                 versionTime,
                 changelogLinkBuilder,
                 conventionalCommits,
-                options.Project);
+                options.Project,
+                options.Aliases);
             DryRun(markdown.TrimEnd('\n'));
         }
         else
@@ -46,7 +47,8 @@ public sealed class ChangelogUpdater
                 versionTime,
                 changelogLinkBuilder,
                 conventionalCommits,
-                options.Project);
+                options.Project,
+                options.Aliases);
         }
         Step(InfoMessages.UpdatedChangelog());
 
@@ -59,6 +61,7 @@ public sealed class ChangelogUpdater
         public bool DryRun { get; init; }
         public required ProjectOptions Project { get; init; }
         public required string WorkingDirectory { get; init; }
+        public IReadOnlyDictionary<string, string[]>? Aliases { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -69,6 +72,7 @@ public sealed class ChangelogUpdater
                 Project = versionizeOptions.Project,
                 WorkingDirectory = versionizeOptions.WorkingDirectory ??
                     throw new VersionizeException(nameof(versionizeOptions.WorkingDirectory), 1),
+                Aliases = versionizeOptions.Aliases,
             };
         }
     }

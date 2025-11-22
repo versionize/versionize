@@ -124,6 +124,12 @@ public sealed class FileConfig
     /// </summary>
     public VersioningOptions? Versioning { get; init; }
 
+    /// <summary>
+    /// Commit type aliases mapping canonical types (e.g. feat) to alternate spellings.
+    /// JSON shape supports either an object or an array of single-key objects.
+    /// </summary>
+    public List<Dictionary<string, string[]>>? Aliases { get; init; }
+
     public static FileConfig? Load(string filePath)
     {
         if (!File.Exists(filePath))

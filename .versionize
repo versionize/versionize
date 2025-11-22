@@ -2,10 +2,15 @@
   "$schema": "./schemas/versionize.schema.json",
   "tagTemplate": "v{version}",
   "aggregatePrereleases": true,
-  "versioning":  {
+  "aliases": [
+    {
+      "feat": ["feature", "initial"]
+    }
+  ],
+  "versioning": {
     "positions": [
       {
-        "type": "feat",
+        "types": "feat",
         "position": 3
       },
       {
@@ -35,11 +40,7 @@
       {
         "type": "feat",
         "section": "✨ Features",
-        "hidden": false,
-        "aliases": [
-          "feature",
-          "initial"
-        ]
+        "hidden": false
       },
       {
         "type": "fix",

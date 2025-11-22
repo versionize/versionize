@@ -27,9 +27,10 @@ public sealed class ChangelogBuilder
         DateTimeOffset versionTime,
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
-        ProjectOptions projectOptions)
+        ProjectOptions projectOptions,
+        IReadOnlyDictionary<string, string[]>? aliases = null)
     {
-        string markdown = GenerateMarkdown(newVersion, previousVersion, versionTime, linkBuilder, commits, projectOptions);
+        string markdown = GenerateMarkdown(newVersion, previousVersion, versionTime, linkBuilder, commits, projectOptions, aliases);
 
         if (File.Exists(FilePath))
         {
@@ -60,7 +61,8 @@ public sealed class ChangelogBuilder
         DateTimeOffset versionTime,
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
-        ProjectOptions projectOptions)
+        ProjectOptions projectOptions,
+        IReadOnlyDictionary<string, string[]>? aliases = null)
     {
         var currentTag = projectOptions.GetTagName(newVersion);
         var previousTag = projectOptions.GetTagName(previousVersion);
@@ -75,15 +77,31 @@ public sealed class ChangelogBuilder
         markdown += "\n";
         markdown += "\n";
 
-        return markdown + GenerateCommitList(linkBuilder, commits, projectOptions.Changelog);
+        return markdown + GenerateCommitList(linkBuilder, commits, projectOptions.Changelog, aliases);
     }
 
     public static string GenerateCommitList(
         IChangelogLinkBuilder linkBuilder,
         IEnumerable<ConventionalCommit> commits,
-        ChangelogOptions changelogOptions)
+        ChangelogOptions changelogOptions,
+        IReadOnlyDictionary<string, string[]>? aliases = null)
     {
         var markdown = "";
+
+        var aliasLookup = aliases?.ToDictionary(
+            kvp => kvp.Key.ToLowerInvariant(),
+            kvp => new HashSet<string>(kvp.Value.Select(v => v.ToLowerInvariant())))
+            ?? new Dictionary<string, HashSet<string>>();
+
+        bool MatchesSection(ConventionalCommit commit, string sectionType)
+        {
+            if (string.IsNullOrWhiteSpace(commit.Type)) return false;
+            var commitTypeLower = commit.Type.ToLowerInvariant();
+            var sectionLower = sectionType.ToLowerInvariant();
+            if (commitTypeLower == sectionLower) return true;
+            if (aliasLookup.TryGetValue(sectionLower, out var set)) return set.Contains(commitTypeLower);
+            return false;
+        }
 
         var visibleChangelogSections = changelogOptions.Sections is null
             ? []
@@ -91,7 +109,7 @@ public sealed class ChangelogBuilder
 
         foreach (var changelogSection in visibleChangelogSections)
         {
-            var matchingCommits = commits.Where(commit => commit.Type == changelogSection.Type);
+            var matchingCommits = commits.Where(commit => MatchesSection(commit, changelogSection.Type));
             var buildBlock = BuildBlock(changelogSection.Section, linkBuilder, matchingCommits);
             if (!string.IsNullOrWhiteSpace(buildBlock))
             {
@@ -113,7 +131,7 @@ public sealed class ChangelogBuilder
             var other = BuildBlock(
                 changelogOptions.OtherSection ?? "Other",
                 linkBuilder,
-                commits.Where(commit => !visibleChangelogSections.Any(x => x.Type == commit.Type) && !commit.IsBreakingChange));
+                commits.Where(commit => !visibleChangelogSections.Any(x => MatchesSection(commit, x.Type)) && !commit.IsBreakingChange));
 
             if (!string.IsNullOrWhiteSpace(other))
             {

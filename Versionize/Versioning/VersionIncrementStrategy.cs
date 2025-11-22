@@ -4,9 +4,14 @@ using Versionize.ConventionalCommits;
 
 namespace Versionize.Versioning;
 
-public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> conventionalCommits)
+public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> conventionalCommits, IReadOnlyDictionary<string, string[]>? aliases = null)
 {
     private readonly IEnumerable<ConventionalCommit> _conventionalCommits = conventionalCommits;
+    private readonly Dictionary<string, HashSet<string>> _aliasLookup =
+        aliases?.ToDictionary(
+            kvp => kvp.Key.ToLowerInvariant(),
+            kvp => new HashSet<string>(kvp.Value.Select(v => v.ToLowerInvariant())))
+        ?? [];
 
     public SemanticVersion NextVersion(
         SemanticVersion version,
@@ -70,11 +75,11 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
         {
             if (!string.IsNullOrWhiteSpace(conventionalCommit.Type))
             {
-                if (conventionalCommit.IsFix)
+                if (IsType(conventionalCommit, "fix"))
                 {
                     versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
                 }
-                else if (conventionalCommit.IsFeature)
+                else if (IsType(conventionalCommit, "feat"))
                 {
                     versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
                 }
@@ -96,6 +101,29 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
     private static VersionImpact MaxVersionImpact(VersionImpact impact1, VersionImpact impact2)
     {
         return (VersionImpact)Math.Max((int)impact1, (int)impact2);
+    }
+
+    private bool IsType(ConventionalCommit commit, string canonicalType)
+    {
+        if (string.IsNullOrWhiteSpace(commit.Type))
+        {
+            return false;
+        }
+
+        var typeLower = commit.Type.ToLowerInvariant();
+        var canonicalLower = canonicalType.ToLowerInvariant();
+
+        if (typeLower == canonicalLower)
+        {
+            return true;
+        }
+
+        if (_aliasLookup.TryGetValue(canonicalLower, out var aliases))
+        {
+            return aliases.Contains(typeLower);
+        }
+
+        return false;
     }
 }
 
