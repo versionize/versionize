@@ -117,6 +117,13 @@ public sealed class FileConfig
     /// </summary>
     public ChangelogOptions? Changelog { get; init; }
 
+    /// <summary>
+    /// Optional custom versioning strategy mapping commit "type" to a version position.
+    /// When provided, Versionize will use this strategy instead of default semantic rules
+    /// to determine Major/Minor/Patch based on commit types.
+    /// </summary>
+    public VersioningOptions? Versioning { get; init; }
+
     public static FileConfig? Load(string filePath)
     {
         if (!File.Exists(filePath))

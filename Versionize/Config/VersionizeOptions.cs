@@ -59,6 +59,12 @@ public sealed record VersionizeOptions
     /// </summary>
     public ProjectOptions Project { get; init; } = ProjectOptions.DefaultOneProjectPerRepo;
 
+    /// <summary>
+    /// Optional custom versioning strategy mapping commit types to positions.
+    /// Comes from the top-level "versioning" section of the config file.
+    /// </summary>
+    public VersioningOptions? Versioning { get; init; }
+
     /// <inheritdoc cref="CliConfig.FindReleaseCommitViaMessage"/>
     public bool FindReleaseCommitViaMessage { get; init; }
 

@@ -2,6 +2,26 @@
   "$schema": "./schemas/versionize.schema.json",
   "tagTemplate": "v{version}",
   "aggregatePrereleases": true,
+  "versioning":  {
+    "positions": [
+      {
+        "type": "feat",
+        "position": 3
+      },
+      {
+        "type": "fix",
+        "position": 4
+      }, 
+      {
+        "type": "release",
+        "position": 1
+      },
+      {
+        "type": "update",
+        "position": 2
+      }
+    ]
+  },
   "changelog": {
     "header": "Versionize Changelog",
     "includeAllCommits": true,
@@ -15,7 +35,11 @@
       {
         "type": "feat",
         "section": "✨ Features",
-        "hidden": false
+        "hidden": false,
+        "aliases": [
+          "feature",
+          "initial"
+        ]
       },
       {
         "type": "fix",

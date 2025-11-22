@@ -59,6 +59,7 @@ public static class ConfigProvider
             BumpFileType = bumpFileType,
             CommitParser = commitParser,
             Project = project,
+            Versioning = fileConfig?.Versioning,
             FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
         };
     }
