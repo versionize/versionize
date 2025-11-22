@@ -2,6 +2,11 @@
   "$schema": "./schemas/versionize.schema.json",
   "tagTemplate": "v{version}",
   "aggregatePrereleases": true,
+  "aliases": [
+    {
+      "feat": ["feature", "initial"]
+    }
+  ],
   "changelog": {
     "header": "Versionize Changelog",
     "includeAllCommits": true,

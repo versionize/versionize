@@ -66,6 +66,11 @@ public sealed record VersionizeOptions
     /// </summary>
     public ProjectOptions Project { get; init; } = ProjectOptions.DefaultOneProjectPerRepo;
 
+    /// <summary>
+    /// Commit type aliases mapping a canonical type to alternate type strings.
+    /// </summary>
+    public IReadOnlyDictionary<string, string[]>? Aliases { get; init; }
+
     /// <inheritdoc cref="CliConfig.FindReleaseCommitViaMessage"/>
     public bool FindReleaseCommitViaMessage { get; init; }
 }

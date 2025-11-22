@@ -18,6 +18,15 @@ public static class ConfigProvider
         ValidateChangelogPaths(fileConfig, projectPath);
         ValidateVersionElement(project.VersionElement);
 
+        var aliasMap = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
+        foreach (var dict in fileConfig?.Aliases ?? [])
+        {
+            foreach (var kvp in dict)
+            {
+                aliasMap[kvp.Key] = kvp.Value;
+            }
+        }
+
         return new VersionizeOptions
         {
             Silent = MergeBool(cliConfig.Silent, fileConfig?.Silent),
@@ -38,6 +47,7 @@ public static class ConfigProvider
             SkipBumpFile = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly),
             CommitParser = commitParser,
             Project = project,
+            Aliases = aliasMap.Count == 0 ? null : aliasMap,
             FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
         };
     }
