@@ -7,6 +7,7 @@ using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Git;
 using Versionize.Config;
+using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize.Lifecycle;
 
@@ -99,7 +100,7 @@ public class ChangeCommitterTests : IDisposable
             Version.Parse("2.0.0"),
             Version.Parse("2.0.0"),
             DateTimeOffset.Now,
-            new PlainLinkBuilder(),
+            new NullLinkBuilder(),
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 
@@ -146,7 +147,7 @@ public class ChangeCommitterTests : IDisposable
             Version.Parse("2.0.0"),
             Version.Parse("2.0.0"),
             DateTimeOffset.Now,
-            new PlainLinkBuilder(),
+            new NullLinkBuilder(),
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 

@@ -68,25 +68,23 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
 
         foreach (var conventionalCommit in _conventionalCommits)
         {
-            if (!string.IsNullOrWhiteSpace(conventionalCommit.Type))
-            {
-                if (conventionalCommit.IsFix)
-                {
-                    versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
-                }
-                else if (conventionalCommit.IsFeature)
-                {
-                    versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
-                }
-                else if (insignificantCommitsAffectVersion)
-                {
-                    versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
-                }
-            }
-
             if (conventionalCommit.IsBreakingChange)
             {
-                versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Major);
+                versionImpact = VersionImpact.Major;
+                break;
+            }
+
+            if (conventionalCommit.IsFix)
+            {
+                versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
+            }
+            else if (conventionalCommit.IsFeature)
+            {
+                versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Minor);
+            }
+            else if (insignificantCommitsAffectVersion)
+            {
+                versionImpact = MaxVersionImpact(versionImpact, VersionImpact.Patch);
             }
         }
 

@@ -1,0 +1,12 @@
+using Versionize.ConventionalCommits;
+
+namespace Versionize.Changelog.LinkBuilders;
+
+public sealed class NullLinkBuilder : IChangelogLinkBuilder
+{
+    public string BuildIssueLink(string issueId) => string.Empty;
+
+    public string BuildCommitLink(ConventionalCommit commit) => string.Empty;
+
+    public string BuildVersionTagLink(string currentTag, string previousTag) => string.Empty;
+}

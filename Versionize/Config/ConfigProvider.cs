@@ -11,10 +11,7 @@ public static class ConfigProvider
         CliConfig cliConfig,
         FileConfig? fileConfig)
     {
-        var options = MergeWithOptions(
-            cwd,
-            fileConfig,
-            cliConfig);
+        var options = MergeWithOptions(cwd, fileConfig, cliConfig);
 
         ValidateChangelogPaths(fileConfig, options.WorkingDirectory);
 

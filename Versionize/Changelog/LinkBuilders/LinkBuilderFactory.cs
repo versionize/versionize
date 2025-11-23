@@ -1,7 +1,7 @@
 ﻿using LibGit2Sharp;
 using Versionize.Config;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public abstract class LinkBuilderFactory
 {
@@ -11,7 +11,7 @@ public abstract class LinkBuilderFactory
 
         if (origin == null)
         {
-            return new PlainLinkBuilder();
+            return new NullLinkBuilder();
         }
 
         IChangelogLinkBuilder linkBuilder = origin.PushUrl switch
@@ -20,7 +20,7 @@ public abstract class LinkBuilderFactory
             var x when AzureLinkBuilder.IsPushUrl(x) => new AzureLinkBuilder(x),
             var x when GitlabLinkBuilder.IsPushUrl(x) => new GitlabLinkBuilder(x),
             var x when BitbucketLinkBuilder.IsPushUrl(x) => new BitbucketLinkBuilder(x),
-            _ => new PlainLinkBuilder()
+            _ => new NullLinkBuilder()
         };
 
         if (linkTemplates != null)

@@ -6,6 +6,7 @@ using Versionize.Git;
 using Versionize.Lifecycle;
 using static Versionize.CommandLine.CommandLineUI;
 using Versionize.CommandLine;
+using Versionize.Changelog.LinkBuilders;
 
 namespace Versionize;
 

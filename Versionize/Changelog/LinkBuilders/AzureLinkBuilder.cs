@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Versionize.CommandLine;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public sealed partial class AzureLinkBuilder : IChangelogLinkBuilder
 {

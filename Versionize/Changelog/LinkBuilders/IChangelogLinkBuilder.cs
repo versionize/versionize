@@ -1,6 +1,6 @@
 using Versionize.ConventionalCommits;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public interface IChangelogLinkBuilder
 {

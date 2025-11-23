@@ -84,21 +84,16 @@ public static class RepositoryExtensions
 
     public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
     {
-        SemanticVersion? version;
         if (options.TagOnly)
         {
-            version = repository.Tags
+            return repository.Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x is not null)
                 .OrderByDescending(x => x)
                 .FirstOrDefault();
         }
-        else
-        {
-            version = bumpFile.Version;
-        }
 
-        return version;
+        return bumpFile.Version;
     }
 
     public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, VersionizeOptions options)

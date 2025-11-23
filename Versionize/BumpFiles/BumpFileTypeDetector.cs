@@ -60,11 +60,13 @@ public static class BumpFileTypeDetector
         {
             return true;
         }
+
         var options = new EnumerationOptions
         {
             IgnoreInaccessible = true,
             RecurseSubdirectories = true,
         };
+
         return Directory
             .EnumerateDirectories(directoryPath, "*", options)
             .Any(IsUnityProject);

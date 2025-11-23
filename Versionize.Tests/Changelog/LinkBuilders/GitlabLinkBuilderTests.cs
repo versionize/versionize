@@ -6,7 +6,7 @@ using Versionize.ConventionalCommits;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
-namespace Versionize.Changelog;
+namespace Versionize.Changelog.LinkBuilders;
 
 public class GitlabLinkBuilderTests
 {
@@ -64,7 +64,7 @@ public class GitlabLinkBuilderTests
         var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
         var linkBuilder = LinkBuilderFactory.CreateFor(repo);
 
-        linkBuilder.ShouldBeAssignableTo<PlainLinkBuilder>();
+        linkBuilder.ShouldBeAssignableTo<NullLinkBuilder>();
     }
 
     [Fact]
