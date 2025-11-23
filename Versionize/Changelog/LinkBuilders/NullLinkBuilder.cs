@@ -8,8 +8,5 @@ public sealed class NullLinkBuilder : IChangelogLinkBuilder
 
     public string BuildCommitLink(ConventionalCommit commit) => string.Empty;
 
-    public string BuildVersionTagLink(string currentTag, string previousTag)
-    {
-        return string.Empty;
-    }
+    public string BuildVersionTagLink(string currentTag, string previousTag) => string.Empty;
 }

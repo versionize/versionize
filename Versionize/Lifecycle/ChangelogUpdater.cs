@@ -24,7 +24,8 @@ public sealed class ChangelogUpdater
         }
 
         var versionTime = DateTimeOffset.Now;
-        var changelog = ChangelogBuilder.CreateForPath(Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? "")));
+        var changelogPath = Path.GetFullPath(Path.Combine(options.WorkingDirectory, options.Project.Changelog.Path ?? ""));
+        var changelog = ChangelogBuilder.CreateForPath(changelogPath);
         var changelogLinkBuilder = LinkBuilderFactory.CreateFor(repo, options.Project.Changelog.LinkTemplates);
         previousVersion ??= nextVersion;
 
