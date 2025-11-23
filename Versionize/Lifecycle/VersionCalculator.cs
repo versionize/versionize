@@ -42,12 +42,12 @@ public sealed class VersionCalculator
             }
         }
 
-        if (version is not null && nextVersion! < version)
+        if (version is not null && nextVersion < version)
         {
             throw new VersionizeException(ErrorMessages.SemanticVersionConflict(nextVersion.ToNormalizedString(), version.ToNormalizedString()), 1);
         }
 
-        return nextVersion!;
+        return nextVersion;
     }
 
     public sealed class Options
