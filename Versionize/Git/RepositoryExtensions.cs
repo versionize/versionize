@@ -112,14 +112,17 @@ public static class RepositoryExtensions
             .ToArray();
 
         var versionIndex = Array.IndexOf(versions, version);
-        return versionIndex == -1 || versionIndex == versions.Length - 1 ? null : versions[versionIndex + 1];
+        return versionIndex == -1 || versionIndex == versions.Length - 1
+            ? null
+            : versions[versionIndex + 1];
     }
 
     public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, VersionizeOptions options)
     {
         if (string.IsNullOrEmpty(versionStr))
         {
-            versionStr = repo.GetCurrentVersion(options, BumpFileProvider.GetBumpFile(options))?.ToNormalizedString();
+            IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+            versionStr = repo.GetCurrentVersion(options, bumpFile)?.ToNormalizedString();
             if (string.IsNullOrEmpty(versionStr))
             {
                 throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
