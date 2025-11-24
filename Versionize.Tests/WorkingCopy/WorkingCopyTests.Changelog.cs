@@ -30,7 +30,7 @@ public partial class WorkingCopyTests
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             var versionizeOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
             };
 
             // 1.0.0
@@ -70,12 +70,12 @@ public partial class WorkingCopyTests
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             var versionizeOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
                 AggregatePrereleases = true,
             };
             var prereleaseOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
                 AggregatePrereleases = true,
                 Prerelease = "alpha",
             };
@@ -117,11 +117,11 @@ public partial class WorkingCopyTests
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             var versionizeOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
             };
             var prereleaseOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
                 Prerelease = "alpha",
             };
 
@@ -162,12 +162,12 @@ public partial class WorkingCopyTests
             var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
             var versionizeOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
                 AggregatePrereleases = true,
             };
             var prereleaseOptions = new VersionizeOptions
             {
-                BumpFileType = BumpFileType.None,
+                SkipBumpFile = true,
                 AggregatePrereleases = true,
                 Prerelease = "alpha",
             };

@@ -52,10 +52,10 @@ public class RepositoryExtensionsTests : IDisposable
         var commit3 = fileCommitter.CommitChange("feat: commit 3");
         _testSetup.Repository.Tags.Add("v2.1.0", commit3);
 
-        var options = new VersionOptions { TagOnly = true, Project = ProjectOptions.DefaultOneProjectPerRepo };
+        var options = new VersionOptions { SkipBumpFile = true, Project = ProjectOptions.DefaultOneProjectPerRepo };
 
         // Act
-        var version = _testSetup.Repository.GetCurrentVersion(options, new NullBumpFile());
+        var version = _testSetup.Repository.GetCurrentVersion(options, NullBumpFile.Default);
 
         // Assert
         version.ShouldBe(new Version(2, 1, 0));

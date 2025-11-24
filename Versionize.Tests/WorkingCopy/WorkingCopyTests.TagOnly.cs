@@ -10,7 +10,7 @@ public partial class WorkingCopyTests
     private readonly VersionizeOptions _defaultTagOnlyOptions = new()
     {
         SkipDirty = true,
-        BumpFileType = BumpFileType.None,
+        SkipBumpFile = true,
         SkipChangelog = true,
     };
 

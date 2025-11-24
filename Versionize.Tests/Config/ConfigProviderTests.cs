@@ -61,34 +61,13 @@ public class ConfigProviderTests : IDisposable
     }
 
     [Theory]
-    [InlineData("--tag-only", false, BumpFileType.None)]
-    [InlineData("--tag-only", true, BumpFileType.None)]
-    [InlineData("--tag-only", null, BumpFileType.None)]
-    [InlineData("", true, BumpFileType.None)]
-    [InlineData("", false, BumpFileType.Unity)]
-    [InlineData("", null, BumpFileType.Unity)]
-    public void ReturnsUnityBumpFileTypeWhenTagOnlyIsFalse(string cliInput, bool? fileTagOnly, BumpFileType expectedBumpFileType)
-    {
-        // Arrange
-        TempProject.CreateUnityProject(_testSetup.WorkingDirectory);
-        var fileConfig = new FileConfig { TagOnly = fileTagOnly };
-        var cliConfig = CreateCliConfig(cliInput);
-
-        // Act
-        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
-
-        // Assert
-        options.BumpFileType.ShouldBe(expectedBumpFileType);
-    }
-
-    [Theory]
-    [InlineData("--tag-only", false, BumpFileType.None)]
-    [InlineData("--tag-only", true, BumpFileType.None)]
-    [InlineData("--tag-only", null, BumpFileType.None)]
-    [InlineData("", true, BumpFileType.None)]
-    [InlineData("", false, BumpFileType.Dotnet)]
-    [InlineData("", null, BumpFileType.Dotnet)]
-    public void ReturnsDotnetBumpFileTypeWhenTagOnlyIsFalse(string cliInput, bool? fileTagOnly, BumpFileType expectedBumpFileType)
+    [InlineData("--tag-only", false, true)]
+    [InlineData("--tag-only", true, true)]
+    [InlineData("--tag-only", null, true)]
+    [InlineData("", true, true)]
+    [InlineData("", false, false)]
+    [InlineData("", null, false)]
+    public void TagOnlyCliOptionTakesPriorityOverFileConfig(string cliInput, bool? fileTagOnly, bool expected)
     {
         // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
@@ -99,49 +78,7 @@ public class ConfigProviderTests : IDisposable
         VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
 
         // Assert
-        options.BumpFileType.ShouldBe(expectedBumpFileType);
-    }
-
-    [Theory]
-    [InlineData("--proj-name project1", BumpFileType.Dotnet)]
-    [InlineData("--proj-name project2", BumpFileType.Unity)]
-    public void ReturnsBumpFileTypeWhenMonoRepo(string cliInput, BumpFileType expectedBumpFileType)
-    {
-        // Arrange
-        var projects = new[]
-        {
-            new ProjectOptions
-            {
-                Name = "Project1",
-                Path = "project1",
-                Changelog = ChangelogOptions.Default with
-                {
-                    Header = "Project1 header",
-                }
-            },
-            new ProjectOptions
-            {
-                Name = "Project2",
-                Path = "project2",
-                Changelog = ChangelogOptions.Default with
-                {
-                    Header = "Project2 header",
-                }
-            }
-        };
-
-        var dotnetProjectPath = Path.Combine(_testSetup.WorkingDirectory, "project1");
-        var unityProjectPath = Path.Combine(_testSetup.WorkingDirectory, "project2");
-        TempProject.CreateCsharpProject(dotnetProjectPath);
-        TempProject.CreateUnityProject(unityProjectPath);
-        var fileConfig = new FileConfig { Projects = projects };
-        var cliConfig = CreateCliConfig(cliInput);
-
-        // Act
-        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
-
-        // Assert
-        options.BumpFileType.ShouldBe(expectedBumpFileType);
+        options.SkipBumpFile.ShouldBe(expected);
     }
 
     [Theory]

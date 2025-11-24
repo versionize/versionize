@@ -84,7 +84,7 @@ public static class RepositoryExtensions
 
     public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
     {
-        if (options.TagOnly)
+        if (options.SkipBumpFile)
         {
             return repository.Tags
                 .Select(options.Project.ExtractTagVersion)
@@ -150,14 +150,14 @@ public static class RepositoryExtensions
 
 public sealed class VersionOptions
 {
-    public bool TagOnly { get; init; }
+    public bool SkipBumpFile { get; init; }
     public required ProjectOptions Project { get; init; }
 
     public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
     {
         return new VersionOptions
         {
-            TagOnly = versionizeOptions.BumpFileType == BumpFileType.None,
+            SkipBumpFile = versionizeOptions.SkipBumpFile,
             Project = versionizeOptions.Project,
         };
     }

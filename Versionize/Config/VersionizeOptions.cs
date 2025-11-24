@@ -42,10 +42,14 @@ public sealed record VersionizeOptions
     public bool Sign { get; init; }
 
     /// <summary>
-    /// Identifies the type of file where version should be read from and written to.
-    /// Determined automatically by <see cref="BumpFiles.BumpFileTypeDetector"/>.
+    /// Don't read from or write to a bump file. Version will be read from tags.
     /// </summary>
-    public BumpFileType BumpFileType { get; init; } = BumpFileType.Dotnet;
+    /// <remarks>
+    /// Corresponds to the "tag-only" option in <see cref="CliConfig"/> and <see cref="FileConfig"/>.
+    /// Renamed here to SkipBumpFile for clarity, but not worth a breaking change
+    /// in the public facing config API.
+    /// </remarks>
+    public bool SkipBumpFile { get; init; }
 
     /// <inheritdoc cref="CliConfig.WorkingDirectory"/>
     public string WorkingDirectory { get; init; } = "";

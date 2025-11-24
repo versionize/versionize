@@ -1,5 +1,4 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
-using Versionize.BumpFiles;
 using Versionize.CommandLine;
 
 namespace Versionize.Config;
@@ -23,7 +22,7 @@ public static class ConfigProvider
     }
 
     private static VersionizeOptions MergeWithOptions(
-        string baseWorkingDirectory,
+        string cwd,
         FileConfig? fileConfig,
         CliConfig cliConfig)
     {
@@ -33,9 +32,7 @@ public static class ConfigProvider
         ValidateVersionElement(project.VersionElement);
 
         var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
-        var tagOnly = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly);
-        var projectPath = Path.Combine(baseWorkingDirectory, project.Path);
-        var bumpFileType = BumpFileTypeDetector.GetType(projectPath, tagOnly);
+        var projectPath = Path.Combine(cwd, project.Path);
 
         return new VersionizeOptions
         {
@@ -53,7 +50,7 @@ public static class ConfigProvider
             AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases, fileConfig?.AggregatePrereleases),
             FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits, fileConfig?.FirstParentOnlyCommits),
             Sign = MergeBool(cliConfig.Sign, fileConfig?.Sign),
-            BumpFileType = bumpFileType,
+            SkipBumpFile = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly),
             CommitParser = commitParser,
             Project = project,
             FindReleaseCommitViaMessage = MergeBool(cliConfig.FindReleaseCommitViaMessage, false),
