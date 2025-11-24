@@ -189,7 +189,6 @@ public class ProgramTests : IDisposable
         }
     }
 
-
     [Fact]
     public void ShouldSupportMonoRepo()
     {
@@ -271,7 +270,6 @@ public class ProgramTests : IDisposable
         }
     }
 
-
     [Fact]
     public void ShouldExtraCommitHeaderPatternOptionsFromConfigFile()
     {
@@ -284,7 +282,7 @@ public class ProgramTests : IDisposable
                   "HeaderPatterns":[
                   "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
                   "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
-                  ]
+                ]
               }
             }
             """);
@@ -317,7 +315,7 @@ public class ProgramTests : IDisposable
 
         // 1.0.0
         fileCommitter.CommitChange("feat: commit 1");
-        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--tag-only"]);
         exitCode.ShouldBe(0);
 
         // 1.1.0

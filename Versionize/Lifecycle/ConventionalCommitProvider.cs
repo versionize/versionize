@@ -17,9 +17,7 @@ public sealed class ConventionalCommitProvider
             versionToUseForCommitDiff = repo.Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x != null && !x.IsPrerelease)
-                .OrderByDescending(x => x!.Major)
-                .ThenByDescending(x => x!.Minor)
-                .ThenByDescending(x => x!.Patch)
+                .OrderByDescending(x => x)
                 .FirstOrDefault();
         }
 

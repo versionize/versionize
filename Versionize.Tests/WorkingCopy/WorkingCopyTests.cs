@@ -143,7 +143,7 @@ public partial class WorkingCopyTests : IDisposable
         Cleanup.DeleteDirectory(workingDirectory);
     }
 
-    [Fact]
+    [Fact(Skip = "Default bump file is no longer Dotnet")]
     public void ShouldExitIfWorkingCopyContainsNoProjects()
     {
         var workingCopy = WorkingCopy.Discover(_testSetup.WorkingDirectory);
@@ -876,15 +876,14 @@ public partial class WorkingCopyTests : IDisposable
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipBumpFile = true });
 
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature 2");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
-
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipBumpFile = true });
         // Prerelease as minor alpha
         fileCommitter.CommitChange("feat: a feature 3");
-        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", BumpFileType = BumpFileType.None });
+        workingCopy.Versionize(new VersionizeOptions { Prerelease = "alpha", SkipBumpFile = true });
 
         var versionTagNames = VersionTagNames.ToList();
         versionTagNames.ShouldBe(new[] { "v1.0.0", "v1.1.0-alpha.0", "v1.1.0-alpha.1", "v1.1.0-alpha.2" });

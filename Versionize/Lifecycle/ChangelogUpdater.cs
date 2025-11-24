@@ -69,8 +69,7 @@ public sealed class ChangelogUpdater
                 DryRun = versionizeOptions.DryRun,
                 SkipChangelog = versionizeOptions.SkipChangelog,
                 Project = versionizeOptions.Project,
-                WorkingDirectory = versionizeOptions.WorkingDirectory ??
-                    throw new VersionizeException(nameof(versionizeOptions.WorkingDirectory), 1),
+                WorkingDirectory = versionizeOptions.WorkingDirectory,
             };
         }
     }
