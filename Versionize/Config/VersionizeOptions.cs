@@ -65,13 +65,4 @@ public sealed record VersionizeOptions
 
     /// <inheritdoc cref="CliConfig.FindReleaseCommitViaMessage"/>
     public bool FindReleaseCommitViaMessage { get; init; }
-
-    /// <summary>
-    /// Indicates whether git user configuration is required for this run.
-    /// For example, if commits or tags need to be created then this returns true.
-    /// </summary>
-    public bool IsCommitConfigurationRequired()
-    {
-        return (!SkipCommit || !SkipTag) && !DryRun;
-    }
 }

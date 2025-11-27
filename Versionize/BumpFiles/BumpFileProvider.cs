@@ -1,9 +1,9 @@
-﻿using Versionize.BumpFiles;
-using Versionize.Config;
+﻿using Versionize.Config;
+using Versionize.Commands;
 
-namespace Versionize.Lifecycle;
+namespace Versionize.BumpFiles;
 
-public sealed class BumpFileProvider
+internal sealed class BumpFileProvider
 {
     /// <summary>
     /// Detects the type of bump file based on project structure in the specified directory.
@@ -84,6 +84,16 @@ public sealed class BumpFileProvider
                 SkipBumpFile = versionizeOptions.SkipBumpFile,
                 VersionElement = versionizeOptions.Project.VersionElement,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
+            };
+        }
+
+        public static implicit operator Options(InspectCmdOptions inspectOptions)
+        {
+            return new Options
+            {
+                SkipBumpFile = inspectOptions.SkipBumpFile,
+                VersionElement = inspectOptions.ProjectOptions.VersionElement,
+                WorkingDirectory = inspectOptions.WorkingDirectory,
             };
         }
     }

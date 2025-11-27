@@ -23,12 +23,13 @@ public class DotnetBumpFileTests : IDisposable
         TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"));
         TempProject.CreateVBProject(Path.Join(_tempDir, "project3"));
         TempProject.CreateProps(Path.Join(_tempDir, "project4"));
+        TempProject.CreateFsharpProject(Path.Join(_tempDir, "project5"));
 
         // Act
         var projects = DotnetBumpFile.Create(_tempDir);
 
         // Assert
-        projects.GetFilePaths().Count().ShouldBe(4);
+        projects.GetFilePaths().Count().ShouldBe(5);
     }
 
     [Fact]

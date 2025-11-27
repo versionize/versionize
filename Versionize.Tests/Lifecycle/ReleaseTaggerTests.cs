@@ -99,7 +99,7 @@ public class ReleaseTaggerTests : IDisposable
     public void CreatesASignedTag_When_DryRunIsFalseAndSkipTagIsFalseAndSignIsTrue()
     {
         // Arrange
-        var gpgFilePath = "./TestKeyForGpgSigning.pgp";
+        var gpgFilePath = "./TestData/TestKeyForGpgSigning.pgp";
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
 

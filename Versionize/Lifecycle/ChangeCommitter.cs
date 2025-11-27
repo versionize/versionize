@@ -25,13 +25,13 @@ public sealed class ChangeCommitter
 
         if (changelog is not null)
         {
-            Commands.Stage(repo, changelog.FilePath);
+            LibGit2Sharp.Commands.Stage(repo, changelog.FilePath);
         }
 
         var projectFiles = bumpFile.GetFilePaths();
         if (projectFiles.Any())
         {
-            Commands.Stage(repo, projectFiles);
+            LibGit2Sharp.Commands.Stage(repo, projectFiles);
         }
 
         var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = false });
