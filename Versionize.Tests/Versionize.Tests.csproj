@@ -39,7 +39,7 @@
     <None Update="TestData\ProjectSettings.asset">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestKeyForGpgSigning.pgp">
+    <None Update="TestData\TestKeyForGpgSigning.pgp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -3,6 +3,7 @@ using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.ConventionalCommits;
 using Versionize.Git;
+using Versionize.Commands;
 
 namespace Versionize.Lifecycle;
 
@@ -78,6 +79,18 @@ public sealed class ConventionalCommitProvider
                 Project = versionizeOptions.Project,
                 FindReleaseCommitViaMessage = versionizeOptions.FindReleaseCommitViaMessage,
                 FirstParentOnlyCommits = versionizeOptions.FirstParentOnlyCommits,
+            };
+        }
+
+        public static implicit operator Options(ChangelogCmdOptions changelogOptions)
+        {
+            return new Options
+            {
+                AggregatePrereleases = changelogOptions.AggregatePrereleases,
+                CommitParser = changelogOptions.CommitParser,
+                Project = changelogOptions.ProjectOptions,
+                FindReleaseCommitViaMessage = changelogOptions.FindReleaseCommitViaMessage,
+                FirstParentOnlyCommits = changelogOptions.FirstParentOnlyCommits,
             };
         }
     }

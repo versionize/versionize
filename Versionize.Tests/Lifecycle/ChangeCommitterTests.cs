@@ -127,7 +127,7 @@ public class ChangeCommitterTests : IDisposable
     public void CreatesASignedCommit_When_DryRunIsFalseAndSkipCommitIsFalseAndSignIsTrue(string commitSuffix, string expectedMessage)
     {
         // Arrange
-        var gpgFilePath = "./TestKeyForGpgSigning.pgp";
+        var gpgFilePath = "./TestData/TestKeyForGpgSigning.pgp";
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
 

@@ -123,13 +123,13 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Create a feature branch and add commits to it
         var featureBranch = _testSetup.Repository.CreateBranch("feature-branch");
-        Commands.Checkout(_testSetup.Repository, featureBranch);
+        LibGit2Sharp.Commands.Checkout(_testSetup.Repository, featureBranch);
 
         var commit2 = fileCommitter.CommitChange("feat: commit 2 on feature");
         var commit3 = fileCommitter.CommitChange("feat: commit 3 on feature");
 
         // Switch back to main and create another commit
-        Commands.Checkout(_testSetup.Repository, "master"); // or "main" depending on default branch name
+        LibGit2Sharp.Commands.Checkout(_testSetup.Repository, "master"); // or "main" depending on default branch name
         var commit4 = fileCommitter.CommitChange("feat: commit 4 on main");
 
         // Merge the feature branch into main (creates a merge commit)

@@ -2,8 +2,8 @@
 using NuGet.Versioning;
 using Versionize.BumpFiles;
 using Versionize.Config;
-using Versionize.Lifecycle;
 using Versionize.CommandLine;
+using Versionize.Commands;
 
 namespace Versionize.Git;
 
@@ -74,14 +74,6 @@ public static class RepositoryExtensions
         return [.. repository.GetCommits(project, filter)];
     }
 
-    public static bool IsConfiguredForCommits(this Repository repository)
-    {
-        var name = repository.Config.Get<string>("user.name");
-        var email = repository.Config.Get<string>("user.email");
-
-        return name != null && email != null;
-    }
-
     public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
     {
         if (options.SkipBumpFile)
@@ -96,15 +88,15 @@ public static class RepositoryExtensions
         return bumpFile.Version;
     }
 
-    public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, VersionizeOptions options)
+    public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, ChangelogCmdOptions options)
     {
         var versionsEnumerable = repository.Tags
-            .Select(options.Project.ExtractTagVersion)
-            .Where(x => x is not null);
+            .Select(options.ProjectOptions.ExtractTagVersion)
+            .OfType<SemanticVersion>();
 
         if (options.AggregatePrereleases)
         {
-            versionsEnumerable = versionsEnumerable.Where(x => x == version || !x!.IsPrerelease);
+            versionsEnumerable = versionsEnumerable.Where(x => x == version || !x.IsPrerelease);
         }
 
         var versions = versionsEnumerable
@@ -117,12 +109,17 @@ public static class RepositoryExtensions
             : versions[versionIndex + 1];
     }
 
-    public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, VersionizeOptions options)
+    public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, ChangelogCmdOptions options)
     {
         if (string.IsNullOrEmpty(versionStr))
         {
-            IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
-            versionStr = repo.GetCurrentVersion(options, bumpFile)?.ToNormalizedString();
+            versionStr = repo.Tags
+                .Select(options.ProjectOptions.ExtractTagVersion)
+                .Where(x => x is not null)
+                .OrderByDescending(x => x)
+                .FirstOrDefault()?
+                .ToNormalizedString();
+
             if (string.IsNullOrEmpty(versionStr))
             {
                 throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
@@ -131,7 +128,7 @@ public static class RepositoryExtensions
 
         if (SemanticVersion.TryParse(versionStr, out var version))
         {
-            var toRef = repo.SelectVersionTag(version, options.Project)?.Target;
+            var toRef = repo.SelectVersionTag(version, options.ProjectOptions)?.Target;
             if (toRef is null)
             {
                 var versionText = version.ToNormalizedString();
@@ -139,7 +136,7 @@ public static class RepositoryExtensions
             }
 
             var fromVersion = repo.GetPreviousVersion(version, options);
-            GitObject? fromRef = repo.SelectVersionTag(fromVersion, options.Project)?.Target;
+            GitObject? fromRef = repo.SelectVersionTag(fromVersion, options.ProjectOptions)?.Target;
 
             return (fromRef, toRef);
         }

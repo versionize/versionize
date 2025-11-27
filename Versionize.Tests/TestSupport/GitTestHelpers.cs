@@ -15,7 +15,7 @@ public static class GitTestHelpers
     public static Commit CommitAll(IRepository repository, string message = "feat: Initial commit")
     {
         var author = GetAuthorSignature(repository);
-        Commands.Stage(repository, "*");
+        LibGit2Sharp.Commands.Stage(repository, "*");
         return repository.Commit(message, author, committer: author);
     }
 
