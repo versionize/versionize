@@ -675,7 +675,6 @@ public class ProgramTests : IDisposable
 
         // Release an initial version
         fileCommitter.CommitChange("feat: initial commit");
-        //workingCopy.Versionize(new VersionizeOptions());
         var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory]);
         exitCode.ShouldBe(0);
 

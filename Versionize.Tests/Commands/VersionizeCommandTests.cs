@@ -12,14 +12,11 @@ namespace Versionize.Commands;
 public class VersionizeCommandTests : IDisposable
 {
     private readonly TestSetup _testSetup;
-    private readonly TestPlatformAbstractions _testPlatformAbstractions;
 
     public VersionizeCommandTests()
     {
         _testSetup = TestSetup.Create();
-
-        _testPlatformAbstractions = new TestPlatformAbstractions();
-        CommandLineUI.Platform = _testPlatformAbstractions;
+        CommandLineUI.Platform = new TestPlatformAbstractions();
     }
 
     [Fact]

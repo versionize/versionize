@@ -1,6 +1,5 @@
 ﻿using Shouldly;
 using Versionize.CommandLine;
-using Versionize.Config;
 using Versionize.Tests.TestSupport;
 using Xunit;
 
@@ -62,17 +61,6 @@ public class ChangelogCommandTests : IDisposable
     public void IncludesChangesSinceLastFullRelease_When_AggregatePrereleasesIsTrue()
     {
         var fileCommitter = new FileCommitter(_testSetup);
-        var versionizeOptions = new VersionizeOptions
-        {
-            SkipBumpFile = true,
-            AggregatePrereleases = true,
-        };
-        var prereleaseOptions = new VersionizeOptions
-        {
-            SkipBumpFile = true,
-            AggregatePrereleases = true,
-            Prerelease = "alpha",
-        };
 
         // 1.0.0
         fileCommitter.CommitChange("feat: commit 1");
