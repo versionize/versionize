@@ -2,10 +2,12 @@
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using Shouldly;
-using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.BumpFiles;
 using Versionize.Config;
 using LibGit2Sharp;
+using NSubstitute;
+using Versionize.Lifecycle;
+using NuGet.Versioning;
 
 namespace Versionize.Git;
 
@@ -23,6 +25,88 @@ public class RepositoryExtensionsTests : IDisposable
     }
 
     [Fact]
+    public void DummyTest()
+    {
+        var tagCollection = Substitute.For<TagCollection>();
+        var tag1 = Substitute.For<Tag>();
+        var target = Substitute.For<GitObject>();
+        tag1.Target.Returns(target);
+        var id = new ObjectId("a1b2c3d4e5f60123456789012345678901234567");
+        target.Id.Returns(id);
+        tag1.FriendlyName.Returns("v1.0.0");
+        var tags = new List<Tag> { tag1 };
+        tagCollection.GetEnumerator().Returns(tags.GetEnumerator());
+        var repository = Substitute.For<IRepository>();
+        repository.Tags.Returns(tagCollection);
+        repository.Tags.Count().ShouldBe(1);
+        foreach (var tag in repository.Tags)
+        {
+            tag.FriendlyName.ShouldBe("v1.0.0");
+        }
+
+        var gitConfig = Substitute.For<Configuration>();
+        repository.Config.Returns(gitConfig);
+        var configEntry = Substitute.For<ConfigurationEntry<string>>();
+        configEntry.Key.Returns("user.name");
+        configEntry.Value.Returns("Test User");
+        gitConfig.Get<string>("user.name").Returns(configEntry);
+        var configEntryEmail = Substitute.For<ConfigurationEntry<string>>();
+        configEntryEmail.Key.Returns("user.email");
+        configEntryEmail.Value.Returns("testuser@example.com");
+        gitConfig.Get<string>("user.email").Returns(configEntryEmail);
+
+        repository.Config.Get<string>("user.name").Value.ShouldBe("Test User");
+        repository.Config.Get<string>("user.email").Value.ShouldBe("testuser@example.com");
+
+        var filter = new CommitFilter();
+        filter.SortBy = CommitSortStrategies.Time | CommitSortStrategies.Topological;
+        var commits = Substitute.For<IQueryableCommitLog>();
+        var commit = Substitute.For<Commit>();
+        var logEntry = new LogEntry();
+        typeof(LogEntry).GetProperty("Commit").SetValue(logEntry, commit);
+        typeof(LogEntry).GetProperty("Path").SetValue(logEntry, "/abc");
+        IEnumerable<LogEntry> logEntries = [logEntry];
+        commits.QueryBy(Arg.Any<string>(), filter).Returns(logEntries);
+        repository.Commits.Returns(commits);
+
+        // assert
+        var result = repository.Commits.QueryBy("/abc", filter);
+        result.Count().ShouldBe(1);
+        result.First().Commit.ShouldBe(commit);
+        result.First().Path.ShouldBe("/abc");
+
+        var status = Substitute.For<RepositoryStatus>();
+        status.IsDirty.Returns(true);
+        var statusEntry = Substitute.For<StatusEntry>();
+        statusEntry.FilePath.Returns("file1.txt");
+        status.GetEnumerator().Returns(new List<StatusEntry> { statusEntry }.GetEnumerator());
+        var statusOptions = new StatusOptions { IncludeUntracked = false };
+        repository.RetrieveStatus(statusOptions).Returns(status);
+
+        // assert
+        repository.RetrieveStatus(statusOptions).IsDirty.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ChangeCommitterTest1()
+    {
+        var repoBuilder = GitRepositoryBuilder.Create();
+        var repository = repoBuilder.Build();
+        // ChangeCommitter.CreateCommit(
+        //     repository,
+        //     new ChangeCommitter.Options
+        //     {
+        //         SkipCommit = true,
+        //         DryRun = false,
+        //         Sign = false,
+        //         WorkingDirectory = "",
+        //     },
+        //     new SemanticVersion(1, 0, 0),
+        //     NullBumpFile.Default,
+        //     null);
+    }
+
+    [Fact]
     public void SelectVersionTag_ShouldSelectLightweightTag()
     {
         // Arrange
@@ -32,7 +116,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Act
         var versionTag = _testSetup.Repository.SelectVersionTag(
-            new Version(2, 0, 0),
+            new SemanticVersion(2, 0, 0),
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Assert
@@ -58,7 +142,7 @@ public class RepositoryExtensionsTests : IDisposable
         var version = _testSetup.Repository.GetCurrentVersion(options, NullBumpFile.Default);
 
         // Assert
-        version.ShouldBe(new Version(2, 1, 0));
+        version.ShouldBe(new SemanticVersion(2, 1, 0));
     }
 
     [Fact]
@@ -71,7 +155,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Act
         var exists = _testSetup.Repository.VersionTagsExists(
-            new Version(1, 0, 0),
+            new SemanticVersion(1, 0, 0),
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Assert
@@ -88,7 +172,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Act
         var exists = _testSetup.Repository.VersionTagsExists(
-            new Version(1, 0, 0, "alpha.1"),
+            new SemanticVersion(1, 0, 0, "alpha.1"),
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Assert

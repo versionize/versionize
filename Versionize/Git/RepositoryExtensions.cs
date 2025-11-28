@@ -143,6 +143,71 @@ public static class RepositoryExtensions
 
         throw new VersionizeException(ErrorMessages.InvalidVersionFormat(versionStr), 1);
     }
+
+    // Variant that relies only on tags and local helpers (no external helpers, no bump files)
+    public static (GitObject? FromRef, GitObject ToRef) GetCommitRangeFromTags(this IRepository repo, string? versionStr, VersionizeOptions options)
+    {
+        IEnumerable<SemanticVersion> AllVersions()
+        {
+            return repo.Tags
+                .Select(options.Project.ExtractTagVersion)
+                .OfType<SemanticVersion>()
+                .OrderByDescending(v => v);
+        }
+
+        static SemanticVersion ParseVersionOrThrow(string text)
+        {
+            if (SemanticVersion.TryParse(text, out var v))
+            {
+                return v;
+            }
+
+            throw new VersionizeException(ErrorMessages.InvalidVersionFormat(text), 1);
+        }
+
+        GitObject? TagTargetFor(SemanticVersion v)
+        {
+            var name = options.Project.GetTagName(v);
+            return repo.Tags.SingleOrDefault(t => t.FriendlyName.Equals(name))?.Target;
+        }
+
+        SemanticVersion ResolveCurrent(string? text, IEnumerable<SemanticVersion> versions)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                return ParseVersionOrThrow(text);
+            }
+
+            var latest = versions.FirstOrDefault();
+            return latest ?? throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
+        }
+
+        static SemanticVersion? ResolvePrevious(
+            SemanticVersion current,
+            IEnumerable<SemanticVersion> all,
+            bool aggregatePrereleases)
+        {
+            var seq = aggregatePrereleases
+                ? all.Where(v => v == current || !v.IsPrerelease)
+                : all;
+
+            return seq
+                .SkipWhile(v => v != current)
+                .Skip(1)
+                .FirstOrDefault();
+        }
+
+        var allVersions = AllVersions();
+        var current = ResolveCurrent(versionStr, allVersions);
+
+        var toRef = TagTargetFor(current)
+            ?? throw new VersionizeException(ErrorMessages.TagForVersionNotFound(current.ToNormalizedString()), 1);
+
+        var previous = ResolvePrevious(current, allVersions, options.AggregatePrereleases);
+        var fromRef = previous is null ? null : TagTargetFor(previous);
+
+        return (fromRef, toRef);
+    }
 }
 
 public sealed class VersionOptions

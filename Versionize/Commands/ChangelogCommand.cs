@@ -27,19 +27,21 @@ internal sealed class ChangelogCommand
     public void OnExecute()
     {
         ChangelogCmdContext context = _contextProvider.GetContext(Version, Preamble);
-        var options = context.Options;
+        ChangelogCmdOptions options = context.Options;
         var repo = context.Repository;
 
         CommandLineUI.Verbosity = LogLevel.Error;
 
-        var (FromRef, ToRef) = repo.GetCommitRange(Version, options);
-        var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.ProjectOptions.Changelog.LinkTemplates);
-        string markdown = ChangelogBuilder.GenerateCommitList(
-            linkBuilder,
-            conventionalCommits,
-            options.ProjectOptions.Changelog);
-        var changelog = Preamble + markdown.TrimEnd();
+        // var (FromRef, ToRef) = repo.GetCommitRange(Version, options);
+        // var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
+        // var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.ProjectOptions.Changelog.LinkTemplates);
+        // string markdown = ChangelogBuilder.GenerateCommitList(
+        //     linkBuilder,
+        //     conventionalCommits,
+        //     options.ProjectOptions.Changelog);
+        // var changelog = Preamble + markdown.TrimEnd();
+
+        string changelog = string.Empty; // TODO: Implement changelog generation
 
         CommandLineUI.Verbosity = LogLevel.All;
 

@@ -2,8 +2,8 @@
   "profiles": {
     "Versionize": {
       "commandName": "Project",
-      "commandLineArgs": "--skip-dirty --skip-tag",
-      "workingDirectory": "D:\\OpenSource\\versionize-v2"
+      "commandLineArgs": "--tag-only=true changelog -v 1.2.3 -p Yo!",
+      "workingDirectory": "C:\\Users\\colt45\\Desktop\\Dev\\versionize"
     }
   }
 }

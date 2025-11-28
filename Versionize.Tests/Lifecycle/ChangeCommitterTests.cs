@@ -25,7 +25,7 @@ public class ChangeCommitterTests : IDisposable
     public void DoesntCreateACommit_When_DryRunIsTrueAndSkipCommitIsFalse()
     {
         // Arrange
-        var options = new ChangeCommitter.Options
+        var options = new ReleaseCommitter.Options
         {
             DryRun = true,
             Sign = false,
@@ -38,7 +38,7 @@ public class ChangeCommitterTests : IDisposable
         ChangelogBuilder changelog = null;
 
         // Act
-        ChangeCommitter.CreateCommit(
+        ReleaseCommitter.CreateCommit(
             _testSetup.Repository,
             options,
             new Version(2, 0, 0),
@@ -53,7 +53,7 @@ public class ChangeCommitterTests : IDisposable
     public void DoesntCreateACommit_When_DryRunIsFalseAndSkipCommitIsTrue()
     {
         // Arrange
-        var options = new ChangeCommitter.Options
+        var options = new ReleaseCommitter.Options
         {
             DryRun = false,
             Sign = false,
@@ -66,7 +66,7 @@ public class ChangeCommitterTests : IDisposable
         ChangelogBuilder changelog = null;
 
         // Act
-        ChangeCommitter.CreateCommit(
+        ReleaseCommitter.CreateCommit(
             _testSetup.Repository,
             options,
             new Version(2, 0, 0),
@@ -84,7 +84,7 @@ public class ChangeCommitterTests : IDisposable
     public void CreatesACommit_When_DryRunIsFalseAndSkipCommitIsFalse(string commitSuffix, string expectedMessage)
     {
         // Arrange
-        var options = new ChangeCommitter.Options
+        var options = new ReleaseCommitter.Options
         {
             DryRun = false,
             Sign = false,
@@ -105,7 +105,7 @@ public class ChangeCommitterTests : IDisposable
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Act
-        ChangeCommitter.CreateCommit(
+        ReleaseCommitter.CreateCommit(
             _testSetup.Repository,
             options,
             new Version(2, 0, 0),
@@ -131,7 +131,7 @@ public class ChangeCommitterTests : IDisposable
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
 
-        var options = new ChangeCommitter.Options
+        var options = new ReleaseCommitter.Options
         {
             DryRun = false,
             Sign = true,
@@ -152,7 +152,7 @@ public class ChangeCommitterTests : IDisposable
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Act
-        ChangeCommitter.CreateCommit(
+        ReleaseCommitter.CreateCommit(
             _testSetup.Repository,
             options,
             new Version(2, 0, 0),

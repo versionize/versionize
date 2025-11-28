@@ -4,16 +4,26 @@ using Versionize.ConventionalCommits;
 using Versionize.Versioning;
 using Versionize.CommandLine;
 
+using Input = Versionize.Lifecycle.IVersionBumper.Input;
+using Options = Versionize.Lifecycle.IVersionBumper.Options;
+
 namespace Versionize.Lifecycle;
 
-public sealed class VersionCalculator
+public sealed class VersionBumper : IVersionBumper
 {
-    public static SemanticVersion Bump(
-        Options options,
-        SemanticVersion? version,
-        bool isInitialRelease,
-        IReadOnlyList<ConventionalCommit> conventionalCommits)
+    // private readonly VersionIncrementStrategy _incrementStrategy;
+
+    // public VersionCalculator(VersionIncrementStrategy incrementStrategy)
+    // {
+    //     _incrementStrategy = incrementStrategy;
+    // }
+
+    public SemanticVersion Bump(Input input, Options options)
     {
+        var version = input.OriginalVersion;
+        var conventionalCommits = input.ConventionalCommits;
+
+        var isInitialRelease = version is null;
         var versionIncrement = new VersionIncrementStrategy(conventionalCommits);
 
         var insignificantCommitsAffectVersion = !(options.IgnoreInsignificantCommits || options.ExitInsignificantCommits);
@@ -49,8 +59,19 @@ public sealed class VersionCalculator
 
         return nextVersion;
     }
+}
 
-    public sealed class Options
+public interface IVersionBumper
+{
+    SemanticVersion Bump(Input input, Options options);
+
+    sealed class Input
+    {
+        public required SemanticVersion? OriginalVersion { get; init; }
+        public required IReadOnlyList<ConventionalCommit> ConventionalCommits { get; init; }
+    }
+
+    sealed class Options
     {
         public bool IgnoreInsignificantCommits { get; init; }
         public bool ExitInsignificantCommits { get; init; }
@@ -61,8 +82,8 @@ public sealed class VersionCalculator
         {
             return new Options
             {
-                ExitInsignificantCommits = versionizeOptions.ExitInsignificantCommits,
                 IgnoreInsignificantCommits = versionizeOptions.IgnoreInsignificantCommits,
+                ExitInsignificantCommits = versionizeOptions.ExitInsignificantCommits,
                 Prerelease = versionizeOptions.Prerelease,
                 ReleaseAs = versionizeOptions.ReleaseAs,
             };

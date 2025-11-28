@@ -3,7 +3,12 @@ using Versionize.Commands;
 
 namespace Versionize.BumpFiles;
 
-internal sealed class BumpFileProvider
+internal interface IBumpFileProvider
+{
+    IBumpFile GetBumpFile(BumpFileProvider.Options options);
+}
+
+internal sealed class BumpFileProvider : IBumpFileProvider
 {
     /// <summary>
     /// Detects the type of bump file based on project structure in the specified directory.
@@ -12,7 +17,7 @@ internal sealed class BumpFileProvider
     /// Supported types: .NET, Unity, or none.<br/>
     /// Returns <see cref="NullBumpFile"/> if <see cref="Options.SkipBumpFile"/> is true.
     /// </remarks>
-    public static IBumpFile GetBumpFile(Options options)
+    public IBumpFile GetBumpFile(Options options)
     {
         if (options.SkipBumpFile)
         {
