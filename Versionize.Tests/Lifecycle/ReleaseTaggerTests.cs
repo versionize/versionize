@@ -22,7 +22,7 @@ public class ReleaseTaggerTests : IDisposable
     public void DoesntCreateATag_When_DryRunIsTrueAndSkipTagIsFalse()
     {
         // Arrange
-        var options = new ReleaseTagger.Options
+        var options = new IReleaseTagger.Options
         {
             DryRun = true,
             SkipTag = false,
@@ -31,11 +31,16 @@ public class ReleaseTaggerTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var input = new IReleaseTagger.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(1, 2, 3),
+        };
+
+        var sut = new ReleaseTagger();
+
         // Act
-        ReleaseTagger.CreateTag(
-            _testSetup.Repository,
-            options,
-            new Version(1, 2, 3));
+        sut.CreateTag(input, options);
 
         // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(0);
@@ -45,7 +50,7 @@ public class ReleaseTaggerTests : IDisposable
     public void DoesntCreateATag_When_DryRunIsFalseAndSkipTagIsTrue()
     {
         // Arrange
-        var options = new ReleaseTagger.Options
+        var options = new IReleaseTagger.Options
         {
             DryRun = false,
             SkipTag = true,
@@ -54,11 +59,16 @@ public class ReleaseTaggerTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var input = new IReleaseTagger.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(1, 2, 3),
+        };
+
+        var sut = new ReleaseTagger();
+
         // Act
-        ReleaseTagger.CreateTag(
-            _testSetup.Repository,
-            options,
-            new Version(1, 2, 3));
+        sut.CreateTag(input, options);
 
         // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(0);
@@ -68,7 +78,7 @@ public class ReleaseTaggerTests : IDisposable
     public void CreatesATag_When_DryRunIsFalseAndSkipTagIsFalse()
     {
         // Arrange
-        var options = new ReleaseTagger.Options
+        var options = new IReleaseTagger.Options
         {
             DryRun = false,
             SkipTag = false,
@@ -77,16 +87,20 @@ public class ReleaseTaggerTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var input = new IReleaseTagger.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(1, 2, 3),
+        };
+
+        var sut = new ReleaseTagger();
+
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
-
         _testSetup.Repository.Commits.Count().ShouldBe(1);
 
         // Act
-        ReleaseTagger.CreateTag(
-            _testSetup.Repository,
-            options,
-            new Version(1, 2, 3));
+        sut.CreateTag(input, options);
 
         // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(1);
@@ -103,7 +117,7 @@ public class ReleaseTaggerTests : IDisposable
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
 
-        var options = new ReleaseTagger.Options
+        var options = new IReleaseTagger.Options
         {
             DryRun = false,
             SkipTag = false,
@@ -112,16 +126,20 @@ public class ReleaseTaggerTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var input = new IReleaseTagger.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(1, 2, 3),
+        };
+
+        var sut = new ReleaseTagger();
+
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
-
         _testSetup.Repository.Commits.Count().ShouldBe(1);
 
         // Act
-        ReleaseTagger.CreateTag(
-            _testSetup.Repository,
-            options,
-            new Version(1, 2, 3));
+        sut.CreateTag(input, options);
 
         // Assert
         _testSetup.Repository.Tags.Count().ShouldBe(1);

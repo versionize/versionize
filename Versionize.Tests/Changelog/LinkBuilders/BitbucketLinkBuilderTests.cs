@@ -8,12 +8,14 @@ using Xunit;
 
 namespace Versionize.Changelog.LinkBuilders;
 
-public class BitBucketLinkBuilderTests
+public class BitBucketLinkBuilderTests : IDisposable
 {
     private readonly string sshOrgPushUrl = "git@bitbucket.org:mobiloitteinc/dotnet-codebase.git";
     private readonly string sshComPushUrl = "git@bitbucket.com:mobiloitteinc/dotnet-codebase.git";
     private readonly string httpsOrgPushUrl = "https://versionize@bitbucket.org/mobiloitteinc/dotnet-codebase.git";
     private readonly string httpsComPushUrl = "https://versionize@bitbucket.com/mobiloitteinc/dotnet-codebase.git";
+
+    private Repository _repo;
 
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
@@ -36,8 +38,8 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldCreateAnOrgBitbucketUrlBuilderForHTTPSPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", httpsOrgPushUrl);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", httpsOrgPushUrl);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<BitbucketLinkBuilder>();
     }
@@ -45,8 +47,8 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldCreateAComBitbucketUrlBuilderForHTTPSPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", httpsComPushUrl);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", httpsComPushUrl);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<BitbucketLinkBuilder>();
     }
@@ -54,8 +56,8 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldCreateAnOrgBitbucketUrlBuilderForSSHPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", sshOrgPushUrl);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", sshOrgPushUrl);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<BitbucketLinkBuilder>();
     }
@@ -63,8 +65,8 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldCreateAComBitbucketUrlBuilderForSSHPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", sshComPushUrl);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", sshComPushUrl);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<BitbucketLinkBuilder>();
     }
@@ -72,8 +74,8 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldPickFirstRemoteInCaseNoOriginWasFound()
     {
-        var repo = SetupRepositoryWithRemote("some", sshOrgPushUrl);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("some", sshOrgPushUrl);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<BitbucketLinkBuilder>();
     }
@@ -81,8 +83,8 @@ public class BitBucketLinkBuilderTests
     [Fact]
     public void ShouldFallbackToNoopInCaseNoBitbucketPushUrlWasDefined()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<NullLinkBuilder>();
     }
@@ -210,5 +212,15 @@ public class BitBucketLinkBuilderTests
         repo.Network.Remotes.Add(remoteName, pushUrl);
 
         return repo;
+    }
+
+    public void Dispose()
+    {
+        if (_repo is not null)
+        {
+            var workingDirectory = _repo.Info.WorkingDirectory;
+            _repo.Dispose();
+            Cleanup.DeleteDirectory(workingDirectory);
+        }
     }
 }

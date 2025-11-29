@@ -27,8 +27,10 @@ public class BumpFileProviderTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<UnityBumpFile>();
@@ -45,8 +47,10 @@ public class BumpFileProviderTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<NullBumpFile>();
@@ -63,8 +67,10 @@ public class BumpFileProviderTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<DotnetBumpFile>();
@@ -81,8 +87,10 @@ public class BumpFileProviderTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<NullBumpFile>();
@@ -98,8 +106,10 @@ public class BumpFileProviderTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<NullBumpFile>();

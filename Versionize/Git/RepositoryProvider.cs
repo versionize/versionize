@@ -7,7 +7,33 @@ using Versionize.Config;
 
 namespace Versionize.Git;
 
-internal class RepoStateValidator
+internal interface IRepoStateValidator
+{
+    void Validate(Repository repository, Options options);
+
+    sealed record Options
+    {
+        public required bool SkipCommit { get; init; }
+        public required bool SkipTag { get; init; }
+        public required bool SkipDirty { get; init; }
+        public required bool DryRun { get; init; }
+        public required string WorkingDirectory { get; init; }
+
+        public static implicit operator Options(VersionizeOptions options)
+        {
+            return new Options
+            {
+                SkipCommit = options.SkipCommit,
+                SkipTag = options.SkipTag,
+                SkipDirty = options.SkipDirty,
+                DryRun = options.DryRun,
+                WorkingDirectory = options.WorkingDirectory
+            };
+        }
+    }
+}
+
+internal class RepoStateValidator : IRepoStateValidator
 {
     /// <summary>
     /// Ensures<br/>
@@ -17,7 +43,7 @@ internal class RepoStateValidator
     /// <remarks>
     /// The checks are skipped if write operations are disabled via options (e.g. SkipCommit, SkipTag, DryRun).
     /// </remarks>
-    public void Validate(Repository repository, IRepositoryProvider.Options options)
+    public void Validate(Repository repository, IRepoStateValidator.Options options)
     {
         if (IsCommitConfigurationRequired(options) && !IsConfiguredForCommits(repository))
         {
@@ -42,7 +68,7 @@ internal class RepoStateValidator
     /// Indicates whether git user configuration is required for this run.
     /// For example, if commits or tags need to be created then this returns true.
     /// </summary>
-    private static bool IsCommitConfigurationRequired(IRepositoryProvider.Options options)
+    private static bool IsCommitConfigurationRequired(IRepoStateValidator.Options options)
     {
         return (!options.SkipCommit || !options.SkipTag) && !options.DryRun;
     }
@@ -61,45 +87,15 @@ internal class RepoStateValidator
 
 internal interface IRepositoryProvider
 {
-    Repository GetRepository(Options options);
-    Repository GetRepositoryAndValidate(Options options);
-
-    sealed record Options
-    {
-        public required bool SkipCommit { get; init; }
-        public required bool SkipTag { get; init; }
-        public required bool SkipDirty { get; init; }
-        public required bool DryRun { get; init; }
-        public required string WorkingDirectory { get; init; }
-
-        public static implicit operator Options(VersionizeOptions options)
-        {
-            return new Options
-            {
-                SkipCommit = options.SkipCommit,
-                SkipTag = options.SkipTag,
-                SkipDirty = options.SkipDirty,
-                DryRun = options.DryRun,
-                WorkingDirectory = options.WorkingDirectory
-            };
-        }
-    }
+    Repository GetRepository(string workingDirectory);
 }
 
 internal sealed class RepositoryProvider : IRepositoryProvider
 {
-    public Repository GetRepository(IRepositoryProvider.Options options)
+    public Repository GetRepository(string workingDirectory)
     {
-        var gitDirectory = FindGitDirectory(options.WorkingDirectory);
+        var gitDirectory = FindGitDirectory(workingDirectory);
         var repository = new Repository(gitDirectory);
-        return repository;
-    }
-
-    public Repository GetRepositoryAndValidate(IRepositoryProvider.Options options)
-    {
-        var gitDirectory = FindGitDirectory(options.WorkingDirectory);
-        var repository = new Repository(gitDirectory);
-        //ValidateRepoState(repository, options);
         return repository;
     }
 

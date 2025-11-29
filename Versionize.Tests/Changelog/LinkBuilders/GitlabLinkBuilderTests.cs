@@ -8,8 +8,10 @@ using Xunit;
 
 namespace Versionize.Changelog.LinkBuilders;
 
-public class GitlabLinkBuilderTests
+public class GitlabLinkBuilderTests : IDisposable
 {
+    private Repository _repo;
+
     private readonly string inkscapeSSH = "git@gitlab.com:inkscape/inkscape.git";
     private readonly string inkscapeHTTPS = "https://gitlab.com/inkscape/inkscape.git";
 
@@ -34,8 +36,8 @@ public class GitlabLinkBuilderTests
     [Fact]
     public void ShouldCreateAGitlabUrlBuilderForHTTPSPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", inkscapeHTTPS);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", inkscapeHTTPS);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<GitlabLinkBuilder>();
     }
@@ -43,8 +45,8 @@ public class GitlabLinkBuilderTests
     [Fact]
     public void ShouldCreateAGitlabUrlBuilderForSSHPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", inkscapeSSH);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", inkscapeSSH);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<GitlabLinkBuilder>();
     }
@@ -52,8 +54,8 @@ public class GitlabLinkBuilderTests
     [Fact]
     public void ShouldPickFirstRemoteInCaseNoOriginWasFound()
     {
-        var repo = SetupRepositoryWithRemote("some", inkscapeSSH);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("some", inkscapeSSH);
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<GitlabLinkBuilder>();
     }
@@ -61,8 +63,8 @@ public class GitlabLinkBuilderTests
     [Fact]
     public void ShouldFallbackToNoopInCaseNoGitlabPushUrlWasDefined()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<NullLinkBuilder>();
     }
@@ -145,5 +147,15 @@ public class GitlabLinkBuilderTests
         repo.Network.Remotes.Add(remoteName, pushUrl);
 
         return repo;
+    }
+
+    public void Dispose()
+    {
+        if (_repo is not null)
+        {
+            var workingDirectory = _repo.Info.WorkingDirectory;
+            _repo.Dispose();
+            Cleanup.DeleteDirectory(workingDirectory);
+        }
     }
 }

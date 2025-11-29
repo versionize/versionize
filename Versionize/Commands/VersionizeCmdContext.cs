@@ -14,12 +14,14 @@ internal interface IVersionizeCmdContextProvider
 internal sealed class VersionizeCmdContextProvider(
     IVersionizeOptionsProvider _optionsProvider,
     IRepositoryProvider _repositoryProvider,
+    IRepoStateValidator _repoStateValidator,
     IBumpFileProvider _bumpFileProvider) : IVersionizeCmdContextProvider
 {
     public VersionizeCmdContext GetContext()
     {
         var options = _optionsProvider.GetOptions();
-        var repository = _repositoryProvider.GetRepositoryAndValidate(options);
+        var repository = _repositoryProvider.GetRepository(options.WorkingDirectory);
+        _repoStateValidator.Validate(repository, options);
         var bumpFile = _bumpFileProvider.GetBumpFile(options);
 
         return new VersionizeCmdContext(

@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NuGet.Versioning;
 using Shouldly;
+using Versionize.BumpFiles;
 using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Git;
@@ -130,9 +131,14 @@ public class VersionizeCommandTests : IDisposable
             var optionsProvider = Substitute.For<IVersionizeOptionsProvider>();
             optionsProvider.GetOptions().Returns(projectOptions);
             var repoProvider = Substitute.For<IRepositoryProvider>();
-            repoProvider.GetRepositoryAndValidate(projectOptions).Returns(_testSetup.Repository);
-            var contextProvider = new VersionizeCmdContextProvider(optionsProvider, repoProvider);
-            var sut = new VersionizeCommand(contextProvider);
+            repoProvider.GetRepository(projectOptions.WorkingDirectory).Returns(_testSetup.Repository);
+            var repoStateValidator = Substitute.For<IRepoStateValidator>();
+            var bumpFileProvider = Substitute.For<IBumpFileProvider>();
+            bumpFileProvider.GetBumpFile(Arg.Any<BumpFileProvider.Options>()).Returns(NullBumpFile.Default);
+            var contextProvider = new VersionizeCmdContextProvider(optionsProvider, repoProvider, repoStateValidator, bumpFileProvider);
+            var pipeline = Substitute.For<IVersionizeCmdPipeline>();
+            //pipeline.Begin(Arg.Any<VersionizeCmdContext>()).Returns(true);
+            var sut = new VersionizeCommand(contextProvider, pipeline);
 
             // Release an initial version
             fileCommitter.CommitChange($"feat: initial commit at {project.Name}", project.Path);

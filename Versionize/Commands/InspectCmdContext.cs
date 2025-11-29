@@ -19,7 +19,7 @@ internal sealed class InspectCmdContextProvider(
     public InspectCmdContext GetContext()
     {
         VersionizeOptions options = _optionsProvider.GetOptions();
-        IRepository repository = _repositoryProvider.GetRepository(options);
+        IRepository repository = _repositoryProvider.GetRepository(options.WorkingDirectory);
         IBumpFile bumpFile = _bumpFileProvider.GetBumpFile(options);
 
         var inspectOptions = new InspectCmdOptions

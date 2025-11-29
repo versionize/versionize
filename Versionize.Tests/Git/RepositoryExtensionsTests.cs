@@ -6,7 +6,6 @@ using Versionize.BumpFiles;
 using Versionize.Config;
 using LibGit2Sharp;
 using NSubstitute;
-using Versionize.Lifecycle;
 using NuGet.Versioning;
 
 namespace Versionize.Git;
