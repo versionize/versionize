@@ -2,10 +2,9 @@
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using Shouldly;
-using Version = NuGet.Versioning.SemanticVersion;
-using Versionize.BumpFiles;
 using Versionize.Config;
 using LibGit2Sharp;
+using NuGet.Versioning;
 
 namespace Versionize.Git;
 
@@ -32,7 +31,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Act
         var versionTag = _testSetup.Repository.SelectVersionTag(
-            new Version(2, 0, 0),
+            new SemanticVersion(2, 0, 0),
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Assert
@@ -55,10 +54,10 @@ public class RepositoryExtensionsTests : IDisposable
         var options = new VersionOptions { SkipBumpFile = true, Project = ProjectOptions.DefaultOneProjectPerRepo };
 
         // Act
-        var version = _testSetup.Repository.GetCurrentVersion(options, NullBumpFile.Default);
+        var version = _testSetup.Repository.GetCurrentVersion(options, bumpFile: null);
 
         // Assert
-        version.ShouldBe(new Version(2, 1, 0));
+        version.ShouldBe(new SemanticVersion(2, 1, 0));
     }
 
     [Fact]
@@ -71,7 +70,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Act
         var exists = _testSetup.Repository.VersionTagsExists(
-            new Version(1, 0, 0),
+            new SemanticVersion(1, 0, 0),
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Assert
@@ -88,7 +87,7 @@ public class RepositoryExtensionsTests : IDisposable
 
         // Act
         var exists = _testSetup.Repository.VersionTagsExists(
-            new Version(1, 0, 0, "alpha.1"),
+            new SemanticVersion(1, 0, 0, "alpha.1"),
             ProjectOptions.DefaultOneProjectPerRepo);
 
         // Assert

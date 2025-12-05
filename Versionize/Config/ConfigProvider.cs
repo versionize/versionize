@@ -10,32 +10,17 @@ public static class ConfigProvider
         CliConfig cliConfig,
         FileConfig? fileConfig)
     {
-        var options = MergeWithOptions(cwd, fileConfig, cliConfig);
-
-        ValidateChangelogPaths(fileConfig, options.WorkingDirectory);
-
-        CommandLineUI.Verbosity = MergeBool(cliConfig.Silent, fileConfig?.Silent)
-            ? LogLevel.Silent
-            : LogLevel.All;
-
-        return options;
-    }
-
-    private static VersionizeOptions MergeWithOptions(
-        string cwd,
-        FileConfig? fileConfig,
-        CliConfig cliConfig)
-    {
         ProjectOptions? project = GetProjectOptions(fileConfig, cliConfig);
+        CommitParserOptions commitParser = CommitParserOptions.MergeWithDefault(fileConfig?.CommitParser);
 
-        // Validate custom version element early to avoid invalid XPath usage later
-        ValidateVersionElement(project.VersionElement);
-
-        var commitParser = CommitParserOptions.Merge(fileConfig?.CommitParser, CommitParserOptions.Default);
         var projectPath = Path.Combine(cwd, project.Path);
+
+        ValidateChangelogPaths(fileConfig, projectPath);
+        ValidateVersionElement(project.VersionElement);
 
         return new VersionizeOptions
         {
+            Silent = MergeBool(cliConfig.Silent, fileConfig?.Silent),
             WorkingDirectory = projectPath,
             DryRun = MergeBool(cliConfig.DryRun, fileConfig?.DryRun),
             ReleaseAs = cliConfig.ReleaseAs.Value() ?? fileConfig?.ReleaseAs,

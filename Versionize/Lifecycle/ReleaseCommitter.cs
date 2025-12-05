@@ -5,19 +5,22 @@ using Versionize.Changelog;
 using Versionize.Config;
 using Versionize.Git;
 using Versionize.CommandLine;
+
 using static Versionize.CommandLine.CommandLineUI;
+using Input = Versionize.Lifecycle.IReleaseCommitter.Input;
+using Options = Versionize.Lifecycle.IReleaseCommitter.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ChangeCommitter
+public sealed class ReleaseCommitter : IReleaseCommitter
 {
-    public static void CreateCommit(
-        Repository repo,
-        Options options,
-        SemanticVersion nextVersion,
-        IBumpFile bumpFile,
-        ChangelogBuilder? changelog)
+    public void CreateCommit(Input input, Options options)
     {
+        var repo = input.Repository;
+        var nextVersion = input.NewVersion;
+        var bumpFile = input.BumpFile;
+        var changelog = input.Changelog;
+
         if (options.SkipCommit || options.DryRun)
         {
             return;
@@ -28,7 +31,7 @@ public sealed class ChangeCommitter
             LibGit2Sharp.Commands.Stage(repo, changelog.FilePath);
         }
 
-        var projectFiles = bumpFile.GetFilePaths();
+        var projectFiles = bumpFile?.GetFilePaths() ?? [];
         if (projectFiles.Any())
         {
             LibGit2Sharp.Commands.Stage(repo, projectFiles);
@@ -56,8 +59,21 @@ public sealed class ChangeCommitter
         // TODO: Make this message dynamic
         Step(InfoMessages.CommittedChanges(changelog?.FilePath ?? "CHANGELOG.md"));
     }
+}
 
-    public sealed class Options
+public interface IReleaseCommitter
+{
+    void CreateCommit(Input input, Options options);
+
+    class Input
+    {
+        public required IRepository Repository { get; init; }
+        public required SemanticVersion NewVersion { get; init; }
+        public required IBumpFile? BumpFile { get; init; }
+        public required ChangelogBuilder? Changelog { get; init; }
+    }
+
+    sealed class Options
     {
         public bool SkipCommit { get; init; }
         public bool DryRun { get; init; }

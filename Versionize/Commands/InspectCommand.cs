@@ -1,5 +1,4 @@
 using McMaster.Extensions.CommandLineUtils;
-using Versionize.BumpFiles;
 using Versionize.CommandLine;
 using Versionize.Commands;
 
@@ -15,12 +14,11 @@ internal sealed class InspectCommand
 
     public void OnExecute()
     {
-        InspectCmdContext context = _contextProvider.GetContext();
-
         CommandLineUI.Verbosity = LogLevel.Error;
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(context.Options);
+        InspectCmdContext context = _contextProvider.GetContext();
         CommandLineUI.Verbosity = LogLevel.All;
 
-        CommandLineUI.Information(bumpFile.Version.ToNormalizedString());
+        // TODO: Support getting version from tag
+        CommandLineUI.Information(context.BumpFile?.Version.ToNormalizedString() ?? "");
     }
 }

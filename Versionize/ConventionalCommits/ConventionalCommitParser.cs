@@ -15,7 +15,7 @@ public static class ConventionalCommitParser
     private static readonly RegexOptions RegexOptions =
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline;
 
-    public static List<ConventionalCommit> Parse(List<Commit> commits, CommitParserOptions? options = null)
+    public static IReadOnlyList<ConventionalCommit> Parse(IEnumerable<Commit> commits, CommitParserOptions? options = null)
     {
         return [.. commits.Select(x => Parse(x, options))];
     }

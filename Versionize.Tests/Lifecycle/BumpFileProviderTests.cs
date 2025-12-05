@@ -21,14 +21,16 @@ public class BumpFileProviderTests : IDisposable
     {
         // Arrange
         TempProject.CreateUnityProject(_testSetup.WorkingDirectory);
-        var options = new BumpFileProvider.Options
+        var options = new IBumpFileProvider.Options
         {
             SkipBumpFile = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<UnityBumpFile>();
@@ -39,17 +41,19 @@ public class BumpFileProviderTests : IDisposable
     {
         // Arrange
         TempProject.CreateUnityProject(_testSetup.WorkingDirectory);
-        var options = new BumpFileProvider.Options
+        var options = new IBumpFileProvider.Options
         {
             SkipBumpFile = true,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
-        bumpFile.ShouldBeOfType<NullBumpFile>();
+        bumpFile.ShouldBeNull();
     }
 
     [Fact]
@@ -57,14 +61,16 @@ public class BumpFileProviderTests : IDisposable
     {
         // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
-        var options = new BumpFileProvider.Options
+        var options = new IBumpFileProvider.Options
         {
             SkipBumpFile = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
         bumpFile.ShouldBeOfType<DotnetBumpFile>();
@@ -75,34 +81,38 @@ public class BumpFileProviderTests : IDisposable
     {
         // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
-        var options = new BumpFileProvider.Options
+        var options = new IBumpFileProvider.Options
         {
             SkipBumpFile = true,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
-        bumpFile.ShouldBeOfType<NullBumpFile>();
+        bumpFile.ShouldBeNull();
     }
 
     [Fact]
     public void ReturnsNullBumpFile_When_SupportedBumpFileNotFound()
     {
         // Arrange
-        var options = new BumpFileProvider.Options
+        var options = new IBumpFileProvider.Options
         {
             SkipBumpFile = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
+        var sut = new BumpFileProvider();
+
         // Act
-        IBumpFile bumpFile = BumpFileProvider.GetBumpFile(options);
+        IBumpFile bumpFile = sut.GetBumpFile(options);
 
         // Assert
-        bumpFile.ShouldBeOfType<NullBumpFile>();
+        bumpFile.ShouldBeNull();
     }
 
     public void Dispose()

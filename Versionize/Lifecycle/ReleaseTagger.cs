@@ -3,17 +3,20 @@ using NuGet.Versioning;
 using Versionize.Config;
 using Versionize.Git;
 using Versionize.CommandLine;
+
 using static Versionize.CommandLine.CommandLineUI;
+using Input = Versionize.Lifecycle.IReleaseTagger.Input;
+using Options = Versionize.Lifecycle.IReleaseTagger.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ReleaseTagger
+public sealed class ReleaseTagger : IReleaseTagger
 {
-    public static void CreateTag(
-        Repository repo,
-        Options options,
-        SemanticVersion nextVersion)
+    public void CreateTag(Input input, Options options)
     {
+        var repo = input.Repository;
+        var nextVersion = input.NewVersion;
+
         if (options.SkipTag || options.DryRun)
         {
             return;
@@ -37,8 +40,19 @@ public sealed class ReleaseTagger
 
         Step(InfoMessages.TaggedRelease(tagName, repo.Head.Tip.Sha));
     }
+}
 
-    public sealed class Options
+public interface IReleaseTagger
+{
+    void CreateTag(Input input, Options options);
+
+    sealed class Input
+    {
+        public required Repository Repository { get; init; }
+        public required SemanticVersion NewVersion { get; init; }
+    }
+
+    sealed class Options
     {
         public bool SkipTag { get; init; }
         public bool DryRun { get; init; }

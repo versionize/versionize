@@ -6,6 +6,7 @@ using Versionize.Config.Validation;
 using Versionize.Git;
 using Versionize.Lifecycle;
 using Versionize.Commands;
+using LibGit2Sharp;
 
 [Command(Name = "changelog", Description = "Prints a given version's changelog to stdout")]
 internal sealed class ChangelogCommand
@@ -27,10 +28,10 @@ internal sealed class ChangelogCommand
     public void OnExecute()
     {
         ChangelogCmdContext context = _contextProvider.GetContext(Version, Preamble);
-        var options = context.Options;
-        var repo = context.Repository;
+        ChangelogCmdOptions options = context.Options;
+        Repository repo = context.Repository;
 
-        CommandLineUI.Verbosity = LogLevel.Error;
+        CommandLineUI.Verbosity = Versionize.CommandLine.LogLevel.Error;
 
         var (FromRef, ToRef) = repo.GetCommitRange(Version, options);
         var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
@@ -41,7 +42,7 @@ internal sealed class ChangelogCommand
             options.ProjectOptions.Changelog);
         var changelog = Preamble + markdown.TrimEnd();
 
-        CommandLineUI.Verbosity = LogLevel.All;
+        CommandLineUI.Verbosity = Versionize.CommandLine.LogLevel.All;
 
         CommandLineUI.Information(changelog);
     }

@@ -2,6 +2,9 @@
 
 public sealed record VersionizeOptions
 {
+    /// <inheritdoc cref="FileConfig.Silent"/>
+    public bool Silent { get; init; }
+
     /// <inheritdoc cref="FileConfig.DryRun"/>
     public bool DryRun { get; init; }
 

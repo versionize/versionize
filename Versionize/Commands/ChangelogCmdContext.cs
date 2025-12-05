@@ -16,7 +16,7 @@ internal sealed class ChangelogCmdContextProvider(
     public ChangelogCmdContext GetContext(string? versionStr, string? preamble)
     {
         VersionizeOptions options = _optionsProvider.GetOptions();
-        Repository repository = _repositoryProvider.GetRepository(options);
+        Repository repository = _repositoryProvider.GetRepository(options.WorkingDirectory);
 
         var changelogOptions = new ChangelogCmdOptions
         {
