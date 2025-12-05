@@ -4,6 +4,8 @@ using Versionize.CommandLine;
 using Versionize.Config;
 using Versionize.Commands;
 using Versionize.Git;
+using Versionize.BumpFiles;
+using Versionize.Lifecycle;
 
 namespace Versionize;
 
@@ -26,6 +28,16 @@ public static class Program
             .AddSingleton<IChangelogCmdContextProvider, ChangelogCmdContextProvider>()
             .AddSingleton<IVersionizeOptionsProvider, VersionizeOptionsProvider>()
             .AddSingleton<IRepositoryProvider, RepositoryProvider>()
+            .AddSingleton<IRepoStateValidator, RepoStateValidator>()
+            .AddSingleton<IBumpFileProvider, BumpFileProvider>()
+            // Pipeline
+            .AddSingleton<IVersionizeCmdPipeline, VersionizeCmdPipeline>()
+            .AddSingleton<IConventionalCommitProvider, ConventionalCommitProvider>()
+            .AddSingleton<IVersionBumper, VersionBumper>()
+            .AddSingleton<IBumpFileUpdater, BumpFileUpdater>()
+            .AddSingleton<IChangelogUpdater, ChangelogUpdater>()
+            .AddSingleton<IReleaseCommitter, ReleaseCommitter>()
+            .AddSingleton<IReleaseTagger, ReleaseTagger>()
             .BuildServiceProvider();
 
         app.Conventions

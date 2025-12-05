@@ -7,17 +7,20 @@ using static Versionize.CommandLine.CommandLineUI;
 using Versionize.CommandLine;
 using Versionize.Changelog.LinkBuilders;
 
+using Input = Versionize.Lifecycle.IChangelogUpdater.Input;
+using Options = Versionize.Lifecycle.IChangelogUpdater.Options;
+
 namespace Versionize.Lifecycle;
 
-public sealed class ChangelogUpdater
+public sealed class ChangelogUpdater : IChangelogUpdater
 {
-    public static ChangelogBuilder? Update(
-        Repository repo,
-        Options options,
-        SemanticVersion nextVersion,
-        SemanticVersion? previousVersion,
-        IReadOnlyList<ConventionalCommit> conventionalCommits)
+    public ChangelogBuilder? Update(Input input, Options options)
     {
+        var repo = input.Repository;
+        var nextVersion = input.NewVersion;
+        var previousVersion = input.OriginalVersion;
+        var conventionalCommits = input.ConventionalCommits;
+
         if (options.SkipChangelog)
         {
             return null;
@@ -54,8 +57,21 @@ public sealed class ChangelogUpdater
 
         return changelog;
     }
+}
 
-    public sealed class Options
+public interface IChangelogUpdater
+{
+    ChangelogBuilder? Update(Input input, Options options);
+
+    sealed class Input
+    {
+        public required Repository Repository { get; init; }
+        public required SemanticVersion NewVersion { get; init; }
+        public required SemanticVersion? OriginalVersion { get; init; }
+        public required IReadOnlyList<ConventionalCommit> ConventionalCommits { get; init; }
+    }
+
+    sealed class Options
     {
         public bool SkipChangelog { get; init; }
         public bool DryRun { get; init; }

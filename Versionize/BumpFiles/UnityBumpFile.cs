@@ -15,16 +15,17 @@ public sealed class UnityBumpFile(string projectSettingsPath, SemanticVersion ve
     public static UnityBumpFile Create(string workingDirectory)
     {
         var projectSettingsPath = Path.Combine(workingDirectory, "ProjectSettings/ProjectSettings.asset");
+        if (!File.Exists(projectSettingsPath))
+        {
+            throw new VersionizeException(ErrorMessages.UnityProjectSettingsNotFound(), 1);
+        }
+
         var version = GetVersion(projectSettingsPath);
         return new UnityBumpFile(projectSettingsPath, version);
     }
 
     public void WriteVersion(SemanticVersion newVersion)
     {
-        if (!File.Exists(_projectSettingsPath))
-        {
-            throw new VersionizeException(ErrorMessages.UnityProjectSettingsNotFound(), 1);
-        }
 
         string projectSettings = File.ReadAllText(_projectSettingsPath);
         string updatedSettings = Regex.Replace(projectSettings, versionPattern, $"bundleVersion: {newVersion}");
@@ -38,11 +39,6 @@ public sealed class UnityBumpFile(string projectSettingsPath, SemanticVersion ve
 
     private static SemanticVersion GetVersion(string projectSettingsPath)
     {
-        if (!File.Exists(projectSettingsPath))
-        {
-            throw new VersionizeException(ErrorMessages.UnityProjectSettingsNotFound(), 1);
-        }
-
         string projectSettings = File.ReadAllText(projectSettingsPath);
         var match = Regex.Match(projectSettings, versionPattern);
         if (match.Success)

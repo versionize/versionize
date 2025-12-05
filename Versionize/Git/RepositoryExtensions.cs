@@ -44,7 +44,7 @@ public static class RepositoryExtensions
         }
     }
 
-    public static List<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag? versionTag, ProjectOptions project, CommitFilter? filter = null)
+    public static IReadOnlyList<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag? versionTag, ProjectOptions project, CommitFilter? filter = null)
     {
         if (versionTag == null)
         {
@@ -57,7 +57,7 @@ public static class RepositoryExtensions
         return [.. repository.GetCommits(project, filter)];
     }
 
-    public static List<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
+    public static IReadOnlyList<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
     {
         var lastReleaseCommit = repository
             .GetCommits(project, filter)
@@ -74,18 +74,18 @@ public static class RepositoryExtensions
         return [.. repository.GetCommits(project, filter)];
     }
 
-    public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile bumpFile)
+    public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile? bumpFile)
     {
-        if (options.SkipBumpFile)
+        if (bumpFile is null || options.SkipBumpFile)
         {
             return repository.Tags
                 .Select(options.Project.ExtractTagVersion)
                 .Where(x => x is not null)
-                .OrderByDescending(x => x)
+                .OrderDescending()
                 .FirstOrDefault();
         }
 
-        return bumpFile.Version;
+        return bumpFile?.Version;
     }
 
     public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, ChangelogCmdOptions options)
@@ -100,7 +100,7 @@ public static class RepositoryExtensions
         }
 
         var versions = versionsEnumerable
-            .OrderByDescending(x => x)
+            .OrderDescending()
             .ToArray();
 
         var versionIndex = Array.IndexOf(versions, version);
@@ -116,7 +116,7 @@ public static class RepositoryExtensions
             versionStr = repo.Tags
                 .Select(options.ProjectOptions.ExtractTagVersion)
                 .Where(x => x is not null)
-                .OrderByDescending(x => x)
+                .OrderDescending()
                 .FirstOrDefault()?
                 .ToNormalizedString();
 

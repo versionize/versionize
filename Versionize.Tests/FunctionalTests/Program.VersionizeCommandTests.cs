@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using LibGit2Sharp;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 using Shouldly;
 using Versionize.BumpFiles;
 using Versionize.CommandLine;
@@ -218,6 +219,177 @@ public class ProgramTests : IDisposable
                     }
                 }
             }
+        }
+    }
+
+    [Fact]
+    public void ShouldSupportMonoRepo2()
+    {
+        var fileCommitter = new FileCommitter(_testSetup);
+
+        var projects = new[]
+        {
+            new ProjectOptions
+            {
+                Name = "Project0",
+                Path = "project0",
+                TagTemplate = "v{version}",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project0 header"
+                }
+            },
+            new ProjectOptions
+            {
+                Name = "Project0-subfolder",
+                Path = "project0-subfolder",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project0-subfolder header",
+                    Path = "docs"
+                }
+            },
+            new ProjectOptions
+            {
+                Name = "Project1",
+                Path = "project1",
+                TagTemplate = "{name}/v{version}",
+                Changelog = ChangelogOptions.Default
+            },
+            new ProjectOptions
+            {
+                Name = "Project1-legacy",
+                Path = "project1-legacy",
+                TagTemplate = "Project1/legacy/v{version}",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project1-legacy header"
+                }
+            },
+            new ProjectOptions
+            {
+                Name = "Project2",
+                Path = "project2",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project2 header"
+                }
+            },
+            new ProjectOptions
+            {
+                Name = "Project3",
+                Path = "project3/src",
+                Changelog = ChangelogOptions.Default with
+                {
+                    Header = "Project3 header"
+                }
+            }
+        };
+
+        var fileConfig = new FileConfig
+        {
+            Projects = projects,
+            AggregatePrereleases = true,
+            Changelog = new ChangelogOptions
+            {
+                Header = "Default custom header"
+            }
+        };
+
+        File.WriteAllText(
+            Path.Join(_testSetup.WorkingDirectory, ".versionize"),
+            JsonConvert.SerializeObject(fileConfig));
+
+        foreach (var project in projects)
+        {
+            TempProject.CreateCsharpProject(
+                Path.Join(_testSetup.WorkingDirectory, project.Path));
+
+            if (!project.Changelog.Path.Equals(string.Empty))
+            {
+                var changelogDir = Path.GetFullPath(Path.Combine(_testSetup.WorkingDirectory, project.Path, project.Changelog.Path));
+                if (!Directory.Exists(changelogDir))
+                {
+                    Directory.CreateDirectory(changelogDir);
+                }
+            }
+
+            // Release an initial version
+            fileCommitter.CommitChange($"feat: initial commit at {project.Name}", project.Path);
+            var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name]);
+            exitCode.ShouldBe(0);
+
+            // Prerelease as patch alpha
+            fileCommitter.CommitChange($"fix: a fix at {project.Name}", project.Path);
+            exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name, "--pre-release", "alpha"]);
+            exitCode.ShouldBe(0);
+
+            // Prerelease as minor alpha
+            fileCommitter.CommitChange($"feat: a feature at {project.Name}", project.Path);
+            exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name, "--pre-release", "alpha"]);
+            exitCode.ShouldBe(0);
+
+            // Full release
+            exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name]);
+            exitCode.ShouldBe(0);
+
+            // Full release
+            fileCommitter.CommitChange($"feat: another feature at {project.Name}", project.Path);
+            exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--proj-name", project.Name]);
+            exitCode.ShouldBe(0);
+        }
+
+        foreach (var project in projects)
+        {
+            var versionTagNames = _testSetup.Repository.Tags.Select(t => t.FriendlyName);
+            var expectedTagNames = new[] { "1.0.0", "1.0.1-alpha.0", "1.1.0", "1.1.0-alpha.0", "1.2.0" }
+                .Select(SemanticVersion.Parse)
+                .Select(project.GetTagName);
+
+            foreach (var expectedTag in expectedTagNames)
+            {
+                versionTagNames.ShouldContain(expectedTag);
+            }
+
+            var commitDate = DateTime.Now.ToString("yyyy-MM-dd");
+            var changelogContents = File.ReadAllText(
+                Path.GetFullPath(Path.Combine(_testSetup.WorkingDirectory, project.Path, project.Changelog.Path, "CHANGELOG.md"))
+            );
+            var sb = new ChangelogStringBuilder();
+            sb.Append(project.Changelog.Header);
+
+            sb.Append("<a name=\"1.2.0\"></a>");
+            sb.Append($"## 1.2.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* another feature at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.1.0\"></a>");
+            sb.Append($"## 1.1.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* a feature at {project.Name}", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append($"* a fix at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.1.0-alpha.0\"></a>");
+            sb.Append($"## 1.1.0-alpha.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* a feature at {project.Name}", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append($"* a fix at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.0.1-alpha.0\"></a>");
+            sb.Append($"## 1.0.1-alpha.0 ({commitDate})", 2);
+            sb.Append("### Bug Fixes", 2);
+            sb.Append($"* a fix at {project.Name}", 2);
+
+            sb.Append("<a name=\"1.0.0\"></a>");
+            sb.Append($"## 1.0.0 ({commitDate})", 2);
+            sb.Append("### Features", 2);
+            sb.Append($"* initial commit at {project.Name}", 2);
+
+            var expected = sb.Build();
+
+            Assert.Equal(expected, changelogContents);
         }
     }
 
@@ -885,6 +1057,18 @@ public class ProgramTests : IDisposable
             .Commits
             .Count()
             .ShouldBe(3);
+    }
+
+    [Fact]
+    public void ShouldPrintErrorForInvalidArgument()
+    {
+        // Act (should be "--pre-release" not "--prerelease")
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "--prerelease", "alpha"]);
+
+        // Assert
+        exitCode.ShouldBe(1);
+        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+        _testPlatformAbstractions.Messages[0].ShouldBe("Unrecognized option '--prerelease'");
     }
 
     public void Dispose()

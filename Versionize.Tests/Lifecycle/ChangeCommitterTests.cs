@@ -3,7 +3,6 @@ using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using Shouldly;
 using Version = NuGet.Versioning.SemanticVersion;
-using Versionize.BumpFiles;
 using Versionize.Changelog;
 using Versionize.Git;
 using Versionize.Config;
@@ -25,7 +24,7 @@ public class ChangeCommitterTests : IDisposable
     public void DoesntCreateACommit_When_DryRunIsTrueAndSkipCommitIsFalse()
     {
         // Arrange
-        var options = new ChangeCommitter.Options
+        var options = new IReleaseCommitter.Options
         {
             DryRun = true,
             Sign = false,
@@ -34,16 +33,18 @@ public class ChangeCommitterTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
-        var bumpFile = NullBumpFile.Default;
-        ChangelogBuilder changelog = null;
+        var input = new IReleaseCommitter.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(2, 0, 0),
+            BumpFile = null,
+            Changelog = null,
+        };
+
+        var sut = new ReleaseCommitter();
 
         // Act
-        ChangeCommitter.CreateCommit(
-            _testSetup.Repository,
-            options,
-            new Version(2, 0, 0),
-            bumpFile,
-            changelog);
+        sut.CreateCommit(input, options);
 
         // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(0);
@@ -53,7 +54,7 @@ public class ChangeCommitterTests : IDisposable
     public void DoesntCreateACommit_When_DryRunIsFalseAndSkipCommitIsTrue()
     {
         // Arrange
-        var options = new ChangeCommitter.Options
+        var options = new IReleaseCommitter.Options
         {
             DryRun = false,
             Sign = false,
@@ -62,16 +63,18 @@ public class ChangeCommitterTests : IDisposable
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
 
-        var bumpFile = NullBumpFile.Default;
-        ChangelogBuilder changelog = null;
+        var input = new IReleaseCommitter.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(2, 0, 0),
+            BumpFile = null,
+            Changelog = null,
+        };
+
+        var sut = new ReleaseCommitter();
 
         // Act
-        ChangeCommitter.CreateCommit(
-            _testSetup.Repository,
-            options,
-            new Version(2, 0, 0),
-            bumpFile,
-            changelog);
+        sut.CreateCommit(input, options);
 
         // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(0);
@@ -84,7 +87,7 @@ public class ChangeCommitterTests : IDisposable
     public void CreatesACommit_When_DryRunIsFalseAndSkipCommitIsFalse(string commitSuffix, string expectedMessage)
     {
         // Arrange
-        var options = new ChangeCommitter.Options
+        var options = new IReleaseCommitter.Options
         {
             DryRun = false,
             Sign = false,
@@ -92,8 +95,6 @@ public class ChangeCommitterTests : IDisposable
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
-
-        var bumpFile = NullBumpFile.Default;
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
@@ -104,13 +105,18 @@ public class ChangeCommitterTests : IDisposable
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        var input = new IReleaseCommitter.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(2, 0, 0),
+            BumpFile = null,
+            Changelog = changelog,
+        };
+
+        var sut = new ReleaseCommitter();
+
         // Act
-        ChangeCommitter.CreateCommit(
-            _testSetup.Repository,
-            options,
-            new Version(2, 0, 0),
-            bumpFile,
-            changelog);
+        sut.CreateCommit(input, options);
 
         // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(1);
@@ -131,7 +137,7 @@ public class ChangeCommitterTests : IDisposable
         GitProcessUtil.RunGpgCommand($"--import \"{gpgFilePath}\"");
         _testSetup.Repository.Config.Set("user.signingkey", "0C79B0FDFF00BDF6");
 
-        var options = new ChangeCommitter.Options
+        var options = new IReleaseCommitter.Options
         {
             DryRun = false,
             Sign = true,
@@ -139,8 +145,6 @@ public class ChangeCommitterTests : IDisposable
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
         };
-
-        var bumpFile = NullBumpFile.Default;
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
         changelog.Write(
@@ -151,13 +155,18 @@ public class ChangeCommitterTests : IDisposable
             [],
             ProjectOptions.DefaultOneProjectPerRepo);
 
+        var input = new IReleaseCommitter.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(2, 0, 0),
+            BumpFile = null,
+            Changelog = changelog,
+        };
+
+        var sut = new ReleaseCommitter();
+
         // Act
-        ChangeCommitter.CreateCommit(
-            _testSetup.Repository,
-            options,
-            new Version(2, 0, 0),
-            bumpFile,
-            changelog);
+        sut.CreateCommit(input, options);
 
         // Assert
         _testSetup.Repository.Commits.Count().ShouldBe(1);

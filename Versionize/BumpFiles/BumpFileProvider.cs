@@ -1,9 +1,10 @@
 ﻿using Versionize.Config;
-using Versionize.Commands;
+
+using Options = Versionize.BumpFiles.IBumpFileProvider.Options;
 
 namespace Versionize.BumpFiles;
 
-internal sealed class BumpFileProvider
+internal sealed class BumpFileProvider : IBumpFileProvider
 {
     /// <summary>
     /// Detects the type of bump file based on project structure in the specified directory.
@@ -12,11 +13,11 @@ internal sealed class BumpFileProvider
     /// Supported types: .NET, Unity, or none.<br/>
     /// Returns <see cref="NullBumpFile"/> if <see cref="Options.SkipBumpFile"/> is true.
     /// </remarks>
-    public static IBumpFile GetBumpFile(Options options)
+    public IBumpFile? GetBumpFile(Options options)
     {
         if (options.SkipBumpFile)
         {
-            return NullBumpFile.Default;
+            return null;
         }
 
         if (IsUnityProjectRecursive(options.WorkingDirectory))
@@ -29,7 +30,7 @@ internal sealed class BumpFileProvider
             return DotnetBumpFile.Create(options.WorkingDirectory, options.VersionElement);
         }
 
-        return NullBumpFile.Default;
+        return null;
     }
 
     private static bool IsDotnetProject(string directoryPath)
@@ -70,8 +71,13 @@ internal sealed class BumpFileProvider
             .EnumerateDirectories(directoryPath, "*", options)
             .Any(IsUnityProject);
     }
+}
 
-    public sealed class Options
+internal interface IBumpFileProvider
+{
+    IBumpFile? GetBumpFile(Options options);
+
+    sealed class Options
     {
         public bool SkipBumpFile { get; init; }
         public string? VersionElement { get; init; }
@@ -84,16 +90,6 @@ internal sealed class BumpFileProvider
                 SkipBumpFile = versionizeOptions.SkipBumpFile,
                 VersionElement = versionizeOptions.Project.VersionElement,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
-            };
-        }
-
-        public static implicit operator Options(InspectCmdOptions inspectOptions)
-        {
-            return new Options
-            {
-                SkipBumpFile = inspectOptions.SkipBumpFile,
-                VersionElement = inspectOptions.ProjectOptions.VersionElement,
-                WorkingDirectory = inspectOptions.WorkingDirectory,
             };
         }
     }
