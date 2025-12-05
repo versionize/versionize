@@ -33,14 +33,16 @@ internal sealed class ChangelogCommand
 
         CommandLineUI.Verbosity = Versionize.CommandLine.LogLevel.Error;
 
-        var (FromRef, ToRef) = repo.GetCommitRange(Version, options);
-        var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.ProjectOptions.Changelog.LinkTemplates);
-        string markdown = ChangelogBuilder.GenerateCommitList(
-            linkBuilder,
-            conventionalCommits,
-            options.ProjectOptions.Changelog);
-        var changelog = Preamble + markdown.TrimEnd();
+        // var (FromRef, ToRef) = repo.GetCommitRange(Version, options);
+        // var conventionalCommits = ConventionalCommitProvider.GetCommits(repo, options, FromRef, ToRef);
+        // var linkBuilder = LinkBuilderFactory.CreateFor(repo, options.ProjectOptions.Changelog.LinkTemplates);
+        // string markdown = ChangelogBuilder.GenerateCommitList(
+        //     linkBuilder,
+        //     conventionalCommits,
+        //     options.ProjectOptions.Changelog);
+        // var changelog = Preamble + markdown.TrimEnd();
+
+        string changelog = string.Empty; // TODO: Implement changelog generation
 
         CommandLineUI.Verbosity = Versionize.CommandLine.LogLevel.All;
 

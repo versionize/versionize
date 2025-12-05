@@ -17,40 +17,48 @@ public sealed class ConventionalCommitProvider : IConventionalCommitProvider
         Repository repo = input.Repository;
         SemanticVersion? versionToUseForCommitDiff = input.Version;
 
-        if (options.AggregatePrereleases)
-        {
-            versionToUseForCommitDiff = repo.Tags
-                .Select(options.Project.ExtractTagVersion)
-                .Where(x => x != null && !x.IsPrerelease)
-                .OrderDescending()
-                .FirstOrDefault();
-        }
+        var (fromRef, toRef) = GetCommitRange(repo, version, options);
+        var isFirstRelease = fromRef == null;
+        var conventionalCommits = GetCommits(repo, options, fromRef, toRef);
 
-        var isFirstRelease = false;
-        IReadOnlyList<Commit> commitsInVersion;
-        var commitFilter = new CommitFilter
+        return new ConventionalCommitsResult(isFirstRelease, conventionalCommits);
+    }
+
+    private (GitObject? FromRef, GitObject ToRef) GetCommitRange(Repository repo, SemanticVersion? version, Options options)
+    {
+        if (version is null)
         {
-            FirstParentOnly = options.FirstParentOnlyCommits
-        };
+            return (null, repo.Head.Tip);
+        }
 
         if (options.FindReleaseCommitViaMessage)
         {
-            var lastReleaseCommit = repo.GetCommits(options.Project, commitFilter).FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
-            isFirstRelease = lastReleaseCommit is null;
-            commitsInVersion = repo.GetCommitsSinceLastReleaseCommit(options.Project, commitFilter);
+            var commitFilter = new CommitFilter
+            {
+                FirstParentOnly = options.FirstParentOnlyCommits,
+            };
+
+            var lastReleaseCommit = repo
+                .GetCommits(options.Project, commitFilter)
+                .FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
+
+            return (lastReleaseCommit, repo.Head.Tip);
         }
-        else
+
+        if (version.IsPrerelease && options.AggregatePrereleases)
         {
-            var versionTag = repo.SelectVersionTag(versionToUseForCommitDiff, options.Project);
-            isFirstRelease = versionTag == null;
-            commitsInVersion = repo.GetCommitsSinceLastVersion(versionTag, options.Project, commitFilter);
+            var tag = repo.Tags
+                .Select(tag => (Tag: tag, Version: options.Project.ExtractTagVersion(tag)))
+                .OrderByDescending(x => x.Version)
+                .Where(x => x.Version is { IsPrerelease: false })
+                .Select(x => x.Tag)
+                .FirstOrDefault();
+
+            return (tag?.Target, repo.Head.Tip);
         }
 
-        var conventionalCommits = ConventionalCommitParser.Parse(commitsInVersion, options.CommitParser);
-
-        return new ConventionalCommitsResult(
-            IsFirstRelease: isFirstRelease,
-            ConventionalCommits: conventionalCommits);
+        var tagForVersion = repo.SelectVersionTag(version, options.Project);
+        return (tagForVersion?.Target, repo.Head.Tip);
     }
 
     public static IReadOnlyList<ConventionalCommit> GetCommits(Repository repo, Options options, GitObject? fromRef, GitObject toRef)

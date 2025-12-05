@@ -4,8 +4,178 @@ using Versionize.BumpFiles;
 using Versionize.Config;
 using Versionize.CommandLine;
 using Versionize.Commands;
+using System.Linq;
 
 namespace Versionize.Git;
+
+public record struct CommitRange(GitObject? FromRef, GitObject ToRef);
+public record struct VersionTag(SemanticVersion Version, Tag Tag);
+
+public sealed class VersionedRepository
+{
+    public Repository Repository { get; }
+    public ProjectOptions ProjectOptions { get; }
+
+    public VersionedRepository(Repository repository, ProjectOptions projectOptions)
+    {
+        Repository = repository;
+        ProjectOptions = projectOptions;
+    }
+
+    public bool TagExists(SemanticVersion version)
+    {
+        var tagName = ProjectOptions.GetTagName(version);
+        return Repository.Tags[tagName] != null;
+    }
+
+    public Tag? GetTag(SemanticVersion? version)
+    {
+        if (version == null)
+        {
+            return null;
+        }
+
+        var tagName = ProjectOptions.GetTagName(version);
+        return Repository.Tags[tagName];
+    }
+
+    public IEnumerable<Commit> GetCommits(CommitFilter? filter = null)
+    {
+        filter ??= new CommitFilter();
+
+        if (string.IsNullOrEmpty(ProjectOptions.Path))
+        {
+            return Repository.Commits.QueryBy(filter);
+        }
+
+        filter.SortBy = CommitSortStrategies.Time | CommitSortStrategies.Topological;
+
+        return Repository.Commits
+            .QueryBy(ProjectOptions.Path, filter)
+            .Select(x => x.Commit);
+    }
+
+    public IEnumerable<VersionTag> GetVersionTags()
+    {
+        foreach (var tag in Repository.Tags)
+        {
+            var version = ProjectOptions.ExtractTagVersion(tag);
+            if (version is not null)
+            {
+                yield return new VersionTag(version, tag);
+            }
+        }
+    }
+
+    public VersionTag? GetLatestVersionTag()
+    {
+        var versionTags = GetVersionTags();
+        if (!versionTags.Any())
+        {
+            return null;
+        }
+
+        return versionTags.MaxBy(vt => vt.Version);
+    }
+
+    public SemanticVersion? GetPreviousVersion(SemanticVersion version, bool aggregatePrereleases)
+    {
+        SemanticVersion? previous = null;
+
+        foreach (var versionTag in GetVersionTags())
+        {
+            var current = versionTag.Version;
+
+            if (aggregatePrereleases && current.IsPrerelease)
+            {
+                continue;
+            }
+
+            if (current < version && (previous == null || current > previous))
+            {
+                previous = current;
+            }
+        }
+
+        return previous;
+    }
+
+    public VersionTag? GetPreviousVersionTag(SemanticVersion version, bool aggregatePrereleases)
+    {
+        VersionTag? previous = null;
+
+        foreach (var versionTag in GetVersionTags())
+        {
+            var current = versionTag.Version;
+
+            if (aggregatePrereleases && current.IsPrerelease)
+            {
+                continue;
+            }
+
+            if (current < version && (previous == null || current > previous.Value.Version))
+            {
+                previous = versionTag;
+            }
+        }
+
+        return previous;
+    }
+
+    public GitObject? GetReleaseCommitViaMessage(SemanticVersion version)
+    {
+        var commitFilter = new CommitFilter
+        {
+            FirstParentOnly = true,
+        };
+
+        var expectedPrefix = $"chore(release): {version}";
+
+        var lastReleaseCommit = Repository
+            .GetCommits(ProjectOptions, commitFilter)
+            .FirstOrDefault(x => x.Message.StartsWith(expectedPrefix));
+
+        return lastReleaseCommit;
+    }
+
+    public GitObject? GetPreviousReleaseCommitViaMessage(GitObject toRef, bool aggregatePrereleases)
+    {
+        var commitFilter = new CommitFilter
+        {
+            FirstParentOnly = true,
+            IncludeReachableFrom = toRef,
+        };
+
+        var commits = Repository
+            .GetCommits(ProjectOptions, commitFilter)
+            .Skip(1); // Skip the current release commit
+
+        foreach (var commit in commits)
+        {
+            if (!commit.Message.StartsWith("chore(release):"))
+            {
+                continue;
+            }
+
+            if (!aggregatePrereleases)
+            {
+                return commit;
+            }
+
+            var messageParts = commit.Message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (messageParts.Length >= 2 &&
+                SemanticVersion.TryParse(messageParts[1], out var version) &&
+                version.IsPrerelease)
+            {
+                continue;
+            }
+
+            return commit;
+        }
+
+        return null;
+    }
+}
 
 public static class RepositoryExtensions
 {
@@ -16,146 +186,109 @@ public static class RepositoryExtensions
             return null;
         }
 
-        return repository.Tags.SingleOrDefault(t => t.FriendlyName.Equals(project.GetTagName(version)));
+        var tagName = project.GetTagName(version);
+        return repository.Tags[tagName];
+        //return repository.Tags.SingleOrDefault(t => t.FriendlyName.Equals(tagName));
     }
 
     public static bool VersionTagsExists(this Repository repository, SemanticVersion version, ProjectOptions project)
     {
         var tagName = project.GetTagName(version);
-        return repository.Tags.Any(tag => tag.FriendlyName.Equals(tagName));
+        return repository.Tags[tagName] != null;
+        //return repository.Tags.Any(tag => tag.FriendlyName.Equals(tagName));
     }
 
     public static IEnumerable<Commit> GetCommits(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
     {
-        if (!string.IsNullOrEmpty(project.Path))
-        {
-            filter ??= new CommitFilter();
-            filter.SortBy = CommitSortStrategies.Time | CommitSortStrategies.Topological;
+        filter ??= new CommitFilter();
 
-            return repository.Commits
-                .QueryBy(project.Path, filter)
-                .Select(x => x.Commit);
-        }
-        else
+        if (string.IsNullOrEmpty(project.Path))
         {
-            return filter != null
-                ? repository.Commits.QueryBy(filter)
-                : repository.Commits;
+            return repository.Commits.QueryBy(filter);
         }
+
+        filter.SortBy = CommitSortStrategies.Time | CommitSortStrategies.Topological;
+
+        return repository.Commits
+            .QueryBy(project.Path, filter)
+            .Select(x => x.Commit);
     }
 
-    public static IReadOnlyList<Commit> GetCommitsSinceLastVersion(this Repository repository, Tag? versionTag, ProjectOptions project, CommitFilter? filter = null)
+    public static IEnumerable<Commit> GetCommitsSinceRef(this Repository repository, GitObject? gitRef, ProjectOptions project, CommitFilter? filter = null)
     {
-        if (versionTag == null)
+        if (gitRef == null)
         {
-            return [.. repository.GetCommits(project, filter)];
+            return repository.GetCommits(project, filter);
         }
 
         filter ??= new CommitFilter();
-        filter.ExcludeReachableFrom = versionTag;
+        filter.ExcludeReachableFrom = gitRef;
 
-        return [.. repository.GetCommits(project, filter)];
+        return repository.GetCommits(project, filter);
     }
 
-    public static IReadOnlyList<Commit> GetCommitsSinceLastReleaseCommit(this Repository repository, ProjectOptions project, CommitFilter? filter = null)
+    // Variant that relies only on tags and local helpers (no external helpers, no bump files)
+    public static (GitObject? FromRef, GitObject ToRef) GetCommitRangeFromTags(this IRepository repo, string? versionStr, VersionizeOptions options)
     {
-        var lastReleaseCommit = repository
-            .GetCommits(project, filter)
-            .FirstOrDefault(x => x.Message.StartsWith("chore(release):"));
-
-        if (lastReleaseCommit == null)
+        IEnumerable<SemanticVersion> AllVersions()
         {
-            return [.. repository.Commits];
-        }
-
-        filter ??= new CommitFilter();
-        filter.ExcludeReachableFrom = lastReleaseCommit;
-
-        return [.. repository.GetCommits(project, filter)];
-    }
-
-    public static SemanticVersion? GetCurrentVersion(this Repository repository, VersionOptions options, IBumpFile? bumpFile)
-    {
-        if (bumpFile is null || options.SkipBumpFile)
-        {
-            return repository.Tags
+            return repo.Tags
                 .Select(options.Project.ExtractTagVersion)
-                .Where(x => x is not null)
-                .OrderDescending()
+                .OfType<SemanticVersion>()
+                .OrderDescending();
+        }
+
+        static SemanticVersion ParseVersionOrThrow(string text)
+        {
+            if (SemanticVersion.TryParse(text, out var v))
+            {
+                return v;
+            }
+
+            throw new VersionizeException(ErrorMessages.InvalidVersionFormat(text), 1);
+        }
+
+        GitObject? TagTargetFor(SemanticVersion v)
+        {
+            var tagName = options.Project.GetTagName(v);
+            return repo.Tags.SingleOrDefault(t => t.FriendlyName.Equals(tagName))?.Target;
+        }
+
+        SemanticVersion ResolveTargetVersion(string? versionStr, IEnumerable<SemanticVersion> versions)
+        {
+            if (!string.IsNullOrEmpty(versionStr))
+            {
+                return ParseVersionOrThrow(versionStr);
+            }
+
+            var latest = versions.FirstOrDefault();
+            return latest ?? throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
+        }
+
+        static SemanticVersion? ResolvePreviousVersion(
+            SemanticVersion current,
+            IEnumerable<SemanticVersion> all,
+            bool aggregatePrereleases)
+        {
+            var seq = aggregatePrereleases
+                ? all.Where(v => v == current || !v.IsPrerelease)
+                : all;
+
+            return seq
+                .SkipWhile(v => v != current)
+                .Skip(1)
                 .FirstOrDefault();
         }
 
-        return bumpFile?.Version;
-    }
+        var allVersions = AllVersions();
+        var targetVersion = ResolveTargetVersion(versionStr, allVersions);
 
-    public static SemanticVersion? GetPreviousVersion(this Repository repository, SemanticVersion version, ChangelogCmdOptions options)
-    {
-        var versionsEnumerable = repository.Tags
-            .Select(options.ProjectOptions.ExtractTagVersion)
-            .OfType<SemanticVersion>();
+        var toRef = TagTargetFor(targetVersion)
+            ?? throw new VersionizeException(ErrorMessages.TagForVersionNotFound(targetVersion.ToNormalizedString()), 1);
 
-        if (options.AggregatePrereleases)
-        {
-            versionsEnumerable = versionsEnumerable.Where(x => x == version || !x.IsPrerelease);
-        }
+        var previousVersion = ResolvePreviousVersion(targetVersion, allVersions, options.AggregatePrereleases);
+        var fromRef = previousVersion is null ? null : TagTargetFor(previousVersion);
 
-        var versions = versionsEnumerable
-            .OrderDescending()
-            .ToArray();
-
-        var versionIndex = Array.IndexOf(versions, version);
-        return versionIndex == -1 || versionIndex == versions.Length - 1
-            ? null
-            : versions[versionIndex + 1];
-    }
-
-    public static (GitObject? FromRef, GitObject ToRef) GetCommitRange(this Repository repo, string? versionStr, ChangelogCmdOptions options)
-    {
-        if (string.IsNullOrEmpty(versionStr))
-        {
-            versionStr = repo.Tags
-                .Select(options.ProjectOptions.ExtractTagVersion)
-                .Where(x => x is not null)
-                .OrderDescending()
-                .FirstOrDefault()?
-                .ToNormalizedString();
-
-            if (string.IsNullOrEmpty(versionStr))
-            {
-                throw new VersionizeException(ErrorMessages.NoVersionFound(), 1);
-            }
-        }
-
-        if (SemanticVersion.TryParse(versionStr, out var version))
-        {
-            var toRef = repo.SelectVersionTag(version, options.ProjectOptions)?.Target;
-            if (toRef is null)
-            {
-                var versionText = version.ToNormalizedString();
-                throw new VersionizeException(ErrorMessages.TagForVersionNotFound(versionText), 1);
-            }
-
-            var fromVersion = repo.GetPreviousVersion(version, options);
-            GitObject? fromRef = repo.SelectVersionTag(fromVersion, options.ProjectOptions)?.Target;
-
-            return (fromRef, toRef);
-        }
-
-        throw new VersionizeException(ErrorMessages.InvalidVersionFormat(versionStr), 1);
-    }
-}
-
-public sealed class VersionOptions
-{
-    public bool SkipBumpFile { get; init; }
-    public required ProjectOptions Project { get; init; }
-
-    public static implicit operator VersionOptions(VersionizeOptions versionizeOptions)
-    {
-        return new VersionOptions
-        {
-            SkipBumpFile = versionizeOptions.SkipBumpFile,
-            Project = versionizeOptions.Project,
-        };
+        return (fromRef, toRef);
     }
 }
