@@ -7,8 +7,10 @@ using Xunit;
 
 namespace Versionize.Changelog.LinkBuilders;
 
-public class AzureLinkBuilderTests
+public class AzureLinkBuilderTests : IDisposable
 {
+    private Repository _repo;
+
     [Fact]
     public void ShouldThrowIfUrlIsNoRecognizedSshOrHttpsUrl()
     {
@@ -18,8 +20,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldCreateAnAzureUrlBuilderForHTTPSPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP.git");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
     }
@@ -27,8 +29,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldCreateAnAzureUrlBuilderForSSHPushUrls()
     {
-        var repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
     }
@@ -36,8 +38,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldAzurePickFirstRemoteInCaseNoOriginWasFound()
     {
-        var repo = SetupRepositoryWithRemote("some", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("some", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
     }
@@ -45,8 +47,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldFallbackToNoopInCaseNoAzurePushUrlWasDefined()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "https://hostmeister.com/versionize/versionize.git");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<NullLinkBuilder>();
     }
@@ -109,8 +111,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldCreateAnAzureUrlBuilderForSSHPushUrlsEvenWithoutGitSuffix()
     {
-        var repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "git@ssh.dev.azure.com:v3/dosse/DosSE.ERP.Cloud/ERP");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
     }
@@ -118,8 +120,8 @@ public class AzureLinkBuilderTests
     [Fact]
     public void ShouldCreateAnAzureUrlBuilderForHTTPSPushUrlsEvenWithoutGitSuffix()
     {
-        var repo = SetupRepositoryWithRemote("origin", "https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP");
-        var linkBuilder = LinkBuilderFactory.CreateFor(repo);
+        _repo = SetupRepositoryWithRemote("origin", "https://dosse@dev.azure.com/dosse/DosSE.ERP.Cloud/_git/ERP");
+        var linkBuilder = LinkBuilderFactory.CreateFor(_repo);
 
         linkBuilder.ShouldBeAssignableTo<AzureLinkBuilder>();
     }
@@ -137,5 +139,15 @@ public class AzureLinkBuilderTests
         repo.Network.Remotes.Add(remoteName, pushUrl);
 
         return repo;
+    }
+
+    public void Dispose()
+    {
+        if (_repo is not null)
+        {
+            var workingDirectory = _repo.Info.WorkingDirectory;
+            _repo.Dispose();
+            Cleanup.DeleteDirectory(workingDirectory);
+        }
     }
 }
