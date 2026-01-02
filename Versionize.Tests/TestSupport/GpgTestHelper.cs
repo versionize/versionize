@@ -25,8 +25,17 @@ public sealed class GpgTestHelper
 
             using var process = new Process();
             process.StartInfo = processInfo;
-            process.Start();
-            process.WaitForExit();
+            if (!process.Start())
+            {
+                return false;
+            }
+
+            if (!process.WaitForExit(TimeSpan.FromSeconds(10)))
+            {
+                process.Kill();
+                return false;
+            }
+
             return process.ExitCode == 0;
         }
         catch
