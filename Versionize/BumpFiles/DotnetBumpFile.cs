@@ -11,10 +11,12 @@ namespace Versionize.BumpFiles;
 public sealed class DotnetBumpFile : IBumpFile
 {
     private readonly IEnumerable<DotnetBumpFileProject> _projects;
+    private readonly IEnumerable<AssemblyInfoBumpFile> _assemblyInfoFiles;
 
-    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects)
+    private DotnetBumpFile(IEnumerable<DotnetBumpFileProject> projects, IEnumerable<AssemblyInfoBumpFile> assemblyInfoFiles)
     {
         _projects = projects;
+        _assemblyInfoFiles = assemblyInfoFiles;
     }
 
     public SemanticVersion Version => _projects.First().Version;
@@ -34,10 +36,11 @@ public sealed class DotnetBumpFile : IBumpFile
             throw new VersionizeException(ErrorMessages.InconsistentProjectVersions(workingDirectory, versionElement), 1);
         }
 
-        Information(InfoMessages.DiscoveredVersionableProjects(projectGroup.GetFilePaths().Count()));
-        foreach (var project in projectGroup.GetFilePaths())
+        var allFiles = projectGroup.GetFilePaths().ToList();
+        Information(InfoMessages.DiscoveredVersionableProjects(allFiles.Count));
+        foreach (var file in allFiles)
         {
-            Information(InfoMessages.ProjectFile(project));
+            Information(InfoMessages.ProjectFile(file));
         }
 
         return projectGroup;
@@ -49,11 +52,18 @@ public sealed class DotnetBumpFile : IBumpFile
         {
             project.WriteVersion(nextVersion);
         }
+
+        foreach (var assemblyInfo in _assemblyInfoFiles)
+        {
+            assemblyInfo.WriteVersion(nextVersion);
+        }
     }
 
     public IEnumerable<string> GetFilePaths()
     {
-        return _projects.Select(project => project.ProjectFile);
+        var projectFiles = _projects.Select(project => project.ProjectFile);
+        var assemblyInfoFiles = _assemblyInfoFiles.Select(assemblyInfo => assemblyInfo.FilePath);
+        return projectFiles.Concat(assemblyInfoFiles);
     }
 
     private static DotnetBumpFile Discover(string workingDirectory, string? versionElement = null)
@@ -66,14 +76,19 @@ public sealed class DotnetBumpFile : IBumpFile
             RecurseSubdirectories = true,
         };
 
-        var projects = filters.SelectMany(filter => Directory
-            .GetFiles(workingDirectory, filter, options)
+        var projects = filters
+            .SelectMany(filter => Directory.GetFiles(workingDirectory, filter, options))
             .Where(file => DotnetBumpFileProject.IsVersionable(file, versionElement))
             .Select(file => DotnetBumpFileProject.Create(file, versionElement))
-            .ToList()
-        );
+            .ToList();
 
-        return new DotnetBumpFile(projects);
+        var assemblyInfoFiles = projects
+            .Select(project => AssemblyInfoBumpFile.TryCreate(Path.GetDirectoryName(project.ProjectFile)!, versionElement ?? "AssemblyVersion"))
+            .Where(assemblyInfo => assemblyInfo != null)
+            .Cast<AssemblyInfoBumpFile>()
+            .ToList();
+
+        return new DotnetBumpFile(projects, assemblyInfoFiles);
     }
 
     private bool IsEmpty() => !_projects.Any();
