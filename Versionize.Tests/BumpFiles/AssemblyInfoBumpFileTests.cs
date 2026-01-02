@@ -320,6 +320,66 @@ public class AssemblyInfoBumpFileTests : IDisposable
         content.ShouldContain("[assembly: AssemblyVersion(\"10.20.30.0\")]");
     }
 
+    [Fact]
+    public void ShouldDiscardPrereleaseLabel_When_UpdatingAssemblyVersion()
+    {
+        // Arrange
+        var projectDir = Path.Join(_tempDir, "project1");
+        Directory.CreateDirectory(projectDir);
+        Directory.CreateDirectory(Path.Join(projectDir, "Properties"));
+
+        var assemblyInfoPath = Path.Join(projectDir, "Properties", "AssemblyInfo.cs");
+        File.WriteAllText(assemblyInfoPath, """
+            using System.Reflection;
+
+            [assembly: AssemblyVersion("1.0.0.0")]
+            [assembly: AssemblyFileVersion("1.0.0.0")]
+            """);
+
+        var assemblyInfo = AssemblyInfoBumpFile.TryCreate(projectDir, "Version");
+
+        // Act - Write a pre-release version
+        var prereleaseVersion = SemanticVersion.Parse("2.3.4-alpha.1");
+        assemblyInfo!.WriteVersion(prereleaseVersion);
+
+        // Assert - Pre-release label should be discarded, only numeric version written
+        var content = File.ReadAllText(assemblyInfoPath);
+        content.ShouldContain("[assembly: AssemblyVersion(\"2.3.4.0\")]");
+        content.ShouldContain("[assembly: AssemblyFileVersion(\"2.3.4.0\")]");
+        content.ShouldNotContain("alpha");
+        content.ShouldNotContain("2.3.4-alpha.1");
+    }
+
+    [Theory]
+    [InlineData("1.2.3-beta.2", "1.2.3.0")]
+    [InlineData("3.0.0-rc.1", "3.0.0.0")]
+    [InlineData("2.5.1-alpha", "2.5.1.0")]
+    [InlineData("1.0.0", "1.0.0.0")]
+    public void ShouldConvertPrereleaseVersionsToNumericFormat(string semanticVersion, string expectedAssemblyVersion)
+    {
+        // Arrange
+        var projectDir = Path.Join(_tempDir, $"project_{semanticVersion.Replace(".", "_").Replace("-", "_")}");
+        Directory.CreateDirectory(projectDir);
+        Directory.CreateDirectory(Path.Join(projectDir, "Properties"));
+
+        var assemblyInfoPath = Path.Join(projectDir, "Properties", "AssemblyInfo.cs");
+        File.WriteAllText(assemblyInfoPath, """
+            using System.Reflection;
+
+            [assembly: AssemblyVersion("0.0.0.0")]
+            """);
+
+        var assemblyInfo = AssemblyInfoBumpFile.TryCreate(projectDir, "AssemblyVersion");
+
+        // Act
+        var version = SemanticVersion.Parse(semanticVersion);
+        assemblyInfo!.WriteVersion(version);
+
+        // Assert
+        var content = File.ReadAllText(assemblyInfoPath);
+        content.ShouldContain($"[assembly: AssemblyVersion(\"{expectedAssemblyVersion}\")]");
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))
