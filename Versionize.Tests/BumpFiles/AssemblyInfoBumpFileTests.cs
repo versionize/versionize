@@ -380,6 +380,56 @@ public class AssemblyInfoBumpFileTests : IDisposable
         content.ShouldContain($"[assembly: AssemblyVersion(\"{expectedAssemblyVersion}\")]");
     }
 
+    [Fact]
+    public void ShouldUpdateOnlyExistingAttribute_When_VersionElementIsVersionButOnlyOneAttributeExists()
+    {
+        // Arrange - File contains only AssemblyVersion
+        var projectDir1 = Path.Join(_tempDir, "project_only_assemblyversion");
+        Directory.CreateDirectory(projectDir1);
+        Directory.CreateDirectory(Path.Join(projectDir1, "Properties"));
+
+        var assemblyInfoPath1 = Path.Join(projectDir1, "Properties", "AssemblyInfo.cs");
+        File.WriteAllText(assemblyInfoPath1, """
+            using System.Reflection;
+
+            [assembly: AssemblyVersion("1.0.0.0")]
+            [assembly: AssemblyTitle("TestProject")]
+            """);
+
+        var assemblyInfo1 = AssemblyInfoBumpFile.TryCreate(projectDir1, "Version");
+
+        // Act
+        assemblyInfo1!.WriteVersion(new SemanticVersion(2, 0, 0));
+
+        // Assert - Only AssemblyVersion should be updated
+        var content1 = File.ReadAllText(assemblyInfoPath1);
+        content1.ShouldContain("[assembly: AssemblyVersion(\"2.0.0.0\")]");
+        content1.ShouldNotContain("AssemblyFileVersion"); // Should not add missing attribute
+
+        // Arrange - File contains only AssemblyFileVersion
+        var projectDir2 = Path.Join(_tempDir, "project_only_fileversion");
+        Directory.CreateDirectory(projectDir2);
+        Directory.CreateDirectory(Path.Join(projectDir2, "Properties"));
+
+        var assemblyInfoPath2 = Path.Join(projectDir2, "Properties", "AssemblyInfo.cs");
+        File.WriteAllText(assemblyInfoPath2, """
+            using System.Reflection;
+
+            [assembly: AssemblyFileVersion("1.0.0.0")]
+            [assembly: AssemblyTitle("TestProject")]
+            """);
+
+        var assemblyInfo2 = AssemblyInfoBumpFile.TryCreate(projectDir2, "Version");
+
+        // Act
+        assemblyInfo2!.WriteVersion(new SemanticVersion(3, 0, 0));
+
+        // Assert - Only AssemblyFileVersion should be updated
+        var content2 = File.ReadAllText(assemblyInfoPath2);
+        content2.ShouldContain("[assembly: AssemblyFileVersion(\"3.0.0.0\")]");
+        content2.ShouldNotContain("AssemblyVersion"); // Should not add missing attribute
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))
