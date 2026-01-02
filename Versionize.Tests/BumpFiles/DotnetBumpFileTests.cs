@@ -193,6 +193,57 @@ public class DotnetBumpFileTests : IDisposable
         assemblyInfoContent.ShouldContain("3.0.0.0");
     }
 
+    [Fact]
+    public void ShouldIgnoreAssemblyInfoWithoutVersionAttributes()
+    {
+        // Arrange
+        var projectDir1 = Path.Join(_tempDir, "project1");
+        var projectDir2 = Path.Join(_tempDir, "project2");
+
+        TempProject.CreateCsharpProject(projectDir1, "1.0.0");
+        TempProject.CreateCsharpProject(projectDir2, "1.0.0");
+
+        // Create AssemblyInfo without version attributes in project1
+        Directory.CreateDirectory(Path.Join(projectDir1, "Properties"));
+        var assemblyInfoPath1 = Path.Join(projectDir1, "Properties", "AssemblyInfo.cs");
+        File.WriteAllText(assemblyInfoPath1, """
+            using System.Reflection;
+            using System.Runtime.InteropServices;
+
+            [assembly: AssemblyTitle("TestProject")]
+            [assembly: AssemblyDescription("A test project")]
+            [assembly: AssemblyCompany("Test Company")]
+            [assembly: ComVisible(false)]
+            """);
+
+        // Create normal AssemblyInfo with version attributes in project2
+        CreateAssemblyInfo(projectDir2, "1.0.0.0");
+
+        // Act - Should not throw, just ignore the non-versionable AssemblyInfo
+        var projects = DotnetBumpFile.Create(_tempDir);
+
+        // Assert
+        projects.GetFilePaths().Count().ShouldBe(3); // 2 projects + 1 AssemblyInfo (only project2)
+        
+        // Verify project2's AssemblyInfo is included
+        projects.GetFilePaths().ShouldContain(Path.Join(projectDir2, "Properties", "AssemblyInfo.cs"));
+        
+        // Verify project1's AssemblyInfo is NOT included
+        projects.GetFilePaths().ShouldNotContain(Path.Join(projectDir1, "Properties", "AssemblyInfo.cs"));
+        
+        // Act - Update version
+        projects.WriteVersion(new SemanticVersion(2, 0, 0));
+
+        // Assert - project1's AssemblyInfo should remain unchanged
+        var assemblyInfo1Content = File.ReadAllText(assemblyInfoPath1);
+        assemblyInfo1Content.ShouldNotContain("2.0.0.0");
+        assemblyInfo1Content.ShouldContain("[assembly: AssemblyTitle(\"TestProject\")]");
+
+        // Assert - project2's AssemblyInfo should be updated
+        var assemblyInfo2Content = File.ReadAllText(Path.Join(projectDir2, "Properties", "AssemblyInfo.cs"));
+        assemblyInfo2Content.ShouldContain("2.0.0.0");
+    }
+
     private static void CreateAssemblyInfo(string projectDir, string version)
     {
         Directory.CreateDirectory(Path.Join(projectDir, "Properties"));
