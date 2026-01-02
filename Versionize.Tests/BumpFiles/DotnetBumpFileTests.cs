@@ -127,6 +127,84 @@ public class DotnetBumpFileTests : IDisposable
         updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
     }
 
+    [Fact]
+    public void ShouldDiscoverAndUpdateAssemblyInfoFiles()
+    {
+        // Arrange
+        var projectDir1 = Path.Join(_tempDir, "project1");
+        var projectDir2 = Path.Join(_tempDir, "project2");
+
+        TempProject.CreateCsharpProject(projectDir1, "1.0.0");
+        TempProject.CreateCsharpProject(projectDir2, "1.0.0");
+
+        // Create AssemblyInfo.cs files
+        CreateAssemblyInfo(projectDir1, "1.0.0.0");
+        CreateAssemblyInfo(projectDir2, "1.0.0.0");
+
+        var projects = DotnetBumpFile.Create(_tempDir);
+
+        // Act
+        projects.WriteVersion(new SemanticVersion(2, 3, 4));
+
+        // Assert
+        projects.GetFilePaths().Count().ShouldBe(4); // 2 projects + 2 AssemblyInfo files
+
+        var assemblyInfo1Content = File.ReadAllText(Path.Join(projectDir1, "Properties", "AssemblyInfo.cs"));
+        assemblyInfo1Content.ShouldContain("2.3.4.0");
+
+        var assemblyInfo2Content = File.ReadAllText(Path.Join(projectDir2, "Properties", "AssemblyInfo.cs"));
+        assemblyInfo2Content.ShouldContain("2.3.4.0");
+    }
+
+    [Fact]
+    public void ShouldWorkWithoutAssemblyInfoFiles()
+    {
+        // Arrange
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project1"), "1.0.0");
+        TempProject.CreateCsharpProject(Path.Join(_tempDir, "project2"), "1.0.0");
+
+        var projects = DotnetBumpFile.Create(_tempDir);
+
+        // Act
+        projects.WriteVersion(new SemanticVersion(2, 0, 0));
+
+        // Assert
+        projects.GetFilePaths().Count().ShouldBe(2); // Only project files, no AssemblyInfo
+        var updated = DotnetBumpFile.Create(_tempDir);
+        updated.Version.ShouldBe(SemanticVersion.Parse("2.0.0"));
+    }
+
+    [Fact]
+    public void ShouldUpdateAssemblyInfoWithDefaultVersionElement()
+    {
+        // Arrange
+        var projectDir = Path.Join(_tempDir, "project1");
+        TempProject.CreateCsharpProject(projectDir, "1.0.0");
+        CreateAssemblyInfo(projectDir, "1.0.0.0");
+
+        // Use default "Version" element for project discovery
+        var projects = DotnetBumpFile.Create(_tempDir);
+
+        // Act
+        projects.WriteVersion(new SemanticVersion(3, 0, 0));
+
+        // Assert
+        var assemblyInfoContent = File.ReadAllText(Path.Join(projectDir, "Properties", "AssemblyInfo.cs"));
+        assemblyInfoContent.ShouldContain("3.0.0.0");
+    }
+
+    private static void CreateAssemblyInfo(string projectDir, string version)
+    {
+        Directory.CreateDirectory(Path.Join(projectDir, "Properties"));
+        var assemblyInfoPath = Path.Join(projectDir, "Properties", "AssemblyInfo.cs");
+        File.WriteAllText(assemblyInfoPath, $"""
+            using System.Reflection;
+
+            [assembly: AssemblyVersion("{version}")]
+            [assembly: AssemblyFileVersion("{version}")]
+            """);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))
