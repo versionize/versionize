@@ -2,7 +2,7 @@
 
 namespace Versionize.Tests.TestSupport;
 
-public static class GpgTestHelper
+public sealed class GpgTestHelper
 {
     public static bool IsGpgAvailable()
     {
