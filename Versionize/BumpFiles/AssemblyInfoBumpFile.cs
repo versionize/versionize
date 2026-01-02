@@ -37,7 +37,10 @@ public sealed class AssemblyInfoBumpFile
     public void WriteVersion(SemanticVersion version)
     {
         var content = File.ReadAllText(_filePath);
-        var versionString = $"{version.Major}.{version.Minor}.{version.Patch}.0";
+        var baseVersion = $"{version.Major}.{version.Minor}.{version.Patch}.0";
+        var versionString = !version.IsPrerelease || string.IsNullOrWhiteSpace(version.Release)
+            ? baseVersion
+            : $"{baseVersion}-{version.Release}";
 
         if (_versionElement == "Version")
         {
