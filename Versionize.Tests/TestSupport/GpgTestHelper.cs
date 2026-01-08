@@ -5,7 +5,7 @@ namespace Versionize.Tests.TestSupport;
 /// <summary>
 /// Helper utilities for GPG availability checking in tests.
 /// </summary>
-public sealed class GpgTestHelper
+public static class GpgTestHelper
 {
     /// <summary>
     /// Checks if GPG is installed and available in the system PATH.
