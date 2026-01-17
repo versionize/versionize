@@ -55,7 +55,8 @@ public static class GpgTestHelper
             throw new InvalidOperationException(
                 "GPG is not installed or not available in PATH.\n" +
                 "To run GPG signing tests, please install GPG:\n" +
-                "  Windows: choco install gnupg or download from https://gnupg.org/download/\n" +
+                "  Windows: choco install gnupg, download from https://gnupg.org/download/,\n" +
+                "           or add Git's GPG to PATH (C:\\Program Files\\Git\\usr\\bin)\n" +
                 "  Linux:   sudo apt-get install gnupg or sudo yum install gnupg\n" +
                 "  macOS:   brew install gnupg");
         }
