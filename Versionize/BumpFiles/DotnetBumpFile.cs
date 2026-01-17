@@ -84,8 +84,7 @@ public sealed class DotnetBumpFile : IBumpFile
 
         var assemblyInfoFiles = projects
             .Select(project => AssemblyInfoBumpFile.TryCreate(Path.GetDirectoryName(project.ProjectFile)!, versionElement ?? "AssemblyVersion"))
-            .Where(assemblyInfo => assemblyInfo != null)
-            .Cast<AssemblyInfoBumpFile>()
+            .OfType<AssemblyInfoBumpFile>()
             .ToList();
 
         return new DotnetBumpFile(projects, assemblyInfoFiles);
