@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.5.0"></a>
+## [2.5.0](https://github.com/versionize/versionize/compare/v2.4.0...v2.5.0) (2026-02-01)
+
+### ✨ Features
+
+* add .versionize config schema for IntelliSense/Autocomplete ([#183](https://github.com/versionize/versionize/issues/183)) ([93d5df3](https://github.com/versionize/versionize/commit/93d5df39de9b6ad761ff70d274daaf20edfecf41))
+* add support for updating AssemblyInfo.cs version attributes ([#190](https://github.com/versionize/versionize/issues/190)) ([aa50527](https://github.com/versionize/versionize/commit/aa505279ef31a6519640eff2c04b4b167d7098be))
+
+### 📦 Refactor
+
+* implement fluent api for versionize command and add interface abstractions ([#188](https://github.com/versionize/versionize/issues/188)) ([c062789](https://github.com/versionize/versionize/commit/c0627895b4826b015ed8e9af46aeeb406da9295f))
+* modify error handling approach ([#180](https://github.com/versionize/versionize/issues/180)) ([af1a56c](https://github.com/versionize/versionize/commit/af1a56c0eaeac95889c363493d228443d24c094e))
+* organize link builders into a folder and apply a few readability improvements ([#184](https://github.com/versionize/versionize/issues/184)) ([76cb3e7](https://github.com/versionize/versionize/commit/76cb3e704f62b1ddae7455b5703046b6d672573a))
+* replace BumpFileType with SkipBumpFile in VersionizeOptions ([#185](https://github.com/versionize/versionize/issues/185)) ([4e49f46](https://github.com/versionize/versionize/commit/4e49f4637484ca4cd621f5992b9f4b9fabeb4674))
+* split WorkingCopy into isolated command classes ([#186](https://github.com/versionize/versionize/issues/186)) ([aa42746](https://github.com/versionize/versionize/commit/aa42746bf91713862834c1a9596f490785c69104))
+
+### 🧪 Tests
+
+* make arrange-act-assert pattern explicit via comments ([#181](https://github.com/versionize/versionize/issues/181)) ([2c2c0ce](https://github.com/versionize/versionize/commit/2c2c0ce09ed2e38c92a0117764965c25021c9a42))
+* **fix:** GPG signing tests fail with unhelpful error message when GPG is not detected in developer environment ([#191](https://github.com/versionize/versionize/issues/191)) ([10fb64f](https://github.com/versionize/versionize/commit/10fb64fb6cb8c599fd919b2f06c2a4316d6c8dcb))
+
+### ♻️ Chores
+
+* update ci and readme after renaming master to main ([#182](https://github.com/versionize/versionize/issues/182)) ([f8b793a](https://github.com/versionize/versionize/commit/f8b793a0494ac0c78ecb77d70ce6c8d56d6c556c))
+
 <a name="2.4.0"></a>
 ## [2.4.0](https://github.com/versionize/versionize/compare/{previousTag}...{currentTag}) (2025-11-13)
 
