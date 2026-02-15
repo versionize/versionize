@@ -10,7 +10,6 @@ namespace Versionize.Config;
 public sealed class FileConfigLoaderTests : IDisposable
 {
     private readonly TestSetup _testSetup;
-    private readonly TestPlatformAbstractions _testPlatformAbstractions;
 
     private static readonly JsonSerializerOptions serializerConfig = new()
     {
@@ -21,8 +20,6 @@ public sealed class FileConfigLoaderTests : IDisposable
     public FileConfigLoaderTests()
     {
         _testSetup = TestSetup.Create();
-        _testPlatformAbstractions = new TestPlatformAbstractions();
-        CommandLineUI.Platform = _testPlatformAbstractions;
     }
 
     [Fact]
@@ -228,7 +225,7 @@ public sealed class FileConfigLoaderTests : IDisposable
         return new HttpClient(handler);
     }
 
-    private sealed class TestHttpMessageHandler(Dictionary<string, string> responses) : HttpMessageHandler
+    private class TestHttpMessageHandler(Dictionary<string, string> responses) : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
