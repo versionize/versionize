@@ -9,6 +9,14 @@
       "type": "string",
       "description": "JSON Schema reference"
     },
+    "extends": {
+      "type": "string",
+      "description": "Extends configuration from another file path or URL. Local values override extended values.",
+      "examples": [
+        "https://example.com/shared/.versionize",
+        "../shared/.versionize"
+      ]
+    },
     "silent": {
       "type": "boolean",
       "description": "Suppresses all console output when enabled.",

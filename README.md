@@ -303,14 +303,23 @@ versionize --pre-release alpha --skip-tag --find-release-commit-via-message
 ...
 ```
 
-`find-release-commit-via-message` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_. 
+`find-release-commit-via-message` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_.
 
 ## Configuration
 
 You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
 
-Any of the command line parameters accepted by `versionize` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file. 
+Any of the command line parameters accepted by `versionize` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file.
 The `.versionize` configuration file is deserialized into a `FileConfig.cs` object behind the scenes.
+
+You can also extend a shared configuration file using `extends`. The value can be a URL or a local file path. Local values override the extended config.
+
+```json
+{
+  "extends": "https://example.com/shared/.versionize",
+  "skipDirty": true
+}
+```
 
 Changelog customization can only be done via a `.versionize` file. The following is an example configuration:
 
