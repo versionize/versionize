@@ -142,6 +142,105 @@ public class ProgramTests : IDisposable
     }
 
     [Fact]
+    public void ShouldExtendConfigurationFromFile()
+    {
+        // Arrange
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var baseConfig = new FileConfig
+        {
+            SkipDirty = true,
+            CommitSuffix = "[skip ci]",
+            Changelog = new ChangelogOptions
+            {
+                Header = "Base header"
+            }
+        };
+
+        File.WriteAllText(
+            Path.Join(_testSetup.WorkingDirectory, "base.versionize"),
+            JsonConvert.SerializeObject(baseConfig));
+
+        var localConfig = new FileConfig
+        {
+            Extends = "base.versionize",
+            Changelog = new ChangelogOptions
+            {
+                Header = "Local header"
+            }
+        };
+
+        File.WriteAllText(
+            Path.Join(_testSetup.WorkingDirectory, ".versionize"),
+            JsonConvert.SerializeObject(localConfig));
+
+        var fileCommitter = new FileCommitter(_testSetup);
+        fileCommitter.CommitChange("feat: first feature");
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "dirty.txt"), "dirty");
+
+        // Act
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
+
+        // Assert
+        exitCode.ShouldBe(0);
+        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"))
+            .ShouldContain("Local header");
+        _testSetup.Repository.Head.Tip.Message.ShouldContain("[skip ci]");
+    }
+
+    [Fact]
+    public void ShouldExtendConfigurationFromConfigDirectory()
+    {
+        // Arrange
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var configDir = Path.Join(_testSetup.WorkingDirectory, "config");
+        Directory.CreateDirectory(configDir);
+
+        var baseConfig = new FileConfig
+        {
+            SkipDirty = true,
+            CommitSuffix = "[base]",
+            Changelog = new ChangelogOptions
+            {
+                Header = "Base header"
+            }
+        };
+
+        File.WriteAllText(
+            Path.Join(configDir, "base.versionize"),
+            JsonConvert.SerializeObject(baseConfig));
+
+        var localConfig = new FileConfig
+        {
+            Extends = "base.versionize",
+            Changelog = new ChangelogOptions
+            {
+                Header = "Local header"
+            }
+        };
+
+        File.WriteAllText(
+            Path.Join(configDir, ".versionize"),
+            JsonConvert.SerializeObject(localConfig));
+
+        var fileCommitter = new FileCommitter(_testSetup);
+        fileCommitter.CommitChange("feat: first feature");
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "dirty.txt"), "dirty");
+
+        // Act
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir]);
+
+        // Assert
+        exitCode.ShouldBe(0);
+        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"))
+            .ShouldContain("Local header");
+        _testSetup.Repository.Head.Tip.Message.ShouldContain("[base]");
+    }
+
+    [Fact]
     public void ShouldSupportMonoRepo()
     {
         var projects = new[]
