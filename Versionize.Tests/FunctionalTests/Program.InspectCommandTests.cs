@@ -36,6 +36,24 @@ public class InspectCommandTests : IDisposable
     }
 
     [Fact]
+    public void ShouldPrintTagVersionWhenTagOnlyIsUsed()
+    {
+        // Arrange
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory, "1.1.0");
+        GitTestHelpers.CommitAll(_testSetup.Repository, "feat: initial commit");
+        _testSetup.Repository.Tags.Add("v2.0.0", _testSetup.Repository.Head.Tip);
+
+        // Act
+        var exitCode = Program.Main(
+            ["--workingDir", _testSetup.WorkingDirectory, "--tag-only", "inspect"]);
+
+        // Assert
+        exitCode.ShouldBe(0);
+        _testPlatformAbstractions.Messages.ShouldHaveSingleItem();
+        _testPlatformAbstractions.Messages[0].ShouldBe("2.0.0");
+    }
+
+    [Fact]
     public void ShouldPrintTheCurrentMonoRepoVersionWithInspectCommand()
     {
         var projects = new[]
