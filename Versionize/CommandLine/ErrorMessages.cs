@@ -1,4 +1,4 @@
-namespace Versionize.CommandLine;
+﻿namespace Versionize.CommandLine;
 
 /// <summary>
 /// Centralized error message templates to keep wording consistent across the application.
@@ -35,6 +35,14 @@ public static class ErrorMessages
     public static string RepositoryDoesNotExist(string path) => $"Directory {path} does not exist";
     public static string DuplicateChangelogPaths() => "Two or more projects have changelog paths pointing to the same location.";
     public static string FailedToParseVersionizeFile(string error) => $"Failed to parse .versionize file: {error}";
+    public static string FailedToLoadExtendedConfig(string reference, string error) =>
+        $"Failed to load extended .versionize config '{reference}': {error}";
+    public static string ExtendedConfigCycleDetected(string reference) =>
+        $"Cyclic extends configuration detected at '{reference}'.";
+    public static string ExtendedConfigInvalidScheme(string reference) =>
+        $"Extended config '{reference}' must use http or https.";
+    public static string ExtendedConfigFileNotFound(string path) =>
+        $"Extended config file '{path}' was not found.";
     public static string CommandFailed(string command, string args, string error, int exitCode) =>
         $"Command '{command} {args}' failed with error '{error}' (exit code {exitCode})";
     public static string LibGitNotFound(Exception e) => $"""

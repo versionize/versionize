@@ -1,4 +1,4 @@
-namespace Versionize.Config;
+﻿namespace Versionize.Config;
 
 public interface IVersionizeOptionsProvider
 {
@@ -12,7 +12,7 @@ public class VersionizeOptionsProvider(CliConfig _cliConfig) : IVersionizeOption
         var cwd = _cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
         var configDirectory = _cliConfig.ConfigurationDirectory.Value() ?? cwd;
         var fileConfigPath = Path.Join(configDirectory, ".versionize");
-        var fileConfig = FileConfig.Load(fileConfigPath);
+        var fileConfig = FileConfigLoader.LoadMerged(fileConfigPath);
         var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, _cliConfig, fileConfig);
         return mergedOptions;
     }
