@@ -91,7 +91,7 @@ Exception detail:
         var cwd = cliConfig.WorkingDirectory.Value() ?? Directory.GetCurrentDirectory();
         var configDirectory = cliConfig.ConfigurationDirectory.Value() ?? cwd;
         var fileConfigPath = Path.Join(configDirectory, ".versionize");
-        var fileConfig = FileConfig.Load(fileConfigPath);
+        var fileConfig = FileConfigLoader.Load(fileConfigPath);
         var mergedOptions = ConfigProvider.GetSelectedOptions(cwd, cliConfig, fileConfig);
         WorkingCopy workingCopy = WorkingCopy.Discover(cwd)!;
 

@@ -5,6 +5,7 @@ namespace Versionize.Config;
 
 public sealed class FileConfig
 {
+    public string? Extends { get; set; }
     public bool? Silent { get; set; }
     public bool? DryRun { get; set; }
     public string? ReleaseAs { get; set; }
@@ -28,6 +29,8 @@ public sealed class FileConfig
     public ProjectOptions[] Projects { get; set; } = [];
     public ChangelogOptions? Changelog { get; set; }
 
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
     public static FileConfig? Load(string filePath)
     {
         if (!File.Exists(filePath))
@@ -38,11 +41,24 @@ public sealed class FileConfig
         try
         {
             var jsonString = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<FileConfig>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return Deserialize(jsonString, filePath);
         }
         catch (Exception e)
         {
             CommandLineUI.Exit($"Failed to parse .versionize file: {e.Message}", 1);
+            return null;
+        }
+    }
+
+    public static FileConfig? Deserialize(string jsonString, string sourceDescription)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<FileConfig>(jsonString, JsonOptions);
+        }
+        catch (Exception e)
+        {
+            CommandLineUI.Exit($"Failed to parse .versionize config from {sourceDescription}: {e.Message}", 1);
             return null;
         }
     }
