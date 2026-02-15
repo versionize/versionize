@@ -9,12 +9,21 @@ public sealed class DotnetBumpFileProject
     public string ProjectFile { get; }
     public SemanticVersion Version { get; }
     public string VersionElement { get; }
+    public bool HasVersion { get; }
+    public string? VersionError { get; }
 
-    private DotnetBumpFileProject(string projectFile, SemanticVersion version, string? versionElement = null)
+    private DotnetBumpFileProject(
+        string projectFile,
+        SemanticVersion version,
+        string? versionElement = null,
+        bool hasVersion = true,
+        string? versionError = null)
     {
         ProjectFile = projectFile;
         Version = version;
         VersionElement = string.IsNullOrEmpty(versionElement) ? "Version" : versionElement;
+        HasVersion = hasVersion;
+        VersionError = versionError;
     }
 
     public static DotnetBumpFileProject Create(string projectFile, string? versionElement = null)
@@ -27,6 +36,23 @@ public sealed class DotnetBumpFileProject
         }
 
         return new DotnetBumpFileProject(projectFile, version!, versionElement);
+    }
+
+    public static DotnetBumpFileProject CreateInitial(string projectFile, string? versionElement = null)
+    {
+        var (success, version, error) = ReadVersion(projectFile, versionElement);
+
+        if (success)
+        {
+            return new DotnetBumpFileProject(projectFile, version!, versionElement);
+        }
+
+        return new DotnetBumpFileProject(
+            projectFile,
+            SemanticVersion.Parse("0.0.0"),
+            versionElement,
+            hasVersion: false,
+            versionError: error);
     }
 
     public static bool IsVersionable(string projectFile, string? versionElement = null)
@@ -80,9 +106,49 @@ public sealed class DotnetBumpFileProject
         doc.Save(ProjectFile);
     }
 
+    public static bool EnsureVersionElement(string projectFile, string versionElement, string initialVersion, bool dryRun)
+    {
+        var doc = ReadProject(projectFile);
+        var versionNode = SelectVersionNode(doc, versionElement);
+
+        if (versionNode == null)
+        {
+            var propertyGroup = SelectPropertyGroupNode(doc) ?? CreatePropertyGroup(doc, projectFile);
+            var element = doc.CreateElement(versionElement);
+            element.InnerText = initialVersion;
+            propertyGroup.AppendChild(element);
+
+            if (!dryRun)
+            {
+                doc.Save(projectFile);
+            }
+
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(versionNode.InnerText))
+        {
+            versionNode.InnerText = initialVersion;
+
+            if (!dryRun)
+            {
+                doc.Save(projectFile);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static XmlNode? SelectVersionNode(XmlDocument doc, string versionElement)
     {
         return doc.SelectSingleNode($"/*[local-name()='Project']/*[local-name()='PropertyGroup']/*[local-name()='{versionElement}']");
+    }
+
+    private static XmlNode? SelectPropertyGroupNode(XmlDocument doc)
+    {
+        return doc.SelectSingleNode("/*[local-name()='Project']/*[local-name()='PropertyGroup']");
     }
 
     private static XmlDocument ReadProject(string projectFile)
@@ -99,5 +165,15 @@ public sealed class DotnetBumpFileProject
         }
 
         return doc;
+    }
+
+    private static XmlNode CreatePropertyGroup(XmlDocument doc, string projectFile)
+    {
+        var projectNode = doc.SelectSingleNode("/*[local-name()='Project']")
+            ?? throw new VersionizeException(ErrorMessages.ProjectInvalidXmlFile(projectFile), 1);
+
+        var propertyGroup = doc.CreateElement("PropertyGroup");
+        projectNode.AppendChild(propertyGroup);
+        return propertyGroup;
     }
 }
