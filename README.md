@@ -64,6 +64,8 @@ Options:
   --tag-template <TAG_TEMPLATE>    Template for git tags, e.g. {name}/v{version}
 
 Commands:
+  init                                 Initializes versionize for single projects or monorepo setups
+    --force-config                      Write a .versionize file even for single-project repositories
   inspect                              Prints the current version to stdout
   changelog                            Prints a given version's changelog to stdout
     -v|--version <VERSION>             The version to include in the changelog (defaults to latest version if not specified)
@@ -303,13 +305,13 @@ versionize --pre-release alpha --skip-tag --find-release-commit-via-message
 ...
 ```
 
-`find-release-commit-via-message` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_. 
+`find-release-commit-via-message` is necessary because Versionize uses git tags by default to determine the current version. Without a git tag, the way we determine which commits get included in the changelog is by searching for the last commit message that starts with _"chore(release):"_.
 
 ## Configuration
 
 You can configure `versionize` either by creating a `.versionize` JSON file the working directory.
 
-Any of the command line parameters accepted by `versionize` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file. 
+Any of the command line parameters accepted by `versionize` can be provided via configuration file leaving out any `-`. For example `skip-dirty` can be provided as `skipDirty` in the configuration file.
 The `.versionize` configuration file is deserialized into a `FileConfig.cs` object behind the scenes.
 
 Changelog customization can only be done via a `.versionize` file. The following is an example configuration:

@@ -1,10 +1,11 @@
-using McMaster.Extensions.CommandLineUtils;
+﻿using McMaster.Extensions.CommandLineUtils;
 using Versionize.Commands;
 
 [Command(
     Name = "versionize",
     Description = "Automatic versioning and CHANGELOG generation, using conventional commit messages")]
 [Subcommand(typeof(ChangelogCommand))]
+[Subcommand(typeof(InitCommand))]
 [Subcommand(typeof(InspectCommand))]
 internal sealed class VersionizeCommand
 {
