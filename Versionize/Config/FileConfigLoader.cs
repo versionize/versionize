@@ -6,9 +6,14 @@ namespace Versionize.Config;
 public static class FileConfigLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
-    private static readonly HttpClient HttpClient = new();
+    private static readonly HttpClient DefaultHttpClient = new();
 
     public static FileConfig? LoadMerged(string filePath)
+    {
+        return LoadMerged(filePath, DefaultHttpClient);
+    }
+
+    public static FileConfig? LoadMerged(string filePath, HttpClient httpClient)
     {
         if (!File.Exists(filePath))
         {
@@ -16,30 +21,30 @@ public static class FileConfigLoader
         }
 
         var source = ConfigSource.FromFile(filePath);
-        return LoadMerged(source);
+        return LoadMerged(source, httpClient);
     }
 
-    private static FileConfig LoadMerged(ConfigSource source)
+    private static FileConfig LoadMerged(ConfigSource source, HttpClient httpClient)
     {
-        var config = LoadConfig(source);
+        var config = LoadConfig(source, httpClient);
         if (string.IsNullOrWhiteSpace(config.Extends))
         {
             return config;
         }
 
         var parentSource = ResolveSource(source, config.Extends);
-        var parentConfig = LoadMerged(parentSource);
+        var parentConfig = LoadMerged(parentSource, httpClient);
         return Merge(parentConfig, config);
     }
 
-    private static FileConfig LoadConfig(ConfigSource source)
+    private static FileConfig LoadConfig(ConfigSource source, HttpClient httpClient)
     {
         FileConfig? config;
 
         try
         {
             var json = source.IsUrl
-                ? HttpClient.GetStringAsync(source.Location).GetAwaiter().GetResult()
+                ? httpClient.GetStringAsync(source.Location).GetAwaiter().GetResult()
                 : File.ReadAllText(source.Location);
 
             config = JsonSerializer.Deserialize<FileConfig>(json, JsonOptions);
