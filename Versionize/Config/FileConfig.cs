@@ -6,6 +6,11 @@ namespace Versionize.Config;
 public sealed class FileConfig
 {
     /// <summary>
+    /// Extends configuration from another file or URL. Local values override extended values.
+    /// </summary>
+    public string? Extends { get; init; }
+
+    /// <summary>
     /// Suppresses all console output when enabled.
     /// </summary>
     public bool? Silent { get; init; }
