@@ -22,7 +22,7 @@ public static class Program
 
         var services = new ServiceCollection()
             .AddSingleton(cliConfig)
-            .AddSingleton<IConsole>(PhysicalConsole.Singleton)
+            .AddSingleton(PhysicalConsole.Singleton)
             .AddSingleton<IVersionizeCmdContextProvider, VersionizeCmdContextProvider>()
             .AddSingleton<IInspectCmdContextProvider, InspectCmdContextProvider>()
             .AddSingleton<IChangelogCmdContextProvider, ChangelogCmdContextProvider>()

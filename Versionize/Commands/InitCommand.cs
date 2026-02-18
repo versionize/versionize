@@ -18,8 +18,8 @@ internal sealed class InitCommand(CliConfig cliConfig)
     [Option("--force", Description = "Overwrite existing .versionize file if it exists")]
     public bool Force { get; }
 
-    [Option("--force-config", Description = "Create .versionize even for single-project repositories")]
-    public bool ForceConfig { get; }
+    [Option("--single", Description = "Create .versionize even for single-project repositories")]
+    public bool Single { get; }
 
     [Option("--version-element <VERSION_ELEMENT>", Description = "Version element to add or update in project files (default: Version)")]
     public string? VersionElement { get; }
@@ -89,7 +89,7 @@ internal sealed class InitCommand(CliConfig cliConfig)
             .Select(projectFile => DotnetBumpFileProject.CreateInitial(projectFile, versionElement))
             .ToList();
 
-        if (projectFiles.Count == 1 && !ForceConfig)
+        if (projectFiles.Count == 1 && !Single)
         {
             var project = initialProjects[0];
 
@@ -109,7 +109,7 @@ internal sealed class InitCommand(CliConfig cliConfig)
             var versionText = project.HasVersion ? project.Version.ToNormalizedString() : initialVersion;
             CommandLineUI.Step("single project detected; no .versionize file created");
             CommandLineUI.Information("versionize can be used without any further configurations");
-            CommandLineUI.Information("use --force-config to write a .versionize file anyway");
+            CommandLineUI.Information("use --single to write a .versionize file anyway");
             CommandLineUI.Information($"project version: {versionText}");
             return 0;
         }

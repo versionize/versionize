@@ -65,11 +65,22 @@ Options:
 
 Commands:
   init                                 Initializes versionize for single projects or monorepo setups
-    --force-config                      Write a .versionize file even for single-project repositories
+    --force                             Overwrite existing .versionize file if it exists
+    --single                            Write a .versionize file even for single-project repositories
+    --version-element <VERSION_ELEMENT> Version element to add or update in project files (default: Version)
+    --tag-template <TAG_TEMPLATE>       Tag template to use for each project (default: {name}-v{version})
+    --initial-version <VERSION>         Initial version to write when missing (default: 0.0.0)
+    --skip-project-update               Do not modify project files; only generate .versionize
   inspect                              Prints the current version to stdout
   changelog                            Prints a given version's changelog to stdout
     -v|--version <VERSION>             The version to include in the changelog (defaults to latest version if not specified)
     -p|--preamble <PREAMBLE>           Text to display before the list of commits
+```
+
+Example:
+
+```bash
+versionize --workingDir ./src init --single
 ```
 
 ## Supported commit types

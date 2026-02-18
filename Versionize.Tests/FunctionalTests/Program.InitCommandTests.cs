@@ -11,7 +11,7 @@ public class InitCommandTests : IDisposable
     private readonly TestSetup _testSetup;
     private readonly TestPlatformAbstractions _testPlatformAbstractions;
     private const string ProjectContents = """
-        <Project Sdk=\"Microsoft.NET.Sdk\">
+        <Project Sdk="Microsoft.NET.Sdk">
             <PropertyGroup>
                 <TargetFramework>net8.0</TargetFramework>
             </PropertyGroup>
@@ -34,7 +34,7 @@ public class InitCommandTests : IDisposable
         TempProject.CreateFromProjectContents(consoleDir, "csproj", ProjectContents);
         TempProject.CreateFromProjectContents(libraryDir, "csproj", ProjectContents);
 
-        var exitCode = Program.Main(["init", "--workingDir", _testSetup.WorkingDirectory]);
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "init"]);
 
         exitCode.ShouldBe(0);
 
@@ -59,16 +59,18 @@ public class InitCommandTests : IDisposable
         var appDir = Path.Combine(_testSetup.WorkingDirectory, "src", "App");
         TempProject.CreateFromProjectContents(appDir, "csproj", ProjectContents);
 
-        var exitCode = Program.Main(["init", "--workingDir", _testSetup.WorkingDirectory]);
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "init"]);
 
         exitCode.ShouldBe(0);
         var configPath = Path.Combine(_testSetup.WorkingDirectory, ".versionize");
         File.Exists(configPath).ShouldBeFalse();
         File.ReadAllText(Path.Combine(appDir, "App.csproj"))
             .ShouldContain("<Version>0.0.0</Version>");
-        _testPlatformAbstractions.Messages.ShouldContain("single project detected; no .versionize file created");
+        _testPlatformAbstractions.Messages.Any(message =>
+                message.Contains("single project detected; no .versionize file created", StringComparison.OrdinalIgnoreCase))
+            .ShouldBeTrue();
         _testPlatformAbstractions.Messages.ShouldContain("versionize can be used without any further configurations");
-        _testPlatformAbstractions.Messages.ShouldContain("use --force-config to write a .versionize file anyway");
+        _testPlatformAbstractions.Messages.ShouldContain("use --single to write a .versionize file anyway");
     }
 
     [Fact]
@@ -78,10 +80,10 @@ public class InitCommandTests : IDisposable
         TempProject.CreateFromProjectContents(appDir, "csproj", ProjectContents);
 
         var exitCode = Program.Main([
-            "init",
             "--workingDir",
             _testSetup.WorkingDirectory,
-            "--force-config"]);
+            "init",
+            "--single"]);
 
         exitCode.ShouldBe(0);
         var configPath = Path.Combine(_testSetup.WorkingDirectory, ".versionize");
@@ -97,7 +99,7 @@ public class InitCommandTests : IDisposable
     public void ShouldReportInvalidVersionValuesInMultiProjectSetup()
     {
         var invalidProjectContents = """
-            <Project Sdk=\"Microsoft.NET.Sdk\">
+            <Project Sdk="Microsoft.NET.Sdk">
                 <PropertyGroup>
                     <TargetFramework>net8.0</TargetFramework>
                     <Version>invalid</Version>
@@ -111,7 +113,7 @@ public class InitCommandTests : IDisposable
         TempProject.CreateFromProjectContents(appDir, "csproj", invalidProjectContents);
         TempProject.CreateFromProjectContents(libDir, "csproj", ProjectContents);
 
-        var exitCode = Program.Main(["init", "--workingDir", _testSetup.WorkingDirectory]);
+        var exitCode = Program.Main(["--workingDir", _testSetup.WorkingDirectory, "init"]);
 
         exitCode.ShouldBe(0);
         _testPlatformAbstractions.Messages.Any(message =>
@@ -129,9 +131,9 @@ public class InitCommandTests : IDisposable
         TempProject.CreateFromProjectContents(libDir, "csproj", ProjectContents);
 
         var exitCode = Program.Main([
-            "init",
             "--workingDir",
             _testSetup.WorkingDirectory,
+            "init",
             "--skip-project-update",
             "--initial-version",
             "2.1.0",
