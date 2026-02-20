@@ -27,7 +27,7 @@ internal sealed class InitCommand(CliConfig cliConfig)
     [Option("--tag-template <TAG_TEMPLATE>", Description = "Tag template to use for each project (default: {name}-v{version})")]
     public string? TagTemplate { get; }
 
-    [Option("--initial-version <VERSION>", Description = "Initial version to write when missing (default: 0.0.0)")]
+    [Option("--initial-version <VERSION>", Description = "Initial version to write when missing (default: 0.1.0)")]
     [SemanticVersion]
     public string? InitialVersion { get; }
 
@@ -41,7 +41,7 @@ internal sealed class InitCommand(CliConfig cliConfig)
         var configPath = Path.Combine(configDir, ".versionize");
         var versionElement = string.IsNullOrWhiteSpace(VersionElement) ? "Version" : VersionElement;
         var tagTemplate = string.IsNullOrWhiteSpace(TagTemplate) ? "{name}-v{version}" : TagTemplate;
-        var initialVersion = string.IsNullOrWhiteSpace(InitialVersion) ? "0.0.0" : InitialVersion;
+        var initialVersion = string.IsNullOrWhiteSpace(InitialVersion) ? "0.1.0" : InitialVersion;
         var dryRun = _cliConfig.DryRun.HasValue() && _cliConfig.DryRun.ParsedValue;
 
         if (_cliConfig.Silent.HasValue() && _cliConfig.Silent.ParsedValue)

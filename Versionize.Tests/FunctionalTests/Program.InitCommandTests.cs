@@ -48,9 +48,9 @@ public class InitCommandTests : IDisposable
         config.Projects.Select(p => p.Name).ShouldContain("library");
 
         File.ReadAllText(Path.Combine(consoleDir, "Console.csproj"))
-            .ShouldContain("<Version>0.0.0</Version>");
+            .ShouldContain("<Version>0.1.0</Version>");
         File.ReadAllText(Path.Combine(libraryDir, "Library.csproj"))
-            .ShouldContain("<Version>0.0.0</Version>");
+            .ShouldContain("<Version>0.1.0</Version>");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class InitCommandTests : IDisposable
         var configPath = Path.Combine(_testSetup.WorkingDirectory, ".versionize");
         File.Exists(configPath).ShouldBeFalse();
         File.ReadAllText(Path.Combine(appDir, "App.csproj"))
-            .ShouldContain("<Version>0.0.0</Version>");
+            .ShouldContain("<Version>0.1.0</Version>");
         _testPlatformAbstractions.Messages.Any(message =>
                 message.Contains("single project detected; no .versionize file created", StringComparison.OrdinalIgnoreCase))
             .ShouldBeTrue();
