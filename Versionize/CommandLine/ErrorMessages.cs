@@ -84,6 +84,12 @@ public static class ErrorMessages
         $"No project files in '{workingDirectory}' contain a <{versionElement}> element.";
     public static string InvalidVersionElement(string element) =>
         $"Version element '{element}' is invalid. Only alphanumeric and underscore characters are allowed.";
+    public static string NoProjectFilesFound(string workingDirectory) =>
+        $"No project files were found in '{workingDirectory}'.";
+    public static string VersionizeConfigAlreadyExists(string path) =>
+        $".versionize already exists at '{path}'. Use --force to overwrite.";
+    public static string InvalidTagTemplate(string template) =>
+        $"Tag template '{template}' must include the '{{version}}' placeholder.";
 
     // Unity bump file errors
     public static string UnityProjectSettingsNotFound() => "ProjectSettings.asset not found";

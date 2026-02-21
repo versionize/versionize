@@ -33,7 +33,12 @@ internal sealed class BumpFileProvider : IBumpFileProvider
         return null;
     }
 
-    private static bool IsDotnetProject(string directoryPath)
+    public static bool IsDotnetProject(string directoryPath)
+    {
+        return DiscoverProjectFiles(directoryPath).Any();
+    }
+
+    public static IEnumerable<string> DiscoverProjectFiles(string directoryPath)
     {
         var filters = new[] { "*.vbproj", "*.csproj", "*.fsproj", "*.esproj", "*.props" };
 
@@ -45,7 +50,16 @@ internal sealed class BumpFileProvider : IBumpFileProvider
 
         return filters
             .SelectMany(filter => Directory.EnumerateFiles(directoryPath, filter, options))
-            .Any();
+            .Where(path => !IsBuildOutputPath(path));
+    }
+
+    private static bool IsBuildOutputPath(string path)
+    {
+        var directory = Path.GetDirectoryName(path) ?? string.Empty;
+        var segments = directory.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return segments.Any(segment =>
+            segment.Equals("obj", StringComparison.OrdinalIgnoreCase) ||
+            segment.Equals("bin", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool IsUnityProject(string directoryPath)
