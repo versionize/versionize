@@ -62,8 +62,6 @@ public interface IReleaseTagger
         public bool Sign { get; init; }
         public required ProjectOptions Project { get; init; }
         public required string WorkingDirectory { get; init; }
-        public string? GitUserName { get; init; }
-        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -74,8 +72,6 @@ public interface IReleaseTagger
                 SkipTag = versionizeOptions.SkipTag,
                 Project = versionizeOptions.Project,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
-                GitUserName = versionizeOptions.GitUserName,
-                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }

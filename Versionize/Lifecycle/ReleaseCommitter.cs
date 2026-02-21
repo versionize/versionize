@@ -83,8 +83,6 @@ public interface IReleaseCommitter
         public bool Sign { get; init; }
         public string? CommitSuffix { get; init; }
         public required string WorkingDirectory { get; init; }
-        public string? GitUserName { get; init; }
-        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -95,8 +93,6 @@ public interface IReleaseCommitter
                 Sign = versionizeOptions.Sign,
                 SkipCommit = versionizeOptions.SkipCommit,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
-                GitUserName = versionizeOptions.GitUserName,
-                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }

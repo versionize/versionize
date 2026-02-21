@@ -15,8 +15,6 @@ internal interface IRepoStateValidator
         public required bool SkipDirty { get; init; }
         public required bool DryRun { get; init; }
         public required string WorkingDirectory { get; init; }
-        public string? GitUserName { get; init; }
-        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions options)
         {
@@ -27,8 +25,6 @@ internal interface IRepoStateValidator
                 SkipDirty = options.SkipDirty,
                 DryRun = options.DryRun,
                 WorkingDirectory = options.WorkingDirectory,
-                GitUserName = options.GitUserName,
-                GitUserEmail = options.GitUserEmail,
             };
         }
     }
