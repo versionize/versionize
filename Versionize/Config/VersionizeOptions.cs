@@ -44,6 +44,12 @@ public sealed record VersionizeOptions
     /// <inheritdoc cref="FileConfig.Sign"/>
     public bool Sign { get; init; }
 
+    /// <inheritdoc cref="CliConfig.GitUserName"/>
+    public string? GitUserName { get; init; }
+
+    /// <inheritdoc cref="CliConfig.GitUserEmail"/>
+    public string? GitUserEmail { get; init; }
+
     /// <summary>
     /// Don't read from or write to a bump file. Version will be read from tags.
     /// </summary>

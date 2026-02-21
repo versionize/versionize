@@ -50,6 +50,16 @@ public sealed class CliConfig
     /// <inheritdoc cref="FileConfig.Sign"/>
     public required CommandOption<bool> Sign { get; init; }
 
+    /// <summary>
+    /// Explicit Git user name override used for release commit/tag identity.
+    /// </summary>
+    public required CommandOption GitUserName { get; init; }
+
+    /// <summary>
+    /// Explicit Git user email override used for release commit/tag identity.
+    /// </summary>
+    public required CommandOption GitUserEmail { get; init; }
+
     /// <inheritdoc cref="FileConfig.TagTemplate"/>
     public required CommandOption TagTemplate { get; init; }
 
@@ -173,6 +183,16 @@ public sealed class CliConfig
                 "-s|--sign",
                 "Sign the git commit and tag.",
                 CommandOptionType.SingleOrNoValue),
+
+            GitUserName = app.Option(
+                "--git-user-name <GIT_USER_NAME>",
+                "Git user.name override used for release commit and tag operations",
+                CommandOptionType.SingleValue),
+
+            GitUserEmail = app.Option(
+                "--git-user-email <GIT_USER_EMAIL>",
+                "Git user.email override used for release commit and tag operations",
+                CommandOptionType.SingleValue),
 
             TagTemplate = app.Option(
                 "--tag-template <TAG_TEMPLATE>",

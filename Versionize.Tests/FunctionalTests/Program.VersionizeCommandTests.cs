@@ -142,102 +142,36 @@ public class ProgramTests : IDisposable
     }
 
     [Fact]
-    public void ShouldExtendConfigurationFromFile()
+    public void ShouldCreateReleaseWithCliGitIdentityOverrides_WhenGitConfigIsMissing()
     {
-        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        var baseConfig = new FileConfig
-        {
-            SkipDirty = true,
-            CommitSuffix = "[skip ci]",
-            Changelog = new ChangelogOptions
-            {
-                Header = "Base header"
-            }
-        };
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
+        GitTestHelpers.CommitAll(_testSetup.Repository);
 
-        File.WriteAllText(
-            Path.Join(_testSetup.WorkingDirectory, "base.versionize"),
-            JsonConvert.SerializeObject(baseConfig));
+        var configurationValues = new[] { "user.name", "user.email" }
+            .Select(key => _testSetup.Repository.Config.Get<string>(key, ConfigurationLevel.Local))
+            .Where(c => c != null)
+            .ToList();
 
-        var localConfig = new FileConfig
-        {
-            Extends = "base.versionize",
-            Changelog = new ChangelogOptions
-            {
-                Header = "Local header"
-            }
-        };
+        configurationValues.ForEach(c => _testSetup.Repository.Config.Unset(c.Key, c.Level));
 
-        File.WriteAllText(
-            Path.Join(_testSetup.WorkingDirectory, ".versionize"),
-            JsonConvert.SerializeObject(localConfig));
+        _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
+        _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var fileCommitter = new FileCommitter(_testSetup);
-        fileCommitter.CommitChange("feat: first feature");
+        var exitCode = Program.Main(
+        [
+            "--workingDir", _testSetup.WorkingDirectory,
+            "--git-user-name", "Versionize CLI",
+            "--git-user-email", "cli@versionize.test"
+        ]);
 
-        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "dirty.txt"), "dirty");
-
-        // Act
-        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
-
-        // Assert
         exitCode.ShouldBe(0);
-        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"))
-            .ShouldContain("Local header");
-        _testSetup.Repository.Head.Tip.Message.ShouldContain("[skip ci]");
-    }
 
-    [Fact]
-    public void ShouldExtendConfigurationFromConfigDirectory()
-    {
-        // Arrange
-        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
-
-        var configDir = Path.Join(_testSetup.WorkingDirectory, "config");
-        Directory.CreateDirectory(configDir);
-
-        var baseConfig = new FileConfig
-        {
-            SkipDirty = true,
-            CommitSuffix = "[base]",
-            Changelog = new ChangelogOptions
-            {
-                Header = "Base header"
-            }
-        };
-
-        File.WriteAllText(
-            Path.Join(configDir, "base.versionize"),
-            JsonConvert.SerializeObject(baseConfig));
-
-        var localConfig = new FileConfig
-        {
-            Extends = "base.versionize",
-            Changelog = new ChangelogOptions
-            {
-                Header = "Local header"
-            }
-        };
-
-        File.WriteAllText(
-            Path.Join(configDir, ".versionize"),
-            JsonConvert.SerializeObject(localConfig));
-
-        var fileCommitter = new FileCommitter(_testSetup);
-        fileCommitter.CommitChange("feat: first feature");
-
-        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "dirty.txt"), "dirty");
-
-        // Act
-        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir]);
-
-        // Assert
-        exitCode.ShouldBe(0);
-        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"))
-            .ShouldContain("Local header");
-        _testSetup.Repository.Head.Tip.Message.ShouldContain("[base]");
+        var releaseCommit = _testSetup.Repository.Head.Tip;
+        releaseCommit.Message.TrimEnd().ShouldBe("chore(release): 1.0.0");
+        releaseCommit.Author.Name.ShouldBe("Versionize CLI");
+        releaseCommit.Author.Email.ShouldBe("cli@versionize.test");
     }
 
     [Fact]

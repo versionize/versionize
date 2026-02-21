@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using LibGit2Sharp;
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using Shouldly;
@@ -31,6 +32,8 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = "",
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = null,
+            GitUserEmail = null,
         };
 
         var input = new IReleaseCommitter.Input
@@ -41,7 +44,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = null,
         };
 
-        var sut = new ReleaseCommitter();
+        var sut = new ReleaseCommitter(new GitIdentityResolver());
 
         // Act
         sut.CreateCommit(input, options);
@@ -61,6 +64,8 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = "",
             SkipCommit = true,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = null,
+            GitUserEmail = null,
         };
 
         var input = new IReleaseCommitter.Input
@@ -71,7 +76,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = null,
         };
 
-        var sut = new ReleaseCommitter();
+        var sut = new ReleaseCommitter(new GitIdentityResolver());
 
         // Act
         sut.CreateCommit(input, options);
@@ -94,6 +99,8 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = commitSuffix,
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = null,
+            GitUserEmail = null,
         };
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -113,7 +120,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = changelog,
         };
 
-        var sut = new ReleaseCommitter();
+        var sut = new ReleaseCommitter(new GitIdentityResolver());
 
         // Act
         sut.CreateCommit(input, options);
@@ -146,6 +153,8 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = commitSuffix,
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = null,
+            GitUserEmail = null,
         };
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -165,7 +174,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = changelog,
         };
 
-        var sut = new ReleaseCommitter();
+        var sut = new ReleaseCommitter(new GitIdentityResolver());
 
         // Act
         sut.CreateCommit(input, options);
@@ -176,6 +185,50 @@ public class ChangeCommitterTests : IDisposable
         var actualMessage = commit.Message.TrimEnd();
         actualMessage.ShouldBe(expectedMessage);
         GitProcessUtil.IsCommitSigned(_testSetup.WorkingDirectory, commit).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void CreatesACommitWithCliIdentityOverrides_WhenRepositoryGitIdentityIsMissing()
+    {
+        var options = new IReleaseCommitter.Options
+        {
+            DryRun = false,
+            Sign = false,
+            CommitSuffix = "",
+            SkipCommit = false,
+            WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI",
+            GitUserEmail = "cli@versionize.test",
+        };
+
+        _testSetup.Repository.Config.Unset("user.name", ConfigurationLevel.Local);
+        _testSetup.Repository.Config.Unset("user.email", ConfigurationLevel.Local);
+
+        ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
+        changelog.Write(
+            Version.Parse("2.0.0"),
+            Version.Parse("2.0.0"),
+            DateTimeOffset.Now,
+            new NullLinkBuilder(),
+            [],
+            ProjectOptions.DefaultOneProjectPerRepo);
+
+        var input = new IReleaseCommitter.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(2, 0, 0),
+            BumpFile = null,
+            Changelog = changelog,
+        };
+
+        var sut = new ReleaseCommitter(new GitIdentityResolver());
+
+        sut.CreateCommit(input, options);
+
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+        var commit = _testSetup.Repository.Commits.First();
+        commit.Author.Name.ShouldBe("Versionize CLI");
+        commit.Author.Email.ShouldBe("cli@versionize.test");
     }
 
     public void Dispose()

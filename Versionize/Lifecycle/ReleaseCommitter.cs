@@ -14,6 +14,19 @@ namespace Versionize.Lifecycle;
 
 public sealed class ReleaseCommitter : IReleaseCommitter
 {
+    private readonly IGitIdentityResolver _gitIdentityResolver;
+
+    // TODO: Might not be needed
+    public ReleaseCommitter()
+        : this(new GitIdentityResolver())
+    {
+    }
+
+    internal ReleaseCommitter(IGitIdentityResolver gitIdentityResolver)
+    {
+        _gitIdentityResolver = gitIdentityResolver;
+    }
+
     public void CreateCommit(Input input, Options options)
     {
         var repo = input.Repository;
@@ -43,13 +56,21 @@ public sealed class ReleaseCommitter : IReleaseCommitter
             return;
         }
 
-        var author = repo.Config.BuildSignature(DateTimeOffset.Now);
+        var author = _gitIdentityResolver.BuildSignature(
+            repo,
+            options.GitUserName,
+            options.GitUserEmail,
+            DateTimeOffset.Now);
         var committer = author;
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
 
         if (options.Sign)
         {
-            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage);
+            var gitConfigArguments = _gitIdentityResolver.BuildGitConfigArguments(
+                repo,
+                options.GitUserName,
+                options.GitUserEmail);
+            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage, gitConfigArguments);
         }
         else
         {
@@ -80,6 +101,8 @@ public interface IReleaseCommitter
         public bool Sign { get; init; }
         public string? CommitSuffix { get; init; }
         public required string WorkingDirectory { get; init; }
+        public string? GitUserName { get; init; }
+        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -90,6 +113,8 @@ public interface IReleaseCommitter
                 Sign = versionizeOptions.Sign,
                 SkipCommit = versionizeOptions.SkipCommit,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
+                GitUserName = versionizeOptions.GitUserName,
+                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }
