@@ -30,8 +30,6 @@ public class ReleaseTaggerTests : IDisposable
             Sign = false,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         var input = new IReleaseTagger.Input
@@ -40,7 +38,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger(new GitIdentityResolver());
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateTag(input, options);
@@ -60,8 +58,6 @@ public class ReleaseTaggerTests : IDisposable
             Sign = false,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         var input = new IReleaseTagger.Input
@@ -70,7 +66,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger(new GitIdentityResolver());
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateTag(input, options);
@@ -90,8 +86,6 @@ public class ReleaseTaggerTests : IDisposable
             Sign = false,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         var input = new IReleaseTagger.Input
@@ -100,7 +94,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger(new GitIdentityResolver());
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
@@ -133,8 +127,6 @@ public class ReleaseTaggerTests : IDisposable
             Sign = true,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         var input = new IReleaseTagger.Input
@@ -143,7 +135,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger(new GitIdentityResolver());
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
@@ -169,12 +161,7 @@ public class ReleaseTaggerTests : IDisposable
             Sign = false,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = "Versionize CLI",
-            GitUserEmail = "cli@versionize.test",
         };
-
-        _testSetup.Repository.Config.Unset("user.name", ConfigurationLevel.Local);
-        _testSetup.Repository.Config.Unset("user.email", ConfigurationLevel.Local);
 
         var input = new IReleaseTagger.Input
         {
@@ -182,11 +169,14 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger(new GitIdentityResolver());
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create("Versionize CLI", "cli@versionize.test"));
 
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
         _testSetup.Repository.Commits.Count().ShouldBe(1);
+
+        _testSetup.Repository.Config.Unset("user.name", ConfigurationLevel.Local);
+        _testSetup.Repository.Config.Unset("user.email", ConfigurationLevel.Local);
 
         sut.CreateTag(input, options);
 

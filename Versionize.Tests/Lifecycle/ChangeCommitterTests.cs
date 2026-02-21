@@ -32,8 +32,6 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = "",
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         var input = new IReleaseCommitter.Input
@@ -44,7 +42,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = null,
         };
 
-        var sut = new ReleaseCommitter(new GitIdentityResolver());
+        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateCommit(input, options);
@@ -64,8 +62,6 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = "",
             SkipCommit = true,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         var input = new IReleaseCommitter.Input
@@ -76,7 +72,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = null,
         };
 
-        var sut = new ReleaseCommitter(new GitIdentityResolver());
+        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateCommit(input, options);
@@ -99,8 +95,6 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = commitSuffix,
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -120,7 +114,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = changelog,
         };
 
-        var sut = new ReleaseCommitter(new GitIdentityResolver());
+        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateCommit(input, options);
@@ -153,8 +147,6 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = commitSuffix,
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -174,7 +166,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = changelog,
         };
 
-        var sut = new ReleaseCommitter(new GitIdentityResolver());
+        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateCommit(input, options);
@@ -197,8 +189,6 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = "",
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
-            GitUserName = "Versionize CLI",
-            GitUserEmail = "cli@versionize.test",
         };
 
         _testSetup.Repository.Config.Unset("user.name", ConfigurationLevel.Local);
@@ -221,7 +211,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = changelog,
         };
 
-        var sut = new ReleaseCommitter(new GitIdentityResolver());
+        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create("Versionize CLI", "cli@versionize.test"));
 
         sut.CreateCommit(input, options);
 

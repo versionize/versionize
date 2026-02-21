@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using Versionize.CommandLine;
 using Versionize.Config;
 
@@ -48,8 +48,7 @@ internal class RepoStateValidator(IGitIdentityResolver gitIdentityResolver) : IR
     /// </remarks>
     public void Validate(Repository repository, IRepoStateValidator.Options options)
     {
-        if (IsCommitConfigurationRequired(options) &&
-            !_gitIdentityResolver.IsConfigured(repository, options.GitUserName, options.GitUserEmail))
+        if (IsCommitConfigurationRequired(options) && !_gitIdentityResolver.IsConfigured(repository))
         {
             throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
         }

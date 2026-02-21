@@ -1,26 +1,30 @@
 ﻿using LibGit2Sharp;
 using Versionize.CommandLine;
+using Versionize.Config;
 
 namespace Versionize.Git;
 
-internal interface IGitIdentityResolver
+public interface IGitIdentityResolver
 {
-    bool IsConfigured(IRepository repository, string? gitUserName, string? gitUserEmail);
-    Signature BuildSignature(IRepository repository, string? gitUserName, string? gitUserEmail, DateTimeOffset now);
-    string BuildGitConfigArguments(IRepository repository, string? gitUserName, string? gitUserEmail);
+    bool IsConfigured(IRepository repository);
+    Signature BuildSignature(IRepository repository, DateTimeOffset now);
+    string BuildGitConfigArguments(IRepository repository);
 }
 
-internal sealed class GitIdentityResolver : IGitIdentityResolver
+public sealed class GitIdentityResolver(IVersionizeOptionsProvider configProvider) : IGitIdentityResolver
 {
-    public bool IsConfigured(IRepository repository, string? gitUserName, string? gitUserEmail)
+    private readonly string? _gitUserName = configProvider.GetOptions().GitUserName;
+    private readonly string? _gitUserEmail = configProvider.GetOptions().GitUserEmail;
+
+    public bool IsConfigured(IRepository repository)
     {
-        var identity = Resolve(repository, gitUserName, gitUserEmail);
+        var identity = Resolve(repository);
         return !string.IsNullOrWhiteSpace(identity.UserName) && !string.IsNullOrWhiteSpace(identity.UserEmail);
     }
 
-    public Signature BuildSignature(IRepository repository, string? gitUserName, string? gitUserEmail, DateTimeOffset now)
+    public Signature BuildSignature(IRepository repository, DateTimeOffset now)
     {
-        var identity = Resolve(repository, gitUserName, gitUserEmail);
+        var identity = Resolve(repository);
         if (string.IsNullOrWhiteSpace(identity.UserName) || string.IsNullOrWhiteSpace(identity.UserEmail))
         {
             throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
@@ -29,9 +33,9 @@ internal sealed class GitIdentityResolver : IGitIdentityResolver
         return new Signature(identity.UserName, identity.UserEmail, now);
     }
 
-    public string BuildGitConfigArguments(IRepository repository, string? gitUserName, string? gitUserEmail)
+    public string BuildGitConfigArguments(IRepository repository)
     {
-        var identity = Resolve(repository, gitUserName, gitUserEmail);
+        var identity = Resolve(repository);
         if (string.IsNullOrWhiteSpace(identity.UserName) || string.IsNullOrWhiteSpace(identity.UserEmail))
         {
             return string.Empty;
@@ -40,15 +44,15 @@ internal sealed class GitIdentityResolver : IGitIdentityResolver
         return $"-c user.name=\"{EscapeGitConfigValue(identity.UserName)}\" -c user.email=\"{EscapeGitConfigValue(identity.UserEmail)}\"";
     }
 
-    private static GitIdentity Resolve(IRepository repository, string? gitUserName, string? gitUserEmail)
+    private GitIdentity Resolve(IRepository repository)
     {
-        var resolvedUserName = string.IsNullOrWhiteSpace(gitUserName)
+        var resolvedUserName = string.IsNullOrWhiteSpace(_gitUserName)
             ? repository.Config.Get<string>("user.name")?.Value
-            : gitUserName;
+            : _gitUserName;
 
-        var resolvedUserEmail = string.IsNullOrWhiteSpace(gitUserEmail)
+        var resolvedUserEmail = string.IsNullOrWhiteSpace(_gitUserEmail)
             ? repository.Config.Get<string>("user.email")?.Value
-            : gitUserEmail;
+            : _gitUserEmail;
 
         return new GitIdentity(resolvedUserName, resolvedUserEmail);
     }

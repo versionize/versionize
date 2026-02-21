@@ -12,20 +12,9 @@ using Options = Versionize.Lifecycle.IReleaseCommitter.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ReleaseCommitter : IReleaseCommitter
+public sealed class ReleaseCommitter(IGitIdentityResolver gitIdentityResolver) : IReleaseCommitter
 {
-    private readonly IGitIdentityResolver _gitIdentityResolver;
-
-    // TODO: Might not be needed
-    public ReleaseCommitter()
-        : this(new GitIdentityResolver())
-    {
-    }
-
-    internal ReleaseCommitter(IGitIdentityResolver gitIdentityResolver)
-    {
-        _gitIdentityResolver = gitIdentityResolver;
-    }
+    private readonly IGitIdentityResolver _gitIdentityResolver = gitIdentityResolver;
 
     public void CreateCommit(Input input, Options options)
     {
@@ -56,20 +45,13 @@ public sealed class ReleaseCommitter : IReleaseCommitter
             return;
         }
 
-        var author = _gitIdentityResolver.BuildSignature(
-            repo,
-            options.GitUserName,
-            options.GitUserEmail,
-            DateTimeOffset.Now);
+        var author = _gitIdentityResolver.BuildSignature(repo, DateTimeOffset.Now);
         var committer = author;
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
 
         if (options.Sign)
         {
-            var gitConfigArguments = _gitIdentityResolver.BuildGitConfigArguments(
-                repo,
-                options.GitUserName,
-                options.GitUserEmail);
+            var gitConfigArguments = _gitIdentityResolver.BuildGitConfigArguments(repo);
             GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage, gitConfigArguments);
         }
         else
@@ -118,4 +100,5 @@ public interface IReleaseCommitter
             };
         }
     }
+
 }

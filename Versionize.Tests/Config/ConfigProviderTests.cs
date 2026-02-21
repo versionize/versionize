@@ -282,7 +282,7 @@ public class ConfigProviderTests : IDisposable
     [Theory]
     [InlineData("--git-user-name=cli-user", "cli-user")]
     [InlineData("", null)]
-    public void GitUserNameComesFromCliOption(string cliInput, string? expectedValue)
+    public void GitUserNameComesFromCliOption(string cliInput, string expectedValue)
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig();
@@ -296,7 +296,7 @@ public class ConfigProviderTests : IDisposable
     [Theory]
     [InlineData("--git-user-email=cli@versionize.test", "cli@versionize.test")]
     [InlineData("", null)]
-    public void GitUserEmailComesFromCliOption(string cliInput, string? expectedValue)
+    public void GitUserEmailComesFromCliOption(string cliInput, string expectedValue)
     {
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
         var fileConfig = new FileConfig();

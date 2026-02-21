@@ -1,4 +1,4 @@
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using Shouldly;
 using Versionize.CommandLine;
 using Versionize.Git;
@@ -27,7 +27,7 @@ public partial class RepoStateValidatorTests : IDisposable
         // Untracked file is the csproj.
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -35,8 +35,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = false,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         Should.NotThrow(() => sut.Validate(_testSetup.Repository, options));
@@ -52,7 +50,7 @@ public partial class RepoStateValidatorTests : IDisposable
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "hello world");
         LibGit2Sharp.Commands.Stage(_testSetup.Repository, "*");
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -60,8 +58,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = false,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         // Act/Assert
@@ -90,7 +86,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -98,8 +94,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = false,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         Should.Throw<VersionizeException>(() => sut.Validate(_testSetup.Repository, options))
@@ -127,7 +121,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -135,8 +129,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = true,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         Should.NotThrow(() => sut.Validate(_testSetup.Repository, options));
@@ -163,7 +155,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -171,8 +163,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = false,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         Should.Throw<VersionizeException>(() => sut.Validate(_testSetup.Repository, options))
@@ -200,7 +190,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -208,8 +198,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = true,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = null,
-            GitUserEmail = null,
         };
 
         Should.Throw<VersionizeException>(() => sut.Validate(_testSetup.Repository, options))
@@ -236,7 +224,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var sut = new RepoStateValidator(new GitIdentityResolver());
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create("Versionize CLI", "cli@versionize.test"));
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -244,8 +232,6 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = false,
             SkipDirty = false,
             DryRun = false,
-            GitUserName = "Versionize CLI",
-            GitUserEmail = "cli@versionize.test",
         };
 
         Should.NotThrow(() => sut.Validate(_testSetup.Repository, options));

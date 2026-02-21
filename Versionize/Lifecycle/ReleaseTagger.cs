@@ -10,20 +10,9 @@ using Options = Versionize.Lifecycle.IReleaseTagger.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ReleaseTagger : IReleaseTagger
+public sealed class ReleaseTagger(IGitIdentityResolver gitIdentityResolver) : IReleaseTagger
 {
-    private readonly IGitIdentityResolver _gitIdentityResolver;
-
-    // TODO: Might not be needed
-    public ReleaseTagger()
-        : this(new GitIdentityResolver())
-    {
-    }
-
-    internal ReleaseTagger(IGitIdentityResolver gitIdentityResolver)
-    {
-        _gitIdentityResolver = gitIdentityResolver;
-    }
+    private readonly IGitIdentityResolver _gitIdentityResolver = gitIdentityResolver;
 
     public void CreateTag(Input input, Options options)
     {
@@ -43,19 +32,12 @@ public sealed class ReleaseTagger : IReleaseTagger
         var tagName = options.Project.GetTagName(nextVersion);
         if (options.Sign)
         {
-            var gitConfigArguments = _gitIdentityResolver.BuildGitConfigArguments(
-                repo,
-                options.GitUserName,
-                options.GitUserEmail);
+            var gitConfigArguments = _gitIdentityResolver.BuildGitConfigArguments(repo);
             GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}", gitConfigArguments);
         }
         else
         {
-            var tagger = _gitIdentityResolver.BuildSignature(
-                repo,
-                options.GitUserName,
-                options.GitUserEmail,
-                DateTimeOffset.Now);
+            var tagger = _gitIdentityResolver.BuildSignature(repo, DateTimeOffset.Now);
             repo.ApplyTag(tagName, tagger, $"{nextVersion}");
         }
 
@@ -97,4 +79,5 @@ public interface IReleaseTagger
             };
         }
     }
+
 }
