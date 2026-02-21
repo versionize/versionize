@@ -149,13 +149,10 @@ public class ProgramTests : IDisposable
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
         GitTestHelpers.CommitAll(_testSetup.Repository);
 
-        var configurationValues = new[] { "user.name", "user.email" }
-            .Select(key => _testSetup.Repository.Config.Get<string>(key, ConfigurationLevel.Local))
-            .Where(c => c != null)
-            .ToList();
+        _testSetup.Repository.Config.Unset("user.name");
+        _testSetup.Repository.Config.Unset("user.email");
 
-        configurationValues.ForEach(c => _testSetup.Repository.Config.Unset(c.Key, c.Level));
-
+        // Verify git config is not set - as there are multiple levels of config, we check that the effective value is null.
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 

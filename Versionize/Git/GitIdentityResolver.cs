@@ -13,8 +13,7 @@ public interface IGitIdentityResolver
 
 public sealed class GitIdentityResolver(IVersionizeOptionsProvider configProvider) : IGitIdentityResolver
 {
-    private readonly string? _gitUserName = configProvider.GetOptions().GitUserName;
-    private readonly string? _gitUserEmail = configProvider.GetOptions().GitUserEmail;
+    private readonly IVersionizeOptionsProvider _configProvider = configProvider;
 
     public bool IsConfigured(IRepository repository)
     {
@@ -46,13 +45,13 @@ public sealed class GitIdentityResolver(IVersionizeOptionsProvider configProvide
 
     private GitIdentity Resolve(IRepository repository)
     {
-        var resolvedUserName = string.IsNullOrWhiteSpace(_gitUserName)
+        var resolvedUserName = string.IsNullOrWhiteSpace(_configProvider.GetOptions().GitUserName)
             ? repository.Config.Get<string>("user.name")?.Value
-            : _gitUserName;
+            : _configProvider.GetOptions().GitUserName;
 
-        var resolvedUserEmail = string.IsNullOrWhiteSpace(_gitUserEmail)
+        var resolvedUserEmail = string.IsNullOrWhiteSpace(_configProvider.GetOptions().GitUserEmail)
             ? repository.Config.Get<string>("user.email")?.Value
-            : _gitUserEmail;
+            : _configProvider.GetOptions().GitUserEmail;
 
         return new GitIdentity(resolvedUserName, resolvedUserEmail);
     }
