@@ -45,13 +45,14 @@ public sealed class ReleaseCommitter(IGitIdentityResolver gitIdentityResolver) :
             return;
         }
 
-        var author = _gitIdentityResolver.BuildSignature(repo, DateTimeOffset.Now);
+        var identity = _gitIdentityResolver.Resolve(repo);
+        var author = BuildSignature(identity, DateTimeOffset.Now);
         var committer = author;
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
 
         if (options.Sign)
         {
-            var gitConfigArguments = _gitIdentityResolver.BuildGitConfigArguments(repo);
+            var gitConfigArguments = BuildGitConfigArguments(identity);
             GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage, gitConfigArguments);
         }
         else
@@ -61,6 +62,31 @@ public sealed class ReleaseCommitter(IGitIdentityResolver gitIdentityResolver) :
 
         // TODO: Make this message dynamic
         Step(InfoMessages.CommittedChanges(changelog?.FilePath ?? "CHANGELOG.md"));
+    }
+
+    private static Signature BuildSignature(GitIdentity identity, DateTimeOffset now)
+    {
+        if (!identity.IsConfigured)
+        {
+            throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
+        }
+
+        return new Signature(identity.UserName, identity.UserEmail, now);
+    }
+
+    private static string BuildGitConfigArguments(GitIdentity identity)
+    {
+        if (!identity.IsConfigured)
+        {
+            return string.Empty;
+        }
+
+        return $"-c user.name=\"{EscapeGitConfigValue(identity.UserName!)}\" -c user.email=\"{EscapeGitConfigValue(identity.UserEmail!)}\"";
+    }
+
+    private static string EscapeGitConfigValue(string value)
+    {
+        return value.Replace("\"", "\\\"");
     }
 }
 

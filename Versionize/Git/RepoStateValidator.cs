@@ -44,7 +44,8 @@ internal class RepoStateValidator(IGitIdentityResolver gitIdentityResolver) : IR
     /// </remarks>
     public void Validate(Repository repository, IRepoStateValidator.Options options)
     {
-        if (IsCommitConfigurationRequired(options) && !_gitIdentityResolver.IsConfigured(repository))
+        var identity = _gitIdentityResolver.Resolve(repository);
+        if (IsCommitConfigurationRequired(options) && !identity.IsConfigured)
         {
             throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
         }
