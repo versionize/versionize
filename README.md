@@ -61,6 +61,8 @@ Options:
   --proj-name                          Name of a project defined in the configuration file (for monorepos)
   --first-parent-only-commits          Ignore commits beyond the first parent
   -s|--sign                            Sign the git commit and tag
+  --git-user-name <GIT_USER_NAME>      Git user.name override used for release commit and tag operations
+  --git-user-email <GIT_USER_EMAIL>    Git user.email override used for release commit and tag operations
   --tag-template <TAG_TEMPLATE>    Template for git tags, e.g. {name}/v{version}
 
 Commands:

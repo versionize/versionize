@@ -15,6 +15,8 @@ public static class ErrorMessages
         Warning: Git configuration is missing. Please configure git before running versionize:
         git config --global user.name ""John Doe""
         git config --global user.email johndoe@example.com
+        or pass explicit identity options:
+        --git-user-name ""John Doe"" --git-user-email johndoe@example.com
         """;
 
     // Version errors

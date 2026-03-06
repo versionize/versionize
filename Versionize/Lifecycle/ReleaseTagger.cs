@@ -10,8 +10,10 @@ using Options = Versionize.Lifecycle.IReleaseTagger.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ReleaseTagger : IReleaseTagger
+public sealed class ReleaseTagger(IGitIdentityResolver gitIdentityResolver) : IReleaseTagger
 {
+    private readonly IGitIdentityResolver _gitIdentityResolver = gitIdentityResolver;
+
     public void CreateTag(Input input, Options options)
     {
         var repo = input.Repository;
@@ -27,18 +29,45 @@ public sealed class ReleaseTagger : IReleaseTagger
             throw new VersionizeException(ErrorMessages.VersionAlreadyExists(nextVersion.ToNormalizedString()), 1);
         }
 
+        var identity = _gitIdentityResolver.Resolve(repo);
         var tagName = options.Project.GetTagName(nextVersion);
         if (options.Sign)
         {
-            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}");
+            var gitConfigArguments = BuildGitConfigArguments(identity);
+            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}", gitConfigArguments);
         }
         else
         {
-            var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
+            var tagger = BuildSignature(identity, DateTimeOffset.Now);
             repo.ApplyTag(tagName, tagger, $"{nextVersion}");
         }
 
         Step(InfoMessages.TaggedRelease(tagName, repo.Head.Tip.Sha));
+    }
+
+    private static Signature BuildSignature(GitIdentity identity, DateTimeOffset now)
+    {
+        if (!identity.IsConfigured)
+        {
+            throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
+        }
+
+        return new Signature(identity.UserName!, identity.UserEmail!, now);
+    }
+
+    private static string BuildGitConfigArguments(GitIdentity identity)
+    {
+        if (!identity.IsConfigured)
+        {
+            return string.Empty;
+        }
+
+        return $"-c user.name=\"{EscapeGitConfigValue(identity.UserName!)}\" -c user.email=\"{EscapeGitConfigValue(identity.UserEmail!)}\"";
+    }
+
+    private static string EscapeGitConfigValue(string value)
+    {
+        return value.Replace("\"", "\\\"");
     }
 }
 
@@ -72,4 +101,5 @@ public interface IReleaseTagger
             };
         }
     }
+
 }

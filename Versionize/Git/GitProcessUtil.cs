@@ -9,14 +9,14 @@ namespace Versionize.Git;
 /// </summary>
 public static class GitProcessUtil
 {
-    public static void CreateSignedCommit(string workingDirectory, string commitMessage)
+    public static void CreateSignedCommit(string workingDirectory, string commitMessage, string gitConfigArguments = "")
     {
-        RunCommand("git", $"-C \"{workingDirectory}\" commit -S -m \"{commitMessage}\"");
+        RunCommand("git", $"-C \"{workingDirectory}\" {gitConfigArguments} commit -S -m \"{commitMessage}\"");
     }
 
-    public static void CreateSignedTag(string workingDirectory, string tagName, string message)
+    public static void CreateSignedTag(string workingDirectory, string tagName, string message, string gitConfigArguments = "")
     {
-        RunCommand("git", $"-C \"{workingDirectory}\" tag -s \"{tagName}\" -m \"{message}\"");
+        RunCommand("git", $"-C \"{workingDirectory}\" {gitConfigArguments} tag -s \"{tagName}\" -m \"{message}\"");
     }
 
     public static bool IsCommitSigned(string workingDirectory, Commit commit)

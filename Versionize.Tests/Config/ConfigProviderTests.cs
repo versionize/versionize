@@ -280,6 +280,34 @@ public class ConfigProviderTests : IDisposable
     }
 
     [Theory]
+    [InlineData("--git-user-name=cli-user", "cli-user")]
+    [InlineData("", null)]
+    public void GitUserNameComesFromCliOption(string cliInput, string expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig();
+        var cliConfig = CreateCliConfig(cliInput);
+
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        options.GitUserName.ShouldBe(expectedValue);
+    }
+
+    [Theory]
+    [InlineData("--git-user-email=cli@versionize.test", "cli@versionize.test")]
+    [InlineData("", null)]
+    public void GitUserEmailComesFromCliOption(string cliInput, string expectedValue)
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+        var fileConfig = new FileConfig();
+        var cliConfig = CreateCliConfig(cliInput);
+
+        VersionizeOptions options = ConfigProvider.GetSelectedOptions(_testSetup.WorkingDirectory, cliConfig, fileConfig);
+
+        options.GitUserEmail.ShouldBe(expectedValue);
+    }
+
+    [Theory]
     [InlineData("-s=true", true, true)]
     [InlineData("-s=false", true, false)]
     [InlineData("-s", true, true)]

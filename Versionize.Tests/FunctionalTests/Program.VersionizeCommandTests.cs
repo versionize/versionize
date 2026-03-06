@@ -144,7 +144,6 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldExtendConfigurationFromFile()
     {
-        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var baseConfig = new FileConfig
@@ -179,10 +178,8 @@ public class ProgramTests : IDisposable
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "dirty.txt"), "dirty");
 
-        // Act
         var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory]);
 
-        // Assert
         exitCode.ShouldBe(0);
         File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"))
             .ShouldContain("Local header");
@@ -192,7 +189,6 @@ public class ProgramTests : IDisposable
     [Fact]
     public void ShouldExtendConfigurationFromConfigDirectory()
     {
-        // Arrange
         TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
 
         var configDir = Path.Join(_testSetup.WorkingDirectory, "config");
@@ -230,14 +226,42 @@ public class ProgramTests : IDisposable
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "dirty.txt"), "dirty");
 
-        // Act
         var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir]);
 
-        // Assert
         exitCode.ShouldBe(0);
         File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md"))
             .ShouldContain("Local header");
         _testSetup.Repository.Head.Tip.Message.ShouldContain("[base]");
+    }
+
+    [Fact]
+    public void ShouldCreateReleaseWithCliGitIdentityOverrides_WhenGitConfigIsMissing()
+    {
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
+        GitTestHelpers.CommitAll(_testSetup.Repository);
+
+        _testSetup.Repository.Config.Unset("user.name");
+        _testSetup.Repository.Config.Unset("user.email");
+
+        // Verify git config is not set - as there are multiple levels of config, we check that the effective value is null.
+        _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
+        _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
+
+        var exitCode = Program.Main(
+        [
+            "--workingDir", _testSetup.WorkingDirectory,
+            "--git-user-name", "Versionize CLI",
+            "--git-user-email", "cli@versionize.test"
+        ]);
+
+        exitCode.ShouldBe(0);
+
+        var releaseCommit = _testSetup.Repository.Head.Tip;
+        releaseCommit.Message.TrimEnd().ShouldBe("chore(release): 1.0.0");
+        releaseCommit.Author.Name.ShouldBe("Versionize CLI");
+        releaseCommit.Author.Email.ShouldBe("cli@versionize.test");
     }
 
     [Fact]
