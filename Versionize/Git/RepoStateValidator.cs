@@ -32,7 +32,7 @@ internal interface IRepoStateValidator
 
 internal class RepoStateValidator : IRepoStateValidator
 {
-    private static readonly string[] IgnoredToolDirectories =
+    internal static readonly string[] IgnoredToolDirectories =
     [
         ".claude",
         ".agent",
@@ -43,6 +43,8 @@ internal class RepoStateValidator : IRepoStateValidator
         ".opencode",
         ".codex"
     ];
+
+    internal static string IgnoredToolDirectoryList => string.Join(", ", IgnoredToolDirectories);
 
     /// <summary>
     /// Ensures<br/>
@@ -84,7 +86,7 @@ internal class RepoStateValidator : IRepoStateValidator
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var dirtyFiles = status
-            .Where(x => x.State != FileStatus.Ignored && !ignoredPaths.Contains(x.FilePath))
+            .Where(x => !HasState(x.State, FileStatus.Ignored) && !ignoredPaths.Contains(x.FilePath))
             .Select(x => $"{x.State}: {x.FilePath}")
             .ToList();
 
@@ -117,18 +119,18 @@ internal class RepoStateValidator : IRepoStateValidator
 
     internal static bool IsIgnoredToolSymlink(string filePath, FileStatus state, string repositoryRoot)
     {
-        if (state == FileStatus.Ignored || !OperatingSystem.IsWindows())
+        if (HasState(state, FileStatus.Ignored) || !OperatingSystem.IsWindows())
         {
             return false;
         }
 
         var fullPath = Path.GetFullPath(Path.Combine(repositoryRoot, filePath));
-        return IsToolDirectoryPath(fullPath, repositoryRoot) && IsWindowsSymlink(fullPath);
+        return IsToolDirectoryPath(fullPath, repositoryRoot) && IsWindowsReparsePoint(fullPath);
     }
 
     internal static bool IsIgnoredExistingToolEntry(string filePath, FileStatus state, string repositoryRoot)
     {
-        if (state != FileStatus.DeletedFromWorkdir || !OperatingSystem.IsWindows())
+        if (!HasState(state, FileStatus.DeletedFromWorkdir) || !OperatingSystem.IsWindows())
         {
             return false;
         }
@@ -147,7 +149,7 @@ internal class RepoStateValidator : IRepoStateValidator
         });
     }
 
-    internal static bool IsWindowsSymlink(string fullPath)
+    internal static bool IsWindowsReparsePoint(string fullPath)
     {
         if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
         {
@@ -160,6 +162,11 @@ internal class RepoStateValidator : IRepoStateValidator
     internal static bool PathExists(string fullPath)
     {
         return File.Exists(fullPath) || Directory.Exists(fullPath);
+    }
+
+    private static bool HasState(FileStatus state, FileStatus expected)
+    {
+        return (state & expected) == expected;
     }
 
     private static string EnsureTrailingSeparator(string path)
@@ -176,7 +183,7 @@ internal class RepoStateValidator : IRepoStateValidator
             return;
         }
 
-        CommandLineUI.Warning(InfoMessages.IgnoredToolSymlinks(ignoredSymlinks.Count));
+        CommandLineUI.Warning(InfoMessages.IgnoredToolSymlinks(ignoredSymlinks.Count, IgnoredToolDirectoryList));
 
         if (CommandLineUI.Verbosity < Versionize.CommandLine.LogLevel.All)
         {
@@ -196,7 +203,7 @@ internal class RepoStateValidator : IRepoStateValidator
             return;
         }
 
-        CommandLineUI.Warning(InfoMessages.IgnoredToolDirectoryEntries(ignoredExistingToolEntries.Count));
+        CommandLineUI.Warning(InfoMessages.IgnoredToolDirectoryEntries(ignoredExistingToolEntries.Count, IgnoredToolDirectoryList));
 
         if (CommandLineUI.Verbosity < Versionize.CommandLine.LogLevel.All)
         {
