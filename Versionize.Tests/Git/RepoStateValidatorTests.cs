@@ -391,15 +391,7 @@ public partial class RepoStateValidatorTests : IDisposable
         File.WriteAllText(targetPath, "target");
 
         File.Delete(fullPath);
-
-        try
-        {
-            CreateFileSymlinkOrThrow(fullPath, targetPath);
-        }
-        catch (SkipException)
-        {
-            throw;
-        }
+        CreateFileSymlinkOrThrow(fullPath, targetPath);
     }
 
     private void CommitPath(string relativePath, string message)
