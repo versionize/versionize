@@ -4,7 +4,6 @@ using Versionize.CommandLine;
 using Versionize.Git;
 using Versionize.Tests.TestSupport;
 using Xunit;
-using Xunit.Sdk;
 using static LibGit2Sharp.FileStatus;
 
 namespace Versionize;
@@ -67,7 +66,7 @@ public partial class RepoStateValidatorTests : IDisposable
             .Message.ShouldBe(ErrorMessages.RepositoryDirty(_testSetup.WorkingDirectory, "NewInIndex: hello.txt"));
     }
 
-    [Theory]
+    [WindowsOnlyTheory]
     [InlineData(".claude")]
     [InlineData(".agent")]
     [InlineData(".agents")]
@@ -78,8 +77,7 @@ public partial class RepoStateValidatorTests : IDisposable
     [InlineData(".codex")]
     public void ShouldIgnoreTrackedToolSymlinkChangesInAllowedDirectories(string toolDirectory)
     {
-        RequireWindows();
-        ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(toolDirectory, "SKILL.md"));
+        ReplaceTrackedFileWithSymlink(Path.Join(toolDirectory, "SKILL.md"));
 
         var sut = new RepoStateValidator();
         var options = new IRepoStateValidator.Options
@@ -96,11 +94,10 @@ public partial class RepoStateValidatorTests : IDisposable
         _testPlatformAbstractions.Messages.ShouldContain($"  * {NormalizeGitPath(Path.Join(toolDirectory, "SKILL.md"))}");
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ShouldIgnoreToolSymlinksButStillFailForOtherDirtyFiles()
     {
-        RequireWindows();
-        ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(".claude", "SKILL.md"));
+        ReplaceTrackedFileWithSymlink(Path.Join(".claude", "SKILL.md"));
 
         File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "hello world");
         LibGit2Sharp.Commands.Stage(_testSetup.Repository, "hello.txt");
@@ -121,11 +118,10 @@ public partial class RepoStateValidatorTests : IDisposable
         _testPlatformAbstractions.Messages.ShouldContain("  * .claude/SKILL.md");
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ShouldTreatSymlinkOutsideAllowedDirectoriesAsDirty()
     {
-        RequireWindows();
-        ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(".tools", "SKILL.md"));
+        ReplaceTrackedFileWithSymlink(Path.Join(".tools", "SKILL.md"));
 
         var sut = new RepoStateValidator();
         var options = new IRepoStateValidator.Options
@@ -141,12 +137,11 @@ public partial class RepoStateValidatorTests : IDisposable
             .Message.ShouldContain(".tools/SKILL.md");
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ShouldWarnWithCorrectCountForMultipleIgnoredToolSymlinks()
     {
-        RequireWindows();
-        ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(".claude", "SKILL.md"));
-        ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(".cursor", "AGENTS.md"));
+        ReplaceTrackedFileWithSymlink(Path.Join(".claude", "SKILL.md"));
+        ReplaceTrackedFileWithSymlink(Path.Join(".cursor", "AGENTS.md"));
 
         var sut = new RepoStateValidator();
         var options = new IRepoStateValidator.Options
@@ -164,11 +159,10 @@ public partial class RepoStateValidatorTests : IDisposable
         _testPlatformAbstractions.Messages.ShouldContain("  * .cursor/AGENTS.md");
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ShouldNotListIgnoredToolSymlinksWhenOutputIsSilent()
     {
-        RequireWindows();
-        ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(".claude", "SKILL.md"));
+        ReplaceTrackedFileWithSymlink(Path.Join(".claude", "SKILL.md"));
 
         var previousVerbosity = CommandLineUI.Verbosity;
         try
@@ -194,11 +188,9 @@ public partial class RepoStateValidatorTests : IDisposable
         }
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ShouldDetectRealWindowsSymlinkInTestSymLinkFolder()
     {
-        RequireWindows();
-
         var testSymLinkDirectory = Path.Join(_testSetup.WorkingDirectory, "testSymLink");
         var claudeDirectory = Path.Join(testSymLinkDirectory, ".claude");
         var agentDirectory = Path.Join(testSymLinkDirectory, ".agent");
@@ -217,11 +209,9 @@ public partial class RepoStateValidatorTests : IDisposable
         RepoStateValidator.IsWindowsReparsePoint(realFilePath).ShouldBeFalse();
     }
 
-    [Fact]
+    [WindowsOnlyFact]
     public void ShouldRecognizeExistingDeletedFromWorkdirEntryInToolDirectoryAsIgnorable()
     {
-        RequireWindows();
-
         var testSymLinkDirectory = Path.Join(_testSetup.WorkingDirectory, "testSymLink");
         var agentDirectory = Path.Join(testSymLinkDirectory, ".agent");
         Directory.CreateDirectory(agentDirectory);
@@ -385,7 +375,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Dispose();
     }
 
-    private void ReplaceTrackedFileWithSymlinkOrSkip(string relativePath)
+    private void ReplaceTrackedFileWithSymlink(string relativePath)
     {
         var fullPath = Path.Join(_testSetup.WorkingDirectory, relativePath);
         var directory = Path.GetDirectoryName(fullPath);
@@ -426,34 +416,16 @@ public partial class RepoStateValidatorTests : IDisposable
         }
         catch (UnauthorizedAccessException ex)
         {
-            throw Skip(ex);
+            throw new InvalidOperationException("Windows symbolic links are not available in the current test environment.", ex);
         }
         catch (IOException ex)
         {
-            throw Skip(ex);
+            throw new InvalidOperationException("Windows symbolic links are not available in the current test environment.", ex);
         }
         catch (PlatformNotSupportedException ex)
         {
-            throw Skip(ex);
+            throw new InvalidOperationException("Windows symbolic links are not available in the current test environment.", ex);
         }
-    }
-
-    private static void RequireWindows()
-    {
-        if (!OperatingSystem.IsWindows())
-        {
-            throw SkipException.ForSkip("Windows-only test.");
-        }
-    }
-
-    private static SkipException Skip()
-    {
-        return SkipException.ForSkip("Windows symbolic links are not available in the current test environment.");
-    }
-
-    private static SkipException Skip(Exception ex)
-    {
-        return SkipException.ForSkip($"Windows symbolic links are not available in the current test environment. {ex.GetType().Name}: {ex.Message}");
     }
 
 }
