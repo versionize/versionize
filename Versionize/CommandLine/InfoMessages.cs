@@ -14,5 +14,5 @@ public static class InfoMessages
     public static string IgnoredToolSymlinks(int count, string toolDirectoryList) =>
         $"Warning: Detected {count} symlink{(count == 1 ? "" : "s")} in tool directories ({toolDirectoryList}). Please verify them manually.";
     public static string IgnoredToolDirectoryEntries(int count, string toolDirectoryList) =>
-        $"Warning: Detected {count} tool-managed entr{(count == 1 ? "y" : "ies")} in ({toolDirectoryList}) reported as deleted although they still exist on disk. Please verify them manually.";
+        $"Warning: Detected {count} tool-managed entr{(count == 1 ? "y" : "ies")} in tool directories ({toolDirectoryList}) that were reported as deleted but still exist on disk. Please verify them manually.";
 }

@@ -151,12 +151,32 @@ internal class RepoStateValidator : IRepoStateValidator
 
     internal static bool IsWindowsReparsePoint(string fullPath)
     {
-        if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
+        if (!OperatingSystem.IsWindows())
         {
             return false;
         }
 
-        return File.GetAttributes(fullPath).HasFlag(FileAttributes.ReparsePoint);
+        try
+        {
+            var attributes = File.GetAttributes(fullPath);
+            return attributes.HasFlag(FileAttributes.ReparsePoint);
+        }
+        catch (FileNotFoundException)
+        {
+            return false;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
     }
 
     internal static bool PathExists(string fullPath)

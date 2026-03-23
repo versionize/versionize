@@ -28,7 +28,7 @@ public static class CommandLineUI
 
     public static void Warning(string message)
     {
-        if (Verbosity < LogLevel.Error)
+        if (Verbosity < LogLevel.All)
         {
             return;
         }

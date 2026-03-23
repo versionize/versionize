@@ -170,20 +170,28 @@ public partial class RepoStateValidatorTests : IDisposable
         RequireWindows();
         ReplaceTrackedFileWithSymlinkOrSkip(Path.Join(".claude", "SKILL.md"));
 
-        CommandLineUI.Verbosity = Versionize.CommandLine.LogLevel.Silent;
-
-        var sut = new RepoStateValidator();
-        var options = new IRepoStateValidator.Options
+        var previousVerbosity = CommandLineUI.Verbosity;
+        try
         {
-            WorkingDirectory = _testSetup.WorkingDirectory,
-            SkipCommit = false,
-            SkipTag = false,
-            SkipDirty = false,
-            DryRun = false
-        };
+            CommandLineUI.Verbosity = Versionize.CommandLine.LogLevel.Silent;
 
-        Should.NotThrow(() => sut.Validate(_testSetup.Repository, options));
-        _testPlatformAbstractions.Messages.ShouldBeEmpty();
+            var sut = new RepoStateValidator();
+            var options = new IRepoStateValidator.Options
+            {
+                WorkingDirectory = _testSetup.WorkingDirectory,
+                SkipCommit = false,
+                SkipTag = false,
+                SkipDirty = false,
+                DryRun = false
+            };
+
+            Should.NotThrow(() => sut.Validate(_testSetup.Repository, options));
+            _testPlatformAbstractions.Messages.ShouldBeEmpty();
+        }
+        finally
+        {
+            CommandLineUI.Verbosity = previousVerbosity;
+        }
     }
 
     [Fact]
