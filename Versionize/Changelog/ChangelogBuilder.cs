@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.Config;
@@ -123,7 +124,63 @@ public sealed class ChangelogBuilder
             }
         }
 
+        if (changelogOptions.IncludeAuthors.GetValueOrDefault())
+        {
+            var authors = BuildAuthorsBlock(
+                changelogOptions.AuthorsSection ?? "Thank You",
+                commits);
+
+            if (!string.IsNullOrWhiteSpace(authors))
+            {
+                markdown += authors;
+                markdown += "\n";
+            }
+        }
+
         return markdown;
+    }
+
+    private static string? BuildAuthorsBlock(string header, IEnumerable<ConventionalCommit> commits)
+    {
+        var authors = commits
+            .Where(c => !string.IsNullOrWhiteSpace(c.AuthorName))
+            .Select(c => new { Name = c.AuthorName!, Username = ExtractGithubUsername(c.AuthorEmail) })
+            .DistinctBy(a => a.Name)
+            .OrderBy(a => a.Name)
+            .ToList();
+
+        if (authors.Count == 0)
+        {
+            return null;
+        }
+
+        var block = $"### {header}";
+        block += "\n";
+        block += "\n";
+
+        foreach (var author in authors)
+        {
+            block += string.IsNullOrWhiteSpace(author.Username)
+                ? $"* {author.Name}\n"
+                : $"* {author.Name} @{author.Username}\n";
+        }
+
+        return block;
+    }
+
+    private static readonly Regex GithubNoreplyEmailRegex = new(
+        @"^(?:\d+\+)?(?<username>[^@]+)@users\.noreply\.github\.com$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static string? ExtractGithubUsername(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return null;
+        }
+
+        var match = GithubNoreplyEmailRegex.Match(email);
+        return match.Success ? match.Groups["username"].Value : null;
     }
 
     private static string? BuildBlock(string? header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)

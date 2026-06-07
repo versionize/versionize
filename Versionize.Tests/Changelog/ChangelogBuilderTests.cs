@@ -612,6 +612,167 @@ public class ChangelogBuilderTests : IDisposable
         Assert.Contains(expected, markdown);
     }
 
+    [Fact]
+    public void ShouldIncludeAuthorsWithGithubHandleWhenEnabled()
+    {
+        // Arrange
+        var linkBuilder = new NullLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
+        {
+            Changelog = ChangelogOptions.Default with
+            {
+                IncludeAuthors = true,
+            }
+        };
+
+        // Act
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            new DateTimeOffset(),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "12345+alicesmith@users.noreply.github.com")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature", "Bob Jones", "bobjones@users.noreply.github.com")),
+            ],
+            projectOptions);
+
+        // Assert
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldContain("### Thank You", Case.Sensitive);
+        changelogContents.ShouldContain("* Alice Smith @alicesmith");
+        changelogContents.ShouldContain("* Bob Jones @bobjones");
+    }
+
+    [Fact]
+    public void ShouldIncludeAuthorsWithoutHandleForNonGithubEmail()
+    {
+        // Arrange
+        var linkBuilder = new NullLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
+        {
+            Changelog = ChangelogOptions.Default with
+            {
+                IncludeAuthors = true,
+            }
+        };
+
+        // Act
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            new DateTimeOffset(),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "alice@example.com")),
+            ],
+            projectOptions);
+
+        // Assert
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldContain("### Thank You", Case.Sensitive);
+        changelogContents.ShouldContain("* Alice Smith\n");
+        changelogContents.ShouldNotContain("* Alice Smith @");
+    }
+
+    [Fact]
+    public void ShouldNotIncludeAuthorsSectionWhenDisabled()
+    {
+        // Arrange
+        var linkBuilder = new NullLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            new DateTimeOffset(),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "alice@example.com")),
+            ],
+            ProjectOptions.DefaultOneProjectPerRepo);
+
+        // Assert
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldNotContain("Thank You");
+        changelogContents.ShouldNotContain("Alice Smith");
+    }
+
+    [Fact]
+    public void ShouldDeduplicateAndSortAuthorsAlphabetically()
+    {
+        // Arrange
+        var linkBuilder = new NullLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
+        {
+            Changelog = ChangelogOptions.Default with
+            {
+                IncludeAuthors = true,
+            }
+        };
+
+        // Act
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            new DateTimeOffset(),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: first fix", "Zoe Taylor", "zoetaylor@users.noreply.github.com")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "fix: second fix", "Alice Smith", "alicesmith@users.noreply.github.com")),
+                ConventionalCommitParser.Parse(new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature", "Alice Smith", "alicesmith@users.noreply.github.com")),
+            ],
+            projectOptions);
+
+        // Assert
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldContain("* Alice Smith @alicesmith");
+        changelogContents.ShouldContain("* Zoe Taylor @zoetaylor");
+
+        var aliceIdx = changelogContents.IndexOf("* Alice Smith", StringComparison.Ordinal);
+        var zoeIdx = changelogContents.IndexOf("* Zoe Taylor", StringComparison.Ordinal);
+        aliceIdx.ShouldBeLessThan(zoeIdx);
+
+        var occurrences = System.Text.RegularExpressions.Regex.Matches(changelogContents, @"\* Alice Smith").Count;
+        occurrences.ShouldBe(1);
+    }
+
+    [Fact]
+    public void ShouldUseCustomAuthorsSectionTitle()
+    {
+        // Arrange
+        var linkBuilder = new NullLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+        var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
+        {
+            Changelog = ChangelogOptions.Default with
+            {
+                IncludeAuthors = true,
+                AuthorsSection = "Contributors",
+            }
+        };
+
+        // Act
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            new DateTimeOffset(),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "alicesmith@users.noreply.github.com")),
+            ],
+            projectOptions);
+
+        // Assert
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldContain("### Contributors", Case.Sensitive);
+        changelogContents.ShouldNotContain("Thank You");
+    }
+
     public void Dispose()
     {
         Cleanup.DeleteDirectory(_testDirectory);
