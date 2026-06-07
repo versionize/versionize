@@ -144,8 +144,8 @@ public sealed class ChangelogBuilder
     {
         var authors = commits
             .Where(c => !string.IsNullOrWhiteSpace(c.AuthorName))
-            .Select(c => new { Name = c.AuthorName!, Username = ExtractGithubUsername(c.AuthorEmail) })
-            .DistinctBy(a => a.Name)
+            .Select(c => new { Name = c.AuthorName!, Username = ExtractGithubUsername(c.AuthorEmail), Email = c.AuthorEmail ?? c.AuthorName! })
+            .DistinctBy(a => a.Email)
             .OrderBy(a => a.Name)
             .ToList();
 
