@@ -1,11 +1,15 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net.Http;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Versionize.CommandLine;
 
 namespace Versionize.Changelog.LinkBuilders;
 
-public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder
+public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder, IGitHubUsernameResolver
 {
+    private static readonly HttpClient HttpClient = new();
+
     private readonly string _organization;
     private readonly string _repository;
 
@@ -60,6 +64,28 @@ public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder
     public string BuildCommitLink(ConventionalCommit commit)
     {
         return $"https://www.github.com/{_organization}/{_repository}/commit/{commit.Sha}";
+    }
+
+    public string? ResolveUsername(string commitSha)
+    {
+        try
+        {
+            var url = $"https://api.github.com/repos/{_organization}/{_repository}/commits/{commitSha}";
+            HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("versionize");
+            var response = HttpClient.GetStringAsync(url).GetAwaiter().GetResult();
+            using var doc = JsonDocument.Parse(response);
+            if (doc.RootElement.TryGetProperty("author", out var authorElement) &&
+                authorElement.ValueKind != JsonValueKind.Null &&
+                authorElement.TryGetProperty("login", out var loginElement))
+            {
+                return loginElement.GetString();
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     [GeneratedRegex("^git@github.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]

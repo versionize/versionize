@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.Config;
@@ -128,7 +127,8 @@ public sealed class ChangelogBuilder
         {
             var authors = BuildAuthorsBlock(
                 changelogOptions.AuthorsSection ?? "Thank You",
-                commits);
+                commits,
+                linkBuilder);
 
             if (!string.IsNullOrWhiteSpace(authors))
             {
@@ -140,47 +140,39 @@ public sealed class ChangelogBuilder
         return markdown;
     }
 
-    private static string? BuildAuthorsBlock(string header, IEnumerable<ConventionalCommit> commits)
+    private static string? BuildAuthorsBlock(string header, IEnumerable<ConventionalCommit> commits, IChangelogLinkBuilder linkBuilder)
     {
-        var authors = commits
+        var resolver = linkBuilder as IGitHubUsernameResolver;
+
+        var uniqueAuthors = commits
             .Where(c => !string.IsNullOrWhiteSpace(c.AuthorName))
-            .Select(c => new { Name = c.AuthorName!, Username = ExtractGithubUsername(c.AuthorEmail), Email = c.AuthorEmail ?? c.AuthorName! })
-            .DistinctBy(a => a.Email)
+            .GroupBy(c => c.AuthorEmail ?? c.AuthorName!)
+            .Select(g => new { Name = g.First().AuthorName!, Sha = g.First().Sha })
             .OrderBy(a => a.Name)
             .ToList();
 
-        if (authors.Count == 0)
+        if (uniqueAuthors.Count == 0)
         {
             return null;
         }
 
-        var block = $"### {header}";
-        block += "\n";
-        block += "\n";
+        var sb = new StringBuilder();
+        sb.Append($"### {header}");
+        sb.Append("\n");
+        sb.Append("\n");
 
-        foreach (var author in authors)
+        foreach (var author in uniqueAuthors)
         {
-            block += string.IsNullOrWhiteSpace(author.Username)
+            string? username = resolver != null && !string.IsNullOrEmpty(author.Sha)
+                ? resolver.ResolveUsername(author.Sha)
+                : null;
+
+            sb.Append(string.IsNullOrWhiteSpace(username)
                 ? $"* {author.Name}\n"
-                : $"* {author.Name} @{author.Username}\n";
+                : $"* {author.Name} @{username}\n");
         }
 
-        return block;
-    }
-
-    private static readonly Regex GithubNoreplyEmailRegex = new(
-        @"^(?:\d+\+)?(?<username>[^@]+)@users\.noreply\.github\.com$",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-    private static string? ExtractGithubUsername(string? email)
-    {
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            return null;
-        }
-
-        var match = GithubNoreplyEmailRegex.Match(email);
-        return match.Success ? match.Groups["username"].Value : null;
+        return sb.ToString();
     }
 
     private static string? BuildBlock(string? header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)

@@ -616,7 +616,12 @@ public class ChangelogBuilderTests : IDisposable
     public void ShouldIncludeAuthorsWithGithubHandleWhenEnabled()
     {
         // Arrange
-        var linkBuilder = new NullLinkBuilder();
+        var shaToUsername = new Dictionary<string, string>
+        {
+            { "a360d6a307909c6e571b29d4a329fd786c5d4543", "alicesmith" },
+            { "b360d6a307909c6e571b29d4a329fd786c5d4543", "bobjones" },
+        };
+        var linkBuilder = new FakeGitHubLinkBuilder(shaToUsername);
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
@@ -633,8 +638,8 @@ public class ChangelogBuilderTests : IDisposable
             new DateTimeOffset(),
             linkBuilder,
             [
-                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "12345+alicesmith@users.noreply.github.com")),
-                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature", "Bob Jones", "bobjones@users.noreply.github.com")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "alice@example.com")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature", "Bob Jones", "bob@example.com")),
             ],
             projectOptions);
 
@@ -646,7 +651,7 @@ public class ChangelogBuilderTests : IDisposable
     }
 
     [Fact]
-    public void ShouldIncludeAuthorsWithoutHandleForNonGithubEmail()
+    public void ShouldIncludeAuthorsWithoutHandleWhenNotGitHub()
     {
         // Arrange
         var linkBuilder = new NullLinkBuilder();
@@ -705,7 +710,12 @@ public class ChangelogBuilderTests : IDisposable
     public void ShouldDeduplicateAndSortAuthorsAlphabetically()
     {
         // Arrange
-        var linkBuilder = new NullLinkBuilder();
+        var shaToUsername = new Dictionary<string, string>
+        {
+            { "a360d6a307909c6e571b29d4a329fd786c5d4543", "zoetaylor" },
+            { "b360d6a307909c6e571b29d4a329fd786c5d4543", "alicesmith" },
+        };
+        var linkBuilder = new FakeGitHubLinkBuilder(shaToUsername);
         var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
         var projectOptions = ProjectOptions.DefaultOneProjectPerRepo with
         {
@@ -722,9 +732,9 @@ public class ChangelogBuilderTests : IDisposable
             new DateTimeOffset(),
             linkBuilder,
             [
-                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: first fix", "Zoe Taylor", "zoetaylor@users.noreply.github.com")),
-                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "fix: second fix", "Alice Smith", "alicesmith@users.noreply.github.com")),
-                ConventionalCommitParser.Parse(new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature", "Alice Smith", "alicesmith@users.noreply.github.com")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: first fix", "Zoe Taylor", "zoe@example.com")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "fix: second fix", "Alice Smith", "alice@example.com")),
+                ConventionalCommitParser.Parse(new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature", "Alice Smith", "alice@example.com")),
             ],
             projectOptions);
 
@@ -763,7 +773,7 @@ public class ChangelogBuilderTests : IDisposable
             new DateTimeOffset(),
             linkBuilder,
             [
-                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "alicesmith@users.noreply.github.com")),
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "fix: a fix", "Alice Smith", "alice@example.com")),
             ],
             projectOptions);
 
@@ -777,4 +787,18 @@ public class ChangelogBuilderTests : IDisposable
     {
         Cleanup.DeleteDirectory(_testDirectory);
     }
+}
+
+#nullable enable
+file sealed class FakeGitHubLinkBuilder(Dictionary<string, string> shaToUsername)
+    : IChangelogLinkBuilder, IGitHubUsernameResolver
+{
+    private readonly NullLinkBuilder _inner = new();
+
+    public string BuildIssueLink(string issueId) => _inner.BuildIssueLink(issueId);
+    public string BuildCommitLink(ConventionalCommit commit) => _inner.BuildCommitLink(commit);
+    public string BuildVersionTagLink(string currentTag, string previousTag) => _inner.BuildVersionTagLink(currentTag, previousTag);
+
+    public string? ResolveUsername(string commitSha) =>
+        shaToUsername.TryGetValue(commitSha, out var username) ? username : null;
 }
