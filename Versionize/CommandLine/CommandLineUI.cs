@@ -26,6 +26,16 @@ public static class CommandLineUI
         Platform.WriteLine(message, ConsoleColor.Gray);
     }
 
+    public static void Warning(string message)
+    {
+        if (Verbosity < LogLevel.All)
+        {
+            return;
+        }
+
+        Platform.WriteLine(message, ConsoleColor.Yellow);
+    }
+
     public static void Step(string message)
     {
         if (Verbosity < LogLevel.All)
