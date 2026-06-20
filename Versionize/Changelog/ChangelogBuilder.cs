@@ -123,7 +123,56 @@ public sealed class ChangelogBuilder
             }
         }
 
+        if (changelogOptions.IncludeAuthors.GetValueOrDefault())
+        {
+            var authors = BuildAuthorsBlock(
+                changelogOptions.AuthorsSection ?? "Thank You",
+                commits,
+                linkBuilder);
+
+            if (!string.IsNullOrWhiteSpace(authors))
+            {
+                markdown += authors;
+                markdown += "\n";
+            }
+        }
+
         return markdown;
+    }
+
+    private static string? BuildAuthorsBlock(string header, IEnumerable<ConventionalCommit> commits, IChangelogLinkBuilder linkBuilder)
+    {
+        var resolver = linkBuilder as IGitHubUsernameResolver;
+
+        var uniqueAuthors = commits
+            .Where(c => !string.IsNullOrWhiteSpace(c.AuthorName))
+            .GroupBy(c => c.AuthorEmail ?? c.AuthorName!)
+            .Select(g => new { Name = g.First().AuthorName!, Sha = g.First().Sha })
+            .OrderBy(a => a.Name)
+            .ToList();
+
+        if (uniqueAuthors.Count == 0)
+        {
+            return null;
+        }
+
+        var sb = new StringBuilder();
+        sb.Append($"### {header}");
+        sb.Append("\n");
+        sb.Append("\n");
+
+        foreach (var author in uniqueAuthors)
+        {
+            string? username = resolver != null && !string.IsNullOrEmpty(author.Sha)
+                ? resolver.ResolveUsername(author.Sha)
+                : null;
+
+            sb.Append(string.IsNullOrWhiteSpace(username)
+                ? $"* {author.Name}\n"
+                : $"* {author.Name} @{username}\n");
+        }
+
+        return sb.ToString();
     }
 
     private static string? BuildBlock(string? header, IChangelogLinkBuilder linkBuilder, IEnumerable<ConventionalCommit> commits)

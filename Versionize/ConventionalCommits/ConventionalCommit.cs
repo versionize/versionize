@@ -10,6 +10,10 @@ public sealed record ConventionalCommit
 
     public string? Subject { get; init; }
 
+    public string? AuthorName { get; init; }
+
+    public string? AuthorEmail { get; init; }
+
     public List<ConventionalCommitNote> Notes { get; init; } = [];
 
     public List<ConventionalCommitIssue> Issues { get; init; } = [];
