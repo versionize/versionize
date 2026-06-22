@@ -142,6 +142,69 @@ public class ProgramTests : IDisposable
     }
 
     [Fact]
+    public void ShouldReadConfigurationFromCustomNamedConfigFile()
+    {
+        // Arrange
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var config = new FileConfig
+        {
+            SkipDirty = true,
+            Changelog = new ChangelogOptions
+            {
+                Header = "My Custom header"
+            }
+        };
+
+        var json = JsonConvert.SerializeObject(config);
+        var configFilePath = Path.Join(_testSetup.WorkingDirectory, "versionize.json");
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
+        File.WriteAllText(configFilePath, json);
+
+        // Act
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configFile", "versionize.json", "--skip-dirty"]);
+
+        // Assert
+        exitCode.ShouldBe(0);
+        File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
+        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldContain("My Custom header");
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+    }
+
+    [Fact]
+    public void ShouldReadConfigurationFromCustomNamedConfigFileInCustomDirectory()
+    {
+        // Arrange
+        TempProject.CreateCsharpProject(_testSetup.WorkingDirectory);
+
+        var config = new FileConfig
+        {
+            SkipDirty = true,
+            Changelog = new ChangelogOptions
+            {
+                Header = "My Custom header"
+            }
+        };
+
+        var json = JsonConvert.SerializeObject(config);
+        var configDir = Path.Join(_testSetup.WorkingDirectory, "..");
+        var configFilePath = Path.Join(configDir, "versionize.json");
+
+        File.WriteAllText(Path.Join(_testSetup.WorkingDirectory, "hello.txt"), "First commit");
+        File.WriteAllText(configFilePath, json);
+
+        // Act
+        var exitCode = Program.Main(["-w", _testSetup.WorkingDirectory, "--configDir", configDir, "--configFile", "versionize.json", "--skip-dirty"]);
+
+        // Assert
+        exitCode.ShouldBe(0);
+        File.Exists(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldBeTrue();
+        File.ReadAllText(Path.Join(_testSetup.WorkingDirectory, "CHANGELOG.md")).ShouldContain("My Custom header");
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+    }
+
+    [Fact]
     public void ShouldExtendConfigurationFromFile()
     {
         // Arrange

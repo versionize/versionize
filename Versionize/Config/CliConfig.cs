@@ -66,6 +66,13 @@ public sealed class CliConfig
     public required CommandOption ConfigurationDirectory { get; init; }
 
     /// <summary>
+    /// The name or path of the versionize configuration file.
+    /// Use this to specify a custom config filename (e.g. versionize.json) instead of the default .versionize.
+    /// Can be a filename (combined with --configDir or working directory) or an absolute path.
+    /// </summary>
+    public required CommandOption ConfigurationFile { get; init; }
+
+    /// <summary>
     /// The name of the project to version, as defined in your configuration file.
     /// Useful for monorepos with multiple projects defined in <see cref="FileConfig.Projects"/>.
     /// </summary>
@@ -96,6 +103,11 @@ public sealed class CliConfig
                 "Directory containing the versionize configuration file",
                 CommandOptionType.SingleValue)
                 .Accepts(v => v.ExistingDirectory()),
+
+            ConfigurationFile = app.Option(
+                "--configFile <CONFIG_FILE>",
+                "Name or path of the versionize configuration file (default: .versionize)",
+                CommandOptionType.SingleValue),
 
             Silent = app.Option<bool>(
                 "--silent",
