@@ -142,7 +142,7 @@ public sealed class ChangelogBuilder
 
     private static string? BuildAuthorsBlock(string header, IEnumerable<ConventionalCommit> commits, IChangelogLinkBuilder linkBuilder)
     {
-        var resolver = linkBuilder as IGitHubUsernameResolver;
+        var resolver = linkBuilder as IUsernameResolver;
 
         var uniqueAuthors = commits
             .Where(c => !string.IsNullOrWhiteSpace(c.AuthorName))

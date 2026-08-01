@@ -1,6 +1,6 @@
 namespace Versionize.Changelog.LinkBuilders;
 
-public interface IGitHubUsernameResolver
+public interface IUsernameResolver
 {
     string? ResolveUsername(string commitSha);
 }

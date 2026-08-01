@@ -791,7 +791,7 @@ public class ChangelogBuilderTests : IDisposable
 
 #nullable enable
 file sealed class FakeGitHubLinkBuilder(Dictionary<string, string> shaToUsername)
-    : IChangelogLinkBuilder, IGitHubUsernameResolver
+    : IChangelogLinkBuilder, IUsernameResolver
 {
     private readonly NullLinkBuilder _inner = new();
 

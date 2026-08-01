@@ -1,11 +1,16 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using Versionize.ConventionalCommits;
 using Versionize.CommandLine;
 
 namespace Versionize.Changelog.LinkBuilders;
 
-public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
+public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder, IUsernameResolver
 {
+    private static readonly HttpClient HttpClient = new();
+
     private readonly string _organization;
     private readonly string _repository;
 
@@ -60,6 +65,43 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder
     public string BuildCommitLink(ConventionalCommit commit)
     {
         return $"https://gitlab.com/{_organization}/{_repository}/-/commit/{commit.Sha}";
+    }
+
+    public string? ResolveUsername(string commitSha)
+    {
+        try
+        {
+            var fullPath = $"{_organization}/{_repository}";
+            var query = $"{{ project(fullPath: \"{fullPath}\") {{ repository {{ commits(ref: \"{commitSha}\", first: 1) {{ nodes {{ author {{ username }} }} }} }} }} }}";
+            var requestBody = JsonSerializer.Serialize(new { query });
+            var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+            HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("versionize");
+            var response = HttpClient.PostAsync("https://gitlab.com/api/graphql", content).GetAwaiter().GetResult();
+            var responseBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            using var doc = JsonDocument.Parse(responseBody);
+            if (doc.RootElement.TryGetProperty("data", out var data) &&
+                data.TryGetProperty("project", out var project) &&
+                project.ValueKind != JsonValueKind.Null &&
+                project.TryGetProperty("repository", out var repository) &&
+                repository.ValueKind != JsonValueKind.Null &&
+                repository.TryGetProperty("commits", out var commits) &&
+                commits.TryGetProperty("nodes", out var nodes) &&
+                nodes.GetArrayLength() > 0)
+            {
+                var firstNode = nodes[0];
+                if (firstNode.TryGetProperty("author", out var author) &&
+                    author.ValueKind != JsonValueKind.Null &&
+                    author.TryGetProperty("username", out var usernameElement))
+                {
+                    return usernameElement.GetString();
+                }
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     [GeneratedRegex("^git@gitlab.com:(?<organization>.*?)/(?<repository>.*?)(?:\\.git)?$")]

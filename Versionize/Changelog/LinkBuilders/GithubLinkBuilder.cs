@@ -6,7 +6,7 @@ using Versionize.CommandLine;
 
 namespace Versionize.Changelog.LinkBuilders;
 
-public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder, IGitHubUsernameResolver
+public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder, IUsernameResolver
 {
     private static readonly HttpClient HttpClient = new();
 
