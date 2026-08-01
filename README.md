@@ -395,7 +395,7 @@ This will generate links like: https://github.com/versionize/versionize/compare/
 
 ### Credits / Authors Section
 
-You can add an opt-in **Thank You** section at the bottom of each changelog entry that lists the authors who contributed commits in that release. For GitHub and GitLab repositories the author's username is resolved automatically; for other hosts only the author name is shown.
+You can add an opt-in **Thank You** section at the bottom of each changelog entry that lists the authors who contributed commits in that release. For public GitHub and GitLab repositories the author's username is resolved automatically; for other hosts, or private repositories, only the author name is shown.
 
 Enable it in your `.versionize` file:
 
@@ -428,7 +428,7 @@ This produces a section like:
 * Steven Nance
 ```
 
-Authors are deduplicated by email and listed alphabetically. GitHub usernames are resolved via the [GitHub commit API](https://docs.github.com/en/rest/commits/commits#get-a-commit); GitLab usernames are resolved via the [GitLab GraphQL API](https://docs.gitlab.com/ee/api/graphql/). If username resolution fails or the repository is hosted elsewhere, only the author name is displayed.
+Authors are deduplicated by email and listed alphabetically. GitHub usernames are resolved via the [GitHub commit API](https://docs.github.com/en/rest/commits/commits#get-a-commit); GitLab usernames are resolved via the [GitLab GraphQL API](https://docs.gitlab.com/ee/api/graphql/). Username resolution is only supported for **public repositories** — if username resolution fails or the repository is private or hosted elsewhere, only the author name is displayed.
 
 ## Developing
 
