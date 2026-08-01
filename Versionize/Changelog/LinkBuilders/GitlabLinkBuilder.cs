@@ -72,7 +72,21 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder, IUsername
         try
         {
             var fullPath = $"{_organization}/{_repository}";
-            var query = $"{{ project(fullPath: \"{fullPath}\") {{ repository {{ commits(ref: \"{commitSha}\", first: 1) {{ nodes {{ author {{ username }} }} }} }} }} }}";
+            var query = $$"""
+                {
+                  project(fullPath: "{{fullPath}}") {
+                    repository {
+                      commits(ref: "{{commitSha}}", first: 1) {
+                        nodes {
+                          author {
+                            username
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                """;
             var requestBody = JsonSerializer.Serialize(new { query });
             var content = new StringContent(requestBody, Encoding.UTF8, "application/json");
             HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("versionize");
