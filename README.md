@@ -393,6 +393,43 @@ The `{currentTag}` and `{previousTag}` placeholders are particularly useful for 
 
 This will generate links like: https://github.com/versionize/versionize/compare/v1.9.0...v1.10.0
 
+### Credits / Authors Section
+
+You can add an opt-in **Thank You** section at the bottom of each changelog entry that lists the authors who contributed commits in that release. For GitHub and GitLab repositories the author's username is resolved automatically; for other hosts only the author name is shown.
+
+Enable it in your `.versionize` file:
+
+```json
+{
+  "changelog": {
+    "includeAuthors": true
+  }
+}
+```
+
+You can also customise the section heading:
+
+```json
+{
+  "changelog": {
+    "includeAuthors": true,
+    "authorsSection": "Contributors"
+  }
+}
+```
+
+This produces a section like:
+
+```markdown
+### Thank You
+
+* Alice Smith @alicesmith
+* Bob Jones @bobjones
+* Steven Nance
+```
+
+Authors are deduplicated by email and listed alphabetically. GitHub usernames are resolved via the [GitHub commit API](https://docs.github.com/en/rest/commits/commits#get-a-commit); GitLab usernames are resolved via the [GitLab GraphQL API](https://docs.gitlab.com/ee/api/graphql/). If username resolution fails or the repository is hosted elsewhere, only the author name is displayed.
+
 ## Developing
 
 Want to do a PR and not care about setting up your development environment?
