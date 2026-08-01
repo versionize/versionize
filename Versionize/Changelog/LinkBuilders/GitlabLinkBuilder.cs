@@ -76,11 +76,9 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder, IUsername
                 {
                   project(fullPath: "{{fullPath}}") {
                     repository {
-                      commits(ref: "{{commitSha}}", first: 1) {
-                        nodes {
-                          author {
-                            username
-                          }
+                      commit(id: "{{commitSha}}") {
+                        author {
+                          username
                         }
                       }
                     }
@@ -98,17 +96,13 @@ public sealed partial class GitlabLinkBuilder : IChangelogLinkBuilder, IUsername
                 project.ValueKind != JsonValueKind.Null &&
                 project.TryGetProperty("repository", out var repository) &&
                 repository.ValueKind != JsonValueKind.Null &&
-                repository.TryGetProperty("commits", out var commits) &&
-                commits.TryGetProperty("nodes", out var nodes) &&
-                nodes.GetArrayLength() > 0)
+                repository.TryGetProperty("commit", out var commit) &&
+                commit.ValueKind != JsonValueKind.Null &&
+                commit.TryGetProperty("author", out var author) &&
+                author.ValueKind != JsonValueKind.Null &&
+                author.TryGetProperty("username", out var usernameElement))
             {
-                var firstNode = nodes[0];
-                if (firstNode.TryGetProperty("author", out var author) &&
-                    author.ValueKind != JsonValueKind.Null &&
-                    author.TryGetProperty("username", out var usernameElement))
-                {
-                    return usernameElement.GetString();
-                }
+                return usernameElement.GetString();
             }
             return null;
         }
