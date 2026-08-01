@@ -8,7 +8,9 @@ public sealed record class ChangelogOptions
         Header = Preamble,
         Path = string.Empty,
         IncludeAllCommits = false,
+        IncludeAuthors = false,
         OtherSection = "Other",
+        AuthorsSection = "Thank You",
         Sections =
         [
             new ChangelogSection { Type = "feat", Section = "Features", Hidden = false },
@@ -19,7 +21,9 @@ public sealed record class ChangelogOptions
     public string? Header { get; init; }
     public string? Path { get; init; }
     public bool? IncludeAllCommits { get; init; }
+    public bool? IncludeAuthors { get; init; }
     public string? OtherSection { get; init; }
+    public string? AuthorsSection { get; init; }
     public IEnumerable<ChangelogSection>? Sections { get; init; }
     public ChangelogLinkTemplates? LinkTemplates { get; init; }
 
@@ -35,7 +39,9 @@ public sealed record class ChangelogOptions
             Header = customOptions.Header ?? defaultOptions.Header,
             Path = customOptions.Path ?? defaultOptions.Path,
             IncludeAllCommits = customOptions.IncludeAllCommits ?? defaultOptions.IncludeAllCommits,
+            IncludeAuthors = customOptions.IncludeAuthors ?? defaultOptions.IncludeAuthors,
             OtherSection = customOptions.OtherSection ?? defaultOptions.OtherSection,
+            AuthorsSection = customOptions.AuthorsSection ?? defaultOptions.AuthorsSection,
             Sections = customOptions.Sections ?? defaultOptions.Sections,
             LinkTemplates = customOptions.LinkTemplates ?? defaultOptions.LinkTemplates,
         };

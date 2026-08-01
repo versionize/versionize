@@ -3,6 +3,8 @@ using Shouldly;
 using Versionize.Config;
 using Xunit;
 
+#nullable enable
+
 namespace Versionize.ConventionalCommits;
 
 public class ConventionalCommitParserTests
@@ -191,12 +193,17 @@ public class ConventionalCommitParserTests
 }
 
 // TODO: Consider moving to the TestSupport folder
-public class TestCommit(string sha, string message) : Commit
+public class TestCommit(string sha, string message, string? authorName = null, string? authorEmail = null) : Commit
 {
     private readonly string _sha = sha;
     private readonly string _message = message;
+    private readonly Signature? _author = authorName != null
+        ? new Signature(authorName, authorEmail ?? string.Empty, DateTimeOffset.Now)
+        : null;
 
     public override string Message => _message;
 
     public override string Sha => _sha;
+
+    public override Signature Author => _author!;
 }
