@@ -43,7 +43,7 @@ jobs:
         run: echo "VERSION_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: Create a Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: ${{ contains(env.VERSION_TAG, '-') }}

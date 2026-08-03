@@ -22,6 +22,7 @@ on:
 jobs:
   publish-new-version:
     permissions:
+      contents: write
       id-token: write  # enable GitHub OIDC token issuance for this job
     runs-on: ubuntu-latest
     steps:
@@ -47,12 +48,12 @@ jobs:
           ${{ env.RELEASE_AS != 'auto' && format('--release-as {0}', env.RELEASE_AS) || '' }}
         
       - name: Setup .NET 10.0
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
       - name: Setup .NET 11.0 (preview)
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '11.0.x'
           dotnet-quality: 'preview'
