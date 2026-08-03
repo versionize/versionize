@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.6.0"></a>
+## [2.6.0](https://github.com/versionize/versionize/compare/v2.5.0...v2.6.0) (2026-08-03)
+
+### ✨ Features
+
+* add authors/contributors section to changelog entries ([#204](https://github.com/versionize/versionize/issues/204)) ([6ffbc86](https://github.com/versionize/versionize/commit/6ffbc861eb4712b20442ec300e07e72084ff27f8))
+* add init command to simplify monorepo setups and create .versionize configuration ([#198](https://github.com/versionize/versionize/issues/198)) ([62e95ec](https://github.com/versionize/versionize/commit/62e95ecbca4f47839e7dae08aa3a4e7cb8cdc23b))
+* add support for .NET 11.0 in CI workflows and project files ([#196](https://github.com/versionize/versionize/issues/196)) ([5ba56ea](https://github.com/versionize/versionize/commit/5ba56eae590e52411baa427d97715444381ef94d))
+* add support for printing tag version when tag-only option is used in inspect command ([#197](https://github.com/versionize/versionize/issues/197)) ([237b906](https://github.com/versionize/versionize/commit/237b906e5af91535ab009e4a8d46b65a265dca1d))
+* extensible configurations ([#195](https://github.com/versionize/versionize/issues/195)) ([4778c89](https://github.com/versionize/versionize/commit/4778c895554cdd5e139553c121c56b508ec901ee))
+
+### 🐛 Bug Fixes
+
+* **windows:** tool-managed entries reported as dirty repository ([#202](https://github.com/versionize/versionize/issues/202)) ([7b5f41c](https://github.com/versionize/versionize/commit/7b5f41c2435778a5c67381b483fa992a9ee8b3b7))
+
+### ⚙️ Continuous Integrations
+
+* update nuget workflow to use "Trusted Publishing" ([8786a2d](https://github.com/versionize/versionize/commit/8786a2dcf887cfd5324882223fbedc0782e622ad))
+* **fix:** resolve the github release workflow ([9db59f5](https://github.com/versionize/versionize/commit/9db59f57000cf918844e5a41ed8c4cda6c5972a9))
+* **fix:** resolve the nuget publish workflow failure ([65f78aa](https://github.com/versionize/versionize/commit/65f78aa6be0adc4313ca88cb4a9b6b35fe316f00))
+
+### 📚 Docs
+
+* **readme:** fix regex header pattern slashes ([#205](https://github.com/versionize/versionize/issues/205)) ([a7ca3ae](https://github.com/versionize/versionize/commit/a7ca3aef5c1c0726209069f27099348dcae8ce7d))
+
+### ♻️ Chores
+
+* enable contributors changelog feature ([ccdaee4](https://github.com/versionize/versionize/commit/ccdaee4b9d30539b7a957626201906199a3192a5))
+
+### Thank You
+
+* Alan Lecart
+* cabauman
+* Christoph Walcher
+* Copilot
+* Danny Sotzny
+
 <a name="2.5.0"></a>
 ## [2.5.0](https://github.com/versionize/versionize/compare/v2.4.0...v2.5.0) (2026-02-01)
 
