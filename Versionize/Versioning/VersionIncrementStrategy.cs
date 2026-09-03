@@ -9,8 +9,9 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
     private readonly IEnumerable<ConventionalCommit> _conventionalCommits = conventionalCommits;
     private readonly Dictionary<string, HashSet<string>> _aliasLookup =
         aliases?.ToDictionary(
-            kvp => kvp.Key.ToLowerInvariant(),
-            kvp => new HashSet<string>(kvp.Value.Select(v => v.ToLowerInvariant())))
+            kvp => kvp.Key,
+            kvp => new HashSet<string>(kvp.Value, StringComparer.OrdinalIgnoreCase),
+            StringComparer.OrdinalIgnoreCase)
         ?? [];
 
     public SemanticVersion NextVersion(
@@ -108,17 +109,14 @@ public sealed class VersionIncrementStrategy(IEnumerable<ConventionalCommit> con
             return false;
         }
 
-        var typeLower = commit.Type.ToLowerInvariant();
-        var canonicalLower = canonicalType.ToLowerInvariant();
-
-        if (typeLower == canonicalLower)
+        if (string.Equals(commit.Type, canonicalType, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        if (_aliasLookup.TryGetValue(canonicalLower, out var aliases))
+        if (_aliasLookup.TryGetValue(canonicalType, out var aliases))
         {
-            return aliases.Contains(typeLower);
+            return aliases.Contains(commit.Type);
         }
 
         return false;
