@@ -100,6 +100,32 @@ public class ChangelogBuilderTests : IDisposable
     }
 
     [Fact]
+    public void ShouldSkipReleaseChoreCommits()
+    {
+        // Arrange
+        var linkBuilder = new NullLinkBuilder();
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        // Act
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            DateTimeOffset.Parse("2023-10-31"),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", "chore(release): release 1.2.3")),
+                ConventionalCommitParser.Parse(new TestCommit("b360d6a307909c6e571b29d4a329fd786c5d4543", "feat: a feature")),
+            ],
+            ProjectOptions.DefaultOneProjectPerRepo);
+
+        // Assert
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldContain("### Features", Case.Sensitive);
+        changelogContents.ShouldContain("* a feature");
+        changelogContents.ShouldNotContain("* release 1.2.3");
+    }
+
+    [Fact]
     public void ShouldGenerateAChangelogForFixFeatAndIssueLink()
     {
         // Arrange

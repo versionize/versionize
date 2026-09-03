@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Versionize.ConventionalCommits;
 using Version = NuGet.Versioning.SemanticVersion;
 using Versionize.Config;
@@ -86,13 +86,18 @@ public sealed class ChangelogBuilder
     {
         var markdown = "";
 
+        // Skip release commits created by automation: type = "chore" and scope = "release"
+        var filteredCommits = commits.Where(c => !(
+            string.Equals(c.Type, "chore", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(c.Scope, "release", StringComparison.OrdinalIgnoreCase)));
+
         var visibleChangelogSections = changelogOptions.Sections is null
             ? []
             : changelogOptions.Sections.Where(x => !x.Hidden);
 
         foreach (var changelogSection in visibleChangelogSections)
         {
-            var matchingCommits = commits.Where(commit => commit.Type == changelogSection.Type);
+            var matchingCommits = filteredCommits.Where(commit => commit.Type == changelogSection.Type);
             var buildBlock = BuildBlock(changelogSection.Section, linkBuilder, matchingCommits);
             if (!string.IsNullOrWhiteSpace(buildBlock))
             {
@@ -101,7 +106,7 @@ public sealed class ChangelogBuilder
             }
         }
 
-        var breaking = BuildBlock("Breaking Changes", linkBuilder, commits.Where(commit => commit.IsBreakingChange));
+        var breaking = BuildBlock("Breaking Changes", linkBuilder, filteredCommits.Where(commit => commit.IsBreakingChange));
 
         if (!string.IsNullOrWhiteSpace(breaking))
         {
@@ -114,7 +119,7 @@ public sealed class ChangelogBuilder
             var other = BuildBlock(
                 changelogOptions.OtherSection ?? "Other",
                 linkBuilder,
-                commits.Where(commit => !visibleChangelogSections.Any(x => x.Type == commit.Type) && !commit.IsBreakingChange));
+                filteredCommits.Where(commit => !visibleChangelogSections.Any(x => x.Type == commit.Type) && !commit.IsBreakingChange));
 
             if (!string.IsNullOrWhiteSpace(other))
             {
@@ -127,7 +132,7 @@ public sealed class ChangelogBuilder
         {
             var authors = BuildAuthorsBlock(
                 changelogOptions.AuthorsSection ?? "Thank You",
-                commits,
+                filteredCommits,
                 linkBuilder);
 
             if (!string.IsNullOrWhiteSpace(authors))
