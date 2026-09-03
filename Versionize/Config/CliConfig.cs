@@ -116,7 +116,7 @@ public sealed class CliConfig
 
             DryRun = app.Option<bool>(
                 "-d|--dry-run",
-                "Skip changing versions in projects, changelog generation and git commit",
+                "Performs a trial run without making any actual changes to files, commits, or tags.",
                 CommandOptionType.SingleOrNoValue),
 
             ReleaseAs = app.Option(
@@ -127,27 +127,27 @@ public sealed class CliConfig
 
             SkipDirty = app.Option<bool>(
                 "--skip-dirty",
-                "Skip git dirty check",
+                "Allow versionize to run even when there are uncommitted changes in the working directory",
                 CommandOptionType.SingleOrNoValue),
 
             SkipCommit = app.Option<bool>(
                 "--skip-commit",
-                "Skip commit and git tag after updating changelog and incrementing the version",
+                "Don't commit changes to the git repository",
                 CommandOptionType.SingleOrNoValue),
 
             SkipTag = app.Option<bool>(
                 "--skip-tag",
-                "Skip git tag after making release commit",
+                "Don't create a git tag",
                 CommandOptionType.SingleOrNoValue),
 
             SkipChangelog = app.Option<bool>(
                 "--skip-changelog",
-                "Skip changelog generation",
+                "Don't update the changelog file",
                 CommandOptionType.SingleOrNoValue),
 
             TagOnly = app.Option<bool>(
                 "--tag-only",
-                "Only works with git tags, does not commit or modify the csproj file.",
+                "Don't read/write the version from/to project files. Depend on version tags only.",
                 CommandOptionType.SingleOrNoValue),
 
             IgnoreInsignificant = app.Option<bool>(

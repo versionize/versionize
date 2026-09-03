@@ -41,13 +41,13 @@ Options:
   -v|--version                         Show version information.
   -w|--workingDir <WORKING_DIRECTORY>  Directory containing projects to version
   --configDir <CONFIG_DIRECTORY>       Directory containing the .versionize configuration file
-  -d|--dry-run                         Skip changing versions in projects, changelog generation and git commit
-  --skip-dirty                         Skip git dirty check
+  -d|--dry-run                         Performs a trial run without making any actual changes to files, commits, or tags
+  --skip-dirty                         Allow versionize to run even when there are uncommitted changes in the working directory
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
   --skip-commit                        Don't commit changes to the git repository
-  --skip-tag                           Don't tag the release commit
-  --skip-changelog                     Don't update the changelog
+  --skip-tag                           Don't create a git tag
+  --skip-changelog                     Don't update the changelog file
   -i|--ignore-insignificant-commits    Don't bump the version if no significant commits (fix, feat or BREAKING)
                                        are found
   --exit-insignificant-commits         Exits with a non zero exit code if no significant commits (fix, feat or
