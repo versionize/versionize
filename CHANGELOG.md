@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.7.0"></a>
+## [2.7.0](https://github.com/versionize/versionize/compare/v2.6.0...v2.7.0) (2026-09-03)
+
+### ✨ Features
+
+* add --configFile option to specify custom config filename ([#201](https://github.com/versionize/versionize/issues/201)) ([68f078c](https://github.com/versionize/versionize/commit/68f078c2a9e1c099320b943e011886b7c37f0942))
+* apply extensible configuration to all monorepo projects ([#208](https://github.com/versionize/versionize/issues/208)) ([ac8eec9](https://github.com/versionize/versionize/commit/ac8eec9731de6e07f1d8bbaa6e6efaea275ff528))
+* skip release commits in changelog generation ([6c518b6](https://github.com/versionize/versionize/commit/6c518b6cd84446b50261dd4a99641147c9990285))
+
+### 📚 Docs
+
+* **fix:** help text for skip-commit was outdated ([2498609](https://github.com/versionize/versionize/commit/2498609584001faf88ea41144b63687d8b281f8c))
+
+### Thank You
+
+* Colt Bauman
+* Copilot
+
 <a name="2.6.0"></a>
 ## [2.6.0](https://github.com/versionize/versionize/compare/v2.5.0...v2.6.0) (2026-08-03)
 
