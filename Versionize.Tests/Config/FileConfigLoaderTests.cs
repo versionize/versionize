@@ -23,6 +23,102 @@ public sealed class FileConfigLoaderTests : IDisposable
     }
 
     [Fact]
+    public void ShouldApplyChangelogOptionsToAllMonorepoProjects()
+    {
+        var baseConfigPath = Path.Join(_testSetup.WorkingDirectory, "base.versionize");
+        var baseConfig = new FileConfig
+        {
+            SkipDirty = true,
+            Changelog = new ChangelogOptions
+            {
+                Header = "# Changelog",
+                IncludeAllCommits = false,
+                Sections =
+                [
+                    new ChangelogSection
+                    {
+                        Section = "Added",
+                        Type = "feat",
+                        Hidden = true,
+                    },
+                    new ChangelogSection
+                    {
+                        Section = "Chores",
+                        Type = "chore",
+                        Hidden = false,
+                    }
+                ]
+            }
+        };
+        File.WriteAllText(baseConfigPath, SerializeConfig(baseConfig));
+
+        var localConfigPath = Path.Join(_testSetup.WorkingDirectory, ".versionize");
+        var localConfig = new FileConfig
+        {
+            Extends = "base.versionize",
+            SkipDirty = false,
+            Projects =
+            [
+                new ProjectOptions
+                {
+                    Name = "ProjectA",
+                    Path = "src/A",
+                    TagTemplate = "A-v{version}"
+                },
+                new ProjectOptions
+                {
+                    Name = "ProjectB",
+                    Path = "src/B",
+                    TagTemplate = "B-v{version}",
+                    Changelog = new ChangelogOptions
+                    {
+                        Header = "# Changelog 2",
+                        Sections =
+                        [
+                            new ChangelogSection
+                            {
+                                Section = "ProjectB Features",
+                                Type = "feat",
+                                Hidden = true,
+                            },
+                        ]
+                    }
+                }
+            ]
+        };
+        File.WriteAllText(localConfigPath, SerializeConfig(localConfig));
+
+        var merged = FileConfigLoader.LoadMerged(localConfigPath);
+
+        merged.ShouldNotBeNull();
+        merged.SkipDirty.ShouldNotBeNull().ShouldBeFalse();
+        merged.Projects.ShouldNotBeNull();
+        merged.Projects.Length.ShouldBe(2);
+        merged.Projects[0].Name.ShouldBe("ProjectA");
+        merged.Projects[1].Name.ShouldBe("ProjectB");
+
+        merged.Projects[0].Changelog.ShouldNotBeNull();
+        merged.Projects[0].Changelog.Header.ShouldBe("# Changelog");
+        merged.Projects[0].Changelog.IncludeAllCommits.ShouldNotBeNull().ShouldBeFalse();
+        ChangelogSection[] project1ChangelogSections = merged.Projects[0].Changelog.Sections.ToArray();
+        project1ChangelogSections.ShouldNotBeNull();
+        project1ChangelogSections.Length.ShouldBe(2);
+        project1ChangelogSections.First(s => s.Section == "Added").Hidden.ShouldBeTrue();
+        project1ChangelogSections.First(s => s.Section == "Chores").Hidden.ShouldBeFalse();
+        project1ChangelogSections.First(s => s.Section == "Added").Type.ShouldBe("feat");
+        project1ChangelogSections.First(s => s.Section == "Chores").Type.ShouldBe("chore");
+
+        merged.Projects[1].Changelog.ShouldNotBeNull();
+        merged.Projects[1].Changelog.Header.ShouldBe("# Changelog 2");
+        merged.Projects[1].Changelog.IncludeAllCommits.ShouldNotBeNull().ShouldBeFalse();
+        ChangelogSection[] project2ChangelogSections = merged.Projects[1].Changelog.Sections.ToArray();
+        project2ChangelogSections.ShouldNotBeNull();
+        project2ChangelogSections.Length.ShouldBe(1);
+        project2ChangelogSections.First(s => s.Section == "ProjectB Features").Hidden.ShouldBeTrue();
+        project2ChangelogSections.First(s => s.Section == "ProjectB Features").Type.ShouldBe("feat");
+    }
+
+    [Fact]
     public void ShouldMergeExtendedConfigFromFile()
     {
         var baseConfigPath = Path.Join(_testSetup.WorkingDirectory, "base.versionize");
@@ -31,13 +127,13 @@ public sealed class FileConfigLoaderTests : IDisposable
             SkipDirty = true,
             CommitSuffix = "[skip ci]",
             Projects =
-          [
-            new ProjectOptions
-          {
-            Name = "ProjectA",
-            Path = "src/A"
-          }
-          ],
+            [
+                new ProjectOptions
+                {
+                    Name = "ProjectA",
+                    Path = "src/A"
+                }
+            ],
             Changelog = new ChangelogOptions
             {
                 Header = "Base header"
@@ -51,13 +147,13 @@ public sealed class FileConfigLoaderTests : IDisposable
             Extends = "base.versionize",
             SkipDirty = false,
             Projects =
-          [
-            new ProjectOptions
-          {
-            Name = "ProjectB",
-            Path = "src/B"
-          }
-          ],
+            [
+                new ProjectOptions
+                {
+                    Name = "ProjectB",
+                    Path = "src/B"
+                }
+            ],
             Changelog = new ChangelogOptions
             {
                 Header = "Local header"
@@ -86,13 +182,13 @@ public sealed class FileConfigLoaderTests : IDisposable
             SkipDirty = true,
             CommitSuffix = "[skip ci]",
             Projects =
-          [
-            new ProjectOptions
-            {
-              Name = "ProjectA",
-              Path = "src/A"
-            }
-          ],
+            [
+                new ProjectOptions
+                {
+                    Name = "ProjectA",
+                    Path = "src/A"
+                }
+            ],
             Changelog = new ChangelogOptions
             {
                 Header = "Base header"
@@ -105,13 +201,13 @@ public sealed class FileConfigLoaderTests : IDisposable
             Extends = baseUrl,
             SkipDirty = false,
             Projects =
-          [
-            new ProjectOptions
-            {
-              Name = "ProjectB",
-              Path = "src/B"
-            }
-          ],
+            [
+                new ProjectOptions
+                {
+                    Name = "ProjectB",
+                    Path = "src/B"
+                }
+            ],
             Changelog = new ChangelogOptions
             {
                 Header = "Local header"
