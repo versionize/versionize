@@ -207,6 +207,20 @@ public sealed class ChangelogBuilder
         }
 
         var subject = commit.Subject;
+        foreach (var pr in commit.PullRequests)
+        {
+            if (string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(pr.Id) || string.IsNullOrEmpty(pr.Token))
+            {
+                continue;
+            }
+
+            var prLink = linkBuilder.BuildPullRequestLink(pr.Id);
+            if (!string.IsNullOrEmpty(prLink))
+            {
+                subject = subject.Replace(pr.Token, $"[{pr.Token}]({prLink})");
+            }
+        }
+
         foreach (var issue in commit.Issues)
         {
             if (string.IsNullOrEmpty(subject))

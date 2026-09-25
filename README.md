@@ -375,6 +375,7 @@ Because `includeAllCommits` is true and the _fix_ section is hidden, fix commits
 You can customize the links generated in the changelog using the `linkTemplates` configuration. The following placeholders are supported:
 
 - **`{issue}`** - Issue number (e.g., `123`)
+- **`{pr}`** - Pull request number (e.g., `45`), used by `prLink`
 - **`{commitSha}`** - Full commit SHA
 - **`{currentTag}`** - Current version tag (e.g., `v1.2.3`)
 - **`{previousTag}`** - Previous version tag (e.g., `v1.2.2`)
@@ -392,6 +393,33 @@ The `{currentTag}` and `{previousTag}` placeholders are particularly useful for 
 ```
 
 This will generate links like: https://github.com/versionize/versionize/compare/v1.9.0...v1.10.0
+
+#### Separate links for issues and pull requests
+
+If your issues live in an external tracker but your pull requests are on GitHub, you can keep issue references and pull request references apart. References matched by `commitParser.prPatterns` are linked with `prLink` and are not treated as issues:
+
+```json
+{
+  "commitParser": {
+    "issuesPatterns": ["(?<issueToken>(?<issueId>MYISSUE-\\d+))"],
+    "prPatterns": ["\\((?<prToken>#(?<prId>\\d+))\\)$"]
+  },
+  "changelog": {
+    "linkTemplates": {
+      "issueLink": "https://myissuetracker.com/{issue}",
+      "prLink": "https://github.com/myorg/myrepo/pull/{pr}"
+    }
+  }
+}
+```
+
+A commit such as `feat(my-scope): my pr title MYISSUE-456 (#45)` then produces:
+
+```md
+* **my-scope:** my pr title [MYISSUE-456](https://myissuetracker.com/MYISSUE-456) ([#45](https://github.com/myorg/myrepo/pull/45))
+```
+
+If `prLink` is not set, pull request references use the provider's pull request link (GitHub) or fall back to the issue link.
 
 ### Credits / Authors Section
 

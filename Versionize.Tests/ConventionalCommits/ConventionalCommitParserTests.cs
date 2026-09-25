@@ -160,6 +160,45 @@ public class ConventionalCommitParserTests
         }
     }
 
+    [Fact]
+    public void ShouldExtractPullRequestsWithPrPatternsAndNotTreatThemAsIssues()
+    {
+        // Arrange
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat(scope): my pr title MYISSUE-456 #12 (#45)");
+
+        // Act
+        var conventionalCommit = ConventionalCommitParser.Parse(
+            testCommit,
+            new CommitParserOptions
+            {
+                IssuesPatterns = ["(?<issueToken>(?<issueId>MYISSUE-\\d+))"],
+                PrPatterns = ["\\((?<prToken>#(?<prId>\\d+))\\)$"],
+            });
+
+        // Assert
+        var pr = Assert.Single(conventionalCommit.PullRequests);
+        Assert.Equal("45", pr.Id);
+        Assert.Equal("#45", pr.Token);
+
+        Assert.Equal(
+            new[] { "12", "MYISSUE-456" },
+            conventionalCommit.Issues.Select(x => x.Id).Order());
+    }
+
+    [Fact]
+    public void ShouldNotExtractPullRequestsWithoutPrPatterns()
+    {
+        // Arrange
+        var testCommit = new TestCommit("c360d6a307909c6e571b29d4a329fd786c5d4543", "feat: my pr title (#45)");
+
+        // Act
+        var conventionalCommit = ConventionalCommitParser.Parse(testCommit, new CommitParserOptions());
+
+        // Assert
+        Assert.Empty(conventionalCommit.PullRequests);
+        Assert.Equal("45", Assert.Single(conventionalCommit.Issues).Id);
+    }
+
     [Theory]
     [InlineData("fix: subject text #64", "", "fix", "subject text #64")]
     [InlineData("feat(scope): subject text", "scope", "feat", "subject text")]

@@ -8,6 +8,8 @@ public sealed class CommitParserOptions
 
     public string[] IssuesPatterns { get; init; } = [];
 
+    public string[] PrPatterns { get; init; } = [];
+
     public static CommitParserOptions MergeWithDefault(CommitParserOptions? customOptions)
     {
         if (customOptions == null)
@@ -19,6 +21,7 @@ public sealed class CommitParserOptions
         {
             HeaderPatterns = customOptions.HeaderPatterns ?? Default.HeaderPatterns,
             IssuesPatterns = customOptions.IssuesPatterns ?? Default.IssuesPatterns,
+            PrPatterns = customOptions.PrPatterns ?? Default.PrPatterns,
         };
     }
 }

@@ -18,6 +18,8 @@ public sealed record ConventionalCommit
 
     public List<ConventionalCommitIssue> Issues { get; init; } = [];
 
+    public List<ConventionalCommitPullRequest> PullRequests { get; init; } = [];
+
     public bool IsFeature => Type == "feat";
     public bool IsFix => Type == "fix";
     public bool IsBreakingChange => Notes.Any(note => "BREAKING CHANGE".Equals(note.Title));
@@ -31,6 +33,13 @@ public sealed class ConventionalCommitNote
 }
 
 public sealed class ConventionalCommitIssue
+{
+    public string? Token { get; init; }
+
+    public string? Id { get; init; }
+}
+
+public sealed class ConventionalCommitPullRequest
 {
     public string? Token { get; init; }
 
