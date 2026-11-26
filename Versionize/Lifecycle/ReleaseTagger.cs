@@ -10,8 +10,10 @@ using Options = Versionize.Lifecycle.IReleaseTagger.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ReleaseTagger : IReleaseTagger
+public sealed class ReleaseTagger(IGitIdentityResolver gitIdentityResolver) : IReleaseTagger
 {
+    private readonly IGitIdentityResolver _gitIdentityResolver = gitIdentityResolver;
+
     public void CreateTag(Input input, Options options)
     {
         var repo = input.Repository;
@@ -27,19 +29,31 @@ public sealed class ReleaseTagger : IReleaseTagger
             throw new VersionizeException(ErrorMessages.VersionAlreadyExists(nextVersion.ToNormalizedString()), 1);
         }
 
+        var identity = _gitIdentityResolver.Resolve(repo, options.GitUserName, options.GitUserEmail);
         var tagName = options.Project.GetTagName(nextVersion);
         if (options.Sign)
         {
-            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}");
+            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}", identity);
         }
         else
         {
-            var tagger = repo.Config.BuildSignature(DateTimeOffset.Now);
+            var tagger = BuildSignature(identity, DateTimeOffset.Now);
             repo.ApplyTag(tagName, tagger, $"{nextVersion}");
         }
 
         Step(InfoMessages.TaggedRelease(tagName, repo.Head.Tip.Sha));
     }
+
+    private static Signature BuildSignature(GitIdentity identity, DateTimeOffset now)
+    {
+        if (!identity.IsConfigured)
+        {
+            throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
+        }
+
+        return new Signature(identity.UserName!, identity.UserEmail!, now);
+    }
+
 }
 
 public interface IReleaseTagger
@@ -59,6 +73,8 @@ public interface IReleaseTagger
         public bool Sign { get; init; }
         public required ProjectOptions Project { get; init; }
         public required string WorkingDirectory { get; init; }
+        public string? GitUserName { get; init; }
+        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -69,7 +85,10 @@ public interface IReleaseTagger
                 SkipTag = versionizeOptions.SkipTag,
                 Project = versionizeOptions.Project,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
+                GitUserName = versionizeOptions.GitUserName,
+                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }
+
 }

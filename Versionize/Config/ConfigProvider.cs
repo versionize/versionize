@@ -35,6 +35,8 @@ public static class ConfigProvider
             AggregatePrereleases = MergeBool(cliConfig.AggregatePrereleases, fileConfig?.AggregatePrereleases),
             FirstParentOnlyCommits = MergeBool(cliConfig.FirstParentOnlyCommits, fileConfig?.FirstParentOnlyCommits),
             Sign = MergeBool(cliConfig.Sign, fileConfig?.Sign),
+            GitUserName = cliConfig.GitUserName.Value(),
+            GitUserEmail = cliConfig.GitUserEmail.Value(),
             SkipBumpFile = MergeBool(cliConfig.TagOnly, fileConfig?.TagOnly),
             CommitParser = commitParser,
             Project = project,

@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using LibGit2Sharp;
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using Shouldly;
@@ -37,7 +38,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger();
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateTag(input, options);
@@ -65,7 +66,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger();
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         // Act
         sut.CreateTag(input, options);
@@ -93,7 +94,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger();
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
@@ -126,6 +127,8 @@ public class ReleaseTaggerTests : IDisposable
             Sign = true,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI\\",
+            GitUserEmail = "cli@versionize.test",
         };
 
         var input = new IReleaseTagger.Input
@@ -134,7 +137,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger();
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");
@@ -147,7 +150,48 @@ public class ReleaseTaggerTests : IDisposable
         _testSetup.Repository.Tags.Count().ShouldBe(1);
         var tag = _testSetup.Repository.Tags.Single();
         tag.FriendlyName.ShouldBe("v1.2.3");
+        tag.Annotation.ShouldNotBeNull();
+        tag.Annotation.Tagger.Name.ShouldBe("Versionize CLI");
+        tag.Annotation.Tagger.Email.ShouldBe("cli@versionize.test");
         GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void CreatesATagWithCliIdentityOverrides_WhenRepositoryGitIdentityIsMissing()
+    {
+        var options = new IReleaseTagger.Options
+        {
+            DryRun = false,
+            SkipTag = false,
+            Sign = false,
+            Project = ProjectOptions.DefaultOneProjectPerRepo,
+            WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI",
+            GitUserEmail = "cli@versionize.test",
+        };
+
+        var input = new IReleaseTagger.Input
+        {
+            Repository = _testSetup.Repository,
+            NewVersion = new Version(1, 2, 3),
+        };
+
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
+
+        var fileCommitter = new FileCommitter(_testSetup);
+        fileCommitter.CommitChange("feat: initial commit");
+        _testSetup.Repository.Commits.Count().ShouldBe(1);
+
+        _testSetup.Repository.Config.Unset("user.name", ConfigurationLevel.Local);
+        _testSetup.Repository.Config.Unset("user.email", ConfigurationLevel.Local);
+
+        sut.CreateTag(input, options);
+
+        _testSetup.Repository.Tags.Count().ShouldBe(1);
+        var tag = _testSetup.Repository.Tags.Single();
+        tag.Annotation.ShouldNotBeNull();
+        tag.Annotation.Tagger.Name.ShouldBe("Versionize CLI");
+        tag.Annotation.Tagger.Email.ShouldBe("cli@versionize.test");
     }
 
     public void Dispose()

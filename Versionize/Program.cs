@@ -28,6 +28,7 @@ public static class Program
             .AddSingleton<IChangelogCmdContextProvider, ChangelogCmdContextProvider>()
             .AddSingleton<IVersionizeOptionsProvider, VersionizeOptionsProvider>()
             .AddSingleton<IRepositoryProvider, RepositoryProvider>()
+            .AddSingleton<IGitIdentityResolver, GitIdentityResolver>()
             .AddSingleton<IRepoStateValidator, RepoStateValidator>()
             .AddSingleton<IBumpFileProvider, BumpFileProvider>()
             // Pipeline

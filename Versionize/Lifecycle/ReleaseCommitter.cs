@@ -12,8 +12,10 @@ using Options = Versionize.Lifecycle.IReleaseCommitter.Options;
 
 namespace Versionize.Lifecycle;
 
-public sealed class ReleaseCommitter : IReleaseCommitter
+public sealed class ReleaseCommitter(IGitIdentityResolver gitIdentityResolver) : IReleaseCommitter
 {
+    private readonly IGitIdentityResolver _gitIdentityResolver = gitIdentityResolver;
+
     public void CreateCommit(Input input, Options options)
     {
         var repo = input.Repository;
@@ -43,22 +45,34 @@ public sealed class ReleaseCommitter : IReleaseCommitter
             return;
         }
 
-        var author = repo.Config.BuildSignature(DateTimeOffset.Now);
-        var committer = author;
+        var identity = _gitIdentityResolver.Resolve(repo, options.GitUserName, options.GitUserEmail);
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
 
         if (options.Sign)
         {
-            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage);
+            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage, identity);
         }
         else
         {
+            var author = BuildSignature(identity, DateTimeOffset.Now);
+            var committer = author;
             repo.Commit(releaseCommitMessage, author, committer);
         }
 
         // TODO: Make this message dynamic
         Step(InfoMessages.CommittedChanges(changelog?.FilePath ?? "CHANGELOG.md"));
     }
+
+    private static Signature BuildSignature(GitIdentity identity, DateTimeOffset now)
+    {
+        if (!identity.IsConfigured)
+        {
+            throw new VersionizeException(ErrorMessages.GitConfigMissing(), 1);
+        }
+
+        return new Signature(identity.UserName, identity.UserEmail, now);
+    }
+
 }
 
 public interface IReleaseCommitter
@@ -80,6 +94,8 @@ public interface IReleaseCommitter
         public bool Sign { get; init; }
         public string? CommitSuffix { get; init; }
         public required string WorkingDirectory { get; init; }
+        public string? GitUserName { get; init; }
+        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -90,7 +106,10 @@ public interface IReleaseCommitter
                 Sign = versionizeOptions.Sign,
                 SkipCommit = versionizeOptions.SkipCommit,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
+                GitUserName = versionizeOptions.GitUserName,
+                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }
+
 }
