@@ -163,6 +163,7 @@ public static class FileConfigLoader
         {
             HeaderPatterns = overrideOptions.HeaderPatterns ?? baseOptions.HeaderPatterns,
             IssuesPatterns = overrideOptions.IssuesPatterns ?? baseOptions.IssuesPatterns,
+            PrPatterns = overrideOptions.PrPatterns ?? baseOptions.PrPatterns,
         };
     }
 

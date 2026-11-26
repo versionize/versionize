@@ -123,6 +123,16 @@
           "examples": [
             ["#(\\d+)", "(?:fixes|closes)\\s+#(\\d+)"]
           ]
+        },
+        "prPatterns": {
+          "type": "array",
+          "description": "Custom regex patterns for extracting pull request references from commit messages. Use the named groups 'prToken' (the text that becomes the link) and 'prId' (the value for the {pr} placeholder). Pull request references are not treated as issue references.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            ["\\((?<prToken>#(?<prId>\\d+))\\)$"]
+          ]
         }
       }
     },
@@ -240,6 +250,14 @@
                 "https://github.com/owner/repo/issues/{issue}",
                 "https://gitlab.com/owner/repo/-/issues/{issue}",
                 "https://dev.azure.com/org/project/_workitems/edit/{issue}"
+              ]
+            },
+            "prLink": {
+              "type": "string",
+              "description": "Template for pull request links. Use {pr} as placeholder. Applies to references matched by commitParser.prPatterns.",
+              "examples": [
+                "https://github.com/owner/repo/pull/{pr}",
+                "https://gitlab.com/owner/repo/-/merge_requests/{pr}"
               ]
             },
             "commitLink": {

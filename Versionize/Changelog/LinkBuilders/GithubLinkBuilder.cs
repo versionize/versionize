@@ -61,6 +61,11 @@ public sealed partial class GithubLinkBuilder : IChangelogLinkBuilder, IUsername
         return $"https://www.github.com/{_organization}/{_repository}/issues/{issueId}";
     }
 
+    public string BuildPullRequestLink(string prId)
+    {
+        return $"https://www.github.com/{_organization}/{_repository}/pull/{prId}";
+    }
+
     public string BuildCommitLink(ConventionalCommit commit)
     {
         return $"https://www.github.com/{_organization}/{_repository}/commit/{commit.Sha}";

@@ -85,16 +85,44 @@ public static class ConventionalCommitParser
                 });
             }
 
+            var prTokenMatches = new List<Group>();
+            foreach (var prPattern in options?.PrPatterns ?? [])
+            {
+                var prMatches = Regex.Matches(conventionalCommit.Subject, prPattern, RegexOptions);
+                foreach (var prMatch in prMatches.Cast<Match>())
+                {
+                    var prToken = prMatch.Groups["prToken"];
+                    prTokenMatches.Add(prToken);
+                    conventionalCommit.PullRequests.Add(
+                        new ConventionalCommitPullRequest
+                        {
+                            Token = prToken.Value,
+                            Id = prMatch.Groups["prId"].Value,
+                            Index = prToken.Index,
+                            Length = prToken.Length,
+                        });
+                }
+            }
+
             foreach (var issuesPattern in issuesPatterns)
             {
                 var issuesMatch = Regex.Matches(conventionalCommit.Subject, issuesPattern, RegexOptions);
                 foreach (var issueMatch in issuesMatch.Cast<Match>())
                 {
+                    // Skip issue references that were already matched as pull request references
+                    var issueToken = issueMatch.Groups["issueToken"];
+                    if (prTokenMatches.Any(pr => issueToken.Index < pr.Index + pr.Length && pr.Index < issueToken.Index + issueToken.Length))
+                    {
+                        continue;
+                    }
+
                     conventionalCommit.Issues.Add(
                         new ConventionalCommitIssue
                         {
-                            Token = issueMatch.Groups["issueToken"].Value,
+                            Token = issueToken.Value,
                             Id = issueMatch.Groups["issueId"].Value,
+                            Index = issueToken.Index,
+                            Length = issueToken.Length,
                         });
                 }
             }

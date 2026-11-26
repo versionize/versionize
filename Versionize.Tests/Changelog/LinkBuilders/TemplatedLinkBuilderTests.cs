@@ -56,6 +56,36 @@ public class TemplatedLinkBuilderTests
     }
 
     [Fact]
+    public void ShouldBuildPullRequestLinkFromPrLinkTemplate()
+    {
+        var fallbackLinkBuilder = new GithubLinkBuilder("https://github.com/versionize/versionize.git");
+        var linkBuilder = new TemplatedLinkBuilder(
+            new ChangelogLinkTemplates
+            {
+                IssueLink = "https://myissuetracker.com/{issue}",
+                PrLink = "https://github.com/myorg/myrepo/pull/{pr}",
+            },
+            fallbackLinkBuilder);
+
+        linkBuilder.BuildIssueLink("MYISSUE-456").ShouldBe("https://myissuetracker.com/MYISSUE-456");
+        linkBuilder.BuildPullRequestLink("45").ShouldBe("https://github.com/myorg/myrepo/pull/45");
+    }
+
+    [Fact]
+    public void ShouldFallbackToProviderPullRequestLinkWhenPrLinkTemplateIsMissing()
+    {
+        var fallbackLinkBuilder = new GithubLinkBuilder("https://github.com/versionize/versionize.git");
+        var linkBuilder = new TemplatedLinkBuilder(
+            new ChangelogLinkTemplates
+            {
+                IssueLink = "https://myissuetracker.com/{issue}",
+            },
+            fallbackLinkBuilder);
+
+        linkBuilder.BuildPullRequestLink("45").ShouldBe("https://www.github.com/versionize/versionize/pull/45");
+    }
+
+    [Fact]
     public void ShouldBuildVersionTagLinkThatUsesPreviousTag()
     {
         var fallbackLinkBuilder = new NullLinkBuilder();

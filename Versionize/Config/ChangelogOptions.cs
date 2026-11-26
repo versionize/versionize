@@ -52,6 +52,8 @@ public record ChangelogLinkTemplates
 {
     public string? IssueLink { get; init; }
 
+    public string? PrLink { get; init; }
+
     public string? CommitLink { get; init; }
 
     public string? VersionTagLink { get; init; }

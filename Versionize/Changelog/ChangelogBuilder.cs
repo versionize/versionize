@@ -207,17 +207,29 @@ public sealed class ChangelogBuilder
         }
 
         var subject = commit.Subject;
+        if (string.IsNullOrEmpty(subject))
+        {
+            subject = string.Empty;
+        }
+
+        var references = new List<(int Index, int Length, string Link)>();
+        foreach (var pr in commit.PullRequests)
+        {
+            if (string.IsNullOrEmpty(pr.Id) || string.IsNullOrEmpty(pr.Token))
+            {
+                continue;
+            }
+
+            var prLink = linkBuilder.BuildPullRequestLink(pr.Id);
+            if (!string.IsNullOrEmpty(prLink))
+            {
+                references.Add((pr.Index, pr.Length, $"[{pr.Token}]({prLink})"));
+            }
+        }
+
         foreach (var issue in commit.Issues)
         {
-            if (string.IsNullOrEmpty(subject))
-            {
-                continue;
-            }
-            if (string.IsNullOrEmpty(issue.Id))
-            {
-                continue;
-            }
-            if (string.IsNullOrEmpty(issue.Token))
+            if (string.IsNullOrEmpty(issue.Id) || string.IsNullOrEmpty(issue.Token))
             {
                 continue;
             }
@@ -225,11 +237,31 @@ public sealed class ChangelogBuilder
             var issueLink = linkBuilder.BuildIssueLink(issue.Id);
             if (!string.IsNullOrEmpty(issueLink))
             {
-                subject = subject.Replace(issue.Token, $"[{issue.Token}]({issueLink})");
+                references.Add((issue.Index, issue.Length, $"[{issue.Token}]({issueLink})"));
             }
         }
 
-        sb.Append(subject);
+        var renderedSubject = new StringBuilder();
+        var position = 0;
+        foreach (var reference in references
+                     .OrderBy(reference => reference.Index)
+                     .ThenByDescending(reference => reference.Length))
+        {
+            if (reference.Index < position
+                || reference.Index < 0
+                || reference.Length <= 0
+                || reference.Index + reference.Length > subject.Length)
+            {
+                continue;
+            }
+
+            renderedSubject.Append(subject, position, reference.Index - position);
+            renderedSubject.Append(reference.Link);
+            position = reference.Index + reference.Length;
+        }
+
+        renderedSubject.Append(subject, position, subject.Length - position);
+        sb.Append(renderedSubject);
 
         var commitLink = linkBuilder.BuildCommitLink(commit);
 

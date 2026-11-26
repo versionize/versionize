@@ -20,6 +20,17 @@ public sealed class TemplatedLinkBuilder(ChangelogLinkTemplates templates, IChan
         return _fallbackBuilder.BuildIssueLink(issueId);
     }
 
+    public string BuildPullRequestLink(string prId)
+    {
+        if (_templates.PrLink is { } template)
+        {
+            return template.Replace(
+                "{pr}", prId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return _fallbackBuilder.BuildPullRequestLink(prId);
+    }
+
     public string BuildCommitLink(ConventionalCommit commit)
     {
         if (_templates.CommitLink is { } template)
