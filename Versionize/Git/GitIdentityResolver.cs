@@ -1,5 +1,4 @@
 ﻿using LibGit2Sharp;
-using Versionize.Config;
 
 namespace Versionize.Git;
 
@@ -10,23 +9,20 @@ public readonly record struct GitIdentity(string? UserName, string? UserEmail)
 
 public interface IGitIdentityResolver
 {
-    GitIdentity Resolve(IRepository repository);
+    GitIdentity Resolve(IRepository repository, string? gitUserName, string? gitUserEmail);
 }
 
-public sealed class GitIdentityResolver(IVersionizeOptionsProvider configProvider) : IGitIdentityResolver
+public sealed class GitIdentityResolver : IGitIdentityResolver
 {
-    private readonly IVersionizeOptionsProvider _configProvider = configProvider;
-
-    public GitIdentity Resolve(IRepository repository)
+    public GitIdentity Resolve(IRepository repository, string? gitUserName, string? gitUserEmail)
     {
-        var options = _configProvider.GetOptions();
-        var resolvedUserName = string.IsNullOrWhiteSpace(options.GitUserName)
+        var resolvedUserName = string.IsNullOrWhiteSpace(gitUserName)
             ? repository.Config.Get<string>("user.name")?.Value
-            : options.GitUserName;
+            : gitUserName;
 
-        var resolvedUserEmail = string.IsNullOrWhiteSpace(options.GitUserEmail)
+        var resolvedUserEmail = string.IsNullOrWhiteSpace(gitUserEmail)
             ? repository.Config.Get<string>("user.email")?.Value
-            : options.GitUserEmail;
+            : gitUserEmail;
 
         return new GitIdentity(resolvedUserName, resolvedUserEmail);
     }

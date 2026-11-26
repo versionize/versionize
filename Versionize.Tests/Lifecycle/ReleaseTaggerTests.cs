@@ -127,6 +127,8 @@ public class ReleaseTaggerTests : IDisposable
             Sign = true,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI\\",
+            GitUserEmail = "cli@versionize.test",
         };
 
         var input = new IReleaseTagger.Input
@@ -148,6 +150,9 @@ public class ReleaseTaggerTests : IDisposable
         _testSetup.Repository.Tags.Count().ShouldBe(1);
         var tag = _testSetup.Repository.Tags.Single();
         tag.FriendlyName.ShouldBe("v1.2.3");
+        tag.Annotation.ShouldNotBeNull();
+        tag.Annotation.Tagger.Name.ShouldBe("Versionize CLI");
+        tag.Annotation.Tagger.Email.ShouldBe("cli@versionize.test");
         GitProcessUtil.IsTagSigned(_testSetup.WorkingDirectory, tag).ShouldBeTrue();
     }
 
@@ -161,6 +166,8 @@ public class ReleaseTaggerTests : IDisposable
             Sign = false,
             Project = ProjectOptions.DefaultOneProjectPerRepo,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI",
+            GitUserEmail = "cli@versionize.test",
         };
 
         var input = new IReleaseTagger.Input
@@ -169,7 +176,7 @@ public class ReleaseTaggerTests : IDisposable
             NewVersion = new Version(1, 2, 3),
         };
 
-        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create("Versionize CLI", "cli@versionize.test"));
+        var sut = new ReleaseTagger(GitIdentityResolverTestHelper.Create());
 
         var fileCommitter = new FileCommitter(_testSetup);
         fileCommitter.CommitChange("feat: initial commit");

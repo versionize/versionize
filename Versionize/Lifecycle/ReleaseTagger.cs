@@ -29,12 +29,11 @@ public sealed class ReleaseTagger(IGitIdentityResolver gitIdentityResolver) : IR
             throw new VersionizeException(ErrorMessages.VersionAlreadyExists(nextVersion.ToNormalizedString()), 1);
         }
 
-        var identity = _gitIdentityResolver.Resolve(repo);
+        var identity = _gitIdentityResolver.Resolve(repo, options.GitUserName, options.GitUserEmail);
         var tagName = options.Project.GetTagName(nextVersion);
         if (options.Sign)
         {
-            var gitConfigArguments = BuildGitConfigArguments(identity);
-            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}", gitConfigArguments);
+            GitProcessUtil.CreateSignedTag(options.WorkingDirectory, tagName, $"{nextVersion}", identity);
         }
         else
         {
@@ -55,20 +54,6 @@ public sealed class ReleaseTagger(IGitIdentityResolver gitIdentityResolver) : IR
         return new Signature(identity.UserName!, identity.UserEmail!, now);
     }
 
-    private static string BuildGitConfigArguments(GitIdentity identity)
-    {
-        if (!identity.IsConfigured)
-        {
-            return string.Empty;
-        }
-
-        return $"-c user.name=\"{EscapeGitConfigValue(identity.UserName!)}\" -c user.email=\"{EscapeGitConfigValue(identity.UserEmail!)}\"";
-    }
-
-    private static string EscapeGitConfigValue(string value)
-    {
-        return value.Replace("\"", "\\\"");
-    }
 }
 
 public interface IReleaseTagger
@@ -88,6 +73,8 @@ public interface IReleaseTagger
         public bool Sign { get; init; }
         public required ProjectOptions Project { get; init; }
         public required string WorkingDirectory { get; init; }
+        public string? GitUserName { get; init; }
+        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -98,6 +85,8 @@ public interface IReleaseTagger
                 SkipTag = versionizeOptions.SkipTag,
                 Project = versionizeOptions.Project,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
+                GitUserName = versionizeOptions.GitUserName,
+                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }

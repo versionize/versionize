@@ -45,18 +45,17 @@ public sealed class ReleaseCommitter(IGitIdentityResolver gitIdentityResolver) :
             return;
         }
 
-        var identity = _gitIdentityResolver.Resolve(repo);
-        var author = BuildSignature(identity, DateTimeOffset.Now);
-        var committer = author;
+        var identity = _gitIdentityResolver.Resolve(repo, options.GitUserName, options.GitUserEmail);
         var releaseCommitMessage = $"chore(release): {nextVersion} {options.CommitSuffix}".TrimEnd();
 
         if (options.Sign)
         {
-            var gitConfigArguments = BuildGitConfigArguments(identity);
-            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage, gitConfigArguments);
+            GitProcessUtil.CreateSignedCommit(options.WorkingDirectory, releaseCommitMessage, identity);
         }
         else
         {
+            var author = BuildSignature(identity, DateTimeOffset.Now);
+            var committer = author;
             repo.Commit(releaseCommitMessage, author, committer);
         }
 
@@ -74,20 +73,6 @@ public sealed class ReleaseCommitter(IGitIdentityResolver gitIdentityResolver) :
         return new Signature(identity.UserName, identity.UserEmail, now);
     }
 
-    private static string BuildGitConfigArguments(GitIdentity identity)
-    {
-        if (!identity.IsConfigured)
-        {
-            return string.Empty;
-        }
-
-        return $"-c user.name=\"{EscapeGitConfigValue(identity.UserName!)}\" -c user.email=\"{EscapeGitConfigValue(identity.UserEmail!)}\"";
-    }
-
-    private static string EscapeGitConfigValue(string value)
-    {
-        return value.Replace("\"", "\\\"");
-    }
 }
 
 public interface IReleaseCommitter
@@ -109,6 +94,8 @@ public interface IReleaseCommitter
         public bool Sign { get; init; }
         public string? CommitSuffix { get; init; }
         public required string WorkingDirectory { get; init; }
+        public string? GitUserName { get; init; }
+        public string? GitUserEmail { get; init; }
 
         public static implicit operator Options(VersionizeOptions versionizeOptions)
         {
@@ -119,6 +106,8 @@ public interface IReleaseCommitter
                 Sign = versionizeOptions.Sign,
                 SkipCommit = versionizeOptions.SkipCommit,
                 WorkingDirectory = versionizeOptions.WorkingDirectory,
+                GitUserName = versionizeOptions.GitUserName,
+                GitUserEmail = versionizeOptions.GitUserEmail,
             };
         }
     }

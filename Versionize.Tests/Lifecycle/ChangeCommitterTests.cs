@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using LibGit2Sharp;
+using System.Diagnostics;
 using Versionize.Tests.TestSupport;
 using Versionize.CommandLine;
 using Shouldly;
@@ -147,6 +148,8 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = commitSuffix,
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI\\",
+            GitUserEmail = "cli@versionize.test",
         };
 
         ChangelogBuilder changelog = ChangelogBuilder.CreateForPath(_testSetup.WorkingDirectory);
@@ -176,6 +179,10 @@ public class ChangeCommitterTests : IDisposable
         var commit = _testSetup.Repository.Commits.First();
         var actualMessage = commit.Message.TrimEnd();
         actualMessage.ShouldBe(expectedMessage);
+        commit.Author.Name.ShouldBe("Versionize CLI");
+        commit.Author.Email.ShouldBe("cli@versionize.test");
+        commit.Committer.Name.ShouldBe("Versionize CLI");
+        commit.Committer.Email.ShouldBe("cli@versionize.test");
         GitProcessUtil.IsCommitSigned(_testSetup.WorkingDirectory, commit).ShouldBeTrue();
     }
 
@@ -189,6 +196,8 @@ public class ChangeCommitterTests : IDisposable
             CommitSuffix = "",
             SkipCommit = false,
             WorkingDirectory = _testSetup.WorkingDirectory,
+            GitUserName = "Versionize CLI",
+            GitUserEmail = "cli@versionize.test",
         };
 
         _testSetup.Repository.Config.Unset("user.name", ConfigurationLevel.Local);
@@ -211,7 +220,7 @@ public class ChangeCommitterTests : IDisposable
             Changelog = changelog,
         };
 
-        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create("Versionize CLI", "cli@versionize.test"));
+        var sut = new ReleaseCommitter(GitIdentityResolverTestHelper.Create());
 
         sut.CreateCommit(input, options);
 
@@ -219,6 +228,25 @@ public class ChangeCommitterTests : IDisposable
         var commit = _testSetup.Repository.Commits.First();
         commit.Author.Name.ShouldBe("Versionize CLI");
         commit.Author.Email.ShouldBe("cli@versionize.test");
+    }
+
+    [Fact]
+    public void OverridesInheritedGitIdentityEnvironmentForSignedGitOperations()
+    {
+        var processInfo = new ProcessStartInfo();
+        processInfo.Environment["GIT_AUTHOR_NAME"] = "Inherited Author";
+        processInfo.Environment["GIT_AUTHOR_EMAIL"] = "inherited-author@example.test";
+        processInfo.Environment["GIT_COMMITTER_NAME"] = "Inherited Committer";
+        processInfo.Environment["GIT_COMMITTER_EMAIL"] = "inherited-committer@example.test";
+
+        GitProcessUtil.SetGitIdentityEnvironment(
+            processInfo,
+            new GitIdentity("Versionize CLI", "cli@versionize.test"));
+
+        processInfo.Environment["GIT_AUTHOR_NAME"].ShouldBe("Versionize CLI");
+        processInfo.Environment["GIT_AUTHOR_EMAIL"].ShouldBe("cli@versionize.test");
+        processInfo.Environment["GIT_COMMITTER_NAME"].ShouldBe("Versionize CLI");
+        processInfo.Environment["GIT_COMMITTER_EMAIL"].ShouldBe("cli@versionize.test");
     }
 
     public void Dispose()

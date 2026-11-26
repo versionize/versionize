@@ -390,7 +390,7 @@ public partial class RepoStateValidatorTests : IDisposable
         _testSetup.Repository.Config.Get<string>("user.name").ShouldBeNull();
         _testSetup.Repository.Config.Get<string>("user.email").ShouldBeNull();
 
-        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create("Versionize CLI", "cli@versionize.test"));
+        var sut = new RepoStateValidator(GitIdentityResolverTestHelper.Create());
         var options = new IRepoStateValidator.Options
         {
             WorkingDirectory = _testSetup.WorkingDirectory,
@@ -398,6 +398,8 @@ public partial class RepoStateValidatorTests : IDisposable
             SkipTag = false,
             SkipDirty = false,
             DryRun = false,
+            GitUserName = "Versionize CLI",
+            GitUserEmail = "cli@versionize.test",
         };
 
         Should.NotThrow(() => sut.Validate(_testSetup.Repository, options));
