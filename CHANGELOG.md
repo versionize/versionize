@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="2.8.0"></a>
+## [2.8.0](https://github.com/versionize/versionize/compare/v2.7.0...v2.8.0) (2026-11-26)
+
+### ✨ Features
+
+* add prPatterns and prLink to link pull requests separately from issues ([#210](https://github.com/versionize/versionize/issues/210)) ([b95e7b8](https://github.com/versionize/versionize/commit/b95e7b8dda27b3456a60f9b0ceaf367a23c6f881))
+* resolve git identities from command line if supplied ([#199](https://github.com/versionize/versionize/issues/199)) ([3010194](https://github.com/versionize/versionize/commit/3010194db04447f3e20e02f7e71f7d4a5c17cc50))
+
+### Thank You
+
+* Christoph Walcher
+* Gaurav Ashish
+
 <a name="2.7.0"></a>
 ## [2.7.0](https://github.com/versionize/versionize/compare/v2.6.0...v2.7.0) (2026-09-03)
 
