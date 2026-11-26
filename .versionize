@@ -6,6 +6,7 @@
     "header": "Versionize Changelog",
     "includeAllCommits": true,
     "otherSection": "🧩 Other",
+    "includeAuthors": true,
     "linkTemplates": {
       "issueLink": "https://github.com/versionize/versionize/issues/{issue}",
       "commitLink": "https://github.com/versionize/versionize/commit/{commitSha}",

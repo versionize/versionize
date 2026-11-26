@@ -185,10 +185,20 @@
           "description": "Include all commits in the changelog, not just those matching configured sections.",
           "default": false
         },
+        "includeAuthors": {
+          "type": "boolean",
+          "description": "Include a section listing contribution authors at the bottom of each changelog entry.",
+          "default": false
+        },
         "otherSection": {
           "type": "string",
           "description": "The section name for commits that don't match any configured section type.",
           "default": "Other"
+        },
+        "authorsSection": {
+          "type": "string",
+          "description": "The section title used for the authors/contributors list.",
+          "default": "Thank You"
         },
         "sections": {
           "type": "array",

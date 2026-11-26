@@ -125,6 +125,13 @@ public class GitlabLinkBuilderTests : IDisposable
     }
 
     [Fact]
+    public void ShouldImplementIUsernameResolver()
+    {
+        var linkBuilder = new GitlabLinkBuilder(inkscapeHTTPS);
+        linkBuilder.ShouldBeAssignableTo<IUsernameResolver>();
+    }
+
+    [Fact]
     public void ShouldBuildAnHTTPSTagLink()
     {
         var linkBuilder = new GitlabLinkBuilder(inkscapeHTTPS);

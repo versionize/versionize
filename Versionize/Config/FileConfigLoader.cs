@@ -111,6 +111,17 @@ public static class FileConfigLoader
 
     private static FileConfig Merge(FileConfig baseConfig, FileConfig overrideConfig)
     {
+        // Merge top-level fields first
+        var mergedChangelog = MergeChangelog(baseConfig.Changelog, overrideConfig.Changelog);
+
+        // Apply the merged top-level changelog into each project so projects inherit shared changelog settings
+        var mergedProjects = MergeProjects(baseConfig.Projects, overrideConfig.Projects)
+            .Select(p => p with
+            {
+                Changelog = ChangelogOptions.Merge(p.Changelog, mergedChangelog ?? ChangelogOptions.Default)
+            })
+            .ToArray();
+
         return new FileConfig
         {
             Extends = overrideConfig.Extends,
@@ -131,8 +142,8 @@ public static class FileConfigLoader
             Sign = overrideConfig.Sign ?? baseConfig.Sign,
             TagTemplate = overrideConfig.TagTemplate ?? baseConfig.TagTemplate,
             CommitParser = MergeCommitParser(baseConfig.CommitParser, overrideConfig.CommitParser),
-            Projects = MergeProjects(baseConfig.Projects, overrideConfig.Projects),
-            Changelog = MergeChangelog(baseConfig.Changelog, overrideConfig.Changelog),
+            Projects = mergedProjects,
+            Changelog = mergedChangelog,
         };
     }
 

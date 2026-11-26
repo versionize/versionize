@@ -12,7 +12,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: '0'
 
@@ -43,7 +43,7 @@ jobs:
         run: echo "VERSION_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
       - name: Create a Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: ${{ contains(env.VERSION_TAG, '-') }}

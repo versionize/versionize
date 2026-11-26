@@ -76,6 +76,13 @@ public sealed class CliConfig
     public required CommandOption ConfigurationDirectory { get; init; }
 
     /// <summary>
+    /// The name or path of the versionize configuration file.
+    /// Use this to specify a custom config filename (e.g. versionize.json) instead of the default .versionize.
+    /// Can be a filename (combined with --configDir or working directory) or an absolute path.
+    /// </summary>
+    public required CommandOption ConfigurationFile { get; init; }
+
+    /// <summary>
     /// The name of the project to version, as defined in your configuration file.
     /// Useful for monorepos with multiple projects defined in <see cref="FileConfig.Projects"/>.
     /// </summary>
@@ -107,6 +114,11 @@ public sealed class CliConfig
                 CommandOptionType.SingleValue)
                 .Accepts(v => v.ExistingDirectory()),
 
+            ConfigurationFile = app.Option(
+                "--configFile <CONFIG_FILE>",
+                "Name or path of the versionize configuration file (default: .versionize)",
+                CommandOptionType.SingleValue),
+
             Silent = app.Option<bool>(
                 "--silent",
                 "Suppress output to console",
@@ -114,7 +126,7 @@ public sealed class CliConfig
 
             DryRun = app.Option<bool>(
                 "-d|--dry-run",
-                "Skip changing versions in projects, changelog generation and git commit",
+                "Performs a trial run without making any actual changes to files, commits, or tags.",
                 CommandOptionType.SingleOrNoValue),
 
             ReleaseAs = app.Option(
@@ -125,27 +137,27 @@ public sealed class CliConfig
 
             SkipDirty = app.Option<bool>(
                 "--skip-dirty",
-                "Skip git dirty check",
+                "Allow versionize to run even when there are uncommitted changes in the working directory",
                 CommandOptionType.SingleOrNoValue),
 
             SkipCommit = app.Option<bool>(
                 "--skip-commit",
-                "Skip commit and git tag after updating changelog and incrementing the version",
+                "Don't commit changes to the git repository",
                 CommandOptionType.SingleOrNoValue),
 
             SkipTag = app.Option<bool>(
                 "--skip-tag",
-                "Skip git tag after making release commit",
+                "Don't create a git tag",
                 CommandOptionType.SingleOrNoValue),
 
             SkipChangelog = app.Option<bool>(
                 "--skip-changelog",
-                "Skip changelog generation",
+                "Don't update the changelog file",
                 CommandOptionType.SingleOrNoValue),
 
             TagOnly = app.Option<bool>(
                 "--tag-only",
-                "Only works with git tags, does not commit or modify the csproj file.",
+                "Don't read/write the version from/to project files. Depend on version tags only.",
                 CommandOptionType.SingleOrNoValue),
 
             IgnoreInsignificant = app.Option<bool>(

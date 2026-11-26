@@ -41,13 +41,13 @@ Options:
   -v|--version                         Show version information.
   -w|--workingDir <WORKING_DIRECTORY>  Directory containing projects to version
   --configDir <CONFIG_DIRECTORY>       Directory containing the .versionize configuration file
-  -d|--dry-run                         Skip changing versions in projects, changelog generation and git commit
-  --skip-dirty                         Skip git dirty check
+  -d|--dry-run                         Performs a trial run without making any actual changes to files, commits, or tags
+  --skip-dirty                         Allow versionize to run even when there are uncommitted changes in the working directory
   -r|--release-as <VERSION>            Specify the release version manually
   --silent                             Suppress output to console
   --skip-commit                        Don't commit changes to the git repository
-  --skip-tag                           Don't tag the release commit
-  --skip-changelog                     Don't update the changelog
+  --skip-tag                           Don't create a git tag
+  --skip-changelog                     Don't update the changelog file
   -i|--ignore-insignificant-commits    Don't bump the version if no significant commits (fix, feat or BREAKING)
                                        are found
   --exit-insignificant-commits         Exits with a non zero exit code if no significant commits (fix, feat or
@@ -114,8 +114,8 @@ To configure custom header patterns, create a `.versionize` file in your working
 {
   "CommitParser": {
     "HeaderPatterns": [
-      "^Merged PR \\\\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
-      "^Pull Request \\\\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
+      "^Merged PR \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$",
+      "^Pull Request \\d+: (?<type>\\w*)(?:\\((?<scope>.*)\\))?(?<breakingChangeMarker>!)?: (?<subject>.*)$"
     ]
   }
 }
@@ -394,6 +394,43 @@ The `{currentTag}` and `{previousTag}` placeholders are particularly useful for 
 ```
 
 This will generate links like: https://github.com/versionize/versionize/compare/v1.9.0...v1.10.0
+
+### Credits / Authors Section
+
+You can add an opt-in **Thank You** section at the bottom of each changelog entry that lists the authors who contributed commits in that release. For public GitHub and GitLab repositories the author's username is resolved automatically; for other hosts, or private repositories, only the author name is shown.
+
+Enable it in your `.versionize` file:
+
+```json
+{
+  "changelog": {
+    "includeAuthors": true
+  }
+}
+```
+
+You can also customise the section heading:
+
+```json
+{
+  "changelog": {
+    "includeAuthors": true,
+    "authorsSection": "Contributors"
+  }
+}
+```
+
+This produces a section like:
+
+```markdown
+### Thank You
+
+* Alice Smith @alicesmith
+* Bob Jones @bobjones
+* Steven Nance
+```
+
+Authors are deduplicated by email and listed alphabetically. GitHub usernames are resolved via the [GitHub commit API](https://docs.github.com/en/rest/commits/commits#get-a-commit); GitLab usernames are resolved via the [GitLab GraphQL API](https://docs.gitlab.com/ee/api/graphql/). Username resolution is only supported for **public repositories** — if username resolution fails or the repository is private or hosted elsewhere, only the author name is displayed.
 
 ## Developing
 
