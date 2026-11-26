@@ -8,7 +8,7 @@ public sealed class CommitParserOptions
 
     public string[] IssuesPatterns { get; init; } = [];
 
-    public string[] PrPatterns { get; init; } = [];
+    public string[]? PrPatterns { get; init; }
 
     public static CommitParserOptions MergeWithDefault(CommitParserOptions? customOptions)
     {
