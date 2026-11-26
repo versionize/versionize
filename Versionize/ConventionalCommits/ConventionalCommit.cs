@@ -37,6 +37,10 @@ public sealed class ConventionalCommitIssue
     public string? Token { get; init; }
 
     public string? Id { get; init; }
+
+    public int Index { get; init; }
+
+    public int Length { get; init; }
 }
 
 public sealed class ConventionalCommitPullRequest
@@ -44,4 +48,8 @@ public sealed class ConventionalCommitPullRequest
     public string? Token { get; init; }
 
     public string? Id { get; init; }
+
+    public int Index { get; init; }
+
+    public int Length { get; init; }
 }

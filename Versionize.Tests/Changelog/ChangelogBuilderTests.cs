@@ -202,6 +202,44 @@ public class ChangelogBuilderTests : IDisposable
             "* **my-scope:** my pr title [MYISSUE-456](https://myissuetracker.com/MYISSUE-456) ([#45](https://github.com/myorg/myrepo/pull/45)) ([a360d6a](https://github.com/myorg/myrepo/commit/a360d6a307909c6e571b29d4a329fd786c5d4543))");
     }
 
+    [Theory]
+    [InlineData(
+        "fix: fix #4 (#45)",
+        "* fix [#4](https://myissuetracker.com/4) ([#45](https://github.com/myorg/myrepo/pull/45))")]
+    [InlineData(
+        "fix: #45 was backported in (#45)",
+        "* [#45](https://myissuetracker.com/45) was backported in ([#45](https://github.com/myorg/myrepo/pull/45))")]
+    public void ShouldLinkOnlyMatchedIssueAndPullRequestOccurrences(string message, string expected)
+    {
+        var linkBuilder = new TemplatedLinkBuilder(
+            new ChangelogLinkTemplates
+            {
+                IssueLink = "https://myissuetracker.com/{issue}",
+                PrLink = "https://github.com/myorg/myrepo/pull/{pr}",
+            },
+            new NullLinkBuilder());
+        var parserOptions = new CommitParserOptions
+        {
+            PrPatterns = ["\\((?<prToken>#(?<prId>\\d+))\\)$"],
+        };
+        var changelog = ChangelogBuilder.CreateForPath(_testDirectory);
+
+        changelog.Write(
+            new Version(1, 1, 0),
+            new Version(1, 1, 0),
+            DateTimeOffset.Parse("2023-10-31"),
+            linkBuilder,
+            [
+                ConventionalCommitParser.Parse(
+                    new TestCommit("a360d6a307909c6e571b29d4a329fd786c5d4543", message),
+                    parserOptions),
+            ],
+            ProjectOptions.DefaultOneProjectPerRepo);
+
+        var changelogContents = File.ReadAllText(changelog.FilePath);
+        changelogContents.ShouldContain(expected);
+    }
+
     [Fact]
     public void ShouldHideFixSectionWhenHideIsTrue()
     {

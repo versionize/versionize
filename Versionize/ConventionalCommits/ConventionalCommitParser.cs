@@ -98,6 +98,8 @@ public static class ConventionalCommitParser
                         {
                             Token = prToken.Value,
                             Id = prMatch.Groups["prId"].Value,
+                            Index = prToken.Index,
+                            Length = prToken.Length,
                         });
                 }
             }
@@ -119,6 +121,8 @@ public static class ConventionalCommitParser
                         {
                             Token = issueToken.Value,
                             Id = issueMatch.Groups["issueId"].Value,
+                            Index = issueToken.Index,
+                            Length = issueToken.Length,
                         });
                 }
             }
